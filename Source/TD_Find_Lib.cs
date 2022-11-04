@@ -12,7 +12,7 @@ namespace TD_Find_Lib
 		public Mod(ModContentPack content) : base(content)
 		{
 			// initialize settings
-			settings = GetSettings<Settings>();
+			LongEventHandler.ExecuteWhenFinished(() => { settings = GetSettings<Settings>(); });
 		}
 
 		public override void DoSettingsWindowContents(Rect inRect)

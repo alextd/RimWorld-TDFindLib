@@ -1,0 +1,450 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+	<!-- filters in order -->
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Name</defName>
+		<label>search by name</label>
+		<filterClass>TD_Find_Lib.ListFilterName</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Def</defName>
+		<label>specific thing</label>
+		<filterClass>TD_Find_Lib.ListFilterThingDef</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+	
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Category</defName>
+		<label>category</label>
+		<filterClass>TD_Find_Lib.ListFilterCategory</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Stat</defName>
+		<label>stat</label>
+		<filterClass>TD_Find_Lib.ListFilterStat</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	
+	<!-- pawn properties -->
+	<TD_Find_Lib.ListFilterCategoryDef>
+		<defName>Category_PawnProp</defName>
+		<label>personal details</label>
+		<subFilters>
+			<li>Filter_Skill</li>
+			<li>Filter_Trait</li>
+			<li>Filter_Thought</li>
+			<li>Filter_Need</li>
+			<li>Filter_Health</li>
+			<li>Filter_Capacity</li>
+			<li>Filter_Job</li>
+			<li>Filter_Inspiration</li>
+			<li>Filter_Guest</li>
+			<li>Filter_MentalState</li>
+			<li>Filter_Temp</li>
+			<li>Filter_Incapable</li>
+			<li>Filter_AreaRestriction</li>
+			<li>Filter_Drafted</li>
+			<li>Filter_Prisoner</li>
+			<li>Filter_Gender</li>
+			<li>Filter_ListFilterDevelopmentalStage</li>
+			<li>Filter_MissingBodyPart</li>
+			<!-- Seems like it should be here but it also includes "holder has" which is an item detail - shrug. <li>Filter_Inventory</li>-->
+		</subFilters>
+	</TD_Find_Lib.ListFilterCategoryDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Skill</defName>
+		<label>skill</label>
+		<filterClass>TD_Find_Lib.ListFilterSkill</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Trait</defName>
+		<label>trait</label>
+		<filterClass>TD_Find_Lib.ListFilterTrait</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Thought</defName>
+		<label>thought</label>
+		<filterClass>TD_Find_Lib.ListFilterThought</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Need</defName>
+		<label>need</label>
+		<filterClass>TD_Find_Lib.ListFilterNeed</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Health</defName>
+		<label>health</label>
+		<filterClass>TD_Find_Lib.ListFilterHealth</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Capacity</defName>
+		<label>capacity</label>
+		<filterClass>TD_Find_Lib.ListFilterCapacity</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_MentalState</defName>
+		<label>mental state</label>
+		<filterClass>TD_Find_Lib.ListFilterMentalState</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Temp</defName>
+		<label>temperature</label>
+		<filterClass>TD_Find_Lib.ListFilterTemp</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Incapable</defName>
+		<label>incapable</label>
+		<filterClass>TD_Find_Lib.ListFilterIncapable</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_AreaRestriction</defName>
+		<label>area restriction</label>
+		<filterClass>TD_Find_Lib.ListFilterRestricted</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Drafted</defName>
+		<label>drafted</label>
+		<filterClass>TD_Find_Lib.ListFilterDrafted</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Job</defName>
+		<label>current action</label>
+		<filterClass>TD_Find_Lib.ListFilterJob</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Inspiration</defName>
+		<label>inspiration</label>
+		<filterClass>TD_Find_Lib.ListFilterInspiration</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Guest</defName>
+		<label>guest status</label>
+		<filterClass>TD_Find_Lib.ListFilterGuestStatus</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Prisoner</defName>
+		<label>prisoner</label>
+		<filterClass>TD_Find_Lib.ListFilterPrisoner</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_ListFilterDevelopmentalStage</defName>
+		<label>age</label>
+		<filterClass>TD_Find_Lib.ListFilterDevelopmentalStage</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Gender</defName>
+		<label>gender</label>
+		<filterClass>TD_Find_Lib.ListFilterGender</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_MissingBodyPart</defName>
+		<label>missing Body Part</label>
+		<filterClass>TD_Find_Lib.ListFilterMissingBodyPart</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+
+	<!-- animal properties -->
+	<TD_Find_Lib.ListFilterCategoryDef>
+		<defName>Category_AnimalProp</defName>
+		<label>animal details</label>
+		<subFilters>
+			<li>Filter_RaceProps</li>
+			<li>Filter_Meat</li>
+			<li>Filter_Leather</li>
+			<li>Filter_Egg</li>
+			<li>Filter_Milk</li>
+			<li>Filter_Wool</li>
+			<li>Filter_ProductProgress</li>
+		</subFilters>
+	</TD_Find_Lib.ListFilterCategoryDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_RaceProps</defName>
+		<label>race</label>
+		<filterClass>TD_Find_Lib.ListFilterRaceProps</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Meat</defName>
+		<label>meat</label>
+		<filterClass>TD_Find_Lib.ListFilterMeat</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Leather</defName>
+		<label>leather</label>
+		<filterClass>TD_Find_Lib.ListFilterLeather</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Egg</defName>
+		<label>eggs per year</label>
+		<filterClass>TD_Find_Lib.ListFilterEgg</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Milk</defName>
+		<label>milk per year</label>
+		<filterClass>TD_Find_Lib.ListFilterMilk</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Wool</defName>
+		<label>wool per year</label>
+		<filterClass>TD_Find_Lib.ListFilterWool</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_ProductProgress</defName>
+		<label>progress</label>
+		<filterClass>TD_Find_Lib.ListFilterProductProgress</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	
+	<!--Item filters-->
+	<TD_Find_Lib.ListFilterCategoryDef>
+		<defName>Category_ItemInfo</defName>
+		<label>item info</label>
+		<subFilters>
+			<li>Filter_Quality</li>
+			<!-- though anything could be CompQuality, only items seem to have it -->
+			<li>Filter_Stuff</li>
+			<li>Filter_SpecialFilter</li>
+			<li>Filter_Forbidden</li>
+		</subFilters>
+	</TD_Find_Lib.ListFilterCategoryDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Quality</defName>
+		<label>quality</label>
+		<filterClass>TD_Find_Lib.ListFilterQuality</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Stuff</defName>
+		<label>made From</label>
+		<filterClass>TD_Find_Lib.ListFilterStuff</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_SpecialFilter</defName>
+		<label>special filter</label>
+		<filterClass>TD_Find_Lib.ListFilterSpecialFilter</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Forbidden</defName>
+		<label>forbidden</label>
+		<filterClass>TD_Find_Lib.ListFilterForbidden</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+
+	<!--Building filters-->
+	<TD_Find_Lib.ListFilterCategoryDef>
+		<defName>Category_BuildingInfo</defName>
+		<label>building info</label>
+		<subFilters>
+			<li>Filter_Mineable</li>
+			<li>Filter_Door</li>
+		</subFilters>
+	</TD_Find_Lib.ListFilterCategoryDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Mineable</defName>
+		<label>mineable</label>
+		<filterClass>TD_Find_Lib.ListFilterMineable</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Door</defName>
+		<label>Door Status</label>
+		<filterClass>TD_Find_Lib.ListFilterDoorOpen</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+	
+	
+	<!-- Plant stuff-->
+	<TD_Find_Lib.ListFilterCategoryDef>
+		<defName>Category_Plants</defName>
+		<label>plants and food</label>
+		<subFilters>
+			<li>Filter_Crop</li>
+			<li>Filter_Harvestable</li>
+			<li>Filter_Growth</li>
+			<li>Filter_Freshness</li>
+			<li>Filter_TimeToRot</li>
+			<li>Filter_DiesLeafless</li>
+		</subFilters>
+	</TD_Find_Lib.ListFilterCategoryDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Crop</defName>
+		<label>crop</label>
+		<filterClass>TD_Find_Lib.ListFilterPlantCrop</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Harvestable</defName>
+		<label>plant harvestable</label>
+		<filterClass>TD_Find_Lib.ListFilterPlantHarvest</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Growth</defName>
+		<label>plant growth</label>
+		<filterClass>TD_Find_Lib.ListFilterGrowth</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Freshness</defName>
+		<label>freshness</label>
+		<filterClass>TD_Find_Lib.ListFilterFreshness</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_TimeToRot</defName>
+		<label>rots within days</label>
+		<filterClass>TD_Find_Lib.ListFilterTimeToRot</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_DiesLeafless</defName>
+		<label>dies to cold</label>
+		<filterClass>TD_Find_Lib.ListFilterPlantDies</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+
+	<!-- location based filters -->
+	<TD_Find_Lib.ListFilterCategoryDef>
+		<defName>Category_Location</defName>
+		<label>location</label>
+		<subFilters>
+			<li>Filter_Area</li>
+			<li>Filter_Zone</li>
+			<li>Filter_Nearby</li>
+			<li>Filter_Deterioration</li>
+		</subFilters>
+	</TD_Find_Lib.ListFilterCategoryDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Area</defName>
+		<label>area</label>
+		<filterClass>TD_Find_Lib.ListFilterArea</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Zone</defName>
+		<label>zone</label>
+		<filterClass>TD_Find_Lib.ListFilterZone</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Nearby</defName>
+		<label>nearby</label>
+		<filterClass>TD_Find_Lib.ListFilterNearby</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Deterioration</defName>
+		<label>deteriorating</label>
+		<filterClass>TD_Find_Lib.ListFilterDeterioration</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+
+	<!-- other filters-->
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_HP</defName>
+		<label>health %</label>
+		<filterClass>TD_Find_Lib.ListFilterHP</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+	
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Inventory</defName>
+		<label>inventory</label>
+		<filterClass>TD_Find_Lib.ListFilterInventory</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Designation</defName>
+		<label>designated</label>
+		<filterClass>TD_Find_Lib.ListFilterDesignation</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+	
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Faction</defName>
+		<label>faction</label>
+		<filterClass>TD_Find_Lib.ListFilterFaction</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Mod</defName>
+		<label>From a mod</label>
+		<filterClass>TD_Find_Lib.ListFilterModded</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Onscreen</defName>
+		<label>currently on screen</label>
+		<filterClass>TD_Find_Lib.ListFilterOnscreen</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Group</defName>
+		<label>filter group</label>
+		<filterClass>TD_Find_Lib.ListFilterGroup</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+
+	<!-- debug types -->
+	<TD_Find_Lib.ListFilterCategoryDef>
+		<defName>Category_devmode</defName>
+		<label>Dev/Cheat options</label>
+		<subFilters>
+			<li>Filter_ClassType</li>
+			<li>Filter_DrawerType</li>
+			<li>Filter_Fogged</li>
+		</subFilters>
+	</TD_Find_Lib.ListFilterCategoryDef>
+
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_ClassType</defName>
+		<label>C# Class Type</label>
+		<filterClass>TD_Find_Lib.ListFilterClassType</filterClass>
+		<devOnly>true</devOnly>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_DrawerType</defName>
+		<label>drawer Type</label>
+		<filterClass>TD_Find_Lib.ListFilterDrawerType</filterClass>
+		<devOnly>true</devOnly>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Fogged</defName>
+		<label>fogged</label>
+		<filterClass>TD_Find_Lib.ListFilterFogged</filterClass>
+		<devOnly>true</devOnly>
+	</TD_Find_Lib.ListFilterDef>
+
+</Defs>
