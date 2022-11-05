@@ -79,31 +79,27 @@ namespace TD_Find_Lib
 		public bool FiltersCurrentMapOnly() => Children.Check(f => f.CurrentMapOnly);
 
 		public string mapLabel;
-		private void MakeMapLabel()
+		public void MakeMapLabel()
+		{
+			mapLabel = GetMapLabel();
+		}
+
+		private string GetMapLabel()
 		{
 			StringBuilder sb = new(" (");
 
 			// override requested map if a filter only works on current map
 			if (FiltersCurrentMapOnly())
 				sb.Append("Current Map");
+			else if (allMaps)
+				sb.Append("TD.AllMaps".Translate());
 			else if (active)
-			{
-				if (allMaps)
-					sb.Append("TD.AllMaps".Translate());
-				else
-					sb.Append(map.Parent.LabelCap);
-			}
-			else
-			{
-				if (allMaps)
-					sb.Append("(inactive-allmaps)");
-				else
-					sb.Append("(inactive)");
-			}
+				sb.Append(map.Parent.LabelCap);
+			else return  "";
 
 			sb.Append(")");
 
-			mapLabel = sb.ToString();
+			return sb.ToString();
 		}
 
 

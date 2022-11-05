@@ -40,26 +40,24 @@ namespace TD_Find_Lib
 		}
 
 		// Add filter and set its parent to this (well, the same parent IFilterHolder of this)
-		public void Add(ListFilter newFilter, bool remake = false, bool focus = false)
+		public void Add(ListFilter newFilter, int index = -1, bool remake = false, bool focus = false)
 		{
 			newFilter.parent = parent;
-			filters.Add(newFilter);
+			if(index == -1)
+				filters.Add(newFilter);
+			else
+				filters.Insert(index, newFilter);
 
 			if (focus) newFilter.Focus();
 			if (remake) parent.RootFindDesc.RemakeList();
-		}
-
-		public void Add(ListFilter newFilter, int index, bool remake = false)
-		{
-			newFilter.parent = parent;
-			filters.Insert(index, newFilter);
-
-			if (remake) parent.RootFindDesc.RemakeList();
+			if (newFilter.CurrentMapOnly) parent.RootFindDesc.MakeMapLabel();
 		}
 
 		public void RemoveAll(HashSet<ListFilter> removedFilters)
 		{
 			filters.RemoveAll(f => removedFilters.Contains(f));
+			if(removedFilters.Any(f => f.CurrentMapOnly))
+				parent.RootFindDesc.MakeMapLabel();
 		}
 
 		public bool Check(Predicate<ListFilter> check) =>
