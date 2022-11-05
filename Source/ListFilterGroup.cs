@@ -36,10 +36,10 @@ namespace TD_Find_Lib
 			clone.any = any;
 			return clone;
 		}
-		public override void DoResolveReference(Map map)
+		public override void DoResolveLoadName(Map map)
 		{
 			foreach(var f in Children.Filters)
-				f.DoResolveReference(map);
+				f.DoResolveLoadName(map);
 		}
 
 		public override bool DrawMain(Rect rect, bool locked)

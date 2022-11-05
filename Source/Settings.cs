@@ -31,16 +31,16 @@ namespace TD_Find_Lib
 			{
 				desc.name = name;	//Remember for current copy
 
-				FindDescription newDesc = desc.Clone(null, false);
+				FindDescription newDesc = desc.CloneForSave();
 				newDesc.name = name;
 				savedFilters[name] = newDesc;
 			}
 			Write();
 		}
 
-		public FindDescription Load(string name)
+		public FindDescription Load(string name, Map map = null)
 		{
-			return savedFilters[name].Clone(Find.CurrentMap);
+			return savedFilters[name].CloneForUse(map);
 		}
 
 		public void Rename(string name, string newName)
@@ -79,12 +79,14 @@ namespace TD_Find_Lib
 
 				if (Current.Game != null &&
 					row.ButtonText("Load".Translate()))
-					Verse.Log.Error("Todo!");// MainTabWindow_List.OpenWith(desc.Clone(Find.CurrentMap), true);
+					Verse.Log.Error("Todo!");// MainTabWindow_List.OpenWith(desc.CloneForUse(Find.CurrentMap), true);
 
 				if (row.ButtonText("Delete".Translate()))
 					remove = name;
 
-				row.CheckboxLabeled("TD.AllMaps".Translate(), ref desc.allMaps);
+				bool allMaps = desc.allMaps;
+				if (row.CheckboxLabeled("TD.AllMaps".Translate(), ref allMaps))
+					desc.allMaps = allMaps;
 			}
 			scrollViewHeight = RowHeight * savedFilters.Count();
 			Widgets.EndScrollView();

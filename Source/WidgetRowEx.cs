@@ -7,7 +7,6 @@ using UnityEngine;
 
 namespace TD_Find_Lib
 {
-
 	public static class WidgetRowEx
 	{
 		public static Rect GetRect(this WidgetRow row, float width, float gap = WidgetRow.DefaultGap)
@@ -17,12 +16,14 @@ namespace TD_Find_Lib
 			return result;
 		}
 
-		public static void CheckboxLabeled(this WidgetRow row, string label, ref bool val, float gap = WidgetRow.DefaultGap)
+		public static bool CheckboxLabeled(this WidgetRow row, string label, ref bool val, float gap = WidgetRow.DefaultGap)
 		{
+			bool before = val;
 			row.Label(label);
 			Rect butRect = row.GetRect(WidgetRow.IconSize);
 			Widgets.Checkbox(butRect.x, butRect.y, ref val);
 			row.Gap(gap);
+			return before != val;
 		}
 	}
 }

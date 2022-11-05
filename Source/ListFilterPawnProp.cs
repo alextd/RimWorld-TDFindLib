@@ -193,9 +193,9 @@ namespace TD_Find_Lib
 			clone.stageRange = stageRange;
 			return clone;
 		}
-		public override void DoResolveReference(Map map)
+		public override void DoResolveLoadName(Map map)
 		{
-			base.DoResolveReference(map);
+			base.DoResolveLoadName(map);
 			MakeOrderedStages();
 		}
 
@@ -485,8 +485,8 @@ namespace TD_Find_Lib
 
 	class ListFilterRestricted : ListFilterDropDown<Area>
 	{
-		protected override Area ResolveReference(Map map) =>
-			map.areaManager.GetLabeled(refName);
+		protected override Area ResolveName(Map map) =>
+			map.areaManager.GetLabeled(selName);
 
 		public override bool ValidForAllMaps => extraOption > 0 || sel == null;
 

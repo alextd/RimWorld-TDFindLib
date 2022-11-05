@@ -18,55 +18,22 @@ namespace TD_Find_Lib
 		public string name = "TD.NewFindFilters".Translate();
 		
 		private List<Thing> listedThings = new();
-		public IEnumerable<Thing> ListedThings => listedThings;
-
+		private BaseListType _baseType;
 		private FilterHolder children;
-		public FilterHolder Children => children;
+		private Map _map;
+		private bool _allMaps;
+
+		// "Inactive" is for the saved library of filters to Clone from.
+		// inactive won't actually fill their lists
+		// (inactive filters won't have a map anyway.)
+		public bool active;
+
 
 		// from IFilterHolder
 		public FindDescription RootFindDesc => this;
 
-		//Map stuff. Not saved to file. Clone(map) to set map.
-		private Map _map;
-		public string mapLabel;
-		public bool allMaps = false;
-		public Map map
-		{
-			get => _map;
-			set
-			{
-				_map = value;
+		public IEnumerable<Thing> ListedThings => listedThings;
 
-				StringBuilder sb = new(" (");
-
-				if (CurrentMapOnly())
-					sb.Append("Current Map");
-				else if (_map?.Parent.LabelCap is string label)
-					sb.Append(label);
-				else
-					sb.Append("TD.AllMaps".Translate());
-
-				sb.Append(")");
-
-				mapLabel = sb.ToString();
-			}
-		}
-
-		//Certain filters only work on the current map, so the entire tree will only work on the current map
-		public bool CurrentMapOnly() => Children.Check(f => f.CurrentMapOnly);
-
-
-		public FindDescription()
-		{
-			children = new FilterHolder(this);
-		}
-
-		public FindDescription(Map m) : this()
-		{
-			map = m;
-		}
-
-		private BaseListType _baseType;
 		public BaseListType BaseType
 		{
 			get => _baseType;
@@ -77,13 +44,92 @@ namespace TD_Find_Lib
 			}
 		}
 
+		public FilterHolder Children => children;
+
+		// the Map for when mode == Map
+		public Map map
+		{
+			get => _map;
+			set
+			{
+				_map = value;
+				if (map != null)
+				{
+					// The only reason to set map to null, would be to save, or for allmaps.
+					// Probably redundant to check for null here.
+					active = true;
+					_allMaps = false;
+				}
+
+				MakeMapLabel();
+			}
+		}
+		public bool allMaps
+		{
+			get => _allMaps;
+			set
+			{
+				_allMaps = value;
+
+				MakeMapLabel();
+			}
+		}
+
+		// Certain filters only work on the current map, so the entire tree will only work on the current map
+		public bool FiltersCurrentMapOnly() => Children.Check(f => f.CurrentMapOnly);
+
+		public string mapLabel;
+		private void MakeMapLabel()
+		{
+			StringBuilder sb = new(" (");
+
+			// override requested map if a filter only works on current map
+			if (FiltersCurrentMapOnly())
+				sb.Append("Current Map");
+			else if (active)
+			{
+				if (allMaps)
+					sb.Append("TD.AllMaps".Translate());
+				else
+					sb.Append(map.Parent.LabelCap);
+			}
+			else
+			{
+				if (allMaps)
+					sb.Append("(inactive-allmaps)");
+				else
+					sb.Append("(inactive)");
+			}
+
+			sb.Append(")");
+
+			mapLabel = sb.ToString();
+		}
+
+
+		public FindDescription()
+		{
+			children = new FilterHolder(this);
+			active = true;
+			allMaps = true;
+		}
+
+		public FindDescription(Map m)
+		{
+			children = new FilterHolder(this);
+			map = m;
+		}
+
 		public void RemakeList()
 		{
+			//  inactive = Don't do anything!
+			if (!active) return;
+
+
 			listedThings.Clear();
 
-
 			// "Current map only" overrides other choices
-			if (CurrentMapOnly())
+			if (FiltersCurrentMapOnly())
 				listedThings.AddRange(Get(Find.CurrentMap));
 
 			// All maps
@@ -92,13 +138,8 @@ namespace TD_Find_Lib
 					listedThings.AddRange(Get(m));
 
 			// Single map
-			else if (map != null)
+			else
 				listedThings.AddRange(Get(map));
-
-			// Probably don't want to
-			// Assume you want the current map!
-			//else
-			//	listedThings.AddRange(Get(Find.CurrentMap));
 		}
 
 
@@ -106,78 +147,121 @@ namespace TD_Find_Lib
 		{
 			Scribe_Values.Look(ref name, "name");
 			Scribe_Values.Look(ref _baseType, "baseType");
-			Scribe_Values.Look(ref allMaps, "allMaps");
-			//Does not save/load _map : Clone(map) a loaded FindDescription
+			Scribe_Values.Look(ref active, "active");
+			Scribe_Values.Look(ref _allMaps, "allMaps");
+
+			//no need to save map null
+			if (Scribe.mode != LoadSaveMode.Saving || _map != null)
+				Scribe_References.Look(ref _map, "map");
 
 			Children.ExposeData();
+
+			if (Scribe.mode == LoadSaveMode.PostLoadInit && active)
+				ResolveNames();
 		}
-		public FindDescription Clone(Map newMap, bool resolve = true)
+
+		public FindDescription CloneForSave() =>
+			Clone(makeActive: false);
+
+		public FindDescription CloneForUse(Map newMap = null) =>
+			Clone(newMap: newMap);
+
+		private FindDescription Clone(bool makeActive = true, Map newMap = null)
 		{
+			bool newAllMaps = allMaps;
+			if(!makeActive && newMap != null)
+			{
+				Verse.Log.Warning($"Tried to clone FindDescription ({name}) as inactve with a map. Ignoring the map.");
+				newMap = null;
+			}
+			if(makeActive && newMap != null && newAllMaps)
+			{
+				Verse.Log.Warning($"Tried to clone FindDescription ({name}) with a map and allMaps. Just using the map.");
+				newAllMaps = false;
+			}
+			if (makeActive && newMap == null && !newAllMaps)
+			{
+				Verse.Log.Warning($"Tried to clone FindDescription ({name}) with neither map nor allMaps. Setting allMaps = true.");
+				newAllMaps = true;
+			}
 			FindDescription newDesc = new FindDescription()
 			{
-				_baseType = _baseType,
 				name = name,
-				allMaps = allMaps,
-				map = newMap
+				active = makeActive,
+				_baseType = _baseType,
+				_map = newMap,
+				_allMaps = newAllMaps,
 			};
+
 			newDesc.children = children.Clone(newDesc);
-			if (resolve)
-				foreach (var f in newDesc.Children.Filters)
-					f.DoResolveReference(newMap);
+			if (makeActive)
+				newDesc.ResolveNames();
 
 			return newDesc;
 		}
 
-		private IEnumerable<Thing> Get(Map map)
+		// To be called after loading or cloning.
+		public void ResolveNames()
+		{
+			foreach (var f in Children.Filters)
+			{
+				// map may be null, that's okay.
+				// Filters for an "all maps" search should not need maps.
+				// But they do need to resolve other names (like defs)
+				f.DoResolveLoadName(map);
+			}
+		}
+
+		private IEnumerable<Thing> Get(Map searchMap)
 		{
 			IEnumerable<Thing> allThings = Enumerable.Empty<Thing>();
 			switch (BaseType)
 			{
 				case BaseListType.Selectable: //Known as "Map"
-					allThings = map.listerThings.AllThings.Where(t => t.def.selectable);
+					allThings = searchMap.listerThings.AllThings.Where(t => t.def.selectable);
 					break;
 				case BaseListType.Buildings:
-					allThings = map.listerThings.ThingsInGroup(ThingRequestGroup.BuildingArtificial);
+					allThings = searchMap.listerThings.ThingsInGroup(ThingRequestGroup.BuildingArtificial);
 					break;
 				case BaseListType.Natural:
-					allThings = map.listerThings.AllThings.Where(t => t.def.filthLeaving == ThingDefOf.Filth_RubbleRock);
+					allThings = searchMap.listerThings.AllThings.Where(t => t.def.filthLeaving == ThingDefOf.Filth_RubbleRock);
 					break;
 				case BaseListType.Plants:
-					allThings = map.listerThings.ThingsInGroup(ThingRequestGroup.Plant);
+					allThings = searchMap.listerThings.ThingsInGroup(ThingRequestGroup.Plant);
 					break;
 				case BaseListType.Inventory:
 					List<IThingHolder> holders = new List<IThingHolder>();
-					map.GetChildHolders(holders);
+					searchMap.GetChildHolders(holders);
 					List<Thing> list = new List<Thing>();
 					foreach (IThingHolder holder in holders.Where(ContentsUtility.CanPeekInventory))
 						list.AddRange(ContentsUtility.AllKnownThings(holder));
 					allThings = list;
 					break;
 				case BaseListType.Items:
-					allThings = map.listerThings.ThingsInGroup(ThingRequestGroup.HaulableAlways);
+					allThings = searchMap.listerThings.ThingsInGroup(ThingRequestGroup.HaulableAlways);
 					break;
 				case BaseListType.Everyone:
-					allThings = map.mapPawns.AllPawnsSpawned.Cast<Thing>();
+					allThings = searchMap.mapPawns.AllPawnsSpawned.Cast<Thing>();
 					break;
 				case BaseListType.Colonists:
-					allThings = map.mapPawns.FreeColonistsSpawned.Cast<Thing>();
+					allThings = searchMap.mapPawns.FreeColonistsSpawned.Cast<Thing>();
 					break;
 				case BaseListType.Animals:
-					allThings = map.mapPawns.AllPawnsSpawned.Where(p => !p.RaceProps.Humanlike).Cast<Thing>();
+					allThings = searchMap.mapPawns.AllPawnsSpawned.Where(p => !p.RaceProps.Humanlike).Cast<Thing>();
 					break;
 				case BaseListType.All:
-					allThings = ContentsUtility.AllKnownThings(map);
+					allThings = ContentsUtility.AllKnownThings(searchMap);
 					break;
 
 				//Devmode options:
 				case BaseListType.Haulables:
-					allThings = map.listerHaulables.ThingsPotentiallyNeedingHauling();
+					allThings = searchMap.listerHaulables.ThingsPotentiallyNeedingHauling();
 					break;
 				case BaseListType.Mergables:
-					allThings = map.listerMergeables.ThingsPotentiallyNeedingMerging();
+					allThings = searchMap.listerMergeables.ThingsPotentiallyNeedingMerging();
 					break;
 				case BaseListType.FilthInHomeArea:
-					allThings = map.listerFilthInHomeArea.FilthInHomeArea;
+					allThings = searchMap.listerFilthInHomeArea.FilthInHomeArea;
 					break;
 			}
 
@@ -186,7 +270,7 @@ namespace TD_Find_Lib
 			if (!DebugSettings.godMode)
 			{
 				allThings = allThings.Where(t => ValidDef(t.def));
-				allThings = allThings.Where(t => !t.PositionHeld.Fogged(map));
+				allThings = allThings.Where(t => !t.PositionHeld.Fogged(searchMap));
 			}
 			foreach (ListFilter filter in Children.Filters)
 				allThings = filter.Apply(allThings);

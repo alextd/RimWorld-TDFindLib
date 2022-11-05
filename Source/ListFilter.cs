@@ -45,20 +45,20 @@ namespace TD_Find_Lib
 
 		// Okay, save/load. The basic gist here is:
 		// ExposeData saves any filter fine.
-		// ExposeData can load a filter for reference, but it's not yet usable.
+		// ExposeData can load a filter for display purposes, but it's not yet usable.
 		// After ExposeData loading, filters need to be cloned
-		// After Cloning, they get DoResolveReference on a map
+		// After Cloning, they get DoResolveNames on a map
 		// Then filters can actually be used.
 
 		// Even if map is null and it's searching all maps,
 		// Even if it's a def that could've been loaded already.
-		// ResolveRef is when any named thing get resolved
+		// ResolveName is when any named thing get resolved
 
 
 		// Any overridden ExposeData+Clone should copy data but not process much.
-		// If there's proessing to do, do it in ResolveReference. 
-		// e.g. ListFilterWithOption sets refName in Clone,
-		//  but sets the actual selection in ResolveReference
+		// If there's proessing to do, do it in ResolveName. 
+		// e.g. ListFilterWithOption sets selName in Clone,
+		//  but sets the actual selection in ResolveName
 
 		public virtual void ExposeData()
 		{
@@ -75,7 +75,7 @@ namespace TD_Find_Lib
 			//clone.parent = newHolder; //No - MakeFilter just set it.
 			return clone;
 		}
-		public virtual void DoResolveReference(Map map) { }
+		public virtual void DoResolveLoadName(Map map) { }
 
 
 		public IEnumerable<Thing> Apply(IEnumerable<Thing> list)
@@ -295,7 +295,7 @@ namespace TD_Find_Lib
 	{
 		// selection
 		private T _sel;
-		protected string refName;// if UsesRefName,  = SaveLoadXmlConstants.IsNullAttributeName;
+		protected string selName;// if UsesRefName,  = SaveLoadXmlConstants.IsNullAttributeName;
 		private int _extraOption; //0 meaning use _sel, what 1+ means is defined in subclass
 
 		// A subclass with extra fields needs to override ExposeData and Clone to copy them
@@ -312,7 +312,7 @@ namespace TD_Find_Lib
 				_sel = value;
 				_extraOption = 0;
 				selectionError = null;
-				if (UsesRefName) refName = MakeRefName();
+				if (SaveLoadByName) selName = MakeSaveName();
 				PostSelected();
 			}
 		}
@@ -323,8 +323,8 @@ namespace TD_Find_Lib
 		// then it's fine to skip defining a constructor
 		protected ListFilterWithOption()
 		{
-			if (UsesRefName)
-				refName = SaveLoadXmlConstants.IsNullAttributeName;
+			if (SaveLoadByName)
+				selName = SaveLoadXmlConstants.IsNullAttributeName;
 		}
 		protected virtual void PostSelected()
 		{
@@ -346,7 +346,7 @@ namespace TD_Find_Lib
 				_extraOption = value;
 				_sel = default;
 				selectionError = null;
-				refName = null;
+				selName = null;
 			}
 		}
 
@@ -360,7 +360,7 @@ namespace TD_Find_Lib
 		//So ExposeData saves and loads 'string refName' instead of the 'T sel'
 		//When showing that filter as an option to load, that's fine, sel isn't set but refName is.
 		//When the filter is copied, loaded or saved in any way, it is cloned with Clone(), which will copy refName but not sel
-		//When loading or copying into a map, whoever called Clone will also call ResolveReference(Map) to bind to that map
+		//When loading or copying into a map, whoever called Clone will also call ResolveName(Map) to bind to that map
 		//(even if a copy ends up referencing the same thing, the reference is re-resolved for simplicity's sake)
 
 		//TL;DR there are two 'modes' a ListFilter can be: active or inactive.
@@ -375,14 +375,14 @@ namespace TD_Find_Lib
 		protected readonly static bool IsRef = typeof(ILoadReferenceable).IsAssignableFrom(typeof(T));
 		protected readonly static bool IsEnum = typeof(T).IsEnum;
 
-		public virtual bool UsesRefName => IsRef || IsDef;
-		protected virtual string MakeRefName() => sel?.ToString() ?? SaveLoadXmlConstants.IsNullAttributeName;
+		public virtual bool SaveLoadByName => IsRef || IsDef;
+		protected virtual string MakeSaveName() => sel?.ToString() ?? SaveLoadXmlConstants.IsNullAttributeName;
 
-		// Subclasses where UsesRefName==true need to implement ResolveReference()
+		// Subclasses where SaveLoadByName is true need to implement ResolveName()
 		// (unless it's just a Def)
 		// return matching object based on refName (refName will not be "null")
 		// returning null produces a selection error and the filter will be disabled
-		protected virtual T ResolveReference(Map map)
+		protected virtual T ResolveName(Map map)
 		{
 			if (IsDef)
 			{
@@ -391,7 +391,7 @@ namespace TD_Find_Lib
 
 				//DefFromNodeUnsafe also doesn't work since it logs errors - so here's custom code copied to remove the logging:
 
-				return (T)(object)GenDefDatabase.GetDefSilentFail(typeof(T), refName, false);
+				return (T)(object)GenDefDatabase.GetDefSilentFail(typeof(T), selName, false);
 			}
 
 			throw new NotImplementedException();
@@ -413,15 +413,15 @@ namespace TD_Find_Lib
 
 			//Oh Jesus T can be anything but Scribe doesn't like that much flexibility so here we are:
 			//(avoid using property 'sel' so it doesn't MakeRefName())
-			if (UsesRefName)
+			if (SaveLoadByName)
 			{
 				// Of course between games you can't get references so just save by name should be good enough
 				// (even if it's from the same game, it can still resolve the reference all the same)
 
-				// Saving a null refName saves "IsNull"
-				Scribe_Values.Look(ref refName, "refName");
+				// Saving a null selName saves "IsNull"
+				Scribe_Values.Look(ref selName, "refName");
 
-				// ResolveReferences() will be called when loaded onto a map for actual use
+				// ResolveName() will be called when loaded onto a map for actual use
 			}
 			else if (typeof(IExposable).IsAssignableFrom(typeof(T)))
 			{
@@ -439,29 +439,29 @@ namespace TD_Find_Lib
 			if (extraOption > 0)
 				return clone;
 
-			if (UsesRefName)
-				clone.refName = refName;
+			if (SaveLoadByName)
+				clone.selName = selName;
 			else
 				clone._sel = _sel;	//todo handle if sel needs to be deep-copied. Perhaps sel should be T const * sel...
 
 			return clone;
 		}
-		public override void DoResolveReference(Map map)
+		public override void DoResolveLoadName(Map map)
 		{
-			if (!UsesRefName || extraOption > 0) return;
+			if (!SaveLoadByName || extraOption > 0) return;
 
-			if (refName == SaveLoadXmlConstants.IsNullAttributeName)
+			if (selName == SaveLoadXmlConstants.IsNullAttributeName)
 			{
 				_sel = default; //can't use null because generic T isn't bound as reftype
 			}
 			else
 			{
-				_sel = ResolveReference(map);
+				_sel = ResolveName(map);
 
 				if (_sel == null)
 				{
-					selectionError = $"Missing {def.LabelCap}: {refName}?";
-					Messages.Message("TD.TriedToLoad0FilterNamed1ButCouldNotBeFound".Translate(def.LabelCap, refName), MessageTypeDefOf.RejectInput);
+					selectionError = $"Missing {def.LabelCap}: {selName}?";
+					Messages.Message("TD.TriedToLoad0FilterNamed1ButCouldNotBeFound".Translate(def.LabelCap, selName), MessageTypeDefOf.RejectInput);
 				}
 			}
 		}
@@ -472,7 +472,7 @@ namespace TD_Find_Lib
 		private string GetLabel()
 		{
 			if (selectionError != null)
-				return refName;
+				return selName;
 
 			if (extraOption > 0)
 				return NameForExtra(extraOption);
@@ -495,13 +495,13 @@ namespace TD_Find_Lib
 		public virtual bool Ordered => false;
 		public virtual string NameFor(T o) => o is Def def ? def.LabelCap.RawText : typeof(T).IsEnum ? o.TranslateEnum() : o.ToString();
 		public virtual string DropdownNameFor(T o) => NameFor(o);
-		protected override string MakeRefName()
+		protected override string MakeSaveName()
 		{
 			if (sel is Def def)
 				return def.defName;
 
 			// Many subclasses will just use NameFor, so do it here.
-			return sel != null ? NameFor(sel) : base.MakeRefName();
+			return sel != null ? NameFor(sel) : base.MakeSaveName();
 		}
 
 		public virtual int ExtraOptionsCount => 0;
@@ -877,8 +877,8 @@ namespace TD_Find_Lib
 			extraOption = 1;
 		}
 
-		protected override Area ResolveReference(Map map) =>
-			map.areaManager.GetLabeled(refName);
+		protected override Area ResolveName(Map map) =>
+			map.areaManager.GetLabeled(selName);
 
 		public override bool ValidForAllMaps => extraOption > 0 || sel == null;
 
@@ -925,8 +925,8 @@ namespace TD_Find_Lib
 
 	class ListFilterZone : ListFilterDropDown<Zone>
 	{
-		protected override Zone ResolveReference(Map map) =>
-			map.zoneManager.AllZones.FirstOrDefault(z => z.label == refName);
+		protected override Zone ResolveName(Map map) =>
+			map.zoneManager.AllZones.FirstOrDefault(z => z.label == selName);
 
 		public override bool ValidForAllMaps => extraOption != 0 || sel == null;
 
@@ -1046,11 +1046,11 @@ namespace TD_Find_Lib
 		}
 
 
-		public override bool UsesRefName => true;
-		protected override string MakeRefName() => sel.ToString();
+		public override bool SaveLoadByName => true;
+		protected override string MakeSaveName() => sel.ToString();
 
-		protected override ModContentPack ResolveReference(Map map) =>
-			LoadedModManager.RunningMods.FirstOrDefault(mod => mod.PackageIdPlayerFacing == refName);
+		protected override ModContentPack ResolveName(Map map) =>
+			LoadedModManager.RunningMods.FirstOrDefault(mod => mod.PackageIdPlayerFacing == selName);
 
 
 		protected override bool FilterApplies(Thing thing) =>
