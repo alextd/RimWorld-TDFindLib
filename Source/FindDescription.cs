@@ -154,6 +154,8 @@ namespace TD_Find_Lib
 
 			if (Scribe.mode == LoadSaveMode.PostLoadInit && active)
 				ResolveNames();
+
+			MakeMapLabel();
 		}
 
 		public FindDescription CloneForSave() =>
@@ -192,6 +194,8 @@ namespace TD_Find_Lib
 			newDesc.children = children.Clone(newDesc);
 			if (makeActive)
 				newDesc.ResolveNames();
+
+			newDesc.MakeMapLabel();
 
 			return newDesc;
 		}
