@@ -59,20 +59,19 @@ namespace TD_Find_Lib
 		public void DoWindowContents(Rect inRect)
 		{
 			//Scrolling!
+			Listing_StandardIndent listing = new();
 			Rect viewRect = new Rect(0f, 0f, inRect.width - 16f, scrollViewHeight);
-			Widgets.BeginScrollView(inRect, ref scrollPosition, viewRect);
+			listing.BeginScrollView(inRect, ref scrollPosition, viewRect);
 
-			Rect rowRect = viewRect; rowRect.height = RowHeight;
+			listing.Header("Saved Filters:");
+
 			string remove = null;
-			foreach (var kvp in savedFilters)
+			foreach ((var name, var desc) in savedFilters)
 			{
-				string name = kvp.Key;
-				FindDescription desc = kvp.Value;
+				Rect rowRect = listing.GetRect(RowHeight);
 
 				WidgetRow row = new WidgetRow(rowRect.x, rowRect.y, UIDirection.RightThenDown, rowRect.width);
-				rowRect.y += RowHeight;
-
-				row.Label(name, rowRect.width / 4);
+				row.Label(name + desc.mapLabel, rowRect.width / 4);
 
 				if (row.ButtonText("Rename".Translate()))
 					Find.WindowStack.Add(new Dialog_Name(newName => Rename(name, newName)));
@@ -88,8 +87,13 @@ namespace TD_Find_Lib
 				if (row.CheckboxLabeled("TD.AllMaps".Translate(), ref allMaps))
 					desc.allMaps = allMaps;
 			}
-			scrollViewHeight = RowHeight * savedFilters.Count();
-			Widgets.EndScrollView();
+
+			listing.Header("Active Filters:");
+			listing.Label("todo()");
+			// Edit how often they tick.
+
+
+			listing.EndScrollView(ref scrollViewHeight);
 
 			if (remove != null)
 			{

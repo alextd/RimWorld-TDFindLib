@@ -75,5 +75,12 @@ namespace TD_Find_Lib
 			Widgets.EndScrollView();
 			End();
 		}
+
+		public void Header(TaggedString label, float maxHeight = -1, string tooltip = null)
+		{
+			Text.Font = GameFont.Medium;
+			Label(label, maxHeight, tooltip);
+			Text.Font = GameFont.Small;
+		}
 	}
 }
