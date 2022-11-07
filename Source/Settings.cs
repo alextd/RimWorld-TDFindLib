@@ -43,6 +43,13 @@ namespace TD_Find_Lib
 			return savedFilters.First(fd => fd.name == name).CloneForUse(map);
 		}
 
+		public void Reorder(int from, int to)
+		{
+			var desc = savedFilters[from];
+			savedFilters.RemoveAt(from);
+			savedFilters.Insert(from < to ? to - 1 : to, desc);
+		}
+
 
 		public void DoWindowContents(Rect inRect)
 		{

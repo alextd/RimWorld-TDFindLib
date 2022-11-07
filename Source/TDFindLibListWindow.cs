@@ -22,6 +22,8 @@ namespace TD_Find_Lib
 
 		private Vector2 scrollPosition = Vector2.zero;
 		private float scrollViewHeight;
+
+
 		public override void DoWindowContents(Rect fillRect)
 		{
 			Listing_StandardIndent listing = new();
@@ -31,11 +33,38 @@ namespace TD_Find_Lib
 			// Filter List
 			listing.Header("Saved Filters:");
 
-			FindDescription remove = null;
-			
-			for(int i = 0; i < Mod.settings.savedFilters.Count; i++)
+
+			DrawFindDescList(listing, Mod.settings.savedFilters);
+
+
+			//Active filters from mods
+			listing.Header("Active Filters:");
+			listing.Label("todo()");
+			// Edit how often they tick.
+
+
+			listing.EndScrollView(ref scrollViewHeight);
+		}
+
+		private int reorderID;
+		private float reorderRectHeight;
+		public void DrawFindDescList(Listing_StandardIndent listing, List<FindDescription> descs)
+		{
+			if (Event.current.type == EventType.Repaint)
 			{
-				var desc = Mod.settings.savedFilters[i];
+				reorderID = ReorderableWidget.NewGroup(
+					Mod.settings.Reorder,
+					ReorderableDirection.Vertical,
+					new Rect(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight), 1f,
+					extraDraggedItemOnGUI: (int index, Vector2 dragStartPos) =>
+						DrawMouseAttachedFindDesc(descs.ElementAt(index), listing.ColumnWidth));
+			}
+
+			float startHeight = listing.CurHeight;
+			FindDescription remove = null;
+			for (int i = 0; i < descs.Count; i++)
+			{
+				var desc = descs[i];
 				Rect rowRect = listing.GetRect(RowHeight);
 
 				WidgetRow row = new WidgetRow(rowRect.x, rowRect.y, UIDirection.RightThenDown, rowRect.width);
@@ -45,30 +74,30 @@ namespace TD_Find_Lib
 				{
 					int localI = i;
 					Find.WindowStack.Add(new TDFindLibEditorWindow(desc.CloneForEdit(), delegate (FindDescription newDesc)
+					{
+						Action acceptAction = delegate ()
 						{
-							Action acceptAction = delegate ()
-							{
-								Mod.settings.savedFilters[localI] = newDesc;
-								Mod.settings.Write();
-							};
-							Action copyAction = delegate ()
-							{
-								Mod.settings.savedFilters.Insert(localI + 1, newDesc);
-								Mod.settings.Write();
-							};
-							Find.WindowStack.Add(new Dialog_MessageBox(
-								$"Save changes to {newDesc.name}?",
-								"Confirm".Translate(), acceptAction,
-								"No".Translate(), null,
-								"Change Filter",
-								true, acceptAction,
-								delegate () { }// I dunno who wrote this class but this empty method is required so the window can close with esc because its logic is very different from its base class
-							)
-							{
-								buttonCText = "Save as Copy",
-								buttonCAction = copyAction,
-							});
-						}));
+							descs[localI] = newDesc;
+							Mod.settings.Write();
+						};
+						Action copyAction = delegate ()
+						{
+							descs.Insert(localI + 1, newDesc);
+							Mod.settings.Write();
+						};
+						Find.WindowStack.Add(new Dialog_MessageBox(
+							$"Save changes to {newDesc.name}?",
+							"Confirm".Translate(), acceptAction,
+							"No".Translate(), null,
+							"Change Filter",
+							true, acceptAction,
+							delegate () { }// I dunno who wrote this class but this empty method is required so the window can close with esc because its logic is very different from its base class
+						)
+						{
+							buttonCText = "Save as Copy",
+							buttonCAction = copyAction,
+						});
+					}));
 				}
 
 				if (row.ButtonIcon(FindTex.Trash))
@@ -83,32 +112,38 @@ namespace TD_Find_Lib
 				Text.Anchor = TextAnchor.LowerLeft;
 				row.Label(desc.name + desc.mapLabel);
 				Text.Anchor = TextAnchor.UpperLeft;
+
+				ReorderableWidget.Reorderable(reorderID, rowRect);
 			}
-
-			if (listing.ButtonImage(TexButton.Plus, WidgetRow.IconSize, WidgetRow.IconSize))
-			{
-				FindDescription newFD = new();
-				Mod.settings.savedFilters.Add(newFD);
-			}
-			listing.Label("todo : Save load to file.");
-
-
-			//Active filters from mods
-			listing.Header("Active Filters:");
-			listing.Label("todo()");
-			// Edit how often they tick.
-
-
-			listing.EndScrollView(ref scrollViewHeight);
 
 			if (remove != null)
 			{
 				if (Event.current.shift)
-					Mod.settings.savedFilters.Remove(remove);
+					descs.Remove(remove);
 				else
 					Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
-						"TD.Delete0".Translate(remove.name), () => Mod.settings.savedFilters.Remove(remove)));
+						"TD.Delete0".Translate(remove.name), () => descs.Remove(remove)));
 			}
+
+			reorderRectHeight = listing.CurHeight - startHeight;
+
+			if (listing.ButtonImage(TexButton.Plus, WidgetRow.IconSize, WidgetRow.IconSize))
+			{
+				FindDescription newFD = new();
+				descs.Add(newFD);
+			}
+			listing.Label("todo : Save load to file.");
+		}
+
+		public static void DrawMouseAttachedFindDesc(FindDescription desc, float width)
+		{
+			Vector2 mousePositionOffset = Event.current.mousePosition + Vector2.one * 12;
+			Rect dragRect = new Rect(mousePositionOffset, new(width, Text.LineHeight));
+
+			//Same id 34003428 as GenUI.DrawMouseAttachment
+			Find.WindowStack.ImmediateWindow(34003428, dragRect, WindowLayer.Super,
+				() => Widgets.Label(new Rect(0, 0, width, Text.LineHeight), desc.name),
+				doBackground: false, absorbInputAroundWindow: false, 0f);
 		}
 	}
 }
