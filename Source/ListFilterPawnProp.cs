@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace TD_Find_Lib
 {
-	class ListFilterSkill : ListFilterDropDown<SkillDef>
+	public class ListFilterSkill : ListFilterDropDown<SkillDef>
 	{
 		IntRange skillRange = new IntRange(0, 20);
 		int passion = 3;
@@ -68,7 +68,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	class ListFilterTrait : ListFilterDropDown<TraitDef>
+	public class ListFilterTrait : ListFilterDropDown<TraitDef>
 	{
 		int traitDegree;
 
@@ -130,7 +130,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	class ListFilterThought: ListFilterDropDown<ThoughtDef>
+	public class ListFilterThought: ListFilterDropDown<ThoughtDef>
 	{
 		IntRange stageRange;	//Indexes of orderedStages
 		List<int> orderedStages = new();
@@ -309,7 +309,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	class ListFilterNeed : ListFilterDropDown<NeedDef>
+	public class ListFilterNeed : ListFilterDropDown<NeedDef>
 	{
 		FloatRange needRange = new FloatRange(0, 0.5f);
 
@@ -348,7 +348,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	class ListFilterHealth : ListFilterDropDown<HediffDef>
+	public class ListFilterHealth : ListFilterDropDown<HediffDef>
 	{
 		FloatRange? severityRange;
 
@@ -428,7 +428,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	class ListFilterIncapable : ListFilterDropDown<WorkTags>
+	public class ListFilterIncapable : ListFilterDropDown<WorkTags>
 	{
 		public override string NameFor(WorkTags tags) =>
 			tags.LabelTranslated().CapitalizeFirst();
@@ -448,8 +448,8 @@ namespace TD_Find_Lib
 		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
 	}
 
-	enum TemperatureFilter { Cold, Cool, Okay, Warm, Hot }
-	class ListFilterTemp : ListFilterDropDown<TemperatureFilter>
+	public enum TemperatureFilter { Cold, Cool, Okay, Warm, Hot }
+	public class ListFilterTemp : ListFilterDropDown<TemperatureFilter>
 	{
 		protected override bool FilterApplies(Thing thing)
 		{
@@ -482,7 +482,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	class ListFilterRestricted : ListFilterDropDown<Area>
+	public class ListFilterRestricted : ListFilterDropDown<Area>
 	{
 		protected override Area ResolveRef(Map map) =>
 			map.areaManager.GetLabeled(selName);
@@ -503,7 +503,7 @@ namespace TD_Find_Lib
 		public override string NameForExtra(int ex) => "Home".Translate();
 	}
 
-	class ListFilterMentalState : ListFilterDropDown<MentalStateDef>
+	public class ListFilterMentalState : ListFilterDropDown<MentalStateDef>
 	{
 		protected override bool FilterApplies(Thing thing)
 		{
@@ -529,7 +529,7 @@ namespace TD_Find_Lib
 		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
 	}
 
-	class ListFilterPrisoner : ListFilterDropDown<PrisonerInteractionModeDef>
+	public class ListFilterPrisoner : ListFilterDropDown<PrisonerInteractionModeDef>
 	{
 		public ListFilterPrisoner()
 		{
@@ -556,8 +556,8 @@ namespace TD_Find_Lib
 			ex == 1 ? "TD.IsPrisoner".Translate() : "TD.InCell".Translate();
 	}
 
-	enum DraftFilter { Drafted, Undrafted, Controllable }
-	class ListFilterDrafted : ListFilterDropDown<DraftFilter>
+	public enum DraftFilter { Drafted, Undrafted, Controllable }
+	public class ListFilterDrafted : ListFilterDropDown<DraftFilter>
 	{
 		protected override bool FilterApplies(Thing thing)
 		{
@@ -574,7 +574,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	class ListFilterJob : ListFilterDropDown<JobDef>
+	public class ListFilterJob : ListFilterDropDown<JobDef>
 	{
 		protected override bool FilterApplies(Thing thing)
 		{
@@ -596,14 +596,14 @@ namespace TD_Find_Lib
 		public override bool Ordered => true;
 	}
 
-	class ListFilterGuestStatus : ListFilterDropDown<GuestStatus>
+	public class ListFilterGuestStatus : ListFilterDropDown<GuestStatus>
 	{
 		protected override bool FilterApplies(Thing thing) =>
 			thing is Pawn pawn && pawn.GuestStatus is GuestStatus status && status == sel;
 	}
 
-	enum RacePropsFilter { Predator, Prey, Herd, Pack, Wildness, Petness, Trainability, Intelligence }
-	class ListFilterRaceProps : ListFilterDropDown<RacePropsFilter>
+	public enum RacePropsFilter { Predator, Prey, Herd, Pack, Wildness, Petness, Trainability, Intelligence }
+	public class ListFilterRaceProps : ListFilterDropDown<RacePropsFilter>
 	{
 		Intelligence intelligence;
 		FloatRange wild;
@@ -714,7 +714,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	class ListFilterGender : ListFilterDropDown<Gender>
+	public class ListFilterGender : ListFilterDropDown<Gender>
 	{
 		public ListFilterGender() => sel = Gender.Male;
 
@@ -722,7 +722,7 @@ namespace TD_Find_Lib
 			thing is Pawn pawn && pawn.gender == sel;
 	}
 
-	class ListFilterDevelopmentalStage : ListFilterDropDown<DevelopmentalStage>
+	public class ListFilterDevelopmentalStage : ListFilterDropDown<DevelopmentalStage>
 	{
 		public ListFilterDevelopmentalStage() => sel = DevelopmentalStage.Adult;
 
@@ -735,7 +735,7 @@ namespace TD_Find_Lib
 	// -------------------------
 
 
-	abstract class ListFilterProduct : ListFilterDropDown<ThingDef>
+	abstract public class ListFilterProduct : ListFilterDropDown<ThingDef>
 	{
 		protected IntRange countRange;
 
@@ -816,7 +816,7 @@ namespace TD_Find_Lib
 		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
 	}
 
-	class ListFilterMeat : ListFilterProduct
+	public class ListFilterMeat : ListFilterProduct
 	{
 		public override ThingDef DefFor(Pawn pawn) => pawn.RaceProps.meatDef;
 		public override int CountFor(Pawn pawn) => Mathf.RoundToInt(pawn.GetStatValue(StatDefOf.MeatAmount));
@@ -828,7 +828,7 @@ namespace TD_Find_Lib
 		public override int Max() => mostMeat;
 	}
 
-	class ListFilterLeather : ListFilterProduct
+	public class ListFilterLeather : ListFilterProduct
 	{
 		public override ThingDef DefFor(Pawn pawn) => pawn.RaceProps.leatherDef;
 		public override int CountFor(Pawn pawn) => Mathf.RoundToInt(pawn.GetStatValue(StatDefOf.LeatherAmount));
@@ -840,7 +840,7 @@ namespace TD_Find_Lib
 		public override int Max() => mostLeather;
 	}
 
-	class ListFilterEgg : ListFilterProduct //Per Year
+	public class ListFilterEgg : ListFilterProduct //Per Year
 	{
 		public override ThingDef DefFor(Pawn pawn)
 		{
@@ -863,7 +863,7 @@ namespace TD_Find_Lib
 	}
 
 
-	class ListFilterMilk : ListFilterProduct //Per Year
+	public class ListFilterMilk : ListFilterProduct //Per Year
 	{
 		public override ThingDef DefFor(Pawn pawn)
 		{
@@ -885,7 +885,7 @@ namespace TD_Find_Lib
 		public override int Max() => mostMilk;
 	}
 
-	class ListFilterWool : ListFilterProduct //Per Year
+	public class ListFilterWool : ListFilterProduct //Per Year
 	{
 		public override ThingDef DefFor(Pawn pawn) => pawn.def.GetCompProperties<CompProperties_Shearable>()?.woolDef;
 		public override int CountFor(Pawn pawn) => Mathf.RoundToInt(AnimalProductionUtility.WoolPerYear(pawn.def));
@@ -898,8 +898,8 @@ namespace TD_Find_Lib
 	}
 	
 	//Enum values matching existing translation keys
-	enum ProgressType { Milkable, Shearable, MilkFullness, WoolGrowth, EggProgress, EggHatch}
-	class ListFilterProductProgress : ListFilterDropDown<ProgressType>
+	public enum ProgressType { Milkable, Shearable, MilkFullness, WoolGrowth, EggProgress, EggHatch}
+	public class ListFilterProductProgress : ListFilterDropDown<ProgressType>
 	{
 		protected FloatRange progressRange = new FloatRange(0, 1);
 
@@ -978,7 +978,7 @@ namespace TD_Find_Lib
 	}
 
 
-	class ListFilterInspiration : ListFilterDropDown<InspirationDef>
+	public class ListFilterInspiration : ListFilterDropDown<InspirationDef>
 	{
 		protected override bool FilterApplies(Thing thing) =>
 			thing is Pawn p && 
@@ -993,7 +993,7 @@ namespace TD_Find_Lib
 	}
 
 
-	class ListFilterCapacity : ListFilterDropDown<PawnCapacityDef>
+	public class ListFilterCapacity : ListFilterDropDown<PawnCapacityDef>
 	{
 		public const float MaxReasonable = 4;
 		FloatRange capacityRange = new FloatRange(0, 1);

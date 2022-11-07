@@ -20,7 +20,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public abstract partial class ListFilter : IExposable
+	public abstract class ListFilter : IExposable
 	{
 		public ListFilterDef def;
 
@@ -195,7 +195,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	class FloatMenuOptionAndRefresh : FloatMenuOption
+	public class FloatMenuOptionAndRefresh : FloatMenuOption
 	{
 		ListFilter owner;
 		public FloatMenuOptionAndRefresh(string label, Action action, ListFilter f) : base(label, action)
@@ -214,7 +214,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	class ListFilterName : ListFilterWithOption<string>
+	public class ListFilterName : ListFilterWithOption<string>
 	{
 		public ListFilterName() => sel = "";
 
@@ -268,8 +268,8 @@ namespace TD_Find_Lib
 		}
 	}
 
-	enum ForbiddenType{ Forbidden, Allowed, Forbiddable}
-	class ListFilterForbidden : ListFilterDropDown<ForbiddenType>
+	public enum ForbiddenType{ Forbidden, Allowed, Forbiddable}
+	public class ListFilterForbidden : ListFilterDropDown<ForbiddenType>
 	{
 		protected override bool FilterApplies(Thing thing)
 		{
@@ -497,7 +497,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	abstract class ListFilterDropDown<T> : ListFilterWithOption<T>
+	public abstract class ListFilterDropDown<T> : ListFilterWithOption<T>
 	{
 		private string GetLabel()
 		{
@@ -606,7 +606,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	class ListFilterDesignation : ListFilterDropDown<DesignationDef>
+	public class ListFilterDesignation : ListFilterDropDown<DesignationDef>
 	{
 		protected override bool FilterApplies(Thing thing) =>
 			sel != null ?
@@ -626,7 +626,7 @@ namespace TD_Find_Lib
 		public override string NameFor(DesignationDef o) => o.defName; // no labels on Designation def
 	}
 
-	class ListFilterFreshness : ListFilterDropDown<RotStage>
+	public class ListFilterFreshness : ListFilterDropDown<RotStage>
 	{
 		protected override bool FilterApplies(Thing thing)
 		{
@@ -647,7 +647,7 @@ namespace TD_Find_Lib
 			"TD.Frozen".Translate();
 	}
 
-	class ListFilterTimeToRot : ListFilter
+	public class ListFilterTimeToRot : ListFilter
 	{
 		IntRange ticksRange = new IntRange(0, GenDate.TicksPerDay * 10);
 
@@ -682,7 +682,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	class ListFilterGrowth : ListFilterWithOption<FloatRange>
+	public class ListFilterGrowth : ListFilterWithOption<FloatRange>
 	{
 		public ListFilterGrowth() => sel = FloatRange.ZeroToOne;
 
@@ -702,25 +702,25 @@ namespace TD_Find_Lib
 		}
 	}
 
-	class ListFilterPlantHarvest : ListFilter
+	public class ListFilterPlantHarvest : ListFilter
 	{
 		protected override bool FilterApplies(Thing thing) =>
 			thing is Plant plant && plant.HarvestableNow;
 	}
 
-	class ListFilterPlantCrop : ListFilter
+	public class ListFilterPlantCrop : ListFilter
 	{
 		protected override bool FilterApplies(Thing thing) =>
 			thing is Plant plant && plant.IsCrop;
 	}
 
-	class ListFilterPlantDies : ListFilter
+	public class ListFilterPlantDies : ListFilter
 	{
 		protected override bool FilterApplies(Thing thing) =>
 			thing is Plant plant && (plant.def.plant?.dieIfLeafless ?? false);
 	}
 
-	class ListFilterFaction : ListFilterDropDown<FactionRelationKind>
+	public class ListFilterFaction : ListFilterDropDown<FactionRelationKind>
 	{
 		public ListFilterFaction() => extraOption = 1;
 
@@ -741,7 +741,7 @@ namespace TD_Find_Lib
 			"TD.NoFaction".Translate();
 	}
 	
-	class ListFilterCategory : ListFilterDropDown<ThingCategoryDef>
+	public class ListFilterCategory : ListFilterDropDown<ThingCategoryDef>
 	{
 		public ListFilterCategory() => sel = ThingCategoryDefOf.Root;
 
@@ -769,7 +769,7 @@ namespace TD_Find_Lib
 			string.Concat(Enumerable.Repeat("- ", def.Parents.Count())) + base.NameFor(def);
 	}
 
-	class ListFilterSpecialFilter : ListFilterDropDown<SpecialThingFilterDef>
+	public class ListFilterSpecialFilter : ListFilterDropDown<SpecialThingFilterDef>
 	{
 		public ListFilterSpecialFilter() => sel = SpecialThingFilterDefOf.AllowFresh;
 
@@ -777,8 +777,8 @@ namespace TD_Find_Lib
 			sel.Worker.Matches(thing);
 	}
 
-	enum MineableType { Resource, Rock, All }
-	class ListFilterMineable : ListFilterDropDown<MineableType>
+	public enum MineableType { Resource, Rock, All }
+	public class ListFilterMineable : ListFilterDropDown<MineableType>
 	{
 		protected override bool FilterApplies(Thing thing)
 		{
@@ -792,7 +792,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	class ListFilterHP : ListFilterWithOption<FloatRange>
+	public class ListFilterHP : ListFilterWithOption<FloatRange>
 	{
 		public ListFilterHP() => sel = FloatRange.ZeroToOne;
 
@@ -820,7 +820,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	class ListFilterQuality : ListFilterWithOption<QualityRange>
+	public class ListFilterQuality : ListFilterWithOption<QualityRange>
 	{
 		public ListFilterQuality() => sel = QualityRange.All;
 
@@ -842,7 +842,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	class ListFilterStuff : ListFilterDropDown<ThingDef>
+	public class ListFilterStuff : ListFilterDropDown<ThingDef>
 	{
 		protected override bool FilterApplies(Thing thing)
 		{
@@ -867,7 +867,7 @@ namespace TD_Find_Lib
 			DefDatabase<StuffCategoryDef>.AllDefsListForReading[ex-2]?.LabelCap;
 	}
 
-	class ListFilterMissingBodyPart : ListFilterDropDown<BodyPartDef>
+	public class ListFilterMissingBodyPart : ListFilterDropDown<BodyPartDef>
 	{
 		protected override bool FilterApplies(Thing thing)
 		{
@@ -902,8 +902,8 @@ namespace TD_Find_Lib
 	}
 
 
-	enum BaseAreas { Home, BuildRoof, NoRoof, SnowClear };
-	class ListFilterArea : ListFilterDropDown<Area>
+	public enum BaseAreas { Home, BuildRoof, NoRoof, SnowClear };
+	public class ListFilterArea : ListFilterDropDown<Area>
 	{
 		public ListFilterArea()
 		{
@@ -956,7 +956,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	class ListFilterZone : ListFilterDropDown<Zone>
+	public class ListFilterZone : ListFilterDropDown<Zone>
 	{
 		protected override Zone ResolveRef(Map map) =>
 			map.zoneManager.AllZones.FirstOrDefault(z => z.label == selName);
@@ -981,14 +981,14 @@ namespace TD_Find_Lib
 		public override string NameForExtra(int ex) => ex == 1 ? "TD.AnyStockpile".Translate() : "TD.AnyGrowingZone".Translate();
 	}
 
-	class ListFilterDeterioration : ListFilter
+	public class ListFilterDeterioration : ListFilter
 	{
 		protected override bool FilterApplies(Thing thing) =>
 			SteadyEnvironmentEffects.FinalDeteriorationRate(thing) >= 0.001f;
 	}
 
-	enum DoorOpenFilter { Open, Close, HoldOpen, BlockedOpenMomentary }
-	class ListFilterDoorOpen : ListFilterDropDown<DoorOpenFilter>
+	public enum DoorOpenFilter { Open, Close, HoldOpen, BlockedOpenMomentary }
+	public class ListFilterDoorOpen : ListFilterDropDown<DoorOpenFilter>
 	{
 		protected override bool FilterApplies(Thing thing)
 		{
@@ -1016,7 +1016,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	class ListFilterThingDef : ListFilterDropDown<ThingDef>
+	public class ListFilterThingDef : ListFilterDropDown<ThingDef>
 	{
 		public IntRange stackRange;
 		public ListFilterThingDef()
@@ -1071,7 +1071,7 @@ namespace TD_Find_Lib
 	}
 
 
-	class ListFilterModded : ListFilterDropDown<ModContentPack>
+	public class ListFilterModded : ListFilterDropDown<ModContentPack>
 	{
 		public ListFilterModded()
 		{
@@ -1096,7 +1096,7 @@ namespace TD_Find_Lib
 	}
 
 
-	class ListFilterOnScreen : ListFilter
+	public class ListFilterOnScreen : ListFilter
 	{
 		protected override bool FilterApplies(Thing thing) =>
 			thing.OccupiedRect().Overlaps(Find.CameraDriver.CurrentViewRect);
@@ -1105,7 +1105,7 @@ namespace TD_Find_Lib
 	}
 
 
-	class ListFilterStat : ListFilterDropDown<StatDef>
+	public class ListFilterStat : ListFilterDropDown<StatDef>
 	{
 		FloatRange valueRange;
 

@@ -59,11 +59,11 @@ namespace TD_Find_Lib
 
 		public override void DoWindowContents(Rect fillRect)
 		{
-			DrawFindDescription(fillRect, findDesc);
+			DrawFindDescription(fillRect, findDesc, ref locked);
 		}
 
 		//Draw Filters
-		public void DrawFindDescription(Rect rect, FindDescription findDesc)
+		public static void DrawFindDescription(Rect rect, FindDescription findDesc, ref bool locked)
 		{
 			Listing_StandardIndent listing = new Listing_StandardIndent()
 			{ maxOneColumn = true };

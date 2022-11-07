@@ -9,7 +9,7 @@ using UnityEngine;
 namespace TD_Find_Lib
 {
 	[StaticConstructorOnStartup]
-	static class FindTex
+	public static class FindTex
 	{
 		//Names of objects in vanilla are haphazard so I might as well just declare these here.
 		public static readonly Texture2D LockOn = ContentFinder<Texture2D>.Get("Locked", true);
@@ -19,5 +19,6 @@ namespace TD_Find_Lib
 		public static readonly Texture2D Copy = ContentFinder<Texture2D>.Get("UI/Buttons/Copy");
 		public static readonly Texture2D Paste = ContentFinder<Texture2D>.Get("UI/Buttons/Paste");
 		public static readonly Texture2D Trash = ContentFinder<Texture2D>.Get("UI/Buttons/Dismiss");
+		public static readonly Texture2D SelectAll = ContentFinder<Texture2D>.Get("UI/Commands/SelectNextTransporter", true);
 	}
 }

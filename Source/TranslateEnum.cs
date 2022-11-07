@@ -6,7 +6,7 @@ using Verse;
 
 namespace TD_Find_Lib
 {
-	static class TranslateEnumEx
+	public static class TranslateEnumEx
 	{
 		public static string TranslateEnum(this object e)
 		{

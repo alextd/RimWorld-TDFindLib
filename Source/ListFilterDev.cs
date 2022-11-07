@@ -7,7 +7,7 @@ using RimWorld;
 
 namespace TD_Find_Lib
 {
-	class ListFilterClassType : ListFilterDropDown<Type>
+	public class ListFilterClassType : ListFilterDropDown<Type>
 	{
 		public ListFilterClassType() => sel = typeof(Thing);
 
@@ -21,13 +21,13 @@ namespace TD_Find_Lib
 				types;
 	}
 
-	class ListFilterDrawerType : ListFilterDropDown<DrawerType>
+	public class ListFilterDrawerType : ListFilterDropDown<DrawerType>
 	{
 		protected override bool FilterApplies(Thing thing) =>
 			thing.def.drawerType == sel;
 	}
 
-	class ListFilterFogged : ListFilter
+	public class ListFilterFogged : ListFilter
 	{
 		protected override bool FilterApplies(Thing thing) =>
 			thing.PositionHeld.Fogged(thing.MapHeld);
