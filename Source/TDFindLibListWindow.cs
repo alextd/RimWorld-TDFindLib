@@ -18,6 +18,11 @@ namespace TD_Find_Lib
 			doCloseX = true;
 		}
 
+		public override void PostClose()
+		{
+			Mod.settings.Write();
+		}
+
 		private const float RowHeight = WidgetRow.IconSize + 6;
 
 		private Vector2 scrollPosition = Vector2.zero;
