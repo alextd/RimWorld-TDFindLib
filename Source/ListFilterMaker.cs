@@ -13,9 +13,6 @@ namespace TD_Find_Lib
 	public static class ListFilterMaker
 	{
 		public static ListFilterDef Filter_Name;
-		public static ListFilterDef Filter_Def;
-		public static ListFilterDef Filter_Zone;
-		public static ListFilterDef Filter_Group;
 
 		// The result is to be added to a IFilterHolder with Add()
 		// (Either a FindDescription or a ListFilterGroup)
@@ -31,43 +28,6 @@ namespace TD_Find_Lib
 			ListFilterMaker.MakeFilter(ListFilterMaker.Filter_Name);
 
 
-		public static ListFilter FilterForSelected()
-		{
-			if (Find.Selector.SingleSelectedThing is Thing thing)
-			{
-				ThingDef def = thing.def;
-				if (Find.Selector.SelectedObjectsListForReading.All(o => o is Thing t && t.def == def))
-				{
-					ListFilterThingDef filterDef = (ListFilterThingDef)ListFilterMaker.MakeFilter(ListFilterMaker.Filter_Def);
-					filterDef.sel = thing.def;
-					return filterDef;
-				}
-			}
-			else if (Find.Selector.SelectedZone is Zone zone)
-			{
-				ListFilterZone filterZone = (ListFilterZone)ListFilterMaker.MakeFilter(ListFilterMaker.Filter_Zone);
-				filterZone.sel = zone;
-				return filterZone;
-			}
-			
-			var defs = Find.Selector.SelectedObjectsListForReading.Select(o => (o as Thing).def).ToHashSet();
-
-			if(defs.Count > 0)
-			{
-				ListFilterGroup groupFilter = (ListFilterGroup)ListFilterMaker.MakeFilter(ListFilterMaker.Filter_Group);
-				foreach(ThingDef def in defs)
-				{
-					ListFilterThingDef defFilter = (ListFilterThingDef)ListFilterMaker.MakeFilter(ListFilterMaker.Filter_Def);
-					defFilter.sel = def;
-					groupFilter.Children.Add(defFilter);
-				}
-				return groupFilter;
-			}
-
-			return null;
-		}
-
-
 		// Categories and Filters that aren't grouped under a Category
 		private static readonly List<ListFilterSelectableDef> rootFilters;
 
@@ -75,7 +35,7 @@ namespace TD_Find_Lib
 		{
 			rootFilters = DefDatabase<ListFilterSelectableDef>.AllDefs.ToList();
 			foreach (var listDef in DefDatabase<ListFilterCategoryDef>.AllDefs)
-				foreach (var subDef in listDef.SubFilters)  // ?? because game explodes on config error
+				foreach (var subDef in listDef.SubFilters)
 					rootFilters.Remove(subDef);
 		}
 
