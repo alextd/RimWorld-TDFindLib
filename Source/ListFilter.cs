@@ -381,6 +381,59 @@ namespace TD_Find_Lib
 		private bool SaveLoadByName => UsesResolveName || UsesResolveRef;
 		protected virtual string MakeSaveName() => sel?.ToString() ?? SaveLoadXmlConstants.IsNullAttributeName;
 
+		public override void ExposeData()
+		{
+			base.ExposeData();
+
+			Scribe_Values.Look(ref _extraOption, "ex");
+			if (_extraOption > 0)
+			{
+				if (Scribe.mode == LoadSaveMode.LoadingVars)
+					extraOption = _extraOption;	// property setter to set other fields null
+
+				// No need to worry about sel or refname, we're done!
+				return;
+			}
+
+			//Oh Jesus T can be anything but Scribe doesn't like that much flexibility so here we are:
+			//(avoid using property 'sel' so it doesn't MakeRefName())
+			if (SaveLoadByName)
+			{
+				// Of course between games you can't get references so just save by name should be good enough
+				// (even if it's from the same game, it can still resolve the reference all the same)
+
+				// Saving a null selName saves "IsNull"
+				Scribe_Values.Look(ref selName, "refName");
+
+				// ResolveName() will be called when loaded onto a map for actual use
+			}
+			else if (typeof(IExposable).IsAssignableFrom(typeof(T)))
+			{
+				//This might just be to handle ListFilterSelection
+				Scribe_Deep.Look(ref _sel, "sel");
+			}
+			else
+				Scribe_Values.Look(ref _sel, "sel");
+		}
+		public override ListFilter Clone()
+		{
+			ListFilterWithOption<T> clone = (ListFilterWithOption<T>)base.Clone();
+
+			clone.extraOption = extraOption;
+			if (extraOption > 0)
+				return clone;
+
+			if (SaveLoadByName)
+				clone.selName = selName;
+
+			if(!UsesResolveRef)
+				clone._sel = _sel;  //todo handle if sel needs to be deep-copied. Perhaps sel should be T const * sel...
+
+			clone.selectionError = selectionError;
+
+			return clone;
+		}
+
 		// Subclasses where SaveLoadByName is true need to implement ResolveName() or ResolveRef()
 		// (unless it's just a Def)
 		// return matching object based on refName (refName will not be "null")
@@ -443,59 +496,6 @@ namespace TD_Find_Lib
 		protected virtual T ResolveRef(Map map)
 		{
 			throw new NotImplementedException();
-		}
-
-		public override void ExposeData()
-		{
-			base.ExposeData();
-
-			Scribe_Values.Look(ref _extraOption, "ex");
-			if (_extraOption > 0)
-			{
-				if (Scribe.mode == LoadSaveMode.LoadingVars)
-					extraOption = _extraOption;	// property setter to set other fields null
-
-				// No need to worry about sel or refname, we're done!
-				return;
-			}
-
-			//Oh Jesus T can be anything but Scribe doesn't like that much flexibility so here we are:
-			//(avoid using property 'sel' so it doesn't MakeRefName())
-			if (SaveLoadByName)
-			{
-				// Of course between games you can't get references so just save by name should be good enough
-				// (even if it's from the same game, it can still resolve the reference all the same)
-
-				// Saving a null selName saves "IsNull"
-				Scribe_Values.Look(ref selName, "refName");
-
-				// ResolveName() will be called when loaded onto a map for actual use
-			}
-			else if (typeof(IExposable).IsAssignableFrom(typeof(T)))
-			{
-				//This might just be to handle ListFilterSelection
-				Scribe_Deep.Look(ref _sel, "sel");
-			}
-			else
-				Scribe_Values.Look(ref _sel, "sel");
-		}
-		public override ListFilter Clone()
-		{
-			ListFilterWithOption<T> clone = (ListFilterWithOption<T>)base.Clone();
-
-			clone.extraOption = extraOption;
-			if (extraOption > 0)
-				return clone;
-
-			if (SaveLoadByName)
-				clone.selName = selName;
-
-			if(!UsesResolveRef)
-				clone._sel = _sel;  //todo handle if sel needs to be deep-copied. Perhaps sel should be T const * sel...
-
-			clone.selectionError = selectionError;
-
-			return clone;
 		}
 	}
 
