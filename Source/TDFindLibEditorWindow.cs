@@ -17,6 +17,7 @@ namespace TD_Find_Lib
 		public TDFindLibEditorWindow(FindDescription desc, Action<FindDescription> onCloseIfChanged = null)
 		{
 			findDesc = desc;
+			onlyOneOfTypeAllowed = false;
 			preventCameraMotion = false;
 			draggable = true;
 			resizeable = true;
@@ -47,6 +48,12 @@ namespace TD_Find_Lib
 				}
 				return size;
 			}
+		}
+
+		public override void SetInitialSizeAndPosition()
+		{
+			base.SetInitialSizeAndPosition();
+			windowRect.x = 0;
 		}
 
 
@@ -82,7 +89,7 @@ namespace TD_Find_Lib
 				locked = !locked;
 
 			if (buttonRow.ButtonIcon(TexButton.Rename))
-				Find.WindowStack.Add(new Dialog_Name(newName => { findDesc.name = newName; findDesc.changed = true; }));
+				Find.WindowStack.Add(new Dialog_Name(findDesc.name, newName => { findDesc.name = newName; findDesc.changed = true; }));
 
 
 			//Listing Type
