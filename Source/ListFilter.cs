@@ -934,7 +934,7 @@ namespace TD_Find_Lib
 		}
 
 		public override string NullOption() => "TD.AnyOption".Translate();
-		public override IEnumerable<Area> Options() => Find.CurrentMap.areaManager.AllAreas.Where(a => a is Area_Allowed);
+		public override IEnumerable<Area> Options() => Find.CurrentMap?.areaManager.AllAreas.Where(a => a is Area_Allowed) ?? Enumerable.Empty<Area>();
 		public override string NameFor(Area o) => o.Label;
 
 		public override int ExtraOptionsCount => 5;
@@ -971,7 +971,7 @@ namespace TD_Find_Lib
 		}
 
 		public override string NullOption() => "TD.AnyOption".Translate();
-		public override IEnumerable<Zone> Options() => Find.CurrentMap.zoneManager.AllZones;
+		public override IEnumerable<Zone> Options() => Find.CurrentMap?.zoneManager.AllZones ?? Enumerable.Empty<Zone>();
 
 		public override int ExtraOptionsCount => 2;
 		public override string NameForExtra(int ex) => ex == 1 ? "TD.AnyStockpile".Translate() : "TD.AnyGrowingZone".Translate();

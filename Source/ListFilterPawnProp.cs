@@ -496,7 +496,7 @@ namespace TD_Find_Lib
 		}
 
 		public override string NullOption() => "NoAreaAllowed".Translate();
-		public override IEnumerable<Area> Options() => Find.CurrentMap.areaManager.AllAreas.Where(a => a is Area_Allowed);//a.AssignableAsAllowed());
+		public override IEnumerable<Area> Options() => Find.CurrentMap?.areaManager.AllAreas.Where(a => a is Area_Allowed) ?? Enumerable.Empty<Area>();//a.AssignableAsAllowed());
 		public override string NameFor(Area o) => o.Label;
 
 		public override int ExtraOptionsCount => 1;

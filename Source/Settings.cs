@@ -11,7 +11,7 @@ namespace TD_Find_Lib
 	public class Settings : ModSettings
 	{
 		private bool onlyAvailable = true;
-		public bool OnlyAvailable => onlyAvailable != Event.current.shift;
+		public bool OnlyAvailable => onlyAvailable != Event.current.shift && Find.CurrentMap != null;
 
 		internal List<FindDescription> savedFilters = new();
 

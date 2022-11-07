@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Verse;
+using RimWorld;
 using UnityEngine;
 
 namespace TD_Find_Lib
@@ -227,7 +228,7 @@ namespace TD_Find_Lib
 				ReorderableWidget.Reorderable(reorderID, usedRect);
 
 				// Highlight the filters that pass for selected objects (useful for "any" filters)
-				if (!(filter is IFilterHolder) && Find.Selector.SelectedObjects.Any(o => o is Thing t && filter.AppliesTo(t)))
+				if (!(filter is IFilterHolder) && Find.UIRoot is UIRoot_Play && Find.Selector.SelectedObjects.Any(o => o is Thing t && filter.AppliesTo(t)))
 				{
 					usedRect.yMax = listing.CurHeight;
 					Widgets.DrawHighlight(usedRect);
