@@ -70,7 +70,8 @@ namespace TD_Find_Lib
 			Widgets.Label(nameRect, "Filter: " + findDesc.name);
 
 			//Buttons
-			WidgetRow buttonRow = new WidgetRow(nameRect.xMax, nameRect.yMin, UIDirection.LeftThenDown);
+			WidgetRow buttonRow = new WidgetRow(nameRect.xMax - 20, nameRect.yMin, UIDirection.LeftThenDown);
+
 
 			if (buttonRow.ButtonIcon(FindTex.Cancel, "ClearAll".Translate()))
 			{
@@ -85,9 +86,15 @@ namespace TD_Find_Lib
 
 
 			//Listing Type
-			Rect typeRect = listing.GetRect(Text.LineHeight);
-			Widgets.Label(typeRect, "TD.Listing".Translate() + findDesc.BaseType.TranslateEnum());
+			Text.Font = GameFont.Small;
+
+			Rect headerRect = listing.GetRect(Text.LineHeight);
+			Rect typeRect = headerRect.LeftPart(.6f);
+			Rect allMapsRect = headerRect.RightPart(.3f);
 			Widgets.DrawHighlightIfMouseover(typeRect);
+			Widgets.DrawHighlightIfMouseover(allMapsRect);
+
+			Widgets.Label(typeRect, "TD.Listing".Translate() + findDesc.BaseType.TranslateEnum());
 			if (Widgets.ButtonInvisible(typeRect))
 			{
 				List<FloatMenuOption> types = new List<FloatMenuOption>();
@@ -102,13 +109,14 @@ namespace TD_Find_Lib
 
 			//Extra options:
 			bool allMaps = findDesc.allMaps;
-			if (listing.CheckboxLabeledChanged(
+			Widgets.CheckboxLabeled(allMapsRect,
 				"TD.AllMaps".Translate(),
-				ref allMaps,
-				"TD.CertainFiltersDontWorkForAllMaps-LikeZonesAndAreasThatAreObviouslySpecificToASingleMap".Translate()))
+				ref allMaps);
+			TooltipHandler.TipRegion(allMapsRect, "TD.CertainFiltersDontWorkForAllMaps-LikeZonesAndAreasThatAreObviouslySpecificToASingleMap".Translate());
+
+			if(allMaps != findDesc.allMaps)
 			{
-				filterChanged = true;
-				findDesc.allMaps = allMaps; //Re-writes map label. Hopefully the map is set if allmaps is checked off?
+				findDesc.allMaps = allMaps; //Re-writes map label, remakes list. Hopefully the map is set if allmaps is checked off?
 			}
 
 			listing.GapLine();

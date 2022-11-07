@@ -75,6 +75,7 @@ namespace TD_Find_Lib
 
 
 				MakeMapLabel();
+				RemakeList();
 			}
 		}
 		public bool allMaps
@@ -86,6 +87,7 @@ namespace TD_Find_Lib
 				//But keep the map around just in case this gets checked off
 
 				MakeMapLabel();
+				RemakeList();
 			}
 		}
 
@@ -142,8 +144,14 @@ namespace TD_Find_Lib
 		{
 			changed = true;
 
-			//  inactive = Don't do anything!
-			if (!active) return;
+			// inactive = Don't do anything!
+			if (!active)
+				return;
+
+			// Nothing to filter? Nevermind!
+			if (Children.Filters.Count() == 0)
+				return;
+
 
 			listedThings.Clear();
 
