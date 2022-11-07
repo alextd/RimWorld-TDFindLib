@@ -78,9 +78,10 @@ namespace TD_Find_Lib
 
 		public void Header(TaggedString label, float maxHeight = -1, string tooltip = null)
 		{
+			var lastFont = Text.Font;
 			Text.Font = GameFont.Medium;
 			Label(label, maxHeight, tooltip);
-			Text.Font = GameFont.Small;
+			Text.Font = lastFont;
 		}
 
 		public bool CheckboxLabeledChanged(string label, ref bool checkOn, string tooltip = null, float height = 0f, float labelPct = 1f)
