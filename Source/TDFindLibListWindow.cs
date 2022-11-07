@@ -46,13 +46,28 @@ namespace TD_Find_Lib
 					int localI = i;
 					Find.WindowStack.Add(new TDFindLibEditorWindow(desc.CloneForEdit(), delegate (FindDescription newDesc)
 						{
-							Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation($"Save changes to {newDesc.name}?",
-								delegate ()
-								{
-									Mod.settings.savedFilters[localI] = newDesc;
-									Mod.settings.Write();
-								},
-								title: "Change Filter"));
+							Action acceptAction = delegate ()
+							{
+								Mod.settings.savedFilters[localI] = newDesc;
+								Mod.settings.Write();
+							};
+							Action copyAction = delegate ()
+							{
+								Mod.settings.savedFilters.Insert(localI + 1, newDesc);
+								Mod.settings.Write();
+							};
+							Find.WindowStack.Add(new Dialog_MessageBox(
+								$"Save changes to {newDesc.name}?",
+								"Confirm".Translate(), acceptAction,
+								"No".Translate(), null,
+								"Change Filter",
+								true, acceptAction,
+								delegate () { }// I dunno who wrote this class but this empty method is required so the window can close with esc because its logic is very different from its base class
+							)
+							{
+								buttonCText = "Save as Copy",
+								buttonCAction = copyAction,
+							});
 						}));
 				}
 
