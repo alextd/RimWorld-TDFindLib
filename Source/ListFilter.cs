@@ -25,11 +25,8 @@ namespace TD_Find_Lib
 		public ListFilterDef def;
 
 		public IFilterHolder parent;
-		// parent is not set after ExposeData, that'll be done in Clone.
-		// parent is only used in UI or actual processing so as is made clear below,
-		// An ExpostData-loaded ListFilter needs to be cloned before actual use
 
-		public FindDescription RootFindDesc => parent.RootFindDesc;
+		public FindDescription RootFindDesc => parent?.RootFindDesc;
 
 
 		protected int id; //For Widgets.draggingId purposes
@@ -44,27 +41,22 @@ namespace TD_Find_Lib
 
 
 		// Okay, save/load. The basic gist here is:
-		// ExposeData saves any filter fine.
-		// ExposeData can load a filter for display purposes, but it's not yet usable.
-		// After ExposeData loading, filters need to be cloned
-		// After Cloning, they get DoResolveNames on a map
-		// Then filters can actually be used.
-
-		// Even if map is null and it's searching all maps,
-		// Even if it's a def that could've been loaded already.
-		// ResolveName is when any named thing get resolved
-
-
-		// Any overridden ExposeData+Clone should copy data but not process much.
-		// If there's proessing to do, do it in ResolveName. 
-		// e.g. ListFilterWithOption sets selName in Clone,
-		//  but sets the actual selection in ResolveName
+		// During ExposeData loading, ResolveName is called for globally named things (defs)
+		// But anything with a local reference (Zones) needs to resolve that ref on a map
+		// Filters loaded from storage need to be cloned to a map to be used
 
 		public virtual void ExposeData()
 		{
 			Scribe_Defs.Look(ref def, "def");
 			Scribe_Values.Look(ref enabled, "enabled", true);
 			Scribe_Values.Look(ref include, "include", true);
+
+			if (Scribe.mode == LoadSaveMode.ResolvingCrossRefs)
+			{
+				DoResolveName();
+				if (RootFindDesc.active)
+					DoResolveRef(RootFindDesc.map);
+			}
 		}
 
 		public virtual ListFilter Clone()
@@ -72,10 +64,15 @@ namespace TD_Find_Lib
 			ListFilter clone = ListFilterMaker.MakeFilter(def);
 			clone.enabled = enabled;
 			clone.include = include;
-			//clone.parent = newHolder; //No - MakeFilter just set it.
+
+
+			//No - Will be set in FilterHolder.Add or FilterHolder's ExposeData on LoadingVars step
+			//clone.parent = newHolder; 
+
 			return clone;
 		}
-		public virtual void DoResolveLoadName(Map map) { }
+		public virtual void DoResolveName() { }
+		public virtual void DoResolveRef(Map map) { }
 
 
 		public IEnumerable<Thing> Apply(IEnumerable<Thing> list)
@@ -295,7 +292,7 @@ namespace TD_Find_Lib
 	{
 		// selection
 		private T _sel;
-		protected string selName;// if UsesRefName,  = SaveLoadXmlConstants.IsNullAttributeName;
+		protected string selName;// if UsesSaveLoadName,  = SaveLoadXmlConstants.IsNullAttributeName;
 		private int _extraOption; //0 meaning use _sel, what 1+ means is defined in subclass
 
 		// A subclass with extra fields needs to override ExposeData and Clone to copy them
@@ -353,36 +350,81 @@ namespace TD_Find_Lib
 		//Okay, so, references.
 		//A simple filter e.g. string search is usable everywhere.
 		//In-game, as an alert, as a saved filter to load in, saved to file to load into another game, etc.
-		//ExposeData and Clone can just copy T sel, because a string is the same everywhere.
-		//But a filter that references in-game things can't be used universally
+		//ExposeData and Clone can just copy that string, because a string is the same everywhere.
+		//But a filter that references in-game things can't be used universally.
+		//Filters are saved outside a running world, so even things like defs might not exist when loaded with different mods.
 		//When such a filter is run in-game, it does of course set 'sel' and reference it like normal
-		//But when such a filter is saved, it cannot be bound to an instance
-		//So ExposeData saves and loads 'string refName' instead of the 'T sel'
-		//When showing that filter as an option to load, that's fine, sel isn't set but refName is.
-		//When the filter is copied, loaded or saved in any way, it is cloned with Clone(), which will copy refName but not sel
-		//When loading or copying into a map, whoever called Clone will also call ResolveName(Map) to bind to that map
-		//(even if a copy ends up referencing the same thing, the reference is re-resolved for simplicity's sake)
+		//But when such a filter is saved, it cannot be bound to an instance or even an ILoadReferencable id
+		//So ExposeData saves and loads 'string selName' instead of the 'T sel'
+		//When editing that filter when active, that's fine, sel isn't set but selName is - so selName should be readable.
 
-		//TL;DR there are two 'modes' a ListFilter can be: active or inactive.
-		//When active, it's bound to a map, ready to do actual filtering based on sel
-		//When inactive, it's in storage - it only knows the name of sel
-		//When loading an inactive filter, the refname+map are used to find and set sel
-		//When saving an active filter, just refname is saved
-		//When copinying an active filter, refname is copied and sel is found again
-		//(Of course if you don't use refname, the filter just copies sel around)
+		//ListFilters have 3 levels of saving, sort of like ExposeData's 3 passes.
+		//Raw values can be saved/loaded by value easily in ExposeData.
+		//Filters that SaveLoadByName, are saved  by name in ExposeData
+		// - so they can be loaded into another game, 
+		// - if that name cannot be resolved, the name is still saved instead of saving null
+		//For loading there's two different times to load:
+		//Filters that UsesResolveName can be resolved after the game starts up (e.g. defs),
+		// - ResolveName is called from ExposeData, ResolvingCrossRefs
+		//Filters that UsesResolveRef must be resolved on a map (e.g. Zones, ILoadReferenceable)
+		// - Filters that are loaded and active also call ResolveRef in ExposeData, ResolvingCrossRefs
+		// - Filters that are loaded and inactive do not call ResolveRef and only have selName set.
+		// - Filters that are Cloned from a saved filter, which was inactive, will have ResolveRef called after the Clone.
+		// - Filters that are Cloned from an active filter, onto a new map, will have ResolveRef called after the Clone.
 
 		protected readonly static bool IsDef = typeof(Def).IsAssignableFrom(typeof(T));
 		protected readonly static bool IsRef = typeof(ILoadReferenceable).IsAssignableFrom(typeof(T));
 		protected readonly static bool IsEnum = typeof(T).IsEnum;
 
-		public virtual bool SaveLoadByName => IsRef || IsDef;
+		public virtual bool UsesResolveName => IsDef;
+		public virtual bool UsesResolveRef => IsRef;
+		private bool SaveLoadByName => UsesResolveName || UsesResolveRef;
 		protected virtual string MakeSaveName() => sel?.ToString() ?? SaveLoadXmlConstants.IsNullAttributeName;
 
-		// Subclasses where SaveLoadByName is true need to implement ResolveName()
+		// Subclasses where SaveLoadByName is true need to implement ResolveName() or ResolveRef()
 		// (unless it's just a Def)
 		// return matching object based on refName (refName will not be "null")
 		// returning null produces a selection error and the filter will be disabled
-		protected virtual T ResolveName(Map map)
+		public override void DoResolveName()
+		{
+			if (!UsesResolveName || extraOption > 0) return;
+
+			if (selName == SaveLoadXmlConstants.IsNullAttributeName)
+			{
+				_sel = default; //can't use null because generic T isn't bound as reftype
+			}
+			else
+			{
+				_sel = ResolveName();
+
+				if (_sel == null)
+				{
+					selectionError = $"Missing {def.LabelCap}: {selName}?";
+					Verse.Log.Warning("TD.TriedToLoad0FilterNamed1ButCouldNotBeFound".Translate(def.LabelCap, selName));
+				}
+			}
+		}
+		public override void DoResolveRef(Map map)
+		{
+			if (!UsesResolveRef || extraOption > 0) return;
+
+			if (selName == SaveLoadXmlConstants.IsNullAttributeName)
+			{
+				_sel = default; //can't use null because generic T isn't bound as reftype
+			}
+			else
+			{
+				_sel = ResolveRef(map);
+
+				if (_sel == null)
+				{
+					selectionError = $"Missing {def.LabelCap}: {selName}?";
+					Messages.Message("TD.TriedToLoad0FilterNamed1ButCouldNotBeFound".Translate(def.LabelCap, selName), MessageTypeDefOf.RejectInput);
+				}
+			}
+		}
+
+		protected virtual T ResolveName()
 		{
 			if (IsDef)
 			{
@@ -396,7 +438,10 @@ namespace TD_Find_Lib
 
 			throw new NotImplementedException();
 		}
-
+		protected virtual T ResolveRef(Map map)
+		{
+			throw new NotImplementedException();
+		}
 		public override void ExposeData()
 		{
 			base.ExposeData();
@@ -441,29 +486,13 @@ namespace TD_Find_Lib
 
 			if (SaveLoadByName)
 				clone.selName = selName;
-			else
-				clone._sel = _sel;	//todo handle if sel needs to be deep-copied. Perhaps sel should be T const * sel...
+
+			if(!UsesResolveRef)
+				clone._sel = _sel;  //todo handle if sel needs to be deep-copied. Perhaps sel should be T const * sel...
+
+			clone.selectionError = selectionError;
 
 			return clone;
-		}
-		public override void DoResolveLoadName(Map map)
-		{
-			if (!SaveLoadByName || extraOption > 0) return;
-
-			if (selName == SaveLoadXmlConstants.IsNullAttributeName)
-			{
-				_sel = default; //can't use null because generic T isn't bound as reftype
-			}
-			else
-			{
-				_sel = ResolveName(map);
-
-				if (_sel == null)
-				{
-					selectionError = $"Missing {def.LabelCap}: {selName}?";
-					Messages.Message("TD.TriedToLoad0FilterNamed1ButCouldNotBeFound".Translate(def.LabelCap, selName), MessageTypeDefOf.RejectInput);
-				}
-			}
 		}
 	}
 
@@ -586,7 +615,7 @@ namespace TD_Find_Lib
 
 		public override bool Ordered => true;
 		public override IEnumerable<DesignationDef> Options() =>
-			ContentsUtility.OnlyAvailable ?
+			Mod.settings.OnlyAvailable ?
 				Find.CurrentMap.designationManager.AllDesignations.Select(d => d.def).Distinct() :
 				base.Options();
 
@@ -716,7 +745,7 @@ namespace TD_Find_Lib
 			thing.def.IsWithinCategory(sel);
 
 		public override IEnumerable<ThingCategoryDef> Options() =>
-			ContentsUtility.OnlyAvailable ?
+			Mod.settings.OnlyAvailable ?
 				base.Options().Intersect(ContentsUtility.AvailableInGame(ThingCategoryDefsOfThing)) :
 				base.Options();
 
@@ -824,7 +853,7 @@ namespace TD_Find_Lib
 		public override string NullOption() => "TD.AnyOption".Translate();
 		private static List<ThingDef> stuffList = DefDatabase<ThingDef>.AllDefs.Where(d => d.IsStuff).ToList();
 		public override IEnumerable<ThingDef> Options() =>
-			ContentsUtility.OnlyAvailable
+			Mod.settings.OnlyAvailable
 				? stuffList.Intersect(ContentsUtility.AvailableInGame(t => t.Stuff))
 				: stuffList;
 		
@@ -849,7 +878,7 @@ namespace TD_Find_Lib
 
 		public override string NullOption() => "TD.AnyOption".Translate();
 		public override IEnumerable<BodyPartDef> Options() =>
-			ContentsUtility.OnlyAvailable
+			Mod.settings.OnlyAvailable
 				? base.Options().Intersect(ContentsUtility.AvailableInGame(
 					t => (t as Pawn)?.health.hediffSet.GetMissingPartsCommonAncestors().Select(h => h.Part.def) ?? Enumerable.Empty<BodyPartDef>()))
 				: base.Options();
@@ -877,7 +906,7 @@ namespace TD_Find_Lib
 			extraOption = 1;
 		}
 
-		protected override Area ResolveName(Map map) =>
+		protected override Area ResolveRef(Map map) =>
 			map.areaManager.GetLabeled(selName);
 
 		public override bool ValidForAllMaps => extraOption > 0 || sel == null;
@@ -925,7 +954,7 @@ namespace TD_Find_Lib
 
 	class ListFilterZone : ListFilterDropDown<Zone>
 	{
-		protected override Zone ResolveName(Map map) =>
+		protected override Zone ResolveRef(Map map) =>
 			map.zoneManager.AllZones.FirstOrDefault(z => z.label == selName);
 
 		public override bool ValidForAllMaps => extraOption != 0 || sel == null;
@@ -1014,7 +1043,7 @@ namespace TD_Find_Lib
 			(sel.stackLimit <= 1 || stackRange.Includes(thing.stackCount));
 
 		public override IEnumerable<ThingDef> Options() =>
-			(ContentsUtility.OnlyAvailable ?
+			(Mod.settings.OnlyAvailable ?
 				ContentsUtility.AvailableInGame(t => t.def) :
 				base.Options())
 			.Where(def => FindDescription.ValidDef(def));
@@ -1046,10 +1075,10 @@ namespace TD_Find_Lib
 		}
 
 
-		public override bool SaveLoadByName => true;
-		protected override string MakeSaveName() => sel.ToString();
+		public override bool UsesResolveName => true;
+		protected override string MakeSaveName() => sel.PackageIdPlayerFacing;
 
-		protected override ModContentPack ResolveName(Map map) =>
+		protected override ModContentPack ResolveName() =>
 			LoadedModManager.RunningMods.FirstOrDefault(mod => mod.PackageIdPlayerFacing == selName);
 
 

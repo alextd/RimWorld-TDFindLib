@@ -23,7 +23,7 @@ namespace TD_Find_Lib
 
 		public override string SettingsCategory()
 		{
-			return "TD Find Lib";
+			return "TD Find Library";
 		}
 	}
 }

@@ -16,7 +16,7 @@ namespace TD_Find_Lib
 
 		public static List<Type> types = typeof(Thing).AllSubclassesNonAbstract().OrderBy(t => t.ToString()).ToList();
 		public override IEnumerable<Type> Options() =>
-			ContentsUtility.OnlyAvailable ?
+			Mod.settings.OnlyAvailable ?
 				ContentsUtility.AvailableInGame(t => t.GetType()).OrderBy(NameFor).ToList() :
 				types;
 	}

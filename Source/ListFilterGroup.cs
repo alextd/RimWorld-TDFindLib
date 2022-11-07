@@ -34,12 +34,8 @@ namespace TD_Find_Lib
 			ListFilterGroup clone = (ListFilterGroup)base.Clone();
 			clone.children = children.Clone(clone);
 			clone.any = any;
+
 			return clone;
-		}
-		public override void DoResolveLoadName(Map map)
-		{
-			foreach(var f in Children.Filters)
-				f.DoResolveLoadName(map);
 		}
 
 		public override bool DrawMain(Rect rect, bool locked)

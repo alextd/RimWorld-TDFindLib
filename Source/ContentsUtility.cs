@@ -29,8 +29,6 @@ namespace TD_Find_Lib
 			return knownThings.FindAll(t => DebugSettings.godMode || !t.PositionHeld.Fogged(t.MapHeld));
 		}
 
-		public static bool onlyAvailable = true;
-		public static bool OnlyAvailable => onlyAvailable != Event.current.shift;
 		public static HashSet<T> AvailableInGame<T>(Func<Thing, IEnumerable<T>> validGetter)
 		{
 			HashSet<T> ret = new HashSet<T>();

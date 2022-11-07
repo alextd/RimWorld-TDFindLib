@@ -13,7 +13,7 @@ namespace TD_Find_Lib
 		public FilterHolder Children { get; }
 		public FindDescription RootFindDesc { get; }
 	}
-	public class FilterHolder : IExposable
+	public class FilterHolder//	 : IExposable //Not IExposable because that means ctor FilterHolder() should exist.
 	{
 		private IFilterHolder parent;
 		private List<ListFilter> filters = new List<ListFilter>() { };
@@ -29,18 +29,21 @@ namespace TD_Find_Lib
 		public void ExposeData()
 		{
 			Scribe_Collections.Look(ref filters, "filters");
+			if(Scribe.mode == LoadSaveMode.LoadingVars)
+				foreach (var f in filters)
+					f.parent = parent;
 		}
 
 		public FilterHolder Clone(IFilterHolder newParent)
 		{
 			FilterHolder clone = new FilterHolder(newParent);
 			foreach (var f in Filters.Select(f => f.Clone()))
-				clone.Add(f);
+				clone.Add(f, remake: false);
 			return clone;
 		}
 
 		// Add filter and set its parent to this (well, the same parent IFilterHolder of this)
-		public void Add(ListFilter newFilter, int index = -1, bool remake = false, bool focus = false)
+		public void Add(ListFilter newFilter, int index = -1, bool remake = true, bool focus = false)
 		{
 			newFilter.parent = parent;
 			if(index == -1)
@@ -49,21 +52,26 @@ namespace TD_Find_Lib
 				filters.Insert(index, newFilter);
 
 			if (focus) newFilter.Focus();
-			if (remake) parent.RootFindDesc.RemakeList();
-			if (newFilter.CurrentMapOnly) parent.RootFindDesc.MakeMapLabel();
+			if (remake) parent.RootFindDesc?.RemakeList();
+			if (newFilter.CurrentMapOnly) parent.RootFindDesc?.MakeMapLabel();
+		}
+
+		public void Clear()
+		{
+			filters.Clear();
 		}
 
 		public void RemoveAll(HashSet<ListFilter> removedFilters)
 		{
 			filters.RemoveAll(f => removedFilters.Contains(f));
 			if(removedFilters.Any(f => f.CurrentMapOnly))
-				parent.RootFindDesc.MakeMapLabel();
+				parent.RootFindDesc?.MakeMapLabel();
 		}
 
 		public bool Check(Predicate<ListFilter> check) =>
 			Filters.Any(f => f.Check(check));
 
-		public void Reorder(int from, int to, bool remake = false)
+		public void Reorder(int from, int to, bool remake = true)
 		{
 			var draggerFilter = filters[from];
 			filters.RemoveAt(from);
@@ -277,7 +285,7 @@ namespace TD_Find_Lib
 				if (def is ListFilterDef fDef)
 					options.Add(new FloatMenuOption(
 						fDef.LabelCap,
-						() => Add(ListFilterMaker.MakeFilter(fDef), remake: true, focus: true)
+						() => Add(ListFilterMaker.MakeFilter(fDef), focus: true)
 					));
 				if (def is ListFilterCategoryDef cDef)
 					options.Add(new FloatMenuOption(
@@ -296,7 +304,7 @@ namespace TD_Find_Lib
 				// I don't think we need to worry about double-nested filters
 				options.Add(new FloatMenuOption(
 					def.LabelCap,
-					() => Add(ListFilterMaker.MakeFilter(def), remake: true, focus: true)
+					() => Add(ListFilterMaker.MakeFilter(def), focus: true)
 				));
 			}
 			Find.WindowStack.Add(new FloatMenu(options));

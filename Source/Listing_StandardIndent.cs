@@ -82,5 +82,25 @@ namespace TD_Find_Lib
 			Label(label, maxHeight, tooltip);
 			Text.Font = GameFont.Small;
 		}
+
+		public bool CheckboxLabeledChanged(string label, ref bool checkOn, string tooltip = null, float height = 0f, float labelPct = 1f)
+		{
+			bool prev = checkOn;
+
+			CheckboxLabeled(
+				"TD.AllMaps".Translate(),
+				ref checkOn,
+				"TD.CertainFiltersDontWorkForAllMaps-LikeZonesAndAreasThatAreObviouslySpecificToASingleMap".Translate());
+
+			return prev != checkOn;
+		}
+
+		public Rect GetRemainingRect(float widthPct = 1f)
+		{
+			float remaining = listingRect.height - curY;
+			Rect result = new Rect(curX, curY, ColumnWidth * widthPct, remaining);
+			curY = listingRect.height;
+			return result;
+		}
 	}
 }

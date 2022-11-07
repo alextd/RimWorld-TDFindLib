@@ -108,7 +108,7 @@ namespace TD_Find_Lib
 		}
 
 		public override IEnumerable<TraitDef> Options() =>
-			ContentsUtility.OnlyAvailable
+			Mod.settings.OnlyAvailable
 				? ContentsUtility.AvailableInGame(t => (t as Pawn)?.story?.traits.allTraits.Select(tr => tr.def) ?? Enumerable.Empty<TraitDef>())
 				: base.Options();
 
@@ -186,17 +186,16 @@ namespace TD_Find_Lib
 			base.ExposeData();
 
 			Scribe_Values.Look(ref stageRange, "stageRange");
+
+			if(Scribe.mode == LoadSaveMode.PostLoadInit)
+				MakeOrderedStages();
 		}
 		public override ListFilter Clone()
 		{
 			ListFilterThought clone = (ListFilterThought)base.Clone();
 			clone.stageRange = stageRange;
+			clone.MakeOrderedStages();
 			return clone;
-		}
-		public override void DoResolveLoadName(Map map)
-		{
-			base.DoResolveLoadName(map);
-			MakeOrderedStages();
 		}
 
 		protected override bool FilterApplies(Thing thing)
@@ -232,7 +231,7 @@ namespace TD_Find_Lib
 		}
 
 		public override IEnumerable<ThoughtDef> Options() =>
-			ContentsUtility.OnlyAvailable
+			Mod.settings.OnlyAvailable
 				? ContentsUtility.AvailableInGame(ThoughtsForThing)
 				: base.Options();
 
@@ -388,7 +387,7 @@ namespace TD_Find_Lib
 
 		public override string NullOption() => "None".Translate();
 		public override IEnumerable<HediffDef> Options() =>
-			ContentsUtility.OnlyAvailable
+			Mod.settings.OnlyAvailable
 				? ContentsUtility.AvailableInGame(t => (t as Pawn)?.health.hediffSet.hediffs.Select(h => h.def) ?? Enumerable.Empty<HediffDef>())
 				: base.Options();
 
@@ -485,7 +484,7 @@ namespace TD_Find_Lib
 
 	class ListFilterRestricted : ListFilterDropDown<Area>
 	{
-		protected override Area ResolveName(Map map) =>
+		protected override Area ResolveRef(Map map) =>
 			map.areaManager.GetLabeled(selName);
 
 		public override bool ValidForAllMaps => extraOption > 0 || sel == null;
@@ -518,7 +517,7 @@ namespace TD_Find_Lib
 		}
 
 		public override IEnumerable<MentalStateDef> Options() =>
-			ContentsUtility.OnlyAvailable
+			Mod.settings.OnlyAvailable
 				? ContentsUtility.AvailableInGame(t => (t as Pawn)?.MentalState?.def)
 				: base.Options();
 
@@ -591,7 +590,7 @@ namespace TD_Find_Lib
 		public override string NullOption() => "None".Translate();
 
 		public override IEnumerable<JobDef> Options() =>
-			ContentsUtility.OnlyAvailable
+			Mod.settings.OnlyAvailable
 				? ContentsUtility.AvailableInGame(t => (t as Pawn)?.CurJobDef)
 			: base.Options();
 		public override bool Ordered => true;
@@ -797,7 +796,7 @@ namespace TD_Find_Lib
 		public abstract IEnumerable<ThingDef> AllOptions();
 		public override IEnumerable<ThingDef> Options()
 		{
-			if (ContentsUtility.OnlyAvailable)
+			if (Mod.settings.OnlyAvailable)
 			{
 				HashSet<ThingDef> ret = new HashSet<ThingDef>();
 				foreach (Map map in Find.Maps)
