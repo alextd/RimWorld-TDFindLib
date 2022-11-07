@@ -93,7 +93,7 @@ namespace TD_Find_Lib
 		}
 
 		// Certain filters only work on the current map, so the entire tree will only work on the current map
-		public bool FiltersCurrentMapOnly() => Children.Check(f => f.CurrentMapOnly);
+		public bool FiltersCurrentMapOnly() => Children.Any(f => f.CurrentMapOnly);
 
 		public string mapLabel;
 		public void MakeMapLabel()
@@ -185,7 +185,9 @@ namespace TD_Find_Lib
 			Children.ExposeData();
 
 			if (Scribe.mode == LoadSaveMode.PostLoadInit)
+			{
 				MakeMapLabel();
+			}
 		}
 
 		public FindDescription CloneForSave()
@@ -199,6 +201,8 @@ namespace TD_Find_Lib
 			};
 
 			newDesc.children = children.Clone(newDesc);
+
+			newDesc.MakeMapLabel();
 
 			return newDesc;
 		}
@@ -236,7 +240,7 @@ namespace TD_Find_Lib
 			// If cloning from inactive filters, or setting a new map,
 			// Must resolve refs
 			if (!active || newMap != null)
-				newDesc.Children.ForEach(f => (f as ListFilter)?.DoResolveRef(map));
+				newDesc.Children.ForEach(f => f.DoResolveRef(map));
 
 			newDesc.MakeMapLabel();
 

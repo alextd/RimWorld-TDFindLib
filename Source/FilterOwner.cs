@@ -69,8 +69,25 @@ namespace TD_Find_Lib
 				parent.RootFindDesc?.MakeMapLabel();
 		}
 
-		public bool Check(Predicate<ListFilter> check) =>
-			Filters.Any(f => f.Check(check));
+		public bool Any(Predicate<ListFilter> predicate)
+		{
+			if (parent is ListFilter f)
+				if (predicate(f))
+					return true;
+
+			foreach (var filter in filters)
+			{
+				if (filter is IFilterHolder childHolder)
+				{
+					if (childHolder.Children.Any(predicate)) //handles calling on itself
+						return true;
+				}
+				else if (predicate(filter))
+					return true;
+			}
+
+			return false;
+		}
 
 		public void Reorder(int from, int to, bool remake = true)
 		{
@@ -80,50 +97,47 @@ namespace TD_Find_Lib
 		}
 
 		//Gather method that passes in both FindDescription and all ListFilters to selector
-		public IEnumerable<T> Gather<T>(Func<object, T?> selector) where T : struct
+		public IEnumerable<T> Gather<T>(Func<IFilterHolder, T?> selector) where T : struct
 		{
-			{
-				if (selector(parent) is T result)
-					yield return result;
-			}
+			if (selector(parent) is T result)
+				yield return result;
+
 			foreach (var filter in filters)
-			{
-				{
-					if (selector(filter) is T result)
-						yield return result;
-				}
 				if (filter is IFilterHolder childHolder)
 					foreach (T r in childHolder.Children.Gather(selector))
 						yield return r;
-			}
 		}
-		//sadly 100% copied, subtract the "?" oh gee.
-		public IEnumerable<T> Gather<T>(Func<object, T> selector) where T : class
+		//sadly 100% copied from above, subtract the "?" oh gee.
+		public IEnumerable<T> Gather<T>(Func<IFilterHolder, T> selector) where T : class
 		{
-			{
-				if (selector(parent) is T result)
-					yield return result;
-			}
+			if (selector(parent) is T result)
+				yield return result;
+
 			foreach (var filter in filters)
-			{
-				{
-					if (selector(filter) is T result)
-						yield return result;
-				}
 				if (filter is IFilterHolder childHolder)
 					foreach (T r in childHolder.Children.Gather(selector))
 						yield return r;
-			}
 		}
 
 		//Gather method that passes in both FindDescription and all ListFilters to selector
-		public void ForEach(Action<object> action)
+		public void ForEach(Action<IFilterHolder> action)
 		{
 			action(parent);
+
+			foreach (var filter in filters)
+				if (filter is IFilterHolder childHolder)
+					childHolder.Children.ForEach(action); //handles calling on itself
+		}
+
+		//Gather method that passes in both FindDescription and all ListFilters to selector
+		public void ForEach(Action<ListFilter> action)
+		{
+			if(parent is ListFilter f)
+				action(f);
 			foreach (var filter in filters)
 			{
 				if (filter is IFilterHolder childHolder)
-					childHolder.Children.ForEach(action);	//handles calling on itself
+					childHolder.Children.ForEach(action); //handles calling on itself
 				else //just a filter then
 					action(filter);
 			}
@@ -133,20 +147,20 @@ namespace TD_Find_Lib
 		{
 			Log.Message($"MasterReorder(int from={from}, int fromGroup={fromGroup}, int to={to}, int toGroup={toGroup})");
 
-			ListFilter draggedFilter = Gather(delegate (object o)
+			ListFilter draggedFilter = Gather(delegate (IFilterHolder holder)
 			{
-				if (o is IFilterHolder holder && holder.Children.reorderID == fromGroup)
+				if (holder.Children.reorderID == fromGroup)
 					return holder.Children.filters.ElementAt(from);
 
 				return null;
 			}).First();
 
 			IFilterHolder newHolder = null;
-			ForEach(delegate (object o)
+			ForEach(delegate (IFilterHolder holder)
 			{
-				if (o is IFilterHolder holder && holder.Children.reorderID == toGroup)
+				if (holder.Children.reorderID == toGroup)
 					// Hold up, don't drop inside yourself
-					if (draggedFilter != o)
+					if (draggedFilter != holder)
 						newHolder = holder;	//todo: abort early?
 			});
 
@@ -175,7 +189,7 @@ namespace TD_Find_Lib
 
 			bool changed = DrawFilters(listing, locked);
 
-			List<int> reorderIDs = new(Gather(f => (f as IFilterHolder)?.Children.reorderID));
+			List<int> reorderIDs = new(Gather<int>(f => f.Children.reorderID));
 
 			ReorderableWidget.NewMultiGroup(reorderIDs, parent.RootFindDesc.Children.MasterReorder);
 

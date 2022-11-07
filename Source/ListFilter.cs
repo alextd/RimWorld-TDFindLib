@@ -193,8 +193,6 @@ namespace TD_Find_Lib
 			else
 				Find.WindowStack.Add(new FloatMenu(options));
 		}
-
-		public virtual bool Check(Predicate<ListFilter> check) => check(this);
 	}
 
 	class FloatMenuOptionAndRefresh : FloatMenuOption

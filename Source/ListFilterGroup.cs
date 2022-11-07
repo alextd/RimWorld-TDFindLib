@@ -63,8 +63,6 @@ namespace TD_Find_Lib
 			listing.NestedOutdent();
 			return changed;
 		}
-		public override bool Check(Predicate<ListFilter> check) =>
-			base.Check(check) || Children.Filters.Any(f => f.Check(check));
 	}
 
 	public class ListFilterInventory : ListFilterGroup
