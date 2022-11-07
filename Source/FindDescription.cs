@@ -25,6 +25,7 @@ namespace TD_Find_Lib
 
 		// "Inactive" is for the saved library of filters to Clone from.
 		// inactive won't actually fill their lists
+		// activating a finddesc should have ResolveRefs called
 		public bool active;
 
 		// If you clone a FindDesciption it starts unchanged.

@@ -402,6 +402,7 @@ namespace TD_Find_Lib
 					selectionError = $"Missing {def.LabelCap}: {selName}?";
 					Verse.Log.Warning("TD.TriedToLoad0FilterNamed1ButCouldNotBeFound".Translate(def.LabelCap, selName));
 				}
+				else selectionError = null;
 			}
 		}
 		public override void DoResolveRef(Map map)
@@ -421,6 +422,7 @@ namespace TD_Find_Lib
 					selectionError = $"Missing {def.LabelCap}: {selName}?";
 					Messages.Message("TD.TriedToLoad0FilterNamed1ButCouldNotBeFound".Translate(def.LabelCap, selName), MessageTypeDefOf.RejectInput);
 				}
+				else selectionError = null;
 			}
 		}
 
@@ -442,6 +444,7 @@ namespace TD_Find_Lib
 		{
 			throw new NotImplementedException();
 		}
+
 		public override void ExposeData()
 		{
 			base.ExposeData();
@@ -508,6 +511,9 @@ namespace TD_Find_Lib
 
 			if (sel != null)
 				return NameFor(sel);
+
+			if (UsesResolveRef && !RootFindDesc.active)
+				return selName;
 
 			return NullOption() ?? "??Null selection??";
 		}
