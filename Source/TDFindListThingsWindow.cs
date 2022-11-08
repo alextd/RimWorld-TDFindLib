@@ -203,8 +203,6 @@ namespace TD_Find_Lib
 					if (!thing.def.selectable || !thing.Spawned)
 					{
 						CameraJumper.TryJump(thing);
-						if (Event.current.alt)
-							Find.MainTabsRoot.EscapeCurrentTab(false);
 					}
 					else if (Event.current.clickCount == 2 && Event.current.button == 0)
 					{
@@ -222,11 +220,6 @@ namespace TD_Find_Lib
 							dragSelect = true;
 							TrySelect.Select(thing);
 						}
-					}
-					else if (Event.current.alt)
-					{
-						Find.MainTabsRoot.EscapeCurrentTab(false);
-						CameraJumper.TryJumpAndSelect(thing);
 					}
 					else
 					{
