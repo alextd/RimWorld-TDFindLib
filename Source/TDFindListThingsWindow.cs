@@ -68,7 +68,7 @@ namespace TD_Find_Lib
 			WidgetRow buttRow = new WidgetRow(inRect.x, inRect.y, UIDirection.RightThenDown, inRect.width);
 
 			//Select All
-			selectAll = buttRow.ButtonIcon(FindTex.SelectAll, "TD.SelectAllGameAllowsUpTo80".Translate());
+			selectAll = buttRow.ButtonIcon(FindTex.SelectAll, "TD.SelectAllGameAllowsUpTo".Translate(Selector.MaxNumSelected));
 
 			//Manual refresh
 			if (buttRow.ButtonIcon(TexUI.RotRightTex, "TD.Refresh".Translate()))
