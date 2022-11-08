@@ -6,7 +6,7 @@ using Verse;
 
 namespace TD_Find_Lib
 {
-	class TDFindLibGameComp : GameComponent
+	public class TDFindLibGameComp : GameComponent
 	{
 		public TDFindLibGameComp(Game g) : base() { }
 
