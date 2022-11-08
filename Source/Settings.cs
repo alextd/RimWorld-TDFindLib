@@ -48,6 +48,7 @@ namespace TD_Find_Lib
 		public override void ExposeData()
 		{
 			Scribe_Collections.Look(ref savedFilters, "savedFilters");
+			Scribe_Collections.Look(ref groupedFilters, "groupedFilters");
 			Scribe_Values.Look(ref onlyAvailable, "onlyAvailable", true);
 		}
 	}

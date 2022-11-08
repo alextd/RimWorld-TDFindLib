@@ -61,6 +61,15 @@ namespace TD_Find_Lib
 				listing.Header(name +":");
 				drawer.DrawFindDescList(listing);
 			}
+			if(listing.ButtonText("New Group"))
+			{
+				Find.WindowStack.Add(new Dialog_Name("Group Name", n =>
+				{
+					var descs = new List<FindDescription>();
+					Mod.settings.groupedFilters[n] = descs;
+					groupDrawers.Add((n, new FilterListDrawer(descs)));
+				}));
+			}
 
 
 			//Active filters from mods
