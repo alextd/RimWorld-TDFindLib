@@ -99,7 +99,7 @@ namespace TD_Find_Lib
 			Text.Font = GameFont.Medium;
 			Rect nameRect = listing.GetRect(Text.LineHeight);
 			if(showName)
-				Widgets.Label(nameRect, "Filter: " + findDesc.name);
+				Widgets.Label(nameRect, "Editing: " + findDesc.name);
 
 			//Buttons
 			WidgetRow buttonRow = new WidgetRow(nameRect.xMax - 20, nameRect.yMin, UIDirection.LeftThenDown);
