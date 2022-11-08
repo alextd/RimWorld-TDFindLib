@@ -247,6 +247,8 @@ namespace TD_Find_Lib
 							dragSelect = true;
 						}
 					}
+
+					Event.current.Use();
 				}
 				if (Event.current.type == EventType.MouseDrag)
 				{
@@ -258,6 +260,8 @@ namespace TD_Find_Lib
 						TrySelect.Select(thing, false);
 					else if (dragDeselect)
 						Find.Selector.Deselect(thing);
+
+					Event.current.Use();
 				}
 			}
 		}
