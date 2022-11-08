@@ -5,7 +5,7 @@
 	<TD.Delete0>Delete {0}?</TD.Delete0>
 	<TD.AllMaps>All maps</TD.AllMaps>
 	<TD.SavedFindFilters>Saved Find Filters:</TD.SavedFindFilters>
-	<TD.NewFindFilters>New Find Filters</TD.NewFindFilters>
+	<TD.NewFindFilters>(Name)</TD.NewFindFilters>
 	<TD.IncludeShort>Inc</TD.IncludeShort>
 	<TD.ExcludeShort>Exc</TD.ExcludeShort>
 	<TD.DeleteThisFilter>Delete this filter</TD.DeleteThisFilter>

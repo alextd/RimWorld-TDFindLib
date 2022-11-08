@@ -15,7 +15,7 @@ namespace TD_Find_Lib
 
 		public TDFindLibEditorWindow(FindDescription desc, Action<FindDescription> onCloseIfChanged = null)
 		{
-			drawer = new FindDescriptionDrawer(desc);
+			drawer = new FindDescriptionDrawer(desc, showName: true);
 			onlyOneOfTypeAllowed = false;
 			preventCameraMotion = false;
 			draggable = true;
@@ -71,11 +71,13 @@ namespace TD_Find_Lib
 	{ 
 		public FindDescription findDesc;
 		private bool locked;
+		public bool showName;
 
-		public FindDescriptionDrawer(FindDescription d, bool l = false)
+		public FindDescriptionDrawer(FindDescription d, bool locked = false, bool showName = false)
 		{
 			findDesc = d;
-			locked = l;
+			this.locked = locked;
+			this.showName = showName;
 		}
 
 		//Draw Filters
@@ -90,7 +92,8 @@ namespace TD_Find_Lib
 			//Filter Name
 			Text.Font = GameFont.Medium;
 			Rect nameRect = listing.GetRect(Text.LineHeight);
-			Widgets.Label(nameRect, "Filter: " + findDesc.name);
+			if(showName)
+				Widgets.Label(nameRect, "Filter: " + findDesc.name);
 
 			//Buttons
 			WidgetRow buttonRow = new WidgetRow(nameRect.xMax - 20, nameRect.yMin, UIDirection.LeftThenDown);
@@ -101,7 +104,7 @@ namespace TD_Find_Lib
 			if (buttonRow.ButtonIcon(locked ? FindTex.LockOn : FindTex.LockOff, "TD.LockEditing".Translate()))
 				locked = !locked;
 
-			if (buttonRow.ButtonIcon(TexButton.Rename))
+			if (showName && buttonRow.ButtonIcon(TexButton.Rename))
 				Find.WindowStack.Add(new Dialog_Name(findDesc.name, newName => { findDesc.name = newName; findDesc.changed = true; }));
 
 			extraIconsDrawer?.Invoke(buttonRow);
