@@ -100,7 +100,6 @@ namespace TD_Find_Lib
 			}
 
 			float startHeight = listing.CurHeight;
-			FindDescription remove = null;
 			for (int i = 0; i < descs.Count; i++)
 			{
 				var desc = descs[i];
@@ -140,7 +139,13 @@ namespace TD_Find_Lib
 				}
 
 				if (row.ButtonIcon(FindTex.Trash))
-					remove = desc;
+				{
+					if (Event.current.shift)
+						descs.Remove(desc);
+					else
+						Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
+							"TD.Delete0".Translate(desc.name), () => descs.Remove(desc)));
+				}
 
 				if (Current.Game != null &&
 					row.ButtonIcon(FindTex.Copy))
@@ -154,16 +159,6 @@ namespace TD_Find_Lib
 
 				ReorderableWidget.Reorderable(reorderID, rowRect);
 			}
-
-			if (remove != null)
-			{
-				if (Event.current.shift)
-					descs.Remove(remove);
-				else
-					Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
-						"TD.Delete0".Translate(remove.name), () => descs.Remove(remove)));
-			}
-
 			reorderRectHeight = listing.CurHeight - startHeight;
 
 			if (listing.ButtonImage(TexButton.Plus, WidgetRow.IconSize, WidgetRow.IconSize))
