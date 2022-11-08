@@ -286,7 +286,10 @@ namespace TD_Find_Lib
 			{
 				List<FloatMenuOption> options = new List<FloatMenuOption>();
 				foreach (int stageI in SelectableStages)
-					options.Add(new FloatMenuOptionAndRefresh(NameForStage(stageI), () => selectedAction(stageI), this));
+				{
+					int localI = OrderedIndex(stageI);
+					options.Add(new FloatMenuOptionAndRefresh(NameForStage(stageI), () => selectedAction(localI), this));
+				}
 
 				DoFloatOptions(options);
 			}
