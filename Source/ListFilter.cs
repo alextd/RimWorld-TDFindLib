@@ -545,9 +545,9 @@ namespace TD_Find_Lib
 		{
 			bool changeSelection = false;
 			bool changed = false;
-			if (HasSpecial)
+			if (HasCustom)
 			{
-				// Label, Selection option button on left, special on the remaining rect
+				// Label, Selection option button on left, custom on the remaining rect
 				WidgetRow row = new WidgetRow(rect.x, rect.y);
 				row.Label(def.LabelCap);
 				changeSelection = row.ButtonText(GetLabel());
@@ -588,19 +588,19 @@ namespace TD_Find_Lib
 		public virtual bool DrawCustom(Rect rect, WidgetRow row) => throw new NotImplementedException();
 
 		// Auto detection of subclasses that use DrawCustom:
-		private static readonly HashSet<Type> specialDrawers = null;
-		private bool HasSpecial => specialDrawers?.Contains(GetType()) ?? false;
-		static ListFilterDropDown()//<T>	//Remember there's a specialDrawers for each <T> but functionally that doesn't change anything
+		private static readonly HashSet<Type> customDrawers = null;
+		private bool HasCustom => customDrawers?.Contains(GetType()) ?? false;
+		static ListFilterDropDown()//<T>	//Remember there's a customDrawers for each <T> but functionally that doesn't change anything
 		{
 			Type baseType = typeof(ListFilterDropDown<T>);
 			foreach (Type subclass in baseType.AllSubclassesNonAbstract())
 			{
 				if (subclass.GetMethod(nameof(DrawCustom)).DeclaringType != baseType)
 				{
-					if(specialDrawers == null)
-						specialDrawers = new HashSet<Type>();
+					if(customDrawers == null)
+						customDrawers = new HashSet<Type>();
 
-					specialDrawers.Add(subclass);
+					customDrawers.Add(subclass);
 				}
 			}
 		}
@@ -776,25 +776,68 @@ namespace TD_Find_Lib
 
 	public class ListFilterFaction : ListFilterDropDown<FactionRelationKind>
 	{
+		public bool host;	// compare host faction instead of thing's faction
 		public ListFilterFaction() => extraOption = 1;
 
-		protected override bool FilterApplies(Thing thing) =>
-			extraOption == 1 ? thing.Faction == Faction.OfPlayer :
-			extraOption == 2 ? thing.Faction == Faction.OfMechanoids :
-			extraOption == 3 ? thing.Faction == Faction.OfInsects :
-			extraOption == 4 ? thing.Faction == null || thing.Faction.def.hidden :
-			(thing.Faction is Faction fac && fac != Faction.OfPlayer && fac.PlayerRelationKind == sel);
+		public override void ExposeData()
+		{
+			base.ExposeData();
+			Scribe_Values.Look(ref host, "host");
+		}
+		public override ListFilter Clone()
+		{
+			ListFilterFaction clone = (ListFilterFaction)base.Clone();
+			clone.host = host;
+			return clone;
+		}
+
+		protected override bool FilterApplies(Thing thing)
+		{
+			Faction fac = thing.Faction;
+			if (host)
+			{
+				if (thing is Pawn p && p.guest != null)
+					fac = p.guest.HostFaction;
+				else
+					return false;
+			}
+
+			return
+				extraOption == 1 ? fac == Faction.OfPlayer :
+				extraOption == 2 ? fac == Faction.OfMechanoids :
+				extraOption == 3 ? fac == Faction.OfInsects :
+				extraOption == 4 ? fac != null && !fac.def.hidden :
+				extraOption == 5 ? fac == null || fac.def.hidden :
+				(fac != null && fac != Faction.OfPlayer && fac.PlayerRelationKind == sel);
+		}
 
 		public override string NameFor(FactionRelationKind o) => o.GetLabel();
 
-		public override int ExtraOptionsCount => 4;
+		public override int ExtraOptionsCount => 5;
 		public override string NameForExtra(int ex) => // or FleshTypeDef but this works
 			ex == 1 ? "TD.Player".Translate() :
 			ex == 2 ? "TD.Mechanoid".Translate() :
 			ex == 3 ? "TD.Insectoid".Translate() :
+			ex == 4 ? "TD.AnyOption".Translate() :
 			"TD.NoFaction".Translate();
+
+		public override bool DrawMain(Rect rect, bool locked)
+		{
+			bool changed = base.DrawMain(rect, locked);
+
+			Rect hostRect = rect.LeftPart(0.6f);
+			hostRect.xMin = hostRect.xMax - 60;
+			if (Widgets.ButtonText(hostRect, host ? "Host Is" : "Is"))
+			{
+				host = !host;
+				changed = true;
+			}
+
+			return changed;
+		}
+
 	}
-	
+
 	public class ListFilterCategory : ListFilterDropDown<ThingCategoryDef>
 	{
 		public ListFilterCategory() => sel = ThingCategoryDefOf.Root;
