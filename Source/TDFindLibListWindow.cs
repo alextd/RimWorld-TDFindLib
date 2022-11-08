@@ -10,8 +10,12 @@ namespace TD_Find_Lib
 {
 	public class TDFindLibListWindow : Window
 	{
+		private FilterListDrawer savedFiltersDrawer;
+
 		public TDFindLibListWindow()
 		{
+			savedFiltersDrawer = new FilterListDrawer(Mod.settings.savedFilters);
+			//TODO other lists.
 			preventCameraMotion = false;
 			draggable = true;
 			resizeable = true;
@@ -29,11 +33,9 @@ namespace TD_Find_Lib
 			Mod.settings.Write();
 		}
 
-		private const float RowHeight = WidgetRow.IconSize + 6;
 
 		private Vector2 scrollPosition = Vector2.zero;
 		private float scrollViewHeight;
-
 
 		public override void DoWindowContents(Rect fillRect)
 		{
@@ -45,7 +47,7 @@ namespace TD_Find_Lib
 			listing.Header("Saved Filters:");
 
 
-			DrawFindDescList(listing, Mod.settings.savedFilters);
+			savedFiltersDrawer.DrawFindDescList(listing);
 
 
 			//Active filters from mods
@@ -56,10 +58,23 @@ namespace TD_Find_Lib
 
 			listing.EndScrollView(ref scrollViewHeight);
 		}
+	}
+
+	public class FilterListDrawer
+	{
+		List<FindDescription> descs;
+
+		public FilterListDrawer(List<FindDescription> descs)
+		{
+			this.descs = descs;
+		}
+
+
+		private const float RowHeight = WidgetRow.IconSize + 6;
 
 		private int reorderID;
 		private float reorderRectHeight;
-		public void DrawFindDescList(Listing_StandardIndent listing, List<FindDescription> descs)
+		public void DrawFindDescList(Listing_StandardIndent listing)
 		{
 			if (Event.current.type == EventType.Repaint)
 			{
