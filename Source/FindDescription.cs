@@ -129,7 +129,15 @@ namespace TD_Find_Lib
 		//A new FindDescription, active, with this map
 		public FindDescription(Map m = null) : this()
 		{
-			map = m;
+			// the same as map property setter except don't remake list
+			_map = m;
+			if (map != null)
+			{
+				// The only reason to set map would be for active maps
+				active = true;
+				_allMaps = false;
+			}
+			MakeMapLabel();
 		}
 
 
@@ -147,10 +155,6 @@ namespace TD_Find_Lib
 
 			// inactive = Don't do anything!
 			if (!active)
-				return;
-
-			// Nothing to filter? Nevermind!
-			if (Children.Filters.Count() == 0)
 				return;
 
 
