@@ -322,6 +322,7 @@ namespace TD_Find_Lib
 		//Probably a good filter
 		public static bool ValidDef(ThingDef def) =>
 			!typeof(Mote).IsAssignableFrom(def.thingClass) &&
+			!typeof(Projectile).IsAssignableFrom(def.thingClass) &&
 			def.drawerType != DrawerType.None;
 	}
 

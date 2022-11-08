@@ -15,9 +15,9 @@
 	</TD_Find_Lib.ListFilterDef>
 	
 	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Category</defName>
-		<label>category</label>
-		<filterClass>TD_Find_Lib.ListFilterCategory</filterClass>
+		<defName>Filter_ItemCategory</defName>
+		<label>item category</label>
+		<filterClass>TD_Find_Lib.ListFilterItemCategory</filterClass>
 	</TD_Find_Lib.ListFilterDef>
 
 	<TD_Find_Lib.ListFilterDef>

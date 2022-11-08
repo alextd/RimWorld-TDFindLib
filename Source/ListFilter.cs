@@ -525,8 +525,7 @@ namespace TD_Find_Lib
 			throw new NotImplementedException();
 		}
 
-		// Override these two to categorize your dropdowns
-		
+		// Override this to group your T options into categories
 		public virtual string CategoryFor(T def) => null;
 
 		private Dictionary<string, List<T>> OptionCategories()
@@ -603,7 +602,7 @@ namespace TD_Find_Lib
 						options.Add(new FloatMenuOption(catLabel, () =>
 						{
 							List<FloatMenuOption> catOptions = new();
-							foreach (T o in categories[catLabel])
+							foreach (T o in Ordered ? categories[catLabel].AsEnumerable().OrderBy(o => NameFor(o)).ToList() : categories[catLabel])
 								catOptions.Add(new FloatMenuOptionAndRefresh(DropdownNameFor(o), () => sel = o, this));
 							DoFloatOptions(catOptions);
 						}));
@@ -890,9 +889,10 @@ namespace TD_Find_Lib
 
 	}
 
-	public class ListFilterCategory : ListFilterDropDown<ThingCategoryDef>
+	// This includes most things but not minifiable buildings.
+	public class ListFilterItemCategory : ListFilterDropDown<ThingCategoryDef>
 	{
-		public ListFilterCategory() => sel = ThingCategoryDefOf.Root;
+		public ListFilterItemCategory() => sel = ThingCategoryDefOf.Root;
 
 		protected override bool FilterApplies(Thing thing) =>
 			thing.def.IsWithinCategory(sel);
@@ -1195,13 +1195,47 @@ namespace TD_Find_Lib
 			sel == thing.def &&
 			(sel.stackLimit <= 1 || stackRange.Includes(thing.stackCount));
 
+
+		public override bool Ordered => true;
+
 		public override IEnumerable<ThingDef> Options() =>
 			(Mod.settings.OnlyAvailable ?
-				ContentsUtility.AvailableInGame(t => t.def) :
+				base.Options().Intersect(ContentsUtility.AvailableInGame(t => t.def)) :
 				base.Options())
 			.Where(def => FindDescription.ValidDef(def));
 
-		public override bool Ordered => true;
+		public override string CategoryFor(ThingDef def)
+		{
+			if (def.IsBlueprint)
+				return "(Blueprint)";
+
+			if (def.IsFrame)
+				return "(Frame)";
+
+			if (def.FirstThingCategory?.LabelCap.ToString() is string label)
+			{
+				if (label == "Misc")
+					return $"{label} ({def.FirstThingCategory.parent.LabelCap})";
+				return label;
+			}
+
+			//catchall for unminifiable buildings.
+			if (def.designationCategory?.LabelCap.ToString() is string label2)
+			{
+				if (label2 == "Misc")
+					return $"{label2} ({ThingCategoryDefOf.Buildings.LabelCap})";
+				return label2;
+			}
+
+			if (typeof(Pawn).IsAssignableFrom(def.thingClass))
+				return "Living";
+
+			if (typeof(Mineable).IsAssignableFrom(def.thingClass))
+				return "Mineable";
+
+			return "(Other)";
+		}
+
 
 		public override bool DrawCustom(Rect rect, WidgetRow row)
 		{

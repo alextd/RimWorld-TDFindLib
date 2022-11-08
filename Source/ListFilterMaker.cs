@@ -15,7 +15,6 @@ namespace TD_Find_Lib
 		public static ListFilterDef Filter_Area;
 		public static ListFilterDef Filter_AreaRestriction;
 		public static ListFilterDef Filter_Capacity;
-		public static ListFilterDef Filter_Category;
 		public static ListFilterDef Filter_ClassType;
 		public static ListFilterDef Filter_Crop;
 		public static ListFilterDef Filter_Def;
@@ -40,6 +39,7 @@ namespace TD_Find_Lib
 		public static ListFilterDef Filter_Incapable;
 		public static ListFilterDef Filter_Inspiration;
 		public static ListFilterDef Filter_Inventory;
+		public static ListFilterDef Filter_ItemCategory;
 		public static ListFilterDef Filter_Job;
 		public static ListFilterDef Filter_Leather;
 		public static ListFilterDef Filter_ListFilterDevelopmentalStage;
