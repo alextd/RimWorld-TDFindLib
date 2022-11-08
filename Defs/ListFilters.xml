@@ -287,25 +287,32 @@
 		<defName>Category_Plants</defName>
 		<label>plants and food</label>
 		<subFilters>
-			<li>Filter_Crop</li>
+			<li>Filter_Harvest</li>
 			<li>Filter_Harvestable</li>
 			<li>Filter_Growth</li>
 			<li>Filter_Freshness</li>
 			<li>Filter_TimeToRot</li>
+			<li>Filter_Crop</li>
 			<li>Filter_DiesLeafless</li>
 		</subFilters>
 	</TD_Find_Lib.ListFilterCategoryDef>
 
 	<TD_Find_Lib.ListFilterDef>
 		<defName>Filter_Crop</defName>
-		<label>crop</label>
+		<label>is a crop</label>
 		<filterClass>TD_Find_Lib.ListFilterPlantCrop</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Harvest</defName>
+		<label>harvest product</label>
+		<filterClass>TD_Find_Lib.ListFilterPlantHarvest</filterClass>
 	</TD_Find_Lib.ListFilterDef>
 
 	<TD_Find_Lib.ListFilterDef>
 		<defName>Filter_Harvestable</defName>
 		<label>plant harvestable</label>
-		<filterClass>TD_Find_Lib.ListFilterPlantHarvest</filterClass>
+		<filterClass>TD_Find_Lib.ListFilterPlantHarvestable</filterClass>
 	</TD_Find_Lib.ListFilterDef>
 
 	<TD_Find_Lib.ListFilterDef>

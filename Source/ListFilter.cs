@@ -702,7 +702,61 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class ListFilterPlantHarvest : ListFilter
+	public class ListFilterPlantHarvest : ListFilterDropDown<ThingDef>
+	{
+		public ListFilterPlantHarvest() => extraOption = 1;
+
+		protected override bool FilterApplies(Thing thing)
+		{
+			Plant plant = thing as Plant;
+			if (plant == null)
+				return false;
+
+			ThingDef yield = plant.def.plant.harvestedThingDef;
+
+			if (extraOption == 1)
+				return yield != null;
+			if (extraOption == 2)
+				return yield == null;
+
+			return sel == yield;
+		}
+
+		public static List<ThingDef> allHarvests;
+		static ListFilterPlantHarvest()
+		{
+			HashSet<ThingDef> singleDefs = new();
+			foreach(ThingDef def in DefDatabase<ThingDef>.AllDefs)
+			{
+				if(def.plant?.harvestedThingDef is ThingDef harvestDef)
+					singleDefs.Add(harvestDef);
+			}
+			allHarvests = singleDefs.OrderBy(d => d.label).ToList();
+		}
+		public override IEnumerable<ThingDef> Options()
+		{
+			if (Mod.settings.OnlyAvailable)
+			{
+				HashSet<ThingDef> available = new HashSet<ThingDef>();
+				foreach (Map map in Find.Maps)
+					foreach (Thing t in map.listerThings.ThingsInGroup(ThingRequestGroup.HarvestablePlant))
+						if ((t as Plant)?.def.plant.harvestedThingDef is ThingDef harvestDef)
+							available.Add(harvestDef);
+
+				return allHarvests.Intersect (available);
+			}
+			return allHarvests;
+		}
+		public override bool Ordered => true;
+
+		public override int ExtraOptionsCount => 2;
+		public override string NameForExtra(int ex) => // or FleshTypeDef but this works
+			ex == 1 ? "TD.AnyOption".Translate() :
+			"None".Translate();
+	}
+	
+
+	public class ListFilterPlantHarvestable : ListFilter
 	{
 		protected override bool FilterApplies(Thing thing) =>
 			thing is Plant plant && plant.HarvestableNow;
