@@ -525,6 +525,30 @@ namespace TD_Find_Lib
 			throw new NotImplementedException();
 		}
 
+		// Override these two to categorize your dropdowns
+		
+		public virtual string CategoryFor(T def) => null;
+
+		private Dictionary<string, List<T>> OptionCategories()
+		{
+			Dictionary<string, List<T>> result = new();
+			foreach (T def in Options())
+			{
+				string cat = CategoryFor(def);
+
+				List<T> options;
+				if (!result.TryGetValue(cat, out options))
+				{
+					options = new();
+					result[cat] = options;
+				}
+
+				options.Add(def);
+			}
+			return result;
+		}
+
+
 		public virtual bool Ordered => false;
 		public virtual string NameFor(T o) => o is Def def ? def.LabelCap.RawText : typeof(T).IsEnum ? o.TranslateEnum() : o.ToString();
 		public virtual string DropdownNameFor(T o) => NameFor(o);
@@ -566,13 +590,29 @@ namespace TD_Find_Lib
 			}
 			if (changeSelection)
 			{
-				List<FloatMenuOption> options = new List<FloatMenuOption>();
+				List<FloatMenuOption> options = new();
 
 				if (NullOption() is string nullOption)
 					options.Add(new FloatMenuOptionAndRefresh(nullOption, () => sel = default, this)); //can't null because T isn't bound as reftype
 
-				foreach (T o in Ordered ? Options().OrderBy(o => NameFor(o)) : Options())
-					options.Add(new FloatMenuOptionAndRefresh(DropdownNameFor(o), () => sel = o, this));
+				if (UsesCategories)
+				{
+					Dictionary<string, List<T>> categories = OptionCategories();
+
+					foreach (string catLabel in categories.Keys)
+						options.Add(new FloatMenuOption(catLabel, () =>
+						{
+							List<FloatMenuOption> catOptions = new();
+							foreach (T o in categories[catLabel])
+								catOptions.Add(new FloatMenuOptionAndRefresh(DropdownNameFor(o), () => sel = o, this));
+							DoFloatOptions(catOptions);
+						}));
+				}
+				else
+				{
+					foreach (T o in Ordered ? Options().OrderBy(o => NameFor(o)) : Options())
+						options.Add(new FloatMenuOptionAndRefresh(DropdownNameFor(o), () => sel = o, this));
+				}
 
 				foreach (int ex in ExtraOptions())
 					options.Add(new FloatMenuOptionAndRefresh(NameForExtra(ex), () => extraOption = ex, this));
@@ -590,6 +630,10 @@ namespace TD_Find_Lib
 		// Auto detection of subclasses that use DrawCustom:
 		private static readonly HashSet<Type> customDrawers = null;
 		private bool HasCustom => customDrawers?.Contains(GetType()) ?? false;
+
+		// Auto detection of subclasses that use Dropdown Categories:
+		private static readonly HashSet<Type> categoryUsers = null;
+		private bool UsesCategories => categoryUsers?.Contains(GetType()) ?? false;
 		static ListFilterDropDown()//<T>	//Remember there's a customDrawers for each <T> but functionally that doesn't change anything
 		{
 			Type baseType = typeof(ListFilterDropDown<T>);
@@ -597,10 +641,18 @@ namespace TD_Find_Lib
 			{
 				if (subclass.GetMethod(nameof(DrawCustom)).DeclaringType != baseType)
 				{
-					if(customDrawers == null)
+					if (customDrawers == null)
 						customDrawers = new HashSet<Type>();
 
 					customDrawers.Add(subclass);
+				}
+
+				if (subclass.GetMethod(nameof(CategoryFor)).DeclaringType != baseType)
+				{
+					if (categoryUsers == null)
+						categoryUsers = new HashSet<Type>();
+
+					categoryUsers.Add(subclass);
 				}
 			}
 		}
@@ -1234,9 +1286,12 @@ namespace TD_Find_Lib
 			valueRange.Includes(t.GetStatValue(sel, cacheStaleAfterTicks: 1));
 
 
-		public override bool Ordered => true;
 		public override IEnumerable<StatDef> Options() =>
 			base.Options().Where(d => !d.alwaysHide);
+
+
+		public override string CategoryFor(StatDef def) =>
+			def.category.LabelCap;
 
 
 		public override string NameFor(StatDef def) =>
