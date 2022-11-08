@@ -20,5 +20,6 @@ namespace TD_Find_Lib
 		public static readonly Texture2D Paste = ContentFinder<Texture2D>.Get("UI/Buttons/Paste");
 		public static readonly Texture2D Trash = ContentFinder<Texture2D>.Get("UI/Buttons/Dismiss");
 		public static readonly Texture2D SelectAll = ContentFinder<Texture2D>.Get("UI/Commands/SelectNextTransporter", true);
+		public static readonly Texture2D List = ContentFinder<Texture2D>.Get("UI/Buttons/ResourceReadoutCategorized", true);
 	}
 }

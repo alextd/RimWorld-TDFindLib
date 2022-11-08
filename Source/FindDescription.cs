@@ -240,9 +240,10 @@ namespace TD_Find_Lib
 			// If cloning from inactive filters, or setting a new map,
 			// Must resolve refs
 			if (!active || newMap != null)
-				newDesc.Children.ForEach(f => f.DoResolveRef(map));
+				newDesc.Children.ForEach(f => f.DoResolveRef());
 
 			newDesc.MakeMapLabel();
+			newDesc.RemakeList();
 
 			return newDesc;
 		}

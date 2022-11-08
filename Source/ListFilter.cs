@@ -55,7 +55,7 @@ namespace TD_Find_Lib
 			{
 				DoResolveName();
 				if (RootFindDesc.active)
-					DoResolveRef(RootFindDesc.map);
+					DoResolveRef();
 			}
 		}
 
@@ -72,7 +72,7 @@ namespace TD_Find_Lib
 			return clone;
 		}
 		public virtual void DoResolveName() { }
-		public virtual void DoResolveRef(Map map) { }
+		public virtual void DoResolveRef() { }
 
 
 		public IEnumerable<Thing> Apply(IEnumerable<Thing> list)
@@ -456,7 +456,7 @@ namespace TD_Find_Lib
 				else selectionError = null;
 			}
 		}
-		public override void DoResolveRef(Map map)
+		public override void DoResolveRef()
 		{
 			if (!UsesResolveRef || extraOption > 0) return;
 
@@ -466,7 +466,7 @@ namespace TD_Find_Lib
 			}
 			else
 			{
-				_sel = ResolveRef(map);
+				_sel = ResolveRef(RootFindDesc.map);
 
 				if (_sel == null)
 				{

@@ -10,13 +10,12 @@ namespace TD_Find_Lib
 {
 	public class TDFindLibEditorWindow : Window
 	{
-		private FindDescription findDesc;
-		private bool locked;
+		public FindDescriptionDrawer drawer;
 		private Action<FindDescription> onCloseIfChanged;
 
 		public TDFindLibEditorWindow(FindDescription desc, Action<FindDescription> onCloseIfChanged = null)
 		{
-			findDesc = desc;
+			drawer = new FindDescriptionDrawer(desc);
 			onlyOneOfTypeAllowed = false;
 			preventCameraMotion = false;
 			draggable = true;
@@ -27,8 +26,8 @@ namespace TD_Find_Lib
 
 		public override void PostClose()
 		{
-			if (findDesc.changed)
-				onCloseIfChanged?.Invoke(findDesc);
+			if (drawer.findDesc.changed)
+				onCloseIfChanged?.Invoke(drawer.findDesc);
 		}
 
 
@@ -59,11 +58,28 @@ namespace TD_Find_Lib
 
 		public override void DoWindowContents(Rect fillRect)
 		{
-			DrawFindDescription(fillRect, findDesc, ref locked);
+			drawer.DrawFindDescription(fillRect, Find.CurrentMap == null ? null :
+				delegate(WidgetRow row)
+				{
+					if (row.ButtonIcon(FindTex.List))
+						Find.WindowStack.Add(new TDFindListThingsWindow(drawer.findDesc.CloneForUse(Find.CurrentMap)));
+				});
+		}
+	}
+
+	public class FindDescriptionDrawer
+	{ 
+		public FindDescription findDesc;
+		private bool locked;
+
+		public FindDescriptionDrawer(FindDescription d, bool l = false)
+		{
+			findDesc = d;
+			locked = l;
 		}
 
 		//Draw Filters
-		public static void DrawFindDescription(Rect rect, FindDescription findDesc, ref bool locked)
+		public void DrawFindDescription(Rect rect, Action<WidgetRow> extraIconsDrawer = null)
 		{
 			Listing_StandardIndent listing = new Listing_StandardIndent()
 			{ maxOneColumn = true };
@@ -79,11 +95,8 @@ namespace TD_Find_Lib
 			//Buttons
 			WidgetRow buttonRow = new WidgetRow(nameRect.xMax - 20, nameRect.yMin, UIDirection.LeftThenDown);
 
-
 			if (buttonRow.ButtonIcon(FindTex.Cancel, "ClearAll".Translate()))
-			{
 				findDesc.Reset();
-			}
 
 			if (buttonRow.ButtonIcon(locked ? FindTex.LockOn : FindTex.LockOff, "TD.LockEditing".Translate()))
 				locked = !locked;
@@ -91,6 +104,7 @@ namespace TD_Find_Lib
 			if (buttonRow.ButtonIcon(TexButton.Rename))
 				Find.WindowStack.Add(new Dialog_Name(findDesc.name, newName => { findDesc.name = newName; findDesc.changed = true; }));
 
+			extraIconsDrawer?.Invoke(buttonRow);
 
 			//Listing Type
 			Text.Font = GameFont.Small;
