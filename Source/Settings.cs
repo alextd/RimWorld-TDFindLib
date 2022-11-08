@@ -13,7 +13,9 @@ namespace TD_Find_Lib
 		private bool onlyAvailable = true;
 		public bool OnlyAvailable => onlyAvailable != Event.current.shift && Find.CurrentMap != null;
 
+		//Don't touch my filters
 		internal List<FindDescription> savedFilters = new();
+		internal Dictionary<string, List<FindDescription>> groupedFilters = new();
 
 		public IEnumerable<string> SavedNames() => savedFilters.Select(fd => fd.name);
 
