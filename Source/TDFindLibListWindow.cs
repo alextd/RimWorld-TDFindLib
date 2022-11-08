@@ -58,6 +58,12 @@ namespace TD_Find_Lib
 
 			listing.EndScrollView(ref scrollViewHeight);
 		}
+
+		public static void ButtonOpenSettings(WidgetRow row)
+		{
+			if(row.ButtonIcon(FindTex.Book))
+				Find.WindowStack.Add(new TDFindLibListWindow());
+		}
 	}
 
 	public class FilterListDrawer
