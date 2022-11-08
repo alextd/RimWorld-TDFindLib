@@ -60,12 +60,12 @@ namespace TD_Find_Lib
 		private float scrollViewHeightList;
 		ThingDef selectAllDef;
 		bool selectAll;
-		public void DrawThingList(Rect listRect, Action<WidgetRow> extraIconsDrawer = null)
+		public void DrawThingList(Rect inRect, Action<WidgetRow> extraIconsDrawer = null)
 		{
 			Text.Font = GameFont.Small;
 
 			//Top-row buttons
-			WidgetRow buttRow = new WidgetRow(listRect.x, listRect.y, UIDirection.RightThenDown, listRect.width);
+			WidgetRow buttRow = new WidgetRow(inRect.x, inRect.y, UIDirection.RightThenDown, inRect.width);
 
 			//Select All
 			selectAll = buttRow.ButtonIcon(FindTex.SelectAll, "TD.SelectAllGameAllowsUpTo80".Translate());
@@ -109,10 +109,8 @@ namespace TD_Find_Lib
 
 			//Count text
 			Text.Anchor = TextAnchor.UpperRight;
-			Widgets.Label(listRect, LabelCountThings(findDesc.ListedThings));
+			Widgets.Label(inRect, LabelCountThings(findDesc.ListedThings));
 			Text.Anchor = TextAnchor.UpperLeft;
-			listRect.yMin += 34;
-
 
 			//Handle mouse selection
 			if (!Input.GetMouseButton(0))
@@ -128,12 +126,16 @@ namespace TD_Find_Lib
 			//Draw Scrolling List:
 
 			//Draw box:
+			Rect listRect = inRect;
+			listRect.yMin += 34;
+
 			GUI.color = Color.gray;
 			Widgets.DrawBox(listRect);
 			GUI.color = Color.white;
 
 			//Nudge in so it's not touching box
 			listRect = listRect.ContractedBy(1);
+			//contract horizontally another pixel . . . 
 			listRect.width -= 2; listRect.x += 1;
 
 			//Keep full width if nothing to scroll:
@@ -173,6 +175,10 @@ namespace TD_Find_Lib
 						TrySelect.Select(t, false);
 
 			Widgets.EndScrollView();
+
+			// Deselect clicking anywhere else
+			if (Widgets.ButtonInvisible(inRect, false))
+				Find.Selector.ClearSelection();
 		}
 
 		bool dragSelect = false;
