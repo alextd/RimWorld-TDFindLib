@@ -11,11 +11,18 @@ namespace TD_Find_Lib
 	public class TDFindLibListWindow : Window
 	{
 		private FilterListDrawer savedFiltersDrawer;
+		private List<(string, FilterListDrawer)> groupDrawers;
 
 		public TDFindLibListWindow()
 		{
 			savedFiltersDrawer = new FilterListDrawer(Mod.settings.savedFilters);
-			//TODO other lists.
+			
+			groupDrawers = new();
+			foreach((string name, List<FindDescription> descs) in Mod.settings.groupedFilters)
+			{
+				groupDrawers.Add((name, new FilterListDrawer(descs)));
+			}
+
 			preventCameraMotion = false;
 			draggable = true;
 			resizeable = true;
@@ -49,6 +56,12 @@ namespace TD_Find_Lib
 
 			savedFiltersDrawer.DrawFindDescList(listing);
 
+			foreach((string name, FilterListDrawer drawer) in groupDrawers)
+			{
+				listing.Header(name +":");
+				drawer.DrawFindDescList(listing);
+			}
+
 
 			//Active filters from mods
 			listing.Header("Active Filters:");
@@ -57,12 +70,6 @@ namespace TD_Find_Lib
 
 
 			listing.EndScrollView(ref scrollViewHeight);
-		}
-
-		public static void ButtonOpenSettings(WidgetRow row)
-		{
-			if(row.ButtonIcon(FindTex.Book))
-				Find.WindowStack.Add(new TDFindLibListWindow());
 		}
 	}
 
@@ -85,7 +92,7 @@ namespace TD_Find_Lib
 			if (Event.current.type == EventType.Repaint)
 			{
 				reorderID = ReorderableWidget.NewGroup(
-					Mod.settings.Reorder,
+					(int from, int to) => Reorder(descs, from, to),
 					ReorderableDirection.Vertical,
 					new Rect(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight), 1f,
 					extraDraggedItemOnGUI: (int index, Vector2 dragStartPos) =>
@@ -166,6 +173,14 @@ namespace TD_Find_Lib
 			}
 			listing.Label("todo : Save load to file.");
 		}
+
+		public static void Reorder(List<FindDescription> descs, int from, int to)
+		{
+			var desc = descs[from];
+			descs.RemoveAt(from);
+			descs.Insert(from < to ? to - 1 : to, desc);
+		}
+
 
 		public static void DrawMouseAttachedFindDesc(FindDescription desc, float width)
 		{

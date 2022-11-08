@@ -17,42 +17,6 @@ namespace TD_Find_Lib
 		internal List<FindDescription> savedFilters = new();
 		internal Dictionary<string, List<FindDescription>> groupedFilters = new();
 
-		public IEnumerable<string> SavedNames() => savedFilters.Select(fd => fd.name);
-
-		public bool Has(string name)
-		{
-			return savedFilters.Any(fd => fd.name == name);
-		}
-
-		public void Save(FindDescription desc, bool overwrite = false)
-		{
-			if (!overwrite && Has(desc.name))
-			{
-				Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
-					"TD.OverwriteSavedFilter".Translate(),
-					 () => Save(desc, true)));
-			}
-			else
-			{
-				FindDescription newDesc = desc.CloneForSave();
-				savedFilters.Add(newDesc);
-			}
-			Write();
-		}
-
-		public FindDescription Load(string name, Map map = null)
-		{
-			return savedFilters.First(fd => fd.name == name).CloneForUse(map);
-		}
-
-		public void Reorder(int from, int to)
-		{
-			var desc = savedFilters[from];
-			savedFilters.RemoveAt(from);
-			savedFilters.Insert(from < to ? to - 1 : to, desc);
-		}
-
-
 		public void DoWindowContents(Rect inRect)
 		{
 			//Scrolling!
