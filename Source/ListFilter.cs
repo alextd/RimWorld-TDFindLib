@@ -1206,6 +1206,9 @@ namespace TD_Find_Lib
 
 		public override string CategoryFor(ThingDef def)
 		{
+			if (typeof(Blueprint_Install).IsAssignableFrom(def.thingClass))
+				return "(Installing)";
+
 			if (def.IsBlueprint)
 				return "(Blueprint)";
 
