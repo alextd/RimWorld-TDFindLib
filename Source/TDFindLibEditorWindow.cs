@@ -12,6 +12,7 @@ namespace TD_Find_Lib
 	{
 		public FindDescriptionDrawer drawer;
 		private Action<FindDescription> onCloseIfChanged;
+		private TDFindListThingsWindow listWindow;
 
 		public TDFindLibEditorWindow(FindDescription desc, Action<FindDescription> onCloseIfChanged = null)
 		{
@@ -28,6 +29,8 @@ namespace TD_Find_Lib
 		{
 			if (drawer.findDesc.changed)
 				onCloseIfChanged?.Invoke(drawer.findDesc);
+
+			listWindow?.Close();
 		}
 
 
@@ -62,7 +65,10 @@ namespace TD_Find_Lib
 				delegate(WidgetRow row)
 				{
 					if (row.ButtonIcon(FindTex.List))
-						Find.WindowStack.Add(new TDFindListThingsWindow(drawer.findDesc.CloneForUse(Find.CurrentMap)));
+					{
+						listWindow = new TDFindListThingsWindow(drawer.findDesc.CloneForUse(Find.CurrentMap));
+						Find.WindowStack.Add(listWindow);
+					}
 				});
 		}
 	}

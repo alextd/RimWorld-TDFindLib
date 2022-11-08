@@ -16,7 +16,6 @@ namespace TD_Find_Lib
 		public TDFindListThingsWindow(FindDescription desc)
 		{
 			drawer = new ThingListDrawer(desc);
-			onlyOneOfTypeAllowed = false;
 			preventCameraMotion = false;
 			draggable = true;
 			resizeable = true;
