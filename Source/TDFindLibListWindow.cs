@@ -84,7 +84,8 @@ namespace TD_Find_Lib
 		public abstract string Name { get; }
 		public abstract FindDescription DescAt(int i);
 		public abstract int Count { get; }
-		public abstract void Reorder(int from, int to);
+		public virtual bool CanReorder => true;
+		public virtual void Reorder(int from, int to) { }
 
 		public virtual void PreRowDraw(Listing_StandardIndent listing, int i) { }
 		public virtual void DoWidgetButtons(WidgetRow row, FindDescription desc, int i) { }
@@ -101,7 +102,7 @@ namespace TD_Find_Lib
 			listing.Header(Name + ":");
 			listing.Gap(4);
 
-			if (Event.current.type == EventType.Repaint)
+			if (CanReorder && Event.current.type == EventType.Repaint)
 			{
 				reorderID = ReorderableWidget.NewGroup(
 					Reorder,
@@ -132,7 +133,8 @@ namespace TD_Find_Lib
 				Text.Anchor = TextAnchor.LowerRight;
 				DoRectExtra(rowRect, desc, i);
 
-				ReorderableWidget.Reorderable(reorderID, rowRect);
+				if(CanReorder)
+					ReorderableWidget.Reorderable(reorderID, rowRect);
 			}
 			reorderRectHeight = listing.CurHeight - startHeight;
 			Text.Anchor = TextAnchor.UpperLeft;
@@ -236,13 +238,8 @@ namespace TD_Find_Lib
 		public override string Name => "Active Filters";
 		public override FindDescription DescAt(int i) => refDesc[i].desc;
 		public override int Count => refDesc.Count;
-
-		public override void Reorder(int from, int to)
-		{
-			var desc = refDesc[from];
-			refDesc.RemoveAt(from);
-			refDesc.Insert(from < to ? to - 1 : to, desc);
-		}
+		
+		public override bool CanReorder => false;
 
 		private string currentTag;
 		public override void PreRowDraw(Listing_StandardIndent listing, int i)

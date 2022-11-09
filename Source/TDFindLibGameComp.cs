@@ -21,7 +21,11 @@ namespace TD_Find_Lib
 		public void RegisterRefresh(FindDescription desc, string tag, int period, bool permanent = false)
 		{
 			RemoveRefresh(desc);
-			findDescRefreshers.Add(new RefreshFindDesc(desc, tag, period, permanent));
+			int insert = findDescRefreshers.FindLastIndex(r => r.tag == tag);
+			if(insert == -1)
+				findDescRefreshers.Add(new RefreshFindDesc(desc, tag, period, permanent));
+			else
+				findDescRefreshers.Insert(insert + 1, new RefreshFindDesc(desc, tag, period, permanent));
 		}
 
 		public bool IsRefreshing(FindDescription desc) =>
