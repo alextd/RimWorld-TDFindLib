@@ -510,7 +510,7 @@ namespace TD_Find_Lib
 			if (sel != null)
 				return NameFor(sel);
 
-			if (UsesResolveRef && !RootFindDesc.active)
+			if (UsesResolveRef && !RootFindDesc.active && selName != SaveLoadXmlConstants.IsNullAttributeName)
 				return selName;
 
 			return NullOption() ?? "??Null selection??";
