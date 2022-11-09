@@ -24,7 +24,7 @@ namespace TD_Find_Lib
 
 		public override void PostClose()
 		{
-			Current.Game.GetComponent<TDFindLibGameComp>().RemoveRefresh(drawer.findDesc);
+			drawer.Close();
 		}
 
 
@@ -53,6 +53,11 @@ namespace TD_Find_Lib
 		public ThingListDrawer(FindDescription d)
 		{
 			findDesc = d;
+		}
+
+		public void Close()
+		{
+			Current.Game.GetComponent<TDFindLibGameComp>().RemoveRefresh(findDesc);
 		}
 
 		private Vector2 scrollPositionList = Vector2.zero;
