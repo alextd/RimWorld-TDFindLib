@@ -10,17 +10,17 @@ namespace TD_Find_Lib
 {
 	public class TDFindLibListWindow : Window
 	{
-		private FilterListDrawer savedFiltersDrawer;
-		private List<(string, FilterListDrawer)> groupDrawers;
+		private FilterGroupDrawer savedFiltersDrawer;
+		private List<FilterGroupDrawer> groupDrawers;
 
 		public TDFindLibListWindow()
 		{
-			savedFiltersDrawer = new FilterListDrawer(Mod.settings.savedFilters);
+			savedFiltersDrawer = new FilterGroupDrawer(Mod.settings.savedFilters);
 			
 			groupDrawers = new();
-			foreach((string name, List<FindDescription> descs) in Mod.settings.groupedFilters)
+			foreach(FilterGroup group in Mod.settings.groupedFilters)
 			{
-				groupDrawers.Add((name, new FilterListDrawer(descs)));
+				groupDrawers.Add(new FilterGroupDrawer(group));
 			}
 
 			preventCameraMotion = false;
@@ -56,18 +56,18 @@ namespace TD_Find_Lib
 
 			savedFiltersDrawer.DrawFindDescList(listing);
 
-			foreach((string name, FilterListDrawer drawer) in groupDrawers)
+			foreach(FilterGroupDrawer drawer in groupDrawers)
 			{
-				listing.Header(name +":");
+				listing.Header(drawer.group.name +":");
 				drawer.DrawFindDescList(listing);
 			}
 			if(listing.ButtonText("New Group"))
 			{
 				Find.WindowStack.Add(new Dialog_Name("Group Name", n =>
 				{
-					var descs = new List<FindDescription>();
-					Mod.settings.groupedFilters[n] = descs;
-					groupDrawers.Add((n, new FilterListDrawer(descs)));
+					var group = new FilterGroup() { name = n };
+					Mod.settings.groupedFilters.Add(group);
+					groupDrawers.Add(new FilterGroupDrawer(group));
 				}));
 			}
 
@@ -82,13 +82,13 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class FilterListDrawer
+	public class FilterGroupDrawer
 	{
-		List<FindDescription> descs;
+		public FilterGroup group;
 
-		public FilterListDrawer(List<FindDescription> descs)
+		public FilterGroupDrawer(FilterGroup group)
 		{
-			this.descs = descs;
+			this.group = group;
 		}
 
 
@@ -101,17 +101,17 @@ namespace TD_Find_Lib
 			if (Event.current.type == EventType.Repaint)
 			{
 				reorderID = ReorderableWidget.NewGroup(
-					(int from, int to) => Reorder(descs, from, to),
+					(int from, int to) => group.Reorder(from, to),
 					ReorderableDirection.Vertical,
 					new Rect(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight), 1f,
 					extraDraggedItemOnGUI: (int index, Vector2 dragStartPos) =>
-						DrawMouseAttachedFindDesc(descs.ElementAt(index), listing.ColumnWidth));
+						DrawMouseAttachedFindDesc(group.ElementAt(index), listing.ColumnWidth));
 			}
 
 			float startHeight = listing.CurHeight;
-			for (int i = 0; i < descs.Count; i++)
+			for (int i = 0; i < group.Count; i++)
 			{
-				var desc = descs[i];
+				var desc = group[i];
 				Rect rowRect = listing.GetRect(RowHeight);
 
 				WidgetRow row = new WidgetRow(rowRect.x, rowRect.y, UIDirection.RightThenDown, rowRect.width);
@@ -124,12 +124,12 @@ namespace TD_Find_Lib
 					{
 						Action acceptAction = delegate ()
 						{
-							descs[localI] = newDesc;
+							group[localI] = newDesc;
 							Mod.settings.Write();
 						};
 						Action copyAction = delegate ()
 						{
-							descs.Insert(localI + 1, newDesc);
+							group.Insert(localI + 1, newDesc);
 							Mod.settings.Write();
 						};
 						Find.WindowStack.Add(new Dialog_MessageBox(
@@ -150,10 +150,10 @@ namespace TD_Find_Lib
 				if (row.ButtonIcon(FindTex.Trash))
 				{
 					if (Event.current.shift)
-						descs.Remove(desc);
+						group.Remove(desc);
 					else
 						Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
-							"TD.Delete0".Translate(desc.name), () => descs.Remove(desc)));
+							"TD.Delete0".Translate(desc.name), () => group.Remove(desc)));
 				}
 
 				if (Current.Game != null &&
@@ -173,16 +173,9 @@ namespace TD_Find_Lib
 			if (listing.ButtonImage(TexButton.Plus, WidgetRow.IconSize, WidgetRow.IconSize))
 			{
 				FindDescription newFD = new();
-				descs.Add(newFD);
+				group.Add(newFD);
 			}
 			listing.Label("todo : Save load to file.");
-		}
-
-		public static void Reorder(List<FindDescription> descs, int from, int to)
-		{
-			var desc = descs[from];
-			descs.RemoveAt(from);
-			descs.Insert(from < to ? to - 1 : to, desc);
 		}
 
 

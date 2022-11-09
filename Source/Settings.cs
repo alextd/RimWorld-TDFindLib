@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Xml;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -14,8 +15,8 @@ namespace TD_Find_Lib
 		public bool OnlyAvailable => onlyAvailable != Event.current.shift && Find.CurrentMap != null;
 
 		//Don't touch my filters
-		internal List<FindDescription> savedFilters = new();
-		internal Dictionary<string, List<FindDescription>> groupedFilters = new();
+		internal FilterGroup savedFilters = new();
+		internal List<FilterGroup> groupedFilters = new();
 
 		public void DoWindowContents(Rect inRect)
 		{
@@ -47,9 +48,59 @@ namespace TD_Find_Lib
 
 		public override void ExposeData()
 		{
-			Scribe_Collections.Look(ref savedFilters, "savedFilters");
-			Scribe_Collections.Look(ref groupedFilters, "groupedFilters");
 			Scribe_Values.Look(ref onlyAvailable, "onlyAvailable", true);
+			
+			Scribe_Deep.Look(ref savedFilters, "savedFilters");
+			Scribe_Collections.Look(ref groupedFilters, "groupedFilters");
 		}
 	}
+
+	// Trying to save a List<List<Deep>> doesn't work.
+	// Need List to be "exposable" on its own.
+	public class FilterGroup : List<FindDescription>, IExposable
+	{
+		public string name;
+		public void Reorder(int from, int to)
+		{
+			var desc = this[from];
+			RemoveAt(from);
+			Insert(from < to ? to - 1 : to, desc);
+		}
+
+		public void ExposeData()
+		{
+			Scribe_Values.Look(ref name, "name");
+
+			string label = "descs";
+
+			//Watered down Scribe_Collections.
+			if (Scribe.EnterNode(label))
+			{
+				try
+				{
+					if (Scribe.mode == LoadSaveMode.Saving)
+					{
+						foreach (FindDescription desc in this)
+						{
+							FindDescription target = desc;
+							Scribe_Deep.Look(ref target, "li");
+						}
+					}
+					else if (Scribe.mode == LoadSaveMode.LoadingVars)
+					{
+						XmlNode curXmlParent = Scribe.loader.curXmlParent;
+						Clear();
+
+						foreach (XmlNode node in curXmlParent.ChildNodes)
+							Add(ScribeExtractor.SaveableFromNode<FindDescription>(node, new object[] { }));
+					}
+				}
+				finally
+				{
+					Scribe.ExitNode();
+				}
+			}
+		}
+	}
+
 }
