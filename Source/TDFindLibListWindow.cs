@@ -95,6 +95,7 @@ namespace TD_Find_Lib
 		public abstract void Reorder(int from, int to);
 
 		public virtual void DoWidgetButtons(WidgetRow row, FindDescription desc, int i) { }
+		public virtual void DoRectExtra(Rect rowRect, FindDescription desc, int i) { }
 		public virtual void PostListDraw(Listing_StandardIndent listing) { }
 
 		//Drawing
@@ -114,6 +115,7 @@ namespace TD_Find_Lib
 						DrawMouseAttachedFindDesc(DescAt(index), listing.ColumnWidth));
 			}
 
+			Text.Anchor = TextAnchor.LowerLeft;
 			float startHeight = listing.CurHeight;
 			for (int i = 0; i < Count; i++)
 			{
@@ -126,14 +128,17 @@ namespace TD_Find_Lib
 				DoWidgetButtons(row, desc, i);
 
 				// Name
-				row.Gap(6);
-				Text.Anchor = TextAnchor.LowerLeft;
-				row.Label(desc.name + desc.mapLabel);
 				Text.Anchor = TextAnchor.UpperLeft;
+				row.Gap(6);
+				row.Label(desc.name + desc.mapLabel);
+
+				Text.Anchor = TextAnchor.LowerRight;
+				DoRectExtra(rowRect, desc, i);
 
 				ReorderableWidget.Reorderable(reorderID, rowRect);
 			}
 			reorderRectHeight = listing.CurHeight - startHeight;
+			Text.Anchor = TextAnchor.UpperLeft;
 
 			PostListDraw(listing);
 		}
@@ -248,14 +253,26 @@ namespace TD_Find_Lib
 				Find.WindowStack.Add(new TDFindLibViewerWindow(desc));
 			}
 
-			if (row.ButtonIcon(FindTex.Trash))
+			if (refDesc[i].permanent)
 			{
-				if (Event.current.shift)
-					refDesc.RemoveAt(i);
-				else
-					Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
-						"TD.StopRefresh0".Translate(desc.name), () => refDesc.RemoveAt(i)));
+				row.Gap(WidgetRow.IconSize);
 			}
+			else
+			{
+				if (row.ButtonIcon(FindTex.Trash))
+				{
+					if (Event.current.shift)
+						refDesc.RemoveAt(i);
+					else
+						Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
+							"TD.StopRefresh0".Translate(desc.name), () => refDesc.RemoveAt(i)));
+				}
+			}
+		}
+
+		public override void DoRectExtra(Rect rowRect, FindDescription desc, int i)
+		{
+			Widgets.Label(rowRect, $"Every {refDesc[i].period} ticks");
 		}
 	}
 }
