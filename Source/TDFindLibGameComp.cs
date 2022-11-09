@@ -11,28 +11,64 @@ namespace TD_Find_Lib
 		public TDFindLibGameComp(Game g) : base() { }
 
 		//continuousRefresh
-		public List<(FindDescription, int)> findDescRefreshers = new();
+		public List<RefreshFindDesc> findDescRefreshers = new();
 
-		public void RemoveRefresh(FindDescription d) =>
-			findDescRefreshers.RemoveAll(tuple => tuple.Item1 == d);
+		public void RemoveRefresh(FindDescription desc) =>
+			findDescRefreshers.RemoveAll(r => r.desc == desc);
 
-		public void RegisterRefresh(FindDescription d, int p)
+		public void RegisterRefresh(FindDescription desc, int period, bool permanent = false)
 		{
-			RemoveRefresh(d);
-			findDescRefreshers.Add((d, p));
+			RemoveRefresh(desc);
+			findDescRefreshers.Add(new RefreshFindDesc(desc, period, permanent));
 		}
 
 		public bool IsRefreshing(FindDescription desc) =>
-			findDescRefreshers.Any(tuple => desc == tuple.Item1);
+			findDescRefreshers.Any(r => r.desc == desc);
+
 
 		public override void GameComponentTick()
 		{
-			foreach ((var desc, int period) in findDescRefreshers)
-				if (Find.TickManager.TicksGame % period == 0)
+			foreach (var rDesc in findDescRefreshers)
+				if (Find.TickManager.TicksGame % rDesc.period == 0)
 				{
-					Log.Message($"Refreshing {desc.name}");
-					desc.RemakeList();
+					Log.Message($"Refreshing {rDesc.desc.name}");
+					rDesc.desc.RemakeList();
 				}
+		}
+
+
+		public override void ExposeData()
+		{
+			if (Scribe.mode == LoadSaveMode.Saving)
+			{
+				var savedR = findDescRefreshers.FindAll(r => r.permanent);
+				Scribe_Collections.Look(ref savedR, "refreshers");
+			}
+			else
+			{
+				Scribe_Collections.Look(ref findDescRefreshers, "refreshers");
+			}
+		}
+	}
+
+	public class RefreshFindDesc : IExposable
+	{
+		public FindDescription desc;
+		public int period;
+		public bool permanent;
+
+		public RefreshFindDesc(FindDescription desc, int period = 1, bool permanent = false)
+		{
+			this.desc = desc;
+			this.period = period;
+			this.permanent = permanent;
+		}
+
+		public void ExposeData()
+		{
+			Scribe_Deep.Look(ref desc, "desc");
+			Scribe_Values.Look(ref period, "period");
+			permanent = true;//ofcourse.
 		}
 	}
 }

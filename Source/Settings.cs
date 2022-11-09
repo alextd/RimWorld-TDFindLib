@@ -60,12 +60,6 @@ namespace TD_Find_Lib
 	public class FilterGroup : List<FindDescription>, IExposable
 	{
 		public string name;
-		public void Reorder(int from, int to)
-		{
-			var desc = this[from];
-			RemoveAt(from);
-			Insert(from < to ? to - 1 : to, desc);
-		}
 
 		public void ExposeData()
 		{

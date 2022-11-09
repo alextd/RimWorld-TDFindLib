@@ -71,27 +71,33 @@ namespace TD_Find_Lib
 				}));
 			}
 
-
+			
 			//Active filters from mods
-			listing.Header("Active Filters:");
-			listing.Label("todo()");
-			// Edit how often they tick.
+			if (Current.Game != null)
+			{
+				listing.Header("Active Filters:");
+				foreach (var refreshing in Current.Game.GetComponent<TDFindLibGameComp>().findDescRefreshers)
+				{
+			//		TODO
+				}
+				// TODO Edit how often they tick.
+			}
 
 
 			listing.EndScrollView(ref scrollViewHeight);
 		}
 	}
 
-	public class FilterGroupDrawer
+	abstract public class FilterListDrawer
 	{
-		public FilterGroup group;
+		public abstract FindDescription DescAt(int i);
+		public abstract int Count { get; }
+		public abstract void Reorder(int from, int to);
 
-		public FilterGroupDrawer(FilterGroup group)
-		{
-			this.group = group;
-		}
+		public virtual void DoWidgetButtons(WidgetRow row, FindDescription desc, int i) { }
+		public virtual void PostListDraw(Listing_StandardIndent listing) { }
 
-
+		//Drawing
 		private const float RowHeight = WidgetRow.IconSize + 6;
 
 		private int reorderID;
@@ -101,64 +107,23 @@ namespace TD_Find_Lib
 			if (Event.current.type == EventType.Repaint)
 			{
 				reorderID = ReorderableWidget.NewGroup(
-					(int from, int to) => group.Reorder(from, to),
+					Reorder,
 					ReorderableDirection.Vertical,
 					new Rect(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight), 1f,
 					extraDraggedItemOnGUI: (int index, Vector2 dragStartPos) =>
-						DrawMouseAttachedFindDesc(group.ElementAt(index), listing.ColumnWidth));
+						DrawMouseAttachedFindDesc(DescAt(index), listing.ColumnWidth));
 			}
 
 			float startHeight = listing.CurHeight;
-			for (int i = 0; i < group.Count; i++)
+			for (int i = 0; i < Count; i++)
 			{
-				var desc = group[i];
+				FindDescription desc = DescAt(i);
 				Rect rowRect = listing.GetRect(RowHeight);
 
 				WidgetRow row = new WidgetRow(rowRect.x, rowRect.y, UIDirection.RightThenDown, rowRect.width);
 
 				// Buttons
-				if (row.ButtonIcon(FindTex.Edit))
-				{
-					int localI = i;
-					Find.WindowStack.Add(new TDFindLibEditorWindow(desc.CloneForEdit(), delegate (FindDescription newDesc)
-					{
-						Action acceptAction = delegate ()
-						{
-							group[localI] = newDesc;
-							Mod.settings.Write();
-						};
-						Action copyAction = delegate ()
-						{
-							group.Insert(localI + 1, newDesc);
-							Mod.settings.Write();
-						};
-						Find.WindowStack.Add(new Dialog_MessageBox(
-							$"Save changes to {newDesc.name}?",
-							"Confirm".Translate(), acceptAction,
-							"No".Translate(), null,
-							"Change Filter",
-							true, acceptAction,
-							delegate () { }// I dunno who wrote this class but this empty method is required so the window can close with esc because its logic is very different from its base class
-						)
-						{
-							buttonCText = "Save as Copy",
-							buttonCAction = copyAction,
-						});
-					}));
-				}
-
-				if (row.ButtonIcon(FindTex.Trash))
-				{
-					if (Event.current.shift)
-						group.Remove(desc);
-					else
-						Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
-							"TD.Delete0".Translate(desc.name), () => group.Remove(desc)));
-				}
-
-				if (Current.Game != null &&
-					row.ButtonIcon(FindTex.Copy))
-					Verse.Log.Error("Todo!");// MainTabWindow_List.OpenWith(desc.CloneForUse(Find.CurrentMap), true);
+				DoWidgetButtons(row, desc, i);
 
 				// Name
 				row.Gap(6);
@@ -170,12 +135,7 @@ namespace TD_Find_Lib
 			}
 			reorderRectHeight = listing.CurHeight - startHeight;
 
-			if (listing.ButtonImage(TexButton.Plus, WidgetRow.IconSize, WidgetRow.IconSize))
-			{
-				FindDescription newFD = new();
-				group.Add(newFD);
-			}
-			listing.Label("todo : Save load to file.");
+			PostListDraw(listing);
 		}
 
 
@@ -189,5 +149,76 @@ namespace TD_Find_Lib
 				() => Widgets.Label(new Rect(0, 0, width, Text.LineHeight), desc.name),
 				doBackground: false, absorbInputAroundWindow: false, 0f);
 		}
+	}
+	public class FilterGroupDrawer : FilterListDrawer
+	{
+		public FilterGroup group;
+
+		public FilterGroupDrawer(FilterGroup group)
+		{
+			this.group = group;
+		}
+
+		public override FindDescription DescAt(int i) => group[i];
+		public override int Count => group.Count;
+
+		public override void Reorder(int from, int to)
+		{
+			var desc = group[from];
+			group.RemoveAt(from);
+			group.Insert(from < to ? to - 1 : to, desc);
+		}
+
+		public override void DoWidgetButtons(WidgetRow row, FindDescription desc, int i)
+		{
+			if (row.ButtonIcon(FindTex.Edit))
+			{
+				Find.WindowStack.Add(new TDFindLibEditorWindow(desc.CloneForEdit(), delegate (FindDescription newDesc)
+				{
+					Action acceptAction = delegate ()
+					{
+						group[i] = newDesc;
+						Mod.settings.Write();
+					};
+					Action copyAction = delegate ()
+					{
+						group.Insert(i + 1, newDesc);
+						Mod.settings.Write();
+					};
+					Find.WindowStack.Add(new Dialog_MessageBox(
+						$"Save changes to {newDesc.name}?",
+						"Confirm".Translate(), acceptAction,
+						"No".Translate(), null,
+						"Change Filter",
+						true, acceptAction,
+						delegate () { }// I dunno who wrote this class but this empty method is required so the window can close with esc because its logic is very different from its base class
+					)
+					{
+						buttonCText = "Save as Copy",
+						buttonCAction = copyAction,
+					});
+				}));
+			}
+
+			if (row.ButtonIcon(FindTex.Trash))
+			{
+				if (Event.current.shift)
+					group.Remove(desc);
+				else
+					Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
+						"TD.Delete0".Translate(desc.name), () => group.Remove(desc)));
+			}
+
+			if (Current.Game != null &&
+				row.ButtonIcon(FindTex.Copy))
+				Verse.Log.Error("Todo!");// MainTabWindow_List.OpenWith(desc.CloneForUse(Find.CurrentMap), true);
+		}
+
+		public override void PostListDraw(Listing_StandardIndent listing)
+		{
+			if (listing.ButtonImage(TexButton.Plus, WidgetRow.IconSize, WidgetRow.IconSize))
+				group.Add(new FindDescription());
+		}
+
 	}
 }
