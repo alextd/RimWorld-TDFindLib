@@ -74,33 +74,6 @@ namespace TD_Find_Lib
 			//Select All
 			selectAll = buttRow.ButtonIcon(FindTex.SelectAll, "TD.SelectAllGameAllowsUpTo".Translate(Selector.MaxNumSelected));
 
-			//Manual refresh
-			if (buttRow.ButtonIcon(TexUI.RotRightTex, "TD.Refresh".Translate()))
-				findDesc.RemakeList();
-
-			//Continuous refresh
-			var comp = Current.Game.GetComponent<TDFindLibGameComp>();
-			bool refresh = comp.IsRefreshing(findDesc);
-			if (buttRow.ButtonIconColored(TexUI.ArrowTexRight,
-				Find.TickManager.Paused	? "(Does not refresh when paused)" : "TD.ContinuousRefreshAboutEverySecond".Translate(),
-				refresh ? Color.green : Color.white, 
-				Color.Lerp(Color.green, Color.white, 0.5f)))
-			{
-				if (refresh)
-					comp.RemoveRefresh(findDesc);
-				else
-					comp.RegisterRefresh(findDesc, 60); //every 60 or so
-			}
-
-			if (Find.TickManager.Paused)
-			{
-				// Thank you publicizer
-				buttRow.IncrementPosition(-WidgetRow.IconSize);
-				GUI.color = new Color(1, 1, 1, .5f);
-				buttRow.Icon(FindTex.Cancel);
-				GUI.color = Color.white;
-			}
-
 			extraIconsDrawer?.Invoke(buttRow);
 
 			//Godmode showing fogged

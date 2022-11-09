@@ -24,7 +24,8 @@ namespace TD_Find_Lib
 				groupDrawers.Add(new FilterGroupDrawer(group));
 			}
 
-			refreshDrawer = new RefreshFilterGroupDrawer();
+			if (Current.Game != null)
+				refreshDrawer = new RefreshFilterGroupDrawer();
 
 			preventCameraMotion = false;
 			draggable = true;
@@ -54,16 +55,11 @@ namespace TD_Find_Lib
 			listing.BeginScrollView(fillRect, ref scrollPosition, viewRect);
 
 			// Filter List
-			listing.Header("Saved Filters:");
-
-
 			savedFiltersDrawer.DrawFindDescList(listing);
 
 			foreach(FilterGroupDrawer drawer in groupDrawers)
-			{
-				listing.Header(drawer.group.name +":");
 				drawer.DrawFindDescList(listing);
-			}
+
 			if(listing.ButtonText("New Group"))
 			{
 				Find.WindowStack.Add(new Dialog_Name("Group Name", n =>
@@ -75,13 +71,8 @@ namespace TD_Find_Lib
 			}
 
 			
-			//Active filters from mods
-			if (Current.Game != null)
-			{
-				listing.Header("Active Filters:");
-
-				refreshDrawer.DrawFindDescList(listing);
-			}
+			// Active filters, possibly from mods
+			refreshDrawer?.DrawFindDescList(listing);
 
 
 			listing.EndScrollView(ref scrollViewHeight);
@@ -90,10 +81,12 @@ namespace TD_Find_Lib
 
 	abstract public class FilterListDrawer
 	{
+		public abstract string Name { get; }
 		public abstract FindDescription DescAt(int i);
 		public abstract int Count { get; }
 		public abstract void Reorder(int from, int to);
 
+		public virtual void PreRowDraw(Listing_StandardIndent listing, int i) { }
 		public virtual void DoWidgetButtons(WidgetRow row, FindDescription desc, int i) { }
 		public virtual void DoRectExtra(Rect rowRect, FindDescription desc, int i) { }
 		public virtual void PostListDraw(Listing_StandardIndent listing) { }
@@ -105,6 +98,9 @@ namespace TD_Find_Lib
 		private float reorderRectHeight;
 		public void DrawFindDescList(Listing_StandardIndent listing)
 		{
+			listing.Header(Name + ":");
+			listing.Gap(4);
+
 			if (Event.current.type == EventType.Repaint)
 			{
 				reorderID = ReorderableWidget.NewGroup(
@@ -119,6 +115,7 @@ namespace TD_Find_Lib
 			float startHeight = listing.CurHeight;
 			for (int i = 0; i < Count; i++)
 			{
+				PreRowDraw(listing, i);
 				FindDescription desc = DescAt(i);
 				Rect rowRect = listing.GetRect(RowHeight);
 
@@ -164,6 +161,7 @@ namespace TD_Find_Lib
 			this.group = group;
 		}
 
+		public override string Name => group.name;
 		public override FindDescription DescAt(int i) => group[i];
 		public override int Count => group.Count;
 
@@ -235,7 +233,7 @@ namespace TD_Find_Lib
 		{
 			this.refDesc = refDesc ?? Current.Game.GetComponent<TDFindLibGameComp>().findDescRefreshers;
 		}
-
+		public override string Name => "Active Filters";
 		public override FindDescription DescAt(int i) => refDesc[i].desc;
 		public override int Count => refDesc.Count;
 
@@ -245,6 +243,21 @@ namespace TD_Find_Lib
 			refDesc.RemoveAt(from);
 			refDesc.Insert(from < to ? to - 1 : to, desc);
 		}
+
+		private string currentTag;
+		public override void PreRowDraw(Listing_StandardIndent listing, int i)
+		{
+			if(refDesc[i].tag != currentTag)
+			{
+				currentTag = refDesc[i].tag;
+				listing.Label(currentTag);
+			}
+		}
+		public override void PostListDraw(Listing_StandardIndent listing)
+		{
+			currentTag = null;
+		}
+
 
 		public override void DoWidgetButtons(WidgetRow row, FindDescription desc, int i)
 		{

@@ -59,7 +59,7 @@ namespace TD_Find_Lib
 	// Need List to be "exposable" on its own.
 	public class FilterGroup : List<FindDescription>, IExposable
 	{
-		public string name;
+		public string name = "Saved Filters";
 
 		public void ExposeData()
 		{

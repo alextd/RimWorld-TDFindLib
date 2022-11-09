@@ -18,10 +18,10 @@ namespace TD_Find_Lib
 		public void RemoveRefresh(FindDescription desc) =>
 			findDescRefreshers.RemoveAll(r => r.desc == desc);
 
-		public void RegisterRefresh(FindDescription desc, int period, bool permanent = false)
+		public void RegisterRefresh(FindDescription desc, string tag, int period, bool permanent = false)
 		{
 			RemoveRefresh(desc);
-			findDescRefreshers.Add(new RefreshFindDesc(desc, period, permanent));
+			findDescRefreshers.Add(new RefreshFindDesc(desc, tag, period, permanent));
 		}
 
 		public bool IsRefreshing(FindDescription desc) =>
@@ -56,12 +56,14 @@ namespace TD_Find_Lib
 	public class RefreshFindDesc : IExposable
 	{
 		public FindDescription desc;
+		public string tag;
 		public int period;
 		public bool permanent;
 
-		public RefreshFindDesc(FindDescription desc, int period = 1, bool permanent = false)
+		public RefreshFindDesc(FindDescription desc, string tag, int period = 1, bool permanent = false)
 		{
 			this.desc = desc;
+			this.tag = tag;
 			this.period = period;
 			this.permanent = permanent;
 		}
