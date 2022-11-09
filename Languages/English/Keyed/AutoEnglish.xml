@@ -3,6 +3,7 @@
 	
 	<TD.TDFindLib>TD Find Lib</TD.TDFindLib>
 	<TD.Delete0>Delete {0}?</TD.Delete0>
+	<TD.StopRefresh0>Stop refreshing {0}?</TD.StopRefresh0>
 	<TD.AllMaps>All maps</TD.AllMaps>
 	<TD.SavedFindFilters>Saved Find Filters:</TD.SavedFindFilters>
 	<TD.NewFindFilters>(Name)</TD.NewFindFilters>

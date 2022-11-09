@@ -12,6 +12,7 @@ namespace TD_Find_Lib
 	{
 		private FilterGroupDrawer savedFiltersDrawer;
 		private List<FilterGroupDrawer> groupDrawers;
+		private RefreshFilterGroupDrawer refreshDrawer;
 
 		public TDFindLibListWindow()
 		{
@@ -22,6 +23,8 @@ namespace TD_Find_Lib
 			{
 				groupDrawers.Add(new FilterGroupDrawer(group));
 			}
+
+			refreshDrawer = new RefreshFilterGroupDrawer();
 
 			preventCameraMotion = false;
 			draggable = true;
@@ -76,11 +79,8 @@ namespace TD_Find_Lib
 			if (Current.Game != null)
 			{
 				listing.Header("Active Filters:");
-				foreach (var refreshing in Current.Game.GetComponent<TDFindLibGameComp>().findDescRefreshers)
-				{
-			//		TODO
-				}
-				// TODO Edit how often they tick.
+
+				refreshDrawer.DrawFindDescList(listing);
 			}
 
 
@@ -220,5 +220,42 @@ namespace TD_Find_Lib
 				group.Add(new FindDescription());
 		}
 
+	}
+
+	public class RefreshFilterGroupDrawer : FilterListDrawer
+	{
+		public List<RefreshFindDesc> refDesc;
+
+		public RefreshFilterGroupDrawer(List<RefreshFindDesc> refDesc = null)
+		{
+			this.refDesc = refDesc ?? Current.Game.GetComponent<TDFindLibGameComp>().findDescRefreshers;
+		}
+
+		public override FindDescription DescAt(int i) => refDesc[i].desc;
+		public override int Count => refDesc.Count;
+
+		public override void Reorder(int from, int to)
+		{
+			var desc = refDesc[from];
+			refDesc.RemoveAt(from);
+			refDesc.Insert(from < to ? to - 1 : to, desc);
+		}
+
+		public override void DoWidgetButtons(WidgetRow row, FindDescription desc, int i)
+		{
+			if (row.ButtonIcon(FindTex.Edit))
+			{
+				Find.WindowStack.Add(new TDFindLibViewerWindow(desc));
+			}
+
+			if (row.ButtonIcon(FindTex.Trash))
+			{
+				if (Event.current.shift)
+					refDesc.RemoveAt(i);
+				else
+					Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
+						"TD.StopRefresh0".Translate(desc.name), () => refDesc.RemoveAt(i)));
+			}
+		}
 	}
 }

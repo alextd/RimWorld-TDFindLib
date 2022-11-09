@@ -10,13 +10,13 @@ namespace TD_Find_Lib
 {
 	public class TDFindLibEditorWindow : Window
 	{
-		public FindDescriptionDrawer drawer;
+		public readonly FindDescriptionDrawer drawer;
 		private Action<FindDescription> onCloseIfChanged;
 		private TDFindListThingsWindow listWindow;
 
 		public TDFindLibEditorWindow(FindDescription desc, Action<FindDescription> onCloseIfChanged = null)
 		{
-			drawer = new FindDescriptionDrawer(desc, showName: true);
+			drawer = new FindDescriptionDrawer(desc) { showName = true };
 			onlyOneOfTypeAllowed = false;
 			preventCameraMotion = false;
 			draggable = true;
@@ -72,18 +72,29 @@ namespace TD_Find_Lib
 				});
 		}
 	}
+	public class TDFindLibViewerWindow : TDFindLibEditorWindow
+	{
+		public TDFindLibViewerWindow(FindDescription desc):base(desc)
+		{
+			drawer.permalocked = true;
+		}
+	}
 
 	public class FindDescriptionDrawer
 	{ 
 		public FindDescription findDesc;
-		private bool locked;
+		private bool _locked;
+		public bool locked
+		{
+			get => _locked || permalocked;
+			set => _locked = value;
+		}
+		public bool permalocked;
 		public bool showName;
 
-		public FindDescriptionDrawer(FindDescription d, bool locked = false, bool showName = false)
+		public FindDescriptionDrawer(FindDescription desc)
 		{
-			findDesc = d;
-			this.locked = locked;
-			this.showName = showName;
+			findDesc = desc;
 		}
 
 		//Draw Filters
@@ -99,18 +110,18 @@ namespace TD_Find_Lib
 			Text.Font = GameFont.Medium;
 			Rect nameRect = listing.GetRect(Text.LineHeight);
 			if(showName)
-				Widgets.Label(nameRect, "Editing: " + findDesc.name);
+				Widgets.Label(nameRect, (permalocked ? "Viewing: " : "Editing: ") + findDesc.name);
 
 			//Buttons
 			WidgetRow buttonRow = new WidgetRow(nameRect.xMax - 20, nameRect.yMin, UIDirection.LeftThenDown);
 
-			if (buttonRow.ButtonIcon(FindTex.Cancel, "ClearAll".Translate()))
+			if (!locked && buttonRow.ButtonIcon(FindTex.Cancel, "ClearAll".Translate()))
 				findDesc.Reset();
 
-			if (buttonRow.ButtonIcon(locked ? FindTex.LockOn : FindTex.LockOff, "TD.LockEditing".Translate()))
+			if (!permalocked && buttonRow.ButtonIcon(locked ? FindTex.LockOn : FindTex.LockOff, "TD.LockEditing".Translate()))
 				locked = !locked;
 
-			if (showName && buttonRow.ButtonIcon(TexButton.Rename))
+			if (!locked && showName && buttonRow.ButtonIcon(TexButton.Rename))
 				Find.WindowStack.Add(new Dialog_Name(findDesc.name, newName => { findDesc.name = newName; findDesc.changed = true; }));
 
 			extraIconsDrawer?.Invoke(buttonRow);
@@ -125,7 +136,7 @@ namespace TD_Find_Lib
 			Widgets.DrawHighlightIfMouseover(allMapsRect);
 
 			Widgets.Label(typeRect, "TD.Listing".Translate() + findDesc.BaseType.TranslateEnum());
-			if (Widgets.ButtonInvisible(typeRect))
+			if (!locked && Widgets.ButtonInvisible(typeRect))
 			{
 				List<FloatMenuOption> types = new List<FloatMenuOption>();
 				foreach (BaseListType type in DebugSettings.godMode ? Enum.GetValues(typeof(BaseListType)) : BaseListNormalTypes.normalTypes)
@@ -144,7 +155,7 @@ namespace TD_Find_Lib
 				ref allMaps);
 			TooltipHandler.TipRegion(allMapsRect, "TD.CertainFiltersDontWorkForAllMaps-LikeZonesAndAreasThatAreObviouslySpecificToASingleMap".Translate());
 
-			if(allMaps != findDesc.allMaps)
+			if(!locked && allMaps != findDesc.allMaps)
 			{
 				findDesc.allMaps = allMaps; //Re-writes map label, remakes list. Hopefully the map is set if allmaps is checked off?
 			}
