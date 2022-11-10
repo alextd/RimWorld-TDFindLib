@@ -71,11 +71,13 @@ namespace TD_Find_Lib
 				{
 					var group = new FilterGroup(n);
 					Mod.settings.groupedFilters.Add(group);
-					groupDrawers.Add(new FilterGroupDrawer(group));
+					var drawer = new FilterGroupDrawer(group);
+					groupDrawers.Add(drawer);
+					drawer.PopUpCreateFindDesc();
 				}));
 			}
 			newGroupRow.Gap(4);
-			newGroupRow.Label("New Group", height: Text.LineHeight);
+			newGroupRow.Label("Add New Group", height: Text.LineHeight);
 			listing.Gap(4);
 			Text.Font = GameFont.Small;
 
@@ -108,7 +110,7 @@ namespace TD_Find_Lib
 
 		public void PopUpCreateFindDesc()
 		{
-			Find.WindowStack.Add(new Dialog_Name("New Filter", n =>
+			Find.WindowStack.Add(new Dialog_Name("Search Name", n =>
 			{
 				var desc = new FindDescription() { name = n };
 				Add(desc);
