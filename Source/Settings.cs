@@ -14,8 +14,8 @@ namespace TD_Find_Lib
 		private bool onlyAvailable = true;
 		public bool OnlyAvailable => onlyAvailable != Event.current.shift && Find.CurrentMap != null;
 
+		public static string savedFiltersName = "Saved Filters";
 		//Don't touch my filters
-		static string savedFiltersName = "Saved Filters";
 		internal FilterGroup savedFilters = new(savedFiltersName);
 		internal List<FilterGroup> groupedFilters = new();
 
@@ -69,7 +69,7 @@ namespace TD_Find_Lib
 
 		public void ExposeData()
 		{
-			Scribe_Values.Look(ref name, "name", "??No Name??");
+			Scribe_Values.Look(ref name, "name", Settings.savedFiltersName);
 
 			string label = "descs";
 
