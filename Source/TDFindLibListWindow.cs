@@ -72,7 +72,8 @@ namespace TD_Find_Lib
 
 			
 			// Active filters, possibly from mods
-			refreshDrawer?.DrawFindDescList(listing);
+			if(refreshDrawer?.Count > 0)
+				refreshDrawer?.DrawFindDescList(listing);
 
 
 			listing.EndScrollView(ref scrollViewHeight);
