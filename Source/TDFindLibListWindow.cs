@@ -20,9 +20,7 @@ namespace TD_Find_Lib
 			
 			groupDrawers = new();
 			foreach(FilterGroup group in Mod.settings.groupedFilters)
-			{
 				groupDrawers.Add(new FilterGroupDrawer(group));
-			}
 
 			if (Current.Game != null)
 				refreshDrawer = new RefreshFilterGroupDrawer();
@@ -57,10 +55,17 @@ namespace TD_Find_Lib
 			// Filter List
 			savedFiltersDrawer.DrawFindDescList(listing);
 
+			// Filter groups by name
 			foreach(FilterGroupDrawer drawer in groupDrawers)
 				drawer.DrawFindDescList(listing);
 
-			if(listing.ButtonText("New Group"))
+
+			// Add new group
+			listing.Gap(4);
+			Text.Font = GameFont.Medium;
+			Rect newGroupRect = listing.GetRect(Text.LineHeight);
+			WidgetRow newGroupRow = new WidgetRow(newGroupRect.x, newGroupRect.y);
+			if (newGroupRow.ButtonIcon(TexButton.Plus))
 			{
 				Find.WindowStack.Add(new Dialog_Name("Group Name", n =>
 				{
@@ -69,11 +74,17 @@ namespace TD_Find_Lib
 					groupDrawers.Add(new FilterGroupDrawer(group));
 				}));
 			}
+			newGroupRow.Gap(4);
+			newGroupRow.Label("New Group", height: Text.LineHeight);
+			listing.Gap(4);
+			Text.Font = GameFont.Small;
 
-			
 			// Active filters, possibly from mods
-			if(refreshDrawer?.Count > 0)
+			if (refreshDrawer?.Count > 0)
+			{
+				listing.GapLine();
 				refreshDrawer?.DrawFindDescList(listing);
+			}
 
 
 			listing.EndScrollView(ref scrollViewHeight);
@@ -85,13 +96,25 @@ namespace TD_Find_Lib
 		public abstract string Name { get; }
 		public abstract FindDescription DescAt(int i);
 		public abstract int Count { get; }
-		public virtual bool CanReorder => true;
+
+		public virtual bool CanEdit => true;
+		public virtual void Add(FindDescription desc) { }
 		public virtual void Reorder(int from, int to) { }
 
 		public virtual void PreRowDraw(Listing_StandardIndent listing, int i) { }
 		public virtual void DoWidgetButtons(WidgetRow row, FindDescription desc, int i) { }
 		public virtual void DoRectExtra(Rect rowRect, FindDescription desc, int i) { }
 		public virtual void PostListDraw(Listing_StandardIndent listing) { }
+
+		public void PopUpCreateFindDesc()
+		{
+			Find.WindowStack.Add(new Dialog_Name("New Filter", n =>
+			{
+				var desc = new FindDescription() { name = n };
+				Add(desc);
+				Find.WindowStack.Add(new TDFindLibEditorWindow(desc));
+			}));
+		}
 
 		//Drawing
 		private const float RowHeight = WidgetRow.IconSize + 6;
@@ -100,20 +123,33 @@ namespace TD_Find_Lib
 		private float reorderRectHeight;
 		public void DrawFindDescList(Listing_StandardIndent listing)
 		{
-			listing.Header(Name + ":");
-			listing.Gap(4);
+			// Name Header
+			Text.Font = GameFont.Medium;
+			Rect headerRect = listing.GetRect(Text.LineHeight);
+			WidgetRow headerRow = new WidgetRow(headerRect.x, headerRect.y);
+			headerRow.Label(Name + ":", height: Text.LineHeight);
+			Text.Font = GameFont.Small;
 
-			if (CanReorder && Event.current.type == EventType.Repaint)
+			if (CanEdit)
 			{
-				reorderID = ReorderableWidget.NewGroup(
-					Reorder,
-					ReorderableDirection.Vertical,
-					new Rect(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight), 1f,
-					extraDraggedItemOnGUI: (int index, Vector2 dragStartPos) =>
-						DrawMouseAttachedFindDesc(DescAt(index), listing.ColumnWidth));
+				// Add new filter button
+				headerRow.Gap(4);
+				if (headerRow.ButtonIcon(TexButton.Plus))
+					PopUpCreateFindDesc();
+				listing.Gap(4);
+
+				// Reorder rect
+				if (Event.current.type == EventType.Repaint)
+				{
+					reorderID = ReorderableWidget.NewGroup(
+						Reorder,
+						ReorderableDirection.Vertical,
+						new Rect(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight), 1f,
+						extraDraggedItemOnGUI: (int index, Vector2 dragStartPos) =>
+							DrawMouseAttachedFindDesc(DescAt(index), listing.ColumnWidth));
+				}
 			}
 
-			Text.Anchor = TextAnchor.LowerLeft;
 			float startHeight = listing.CurHeight;
 			for (int i = 0; i < Count; i++)
 			{
@@ -127,18 +163,15 @@ namespace TD_Find_Lib
 				DoWidgetButtons(row, desc, i);
 
 				// Name
-				Text.Anchor = TextAnchor.UpperLeft;
 				row.Gap(6);
 				row.Label(desc.name + desc.mapLabel);
 
-				Text.Anchor = TextAnchor.LowerRight;
 				DoRectExtra(rowRect, desc, i);
 
-				if(CanReorder)
+				if(CanEdit)
 					ReorderableWidget.Reorderable(reorderID, rowRect);
 			}
 			reorderRectHeight = listing.CurHeight - startHeight;
-			Text.Anchor = TextAnchor.UpperLeft;
 
 			PostListDraw(listing);
 		}
@@ -155,6 +188,7 @@ namespace TD_Find_Lib
 				doBackground: false, absorbInputAroundWindow: false, 0f);
 		}
 	}
+
 	public class FilterGroupDrawer : FilterListDrawer
 	{
 		public FilterGroup group;
@@ -168,6 +202,10 @@ namespace TD_Find_Lib
 		public override FindDescription DescAt(int i) => group[i];
 		public override int Count => group.Count;
 
+		public override void Add(FindDescription desc)
+		{
+			group.Add(desc);
+		}
 		public override void Reorder(int from, int to)
 		{
 			var desc = group[from];
@@ -219,13 +257,6 @@ namespace TD_Find_Lib
 				row.ButtonIcon(FindTex.Copy))
 				Verse.Log.Error("Todo!");// MainTabWindow_List.OpenWith(desc.CloneForUse(Find.CurrentMap), true);
 		}
-
-		public override void PostListDraw(Listing_StandardIndent listing)
-		{
-			if (listing.ButtonImage(TexButton.Plus, WidgetRow.IconSize, WidgetRow.IconSize))
-				group.Add(new FindDescription());
-		}
-
 	}
 
 	public class RefreshFilterGroupDrawer : FilterListDrawer
@@ -240,7 +271,7 @@ namespace TD_Find_Lib
 		public override FindDescription DescAt(int i) => refDesc[i].desc;
 		public override int Count => refDesc.Count;
 		
-		public override bool CanReorder => false;
+		public override bool CanEdit => false;
 
 		private string currentTag;
 		public override void PreRowDraw(Listing_StandardIndent listing, int i)
@@ -283,7 +314,9 @@ namespace TD_Find_Lib
 
 		public override void DoRectExtra(Rect rowRect, FindDescription desc, int i)
 		{
+			Text.Anchor = TextAnchor.UpperRight;
 			Widgets.Label(rowRect, $"Every {refDesc[i].period} ticks");
+			Text.Anchor = TextAnchor.UpperLeft;
 		}
 	}
 }
