@@ -64,7 +64,7 @@ namespace TD_Find_Lib
 			{
 				Find.WindowStack.Add(new Dialog_Name("Group Name", n =>
 				{
-					var group = new FilterGroup() { name = n };
+					var group = new FilterGroup(n);
 					Mod.settings.groupedFilters.Add(group);
 					groupDrawers.Add(new FilterGroupDrawer(group));
 				}));

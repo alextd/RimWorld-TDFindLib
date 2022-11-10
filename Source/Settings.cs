@@ -15,7 +15,8 @@ namespace TD_Find_Lib
 		public bool OnlyAvailable => onlyAvailable != Event.current.shift && Find.CurrentMap != null;
 
 		//Don't touch my filters
-		internal FilterGroup savedFilters = new();
+		static string savedFiltersName = "Saved Filters";
+		internal FilterGroup savedFilters = new(savedFiltersName);
 		internal List<FilterGroup> groupedFilters = new();
 
 		public void DoWindowContents(Rect inRect)
@@ -50,8 +51,8 @@ namespace TD_Find_Lib
 		{
 			Scribe_Values.Look(ref onlyAvailable, "onlyAvailable", true);
 			
-			Scribe_Deep.Look(ref savedFilters, "savedFilters");
-			Scribe_Collections.Look(ref groupedFilters, "groupedFilters");
+			Scribe_Deep.Look(ref savedFilters, "savedFilters", savedFiltersName);
+			Scribe_Collections.Look(ref groupedFilters, "groupedFilters", LookMode.Undefined, "??Group Name??");
 		}
 	}
 
@@ -59,11 +60,16 @@ namespace TD_Find_Lib
 	// Need List to be "exposable" on its own.
 	public class FilterGroup : List<FindDescription>, IExposable
 	{
-		public string name = "Saved Filters";
+		public string name;
+
+		public FilterGroup(string name)
+		{
+			this.name = name;
+		}
 
 		public void ExposeData()
 		{
-			Scribe_Values.Look(ref name, "name");
+			Scribe_Values.Look(ref name, "name", "??No Name??");
 
 			string label = "descs";
 
