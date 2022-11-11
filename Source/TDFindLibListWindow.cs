@@ -57,6 +57,7 @@ namespace TD_Find_Lib
 					groupDrawers.Remove(drawer);
 					Mod.settings.groupedFilters.Remove(drawer.list);
 				});
+				listing.Gap();
 			}
 
 
@@ -102,6 +103,7 @@ namespace TD_Find_Lib
 			this.list = list;
 		}
 		public abstract string Name { get; }
+		public virtual void Rename(string name) { }
 		public abstract FindDescription DescAt(int i);
 		public abstract int Count { get; }
 
@@ -140,8 +142,14 @@ namespace TD_Find_Lib
 
 			if (CanEdit)
 			{
-				// Add new filter button
 				headerRow.Gap(4);
+
+				// Add new filter button
+				if (headerRow.ButtonIcon(TexButton.Rename))
+					Find.WindowStack.Add(new Dialog_Name(Name, Rename));
+
+
+				// Add new filter button
 				if (headerRow.ButtonIcon(TexButton.Plus))
 					PopUpCreateFindDesc();
 
@@ -218,6 +226,7 @@ namespace TD_Find_Lib
 		public FilterGroupDrawer(FilterGroup l) : base(l) { }
 
 		public override string Name => list.name;
+		public override void Rename(string name) => list.name = name;
 		public override FindDescription DescAt(int i) => list[i];
 		public override int Count => list.Count;
 
@@ -261,6 +270,11 @@ namespace TD_Find_Lib
 						buttonCAction = copyAction,
 					});
 				}));
+			}
+
+			if (row.ButtonIcon(TexButton.Rename))
+			{
+				Find.WindowStack.Add(new Dialog_Name(desc.name, newName => desc.name = newName ));
 			}
 
 			if (row.ButtonIcon(FindTex.Trash))
