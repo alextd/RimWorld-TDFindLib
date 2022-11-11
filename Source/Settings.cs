@@ -14,10 +14,16 @@ namespace TD_Find_Lib
 		private bool onlyAvailable = true;
 		public bool OnlyAvailable => onlyAvailable != Event.current.shift && Find.CurrentMap != null;
 
-		public static string savedFiltersName = "Saved Filters";
+		public static string defaultFiltersName = "Saved Filters";
 		//Don't touch my filters
-		internal FilterGroup savedFilters = new(savedFiltersName);
-		internal List<FilterGroup> groupedFilters = new();
+		internal List<FilterGroup> groupedFilters;
+		public Settings() => SanityCheck();
+
+		internal void SanityCheck()
+		{
+			if (groupedFilters == null || groupedFilters.Count == 0)
+				groupedFilters = new() { new FilterGroup(defaultFiltersName) };
+		}
 
 		public void DoWindowContents(Rect inRect)
 		{
@@ -37,6 +43,7 @@ namespace TD_Find_Lib
 
 			if(listing.ButtonTextLabeled("View all Find definitions", "View"))
 			{
+				//Ah gee this triggers settings.Write but that's no real problem
 				Find.WindowStack.WindowOfType<Dialog_ModSettings>().Close();
 				Find.WindowStack.WindowOfType<Dialog_Options>().Close();
 
@@ -51,8 +58,9 @@ namespace TD_Find_Lib
 		{
 			Scribe_Values.Look(ref onlyAvailable, "onlyAvailable", true);
 			
-			Scribe_Deep.Look(ref savedFilters, "savedFilters", savedFiltersName);
 			Scribe_Collections.Look(ref groupedFilters, "groupedFilters", LookMode.Undefined, "??Group Name??");
+			
+			SanityCheck();
 		}
 	}
 
@@ -69,7 +77,7 @@ namespace TD_Find_Lib
 
 		public void ExposeData()
 		{
-			Scribe_Values.Look(ref name, "name", Settings.savedFiltersName);
+			Scribe_Values.Look(ref name, "name", Settings.defaultFiltersName);
 
 			string label = "descs";
 

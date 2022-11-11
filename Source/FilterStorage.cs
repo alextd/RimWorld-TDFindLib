@@ -23,10 +23,13 @@ namespace TD_Find_Lib
 
 		public static void ChooseLoadFilter(Action<FindDescription> onLoad)
 		{
+			//Todo with groupFilters
+			/*
 			List<FloatMenuOption> options = new();
 			foreach(FindDescription desc in Mod.settings.savedFilters)
 				options.Add(new FloatMenuOption(desc.name, () => onLoad(desc)));
 			Find.WindowStack.Add(new FloatMenu(options));
+			*/
 		}
 	}
 }

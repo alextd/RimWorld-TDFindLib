@@ -10,20 +10,17 @@ namespace TD_Find_Lib
 {
 	public class TDFindLibListWindow : Window
 	{
-		private FilterGroupDrawer savedFiltersDrawer;
 		private List<FilterGroupDrawer> groupDrawers;
 		private RefreshFilterGroupDrawer refreshDrawer;
 
 		public TDFindLibListWindow()
 		{
-			savedFiltersDrawer = new FilterGroupDrawer(Mod.settings.savedFilters);
-			
 			groupDrawers = new();
-			foreach(FilterGroup group in Mod.settings.groupedFilters)
+			foreach (FilterGroup group in Mod.settings.groupedFilters)
 				groupDrawers.Add(new FilterGroupDrawer(group));
 
 			if (Current.Game != null)
-				refreshDrawer = new RefreshFilterGroupDrawer();
+				refreshDrawer = new RefreshFilterGroupDrawer(Current.Game.GetComponent<TDFindLibGameComp>().findDescRefreshers);
 
 			preventCameraMotion = false;
 			draggable = true;
@@ -52,12 +49,15 @@ namespace TD_Find_Lib
 			Rect viewRect = new Rect(0f, 0f, fillRect.width - 16f, scrollViewHeight);
 			listing.BeginScrollView(fillRect, ref scrollPosition, viewRect);
 
-			// Filter List
-			savedFiltersDrawer.DrawFindDescList(listing);
-
 			// Filter groups by name
-			foreach(FilterGroupDrawer drawer in groupDrawers)
-				drawer.DrawFindDescList(listing);
+			foreach (FilterGroupDrawer drawer in groupDrawers)
+			{
+				drawer.DrawFindDescList(listing, () =>
+				{
+					groupDrawers.Remove(drawer);
+					Mod.settings.groupedFilters.Remove(drawer.list);
+				});
+			}
 
 
 			// Add new group
@@ -93,8 +93,14 @@ namespace TD_Find_Lib
 		}
 	}
 
-	abstract public class FilterListDrawer
+	abstract public class FilterListDrawer<T>
 	{
+		public T list;
+
+		public FilterListDrawer(T list)
+		{
+			this.list = list;
+		}
 		public abstract string Name { get; }
 		public abstract FindDescription DescAt(int i);
 		public abstract int Count { get; }
@@ -123,7 +129,7 @@ namespace TD_Find_Lib
 
 		private int reorderID;
 		private float reorderRectHeight;
-		public void DrawFindDescList(Listing_StandardIndent listing)
+		public void DrawFindDescList(Listing_StandardIndent listing, Action onTrash = null)
 		{
 			// Name Header
 			Text.Font = GameFont.Medium;
@@ -138,6 +144,20 @@ namespace TD_Find_Lib
 				headerRow.Gap(4);
 				if (headerRow.ButtonIcon(TexButton.Plus))
 					PopUpCreateFindDesc();
+
+
+				// Delete Group button
+				if (headerRow.ButtonIcon(FindTex.Trash))
+				{
+					if (Event.current.shift)
+						onTrash?.Invoke();
+					else
+						Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
+							"TD.Delete0".Translate(Name), () => onTrash?.Invoke()));
+				}
+
+
+
 				listing.Gap(4);
 
 				// Reorder rect
@@ -152,6 +172,8 @@ namespace TD_Find_Lib
 				}
 			}
 
+
+			// List of FindDescs
 			float startHeight = listing.CurHeight;
 			for (int i = 0; i < Count; i++)
 			{
@@ -191,28 +213,23 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class FilterGroupDrawer : FilterListDrawer
+	public class FilterGroupDrawer : FilterListDrawer<FilterGroup>
 	{
-		public FilterGroup group;
+		public FilterGroupDrawer(FilterGroup l) : base(l) { }
 
-		public FilterGroupDrawer(FilterGroup group)
-		{
-			this.group = group;
-		}
-
-		public override string Name => group.name;
-		public override FindDescription DescAt(int i) => group[i];
-		public override int Count => group.Count;
+		public override string Name => list.name;
+		public override FindDescription DescAt(int i) => list[i];
+		public override int Count => list.Count;
 
 		public override void Add(FindDescription desc)
 		{
-			group.Add(desc);
+			list.Add(desc);
 		}
 		public override void Reorder(int from, int to)
 		{
-			var desc = group[from];
-			group.RemoveAt(from);
-			group.Insert(from < to ? to - 1 : to, desc);
+			var desc = list[from];
+			list.RemoveAt(from);
+			list.Insert(from < to ? to - 1 : to, desc);
 		}
 
 		public override void DoWidgetButtons(WidgetRow row, FindDescription desc, int i)
@@ -223,12 +240,12 @@ namespace TD_Find_Lib
 				{
 					Action acceptAction = delegate ()
 					{
-						group[i] = newDesc;
+						list[i] = newDesc;
 						Mod.settings.Write();
 					};
 					Action copyAction = delegate ()
 					{
-						group.Insert(i + 1, newDesc);
+						list.Insert(i + 1, newDesc);
 						Mod.settings.Write();
 					};
 					Find.WindowStack.Add(new Dialog_MessageBox(
@@ -249,10 +266,10 @@ namespace TD_Find_Lib
 			if (row.ButtonIcon(FindTex.Trash))
 			{
 				if (Event.current.shift)
-					group.Remove(desc);
+					list.Remove(desc);
 				else
 					Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
-						"TD.Delete0".Translate(desc.name), () => group.Remove(desc)));
+						"TD.Delete0".Translate(desc.name), () => list.Remove(desc)));
 			}
 
 			if (Current.Game != null &&
@@ -261,26 +278,22 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class RefreshFilterGroupDrawer : FilterListDrawer
+	public class RefreshFilterGroupDrawer : FilterListDrawer<List<RefreshFindDesc>>
 	{
-		public List<RefreshFindDesc> refDesc;
+		public RefreshFilterGroupDrawer(List<RefreshFindDesc> l) : base(l) { }
 
-		public RefreshFilterGroupDrawer(List<RefreshFindDesc> refDesc = null)
-		{
-			this.refDesc = refDesc ?? Current.Game.GetComponent<TDFindLibGameComp>().findDescRefreshers;
-		}
 		public override string Name => "Active Filters";
-		public override FindDescription DescAt(int i) => refDesc[i].desc;
-		public override int Count => refDesc.Count;
+		public override FindDescription DescAt(int i) => list[i].desc;
+		public override int Count => list.Count;
 		
 		public override bool CanEdit => false;
 
 		private string currentTag;
 		public override void PreRowDraw(Listing_StandardIndent listing, int i)
 		{
-			if(refDesc[i].tag != currentTag)
+			if(list[i].tag != currentTag)
 			{
-				currentTag = refDesc[i].tag;
+				currentTag = list[i].tag;
 				listing.Label(currentTag);
 			}
 		}
@@ -297,7 +310,7 @@ namespace TD_Find_Lib
 				Find.WindowStack.Add(new TDFindLibViewerWindow(desc));
 			}
 
-			if (refDesc[i].permanent)
+			if (list[i].permanent)
 			{
 				row.Gap(WidgetRow.IconSize);
 			}
@@ -306,10 +319,10 @@ namespace TD_Find_Lib
 				if (row.ButtonIcon(FindTex.Trash))
 				{
 					if (Event.current.shift)
-						refDesc.RemoveAt(i);
+						list.RemoveAt(i);
 					else
 						Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
-							"TD.StopRefresh0".Translate(desc.name), () => refDesc.RemoveAt(i)));
+							"TD.StopRefresh0".Translate(desc.name), () => list.RemoveAt(i)));
 				}
 			}
 		}
@@ -317,7 +330,7 @@ namespace TD_Find_Lib
 		public override void DoRectExtra(Rect rowRect, FindDescription desc, int i)
 		{
 			Text.Anchor = TextAnchor.UpperRight;
-			Widgets.Label(rowRect, $"Every {refDesc[i].period} ticks");
+			Widgets.Label(rowRect, $"Every {list[i].period} ticks");
 			Text.Anchor = TextAnchor.UpperLeft;
 		}
 	}

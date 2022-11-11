@@ -11,8 +11,8 @@ namespace TD_Find_Lib
 		public static Settings settings;
 		public Mod(ModContentPack content) : base(content)
 		{
-			// initialize settings
-			LongEventHandler.ExecuteWhenFinished(() => { settings = GetSettings<Settings>(); });
+			// initialize settings, wait for defs and anything to load.
+			LongEventHandler.ExecuteWhenFinished(() => settings = GetSettings<Settings>());
 		}
 
 		public override void DoSettingsWindowContents(Rect inRect)
