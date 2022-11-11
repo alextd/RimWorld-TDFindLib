@@ -153,8 +153,8 @@ namespace TD_Find_Lib
 
 			Widgets.EndScrollView();
 
-			// Deselect clicking anywhere else
-			if (Widgets.ButtonInvisible(inRect, false))
+			// Deselect by clicking anywhere else
+			if (Widgets.ButtonInvisible(listRect, false))
 				Find.Selector.ClearSelection();
 		}
 
