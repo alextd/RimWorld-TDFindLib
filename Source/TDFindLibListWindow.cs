@@ -66,7 +66,7 @@ namespace TD_Find_Lib
 			Text.Font = GameFont.Medium;
 			Rect newGroupRect = listing.GetRect(Text.LineHeight);
 			WidgetRow newGroupRow = new WidgetRow(newGroupRect.x, newGroupRect.y);
-			if (newGroupRow.ButtonIcon(TexButton.Plus))
+			if (newGroupRow.ButtonIcon(FindTex.GreyPlus))
 			{
 				Find.WindowStack.Add(new Dialog_Name("Group Name", n =>
 				{
@@ -136,24 +136,13 @@ namespace TD_Find_Lib
 			// Name Header
 			Text.Font = GameFont.Medium;
 			Rect headerRect = listing.GetRect(Text.LineHeight);
-			WidgetRow headerRow = new WidgetRow(headerRect.x, headerRect.y);
-			headerRow.Label(Name + ":", height: Text.LineHeight);
+			Widgets.Label(headerRect, Name + ":");
 			Text.Font = GameFont.Small;
+
+			WidgetRow headerRow = new WidgetRow(headerRect.xMax, headerRect.y, UIDirection.LeftThenDown);
 
 			if (CanEdit)
 			{
-				headerRow.Gap(4);
-
-				// Add new filter button
-				if (headerRow.ButtonIcon(TexButton.Rename))
-					Find.WindowStack.Add(new Dialog_Name(Name, Rename));
-
-
-				// Add new filter button
-				if (headerRow.ButtonIcon(TexButton.Plus))
-					PopUpCreateFindDesc();
-
-
 				// Delete Group button
 				if (headerRow.ButtonIcon(FindTex.Trash))
 				{
@@ -164,9 +153,13 @@ namespace TD_Find_Lib
 							"TD.Delete0".Translate(Name), () => onTrash?.Invoke()));
 				}
 
+				// Rename 
+				if (headerRow.ButtonIcon(TexButton.Rename))
+					Find.WindowStack.Add(new Dialog_Name(Name, Rename));
 
-
-				listing.Gap(4);
+				// Add new filter button
+				if (headerRow.ButtonIcon(FindTex.GreyPlus))
+					PopUpCreateFindDesc();
 
 				// Reorder rect
 				if (Event.current.type == EventType.Repaint)

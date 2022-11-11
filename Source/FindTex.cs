@@ -22,5 +22,6 @@ namespace TD_Find_Lib
 		public static readonly Texture2D SelectAll = ContentFinder<Texture2D>.Get("UI/Commands/SelectNextTransporter", true);
 		public static readonly Texture2D List = ContentFinder<Texture2D>.Get("UI/Buttons/ResourceReadoutCategorized", true);
 		public static readonly Texture2D Book = ContentFinder<Texture2D>.Get("UI/Buttons/MainButtons/History", true);
+		public static readonly Texture2D GreyPlus = ContentFinder<Texture2D>.Get("GreyPlus", true);
 	}
 }
