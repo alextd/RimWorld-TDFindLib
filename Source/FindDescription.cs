@@ -228,7 +228,7 @@ namespace TD_Find_Lib
 			return newDesc;
 		}
 
-		public FindDescription CloneForUse(Map newMap = null)
+		public FindDescription CloneForUse(Map newMap)
 		{
 			FindDescription newDesc = new FindDescription()
 			{
@@ -238,6 +238,13 @@ namespace TD_Find_Lib
 				_map = newMap ?? _map,
 				_allMaps = allMaps,
 			};
+
+
+			if (newMap == null && _map == null && !allMaps)
+			{
+				newDesc._allMaps = true;
+				Verse.Log.Warning("Tried to CloneForUse a singlemap filter with no null map. Setting allMaps instead!");
+			}
 
 			newDesc.children = children.Clone(newDesc);
 

@@ -21,7 +21,7 @@ namespace TD_Find_Lib
 				ChooseLoadFilter(onLoad);
 		}
 
-		public static void ChooseLoadFilter(Action<FindDescription> onLoad)
+		public static void ChooseLoadFilter(Action<FindDescription> onLoad, Map map = null)
 		{
 			List<FloatMenuOption> groupOptions = new();
 			foreach (FilterGroup group in Mod.settings.groupedFilters)
@@ -30,7 +30,7 @@ namespace TD_Find_Lib
 				{
 					List<FloatMenuOption> descOptions = new();
 					foreach (FindDescription desc in group)
-						descOptions.Add(new FloatMenuOption(desc.name, () => onLoad(desc)));
+						descOptions.Add(new FloatMenuOption(desc.name, () => onLoad(desc.CloneForUse(map ?? Find.CurrentMap))));
 
 					Find.WindowStack.Add(new FloatMenu(descOptions));
 				}));
