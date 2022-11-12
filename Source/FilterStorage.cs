@@ -35,9 +35,9 @@ namespace TD_Find_Lib
 					groupOptions.Add(new FloatMenuOption(group.name, () =>
 					{
 						if(name != null)
-							group.Add(desc.CloneForSave(name));
+							group.TryAdd(desc.CloneForSave(name));
 						else
-							Find.WindowStack.Add(new Dialog_Name(desc.name, n => group.Add(desc.CloneForSave(n))));
+							Find.WindowStack.Add(new Dialog_Name(desc.name, n => group.TryAdd(desc.CloneForSave(n))));
 					}));
 				}
 					

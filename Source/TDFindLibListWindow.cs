@@ -225,7 +225,7 @@ namespace TD_Find_Lib
 
 		public override void Add(FindDescription desc)
 		{
-			list.Add(desc);
+			list.TryAdd(desc);
 		}
 		public override void Reorder(int from, int to)
 		{
@@ -238,32 +238,9 @@ namespace TD_Find_Lib
 		{
 			if (row.ButtonIcon(FindTex.Edit))
 			{
-				Find.WindowStack.Add(new TDFindLibEditorWindow(desc.CloneForEdit(), delegate (FindDescription newDesc)
-				{
-					Action acceptAction = delegate ()
-					{
-						list[i] = newDesc;
-						Mod.settings.Write();
-					};
-					Action copyAction = delegate ()
-					{
-						list.Insert(i + 1, newDesc);
-						Mod.settings.Write();
-					};
-					Find.WindowStack.Add(new Dialog_MessageBox(
-						$"Save changes to {newDesc.name}?",
-						"Confirm".Translate(), acceptAction,
-						"No".Translate(), null,
-						"Change Filter",
-						true, acceptAction,
-						delegate () { }// I dunno who wrote this class but this empty method is required so the window can close with esc because its logic is very different from its base class
-					)
-					{
-						buttonCText = "Save as Copy",
-						buttonCAction = copyAction,
-					});
-				}));
+				Find.WindowStack.Add(new TDFindLibEditorWindow(desc.CloneForEdit(), nd => list.ConfirmPaste(nd, i)));
 			}
+
 
 			if (row.ButtonIcon(TexButton.Rename))
 			{
