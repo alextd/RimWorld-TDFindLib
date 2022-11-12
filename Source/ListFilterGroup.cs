@@ -10,7 +10,7 @@ namespace TD_Find_Lib
 {
 	public class ListFilterGroup : ListFilter, IFilterHolder
 	{
-		protected bool any = true; // or all
+		public bool any = true; // or all
 		private FilterHolder children;
 		public FilterHolder Children => children;
 
