@@ -35,20 +35,21 @@ namespace TD_Find_Lib
 			//Save to groups
 			exportOptions.Add(new FloatMenuOption("Save", () =>
 			{
-				List<FloatMenuOption> groupOptions = new();
-					
-				foreach (FilterGroup group in Mod.settings.groupedFilters)
+				if (Mod.settings.groupedFilters.Count == 1)
 				{
-					groupOptions.Add(new FloatMenuOption(group.name, () =>
-					{
-						if(name != null)
-							group.TryAdd(desc.CloneForSave(name));
-						else
-							Find.WindowStack.Add(new Dialog_Name(desc.name, n => group.TryAdd(desc.CloneForSave(n))));
-					}));
+					SaveToGroup(desc, Mod.settings.groupedFilters[0], name);
 				}
-					
-				Find.WindowStack.Add(new FloatMenu(groupOptions));
+				else
+				{
+					List<FloatMenuOption> groupOptions = new();
+
+					foreach (FilterGroup group in Mod.settings.groupedFilters)
+					{
+						groupOptions.Add(new FloatMenuOption(group.name, () => SaveToGroup(desc, group, name) ));
+					}
+
+					Find.WindowStack.Add(new FloatMenu(groupOptions));
+				}
 			}));
 
 			//TODO: Other options to export to!
@@ -64,6 +65,14 @@ namespace TD_Find_Lib
 			}
 			else
 				Find.WindowStack.Add(new FloatMenu(exportOptions));
+		}
+
+		public static void SaveToGroup(FindDescription desc, FilterGroup group, string name = null)
+		{
+			if (name != null)
+				group.TryAdd(desc.CloneForSave(name));
+			else
+				Find.WindowStack.Add(new Dialog_Name(desc.name, n => group.TryAdd(desc.CloneForSave(n))));
 		}
 
 		public static void ChooseLoadFilter(Action<FindDescription> onLoad, Map map = null)
