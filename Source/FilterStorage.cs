@@ -17,12 +17,16 @@ namespace TD_Find_Lib
 
 		public static void ButtonChooseLoadFilter(WidgetRow row, Action<FindDescription> onLoad)
 		{
-			if (row.ButtonIcon(FindTex.Paste))
+			if (row.ButtonIcon(FindTex.Import, "Import from..."))
 				ChooseLoadFilter(onLoad);
 		}
 
-		public static void ChooseExportFilter(FindDescription desc, string source = null, string name = null)
+		public static void ButtonChooseExportFilter(WidgetRow row, FindDescription desc, string source = null, string name = null)
 		{
+			if (Current.Game == null) return;
+
+			if (!row.ButtonIcon(FindTex.Export, "Export to...")) return;
+
 			List<FloatMenuOption> exportOptions = new();
 
 			//Save to groups
@@ -53,7 +57,7 @@ namespace TD_Find_Lib
 			if (exportOptions.Count == 0)
 			{
 				Verse.Sound.SoundStarter.PlayOneShotOnCamera(SoundDefOf.ClickReject);
-				Messages.Message("You have no mods to export to! This is just a library mod. I suggest getting Ctrl-F to start", MessageTypeDefOf.RejectInput);
+				Messages.Message("You have no mods to export to! This is just a library mod. I suggest getting Ctrl-F to start.", MessageTypeDefOf.RejectInput);
 			}
 			else
 				Find.WindowStack.Add(new FloatMenu(exportOptions));

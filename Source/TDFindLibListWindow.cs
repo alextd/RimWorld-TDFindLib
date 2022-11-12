@@ -256,11 +256,8 @@ namespace TD_Find_Lib
 						"TD.Delete0".Translate(desc.name), () => list.Remove(desc)));
 			}
 
-			if (Current.Game != null &&
-				row.ButtonIcon(FindTex.Copy))
-			{
-				FilterStorageUtil.ChooseExportFilter(desc, "Save");
-			}
+			FilterStorageUtil.ButtonChooseExportFilter(row, desc, "Save");
+
 		}
 	}
 

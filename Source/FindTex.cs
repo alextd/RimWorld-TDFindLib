@@ -18,6 +18,8 @@ namespace TD_Find_Lib
 		public static readonly Texture2D Edit = ContentFinder<Texture2D>.Get("UI/Buttons/OpenSpecificTab");
 		public static readonly Texture2D Copy = ContentFinder<Texture2D>.Get("UI/Buttons/Copy");
 		public static readonly Texture2D Paste = ContentFinder<Texture2D>.Get("UI/Buttons/Paste");
+		public static readonly Texture2D Import = ContentFinder<Texture2D>.Get("Import");
+		public static readonly Texture2D Export = ContentFinder<Texture2D>.Get("Export");
 		public static readonly Texture2D Trash = ContentFinder<Texture2D>.Get("UI/Buttons/Dismiss");
 		public static readonly Texture2D SelectAll = ContentFinder<Texture2D>.Get("UI/Commands/SelectNextTransporter", true);
 		public static readonly Texture2D List = ContentFinder<Texture2D>.Get("UI/Buttons/ResourceReadoutCategorized", true);
