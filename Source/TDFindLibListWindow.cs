@@ -68,14 +68,15 @@ namespace TD_Find_Lib
 			WidgetRow newGroupRow = new WidgetRow(newGroupRect.x, newGroupRect.y);
 			if (newGroupRow.ButtonIcon(FindTex.GreyPlus))
 			{
-				Find.WindowStack.Add(new Dialog_Name("Group Name", n =>
+				Find.WindowStack.Add(new Dialog_Name("New Group", n =>
 				{
 					var group = new FilterGroup(n);
 					Mod.settings.groupedFilters.Add(group);
 					var drawer = new FilterGroupDrawer(group);
 					groupDrawers.Add(drawer);
 					drawer.PopUpCreateFindDesc();
-				}));
+				},
+				"Name for New Group"));
 			}
 			newGroupRow.Gap(4);
 			newGroupRow.Label("Add New Group", height: Text.LineHeight);
@@ -118,12 +119,13 @@ namespace TD_Find_Lib
 
 		public void PopUpCreateFindDesc()
 		{
-			Find.WindowStack.Add(new Dialog_Name("Search Name", n =>
+			Find.WindowStack.Add(new Dialog_Name("New Search", n =>
 			{
 				var desc = new FindDescription() { name = n };
 				Add(desc);
 				Find.WindowStack.Add(new TDFindLibEditorWindow(desc));
-			}));
+			},
+			"Name for New Search"));
 		}
 
 		//Drawing

@@ -118,7 +118,10 @@ namespace TD_Find_Lib
 				locked = !locked;
 
 			if (!locked && showName && buttonRow.ButtonIcon(TexButton.Rename))
-				Find.WindowStack.Add(new Dialog_Name(findDesc.name, newName => { findDesc.name = newName; findDesc.changed = true; }));
+				Find.WindowStack.Add(new Dialog_Name(
+					findDesc.name, 
+					newName => { findDesc.name = newName; findDesc.changed = true; },
+					$"Rename {findDesc.name}"));
 
 			extraIconsDrawer?.Invoke(buttonRow);
 
