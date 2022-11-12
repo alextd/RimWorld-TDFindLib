@@ -83,20 +83,27 @@ namespace TD_Find_Lib
 
 		public static void ChooseLoadFilter(Action<FindDescription> onLoad, Map map = null)
 		{
-			List<FloatMenuOption> groupOptions = new();
-			foreach (FilterGroup group in Mod.settings.groupedFilters)
+			if (Mod.settings.groupedFilters.Count == 1)
 			{
-				groupOptions.Add(new FloatMenuOption(group.name, () =>
-				{
-					List<FloatMenuOption> descOptions = new();
-					foreach (FindDescription desc in group)
-						descOptions.Add(new FloatMenuOption(desc.name, () => onLoad(desc.CloneForUse(map ?? Find.CurrentMap))));
-
-					Find.WindowStack.Add(new FloatMenu(descOptions));
-				}));
+				LoadFromGroup(Mod.settings.groupedFilters[0], onLoad, map);
 			}
-			Find.WindowStack.Add(new FloatMenu(groupOptions));
-			
+			else
+			{
+				List<FloatMenuOption> groupOptions = new();
+				foreach (FilterGroup group in Mod.settings.groupedFilters)
+				{
+					groupOptions.Add(new FloatMenuOption(group.name, () => LoadFromGroup(group, onLoad, map)));
+				}
+				Find.WindowStack.Add(new FloatMenu(groupOptions));
+			}
+		}
+		public static void LoadFromGroup(FilterGroup group, Action<FindDescription> onLoad, Map map = null)
+		{
+			List<FloatMenuOption> descOptions = new();
+			foreach (FindDescription desc in group)
+				descOptions.Add(new FloatMenuOption(desc.name, () => onLoad(desc.CloneForUse(map ?? Find.CurrentMap))));
+
+			Find.WindowStack.Add(new FloatMenu(descOptions));
 		}
 	}
 }
