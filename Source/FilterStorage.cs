@@ -21,7 +21,7 @@ namespace TD_Find_Lib
 				ChooseLoadFilter(onLoad);
 		}
 
-		public static void ChooseExportFilter(FindDescription desc, string source = null)
+		public static void ChooseExportFilter(FindDescription desc, string source = null, string name = null)
 		{
 			List<FloatMenuOption> exportOptions = new();
 
@@ -32,7 +32,13 @@ namespace TD_Find_Lib
 					
 				foreach (FilterGroup group in Mod.settings.groupedFilters)
 				{
-					groupOptions.Add(new FloatMenuOption(group.name, () => group.Add(desc.CloneForSave())));
+					groupOptions.Add(new FloatMenuOption(group.name, () =>
+					{
+						if(name != null)
+							group.Add(desc.CloneForSave(name));
+						else
+							Find.WindowStack.Add(new Dialog_Name(desc.name, n => group.Add(desc.CloneForSave(n))));
+					}));
 				}
 					
 				Find.WindowStack.Add(new FloatMenu(groupOptions));

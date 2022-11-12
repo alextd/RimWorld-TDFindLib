@@ -194,11 +194,11 @@ namespace TD_Find_Lib
 			}
 		}
 
-		public FindDescription CloneForSave()
+		public FindDescription CloneForSave(string newName = null)
 		{
 			FindDescription newDesc = new FindDescription(null)
 			{
-				name = name,
+				name = newName ?? name,
 				active = false,
 				_baseType = _baseType,
 				_allMaps = allMaps,
