@@ -281,7 +281,9 @@ namespace TD_Find_Lib
 
 			if (Current.Game != null &&
 				row.ButtonIcon(FindTex.Copy))
-				Verse.Log.Error("Todo!");// MainTabWindow_List.OpenWith(desc.CloneForUse(Find.CurrentMap), true);
+			{
+				FilterStorageUtil.ChooseExportFilter(desc, "Save");
+			}
 		}
 	}
 

@@ -243,7 +243,7 @@ namespace TD_Find_Lib
 			if (newMap == null && _map == null && !allMaps)
 			{
 				newDesc._allMaps = true;
-				Verse.Log.Warning("Tried to CloneForUse a singlemap filter with no null map. Setting allMaps instead!");
+				Verse.Log.Warning("Tried to CloneForUse a singlemap filter with null map. Setting allMaps instead!");
 			}
 
 			newDesc.children = children.Clone(newDesc);
