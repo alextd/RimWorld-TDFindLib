@@ -25,8 +25,11 @@ namespace TD_Find_Lib
 		{
 			if (Current.Game == null) return;
 
-			if (!row.ButtonIcon(FindTex.Export, "Export to...")) return;
-
+			if (row.ButtonIcon(FindTex.Export, "Export to..."))
+				ChooseExportFilter(desc, source, name);
+		}
+		public static void ChooseExportFilter(FindDescription desc, string source = null, string name = null)
+		{ 
 			List<FloatMenuOption> exportOptions = new();
 
 			//Save to groups
