@@ -28,6 +28,7 @@ namespace TD_Find_Lib
 			if (row.ButtonIcon(FindTex.Export, "Export to..."))
 				ChooseExportFilter(desc, source, name);
 		}
+
 		public static void ChooseExportFilter(FindDescription desc, string source = null, string name = null)
 		{ 
 			List<FloatMenuOption> exportOptions = new();
@@ -63,6 +64,11 @@ namespace TD_Find_Lib
 				Verse.Sound.SoundStarter.PlayOneShotOnCamera(SoundDefOf.ClickReject);
 				Messages.Message("You have no mods to export to! This is just a library mod. I suggest getting Ctrl-F to start.", MessageTypeDefOf.RejectInput);
 			}
+			else if (exportOptions.Count == 1)
+			{
+				// Only one mod to export to. Just do it.
+				exportOptions[0].action();
+			}
 			else
 				Find.WindowStack.Add(new FloatMenu(exportOptions));
 		}
@@ -72,7 +78,7 @@ namespace TD_Find_Lib
 			if (name != null)
 				group.TryAdd(desc.CloneForSave(name));
 			else
-				Find.WindowStack.Add(new Dialog_Name(desc.name, n => group.TryAdd(desc.CloneForSave(n))));
+				Find.WindowStack.Add(new Dialog_Name(desc.name, n => group.TryAdd(desc.CloneForSave(n)), $"Save to {group.name}"));
 		}
 
 		public static void ChooseLoadFilter(Action<FindDescription> onLoad, Map map = null)
