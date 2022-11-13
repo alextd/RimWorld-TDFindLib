@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Verse;
 using RimWorld;
+using UnityEngine;
 
 namespace TD_Find_Lib
 {
@@ -53,24 +54,22 @@ namespace TD_Find_Lib
 				}
 			}));
 
+
+			// Export to Clipboard
+			exportOptions.Add(new FloatMenuOption("Copy to clipboard", () =>
+			{
+				GUIUtility.systemCopyBuffer = Scribe.saver.DebugOutputFor(desc.CloneForSave());
+			}));
+
+
+			// Export to File
 			//TODO: Other options to export to!
 
 			//Except don't export to where this comes from
-			if(source != null)
+			if (source != null)
 				exportOptions.RemoveAll(o => o.Label == source);
 
-			if (exportOptions.Count == 0)
-			{
-				Verse.Sound.SoundStarter.PlayOneShotOnCamera(SoundDefOf.ClickReject);
-				Messages.Message("You have no mods to export to! This is just a library mod. I suggest getting Ctrl-F to start.", MessageTypeDefOf.RejectInput);
-			}
-			else if (exportOptions.Count == 1)
-			{
-				// Only one mod to export to. Just do it.
-				exportOptions[0].action();
-			}
-			else
-				Find.WindowStack.Add(new FloatMenu(exportOptions));
+			Find.WindowStack.Add(new FloatMenu(exportOptions));
 		}
 
 		public static void SaveToGroup(FindDescription desc, FilterGroup group, string name = null)
