@@ -22,7 +22,10 @@ namespace TD_Find_Lib
 		internal void SanityCheck()
 		{
 			if (groupedFilters == null || groupedFilters.Count == 0)
-				groupedFilters = new() { new FilterGroup(defaultFiltersName) };
+			{
+				groupedFilters = new();
+				groupedFilters.Add(new FilterGroup(defaultFiltersName, groupedFilters));
+			}
 		}
 
 		public void DoWindowContents(Rect inRect)
@@ -57,8 +60,14 @@ namespace TD_Find_Lib
 		public override void ExposeData()
 		{
 			Scribe_Values.Look(ref onlyAvailable, "onlyAvailable", true);
-			
-			Scribe_Collections.Look(ref groupedFilters, "groupedFilters", LookMode.Undefined, "??Group Name??");
+
+			// Can't pass ctorArgs 'groupedFilters' here because that's by value, and ref groupedFilters gets reset inside.
+			Scribe_Collections.Look(ref groupedFilters, "groupedFilters", LookMode.Undefined, "??Group Name??", null);
+
+			// Set siblings here instead
+			if (Scribe.mode == LoadSaveMode.LoadingVars)
+				foreach (var group in groupedFilters)
+					group.siblings = groupedFilters;
 			
 			SanityCheck();
 		}
@@ -69,10 +78,12 @@ namespace TD_Find_Lib
 	public class FilterGroup : List<FindDescription>, IExposable
 	{
 		public string name;
+		public List<FilterGroup> siblings;
 
-		public FilterGroup(string name)
+		public FilterGroup(string name, List<FilterGroup> siblings)
 		{
 			this.name = name;
+			this.siblings = siblings;
 		}
 
 		public void ConfirmPaste(FindDescription newDesc, int i)

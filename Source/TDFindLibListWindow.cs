@@ -17,7 +17,9 @@ namespace TD_Find_Lib
 		{
 			groupDrawers = new();
 			foreach (FilterGroup group in Mod.settings.groupedFilters)
-				groupDrawers.Add(new FilterGroupDrawer(group));
+			{
+				groupDrawers.Add(new FilterGroupDrawer(group, groupDrawers));
+			}
 
 			if (Current.Game != null)
 				refreshDrawer = new RefreshFilterGroupDrawer(Current.Game.GetComponent<TDFindLibGameComp>().findDescRefreshers);
@@ -52,11 +54,7 @@ namespace TD_Find_Lib
 			// Filter groups by name
 			foreach (FilterGroupDrawer drawer in groupDrawers)
 			{
-				drawer.DrawFindDescList(listing, () =>
-				{
-					groupDrawers.Remove(drawer);
-					Mod.settings.groupedFilters.Remove(drawer.list);
-				});
+				drawer.DrawFindDescList(listing);
 				listing.Gap();
 			}
 
@@ -70,10 +68,12 @@ namespace TD_Find_Lib
 			{
 				Find.WindowStack.Add(new Dialog_Name("New Group", n =>
 				{
-					var group = new FilterGroup(n);
+					var group = new FilterGroup(n, Mod.settings.groupedFilters);
 					Mod.settings.groupedFilters.Add(group);
-					var drawer = new FilterGroupDrawer(group);
+
+					var drawer = new FilterGroupDrawer(group, groupDrawers);
 					groupDrawers.Add(drawer);
+
 					drawer.PopUpCreateFindDesc();
 				},
 				"Name for New Group",
@@ -96,7 +96,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	abstract public class FilterListDrawer<T>
+	abstract public class FilterListDrawer<T, Y> where T : IList<Y>
 	{
 		public T list;
 
@@ -105,36 +105,27 @@ namespace TD_Find_Lib
 			this.list = list;
 		}
 		public abstract string Name { get; }
-		public virtual void Rename(string name) { }
 		public abstract FindDescription DescAt(int i);
 		public abstract int Count { get; }
 
-		public virtual bool CanEdit => true;
-		public virtual void Add(FindDescription desc) { }
-		public virtual void Reorder(int from, int to) { }
-
-		public virtual void PreRowDraw(Listing_StandardIndent listing, int i) { }
-		public virtual void DoWidgetButtons(WidgetRow row, FindDescription desc, int i) { }
-		public virtual void DoRectExtra(Rect rowRect, FindDescription desc, int i) { }
-		public virtual void PostListDraw(Listing_StandardIndent listing) { }
-
-		public void PopUpCreateFindDesc()
+		public virtual void Reorder(int from, int to)
 		{
-			Find.WindowStack.Add(new Dialog_Name("New Search", n =>
-			{
-				var desc = new FindDescription() { name = n };
-				Add(desc);
-				Find.WindowStack.Add(new TDFindLibEditorWindow(desc));
-			},
-			"Name for New Search"));
+			var desc = list[from];
+			list.RemoveAt(from);
+			list.Insert(from < to ? to - 1 : to, desc);
 		}
 
+		public virtual void DrawExtraHeader(Rect headerRect) { }
+		public virtual void DrawPreRow(Listing_StandardIndent listing, int i) { }
+		public virtual void DrawWidgetButtons(WidgetRow row, FindDescription desc, int i) { }
+		public virtual void DrawExtraRowRect(Rect rowRect, FindDescription desc, int i) { }
+		public virtual void DrawPostList(Listing_StandardIndent listing) { }
 		//Drawing
 		private const float RowHeight = WidgetRow.IconSize + 6;
 
 		private int reorderID;
 		private float reorderRectHeight;
-		public void DrawFindDescList(Listing_StandardIndent listing, Action onTrash = null)
+		public void DrawFindDescList(Listing_StandardIndent listing)
 		{
 			// Name Header
 			Text.Font = GameFont.Medium;
@@ -142,38 +133,18 @@ namespace TD_Find_Lib
 			Widgets.Label(headerRect, Name + ":");
 			Text.Font = GameFont.Small;
 
-			WidgetRow headerRow = new WidgetRow(headerRect.xMax, headerRect.y, UIDirection.LeftThenDown);
+			DrawExtraHeader(headerRect);
 
-			if (CanEdit)
+
+			// Reorder rect
+			if (Event.current.type == EventType.Repaint)
 			{
-				// Delete Group button
-				if (headerRow.ButtonIcon(FindTex.Trash))
-				{
-					if (Event.current.shift)
-						onTrash?.Invoke();
-					else
-						Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
-							"TD.Delete0".Translate(Name), () => onTrash?.Invoke()));
-				}
-
-				// Rename 
-				if (headerRow.ButtonIcon(TexButton.Rename))
-					Find.WindowStack.Add(new Dialog_Name(Name, Rename));
-
-				// Add new filter button
-				if (headerRow.ButtonIcon(FindTex.GreyPlus))
-					PopUpCreateFindDesc();
-
-				// Reorder rect
-				if (Event.current.type == EventType.Repaint)
-				{
-					reorderID = ReorderableWidget.NewGroup(
-						Reorder,
-						ReorderableDirection.Vertical,
-						new Rect(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight), 1f,
-						extraDraggedItemOnGUI: (int index, Vector2 dragStartPos) =>
-							DrawMouseAttachedFindDesc(DescAt(index), listing.ColumnWidth));
-				}
+				reorderID = ReorderableWidget.NewGroup(
+					Reorder,
+					ReorderableDirection.Vertical,
+					new Rect(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight), 1f,
+					extraDraggedItemOnGUI: (int index, Vector2 dragStartPos) =>
+						DrawMouseAttachedFindDesc(DescAt(index), listing.ColumnWidth));
 			}
 
 
@@ -181,27 +152,26 @@ namespace TD_Find_Lib
 			float startHeight = listing.CurHeight;
 			for (int i = 0; i < Count; i++)
 			{
-				PreRowDraw(listing, i);
+				DrawPreRow(listing, i);
 				FindDescription desc = DescAt(i);
 				Rect rowRect = listing.GetRect(RowHeight);
 
 				WidgetRow row = new WidgetRow(rowRect.x, rowRect.y, UIDirection.RightThenDown, rowRect.width);
 
 				// Buttons
-				DoWidgetButtons(row, desc, i);
+				DrawWidgetButtons(row, desc, i);
 
 				// Name
 				row.Gap(6);
 				row.Label(desc.name + desc.mapLabel);
 
-				DoRectExtra(rowRect, desc, i);
+				DrawExtraRowRect(rowRect, desc, i);
 
-				if(CanEdit)
-					ReorderableWidget.Reorderable(reorderID, rowRect);
+				ReorderableWidget.Reorderable(reorderID, rowRect);
 			}
 			reorderRectHeight = listing.CurHeight - startHeight;
 
-			PostListDraw(listing);
+			DrawPostList(listing);
 		}
 
 
@@ -217,27 +187,63 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class FilterGroupDrawer : FilterListDrawer<FilterGroup>
+	public class FilterGroupDrawer : FilterListDrawer<FilterGroup, FindDescription>
 	{
-		public FilterGroupDrawer(FilterGroup l) : base(l) { }
+		public List<FilterGroupDrawer> siblings;
+		public FilterGroupDrawer(FilterGroup l, List<FilterGroupDrawer> siblings) : base(l)
+		{
+			this.siblings = siblings;
+		}
 
 		public override string Name => list.name;
-		public override void Rename(string name) => list.name = name;
 		public override FindDescription DescAt(int i) => list[i];
 		public override int Count => list.Count;
 
-		public override void Add(FindDescription desc)
+
+		public void Trash()
 		{
-			list.TryAdd(desc);
-		}
-		public override void Reorder(int from, int to)
-		{
-			var desc = list[from];
-			list.RemoveAt(from);
-			list.Insert(from < to ? to - 1 : to, desc);
+			siblings.Remove(this);
+			list.siblings.Remove(list);
 		}
 
-		public override void DoWidgetButtons(WidgetRow row, FindDescription desc, int i)
+		public void PopUpCreateFindDesc()
+		{
+			Find.WindowStack.Add(new Dialog_Name("New Search", n =>
+			{
+				var desc = new FindDescription() { name = n };
+				list.TryAdd(desc);
+				Find.WindowStack.Add(new TDFindLibEditorWindow(desc));
+			},
+			"Name for New Search"));
+		}
+
+
+
+		public override void DrawExtraHeader(Rect headerRect)
+		{
+			WidgetRow headerRow = new WidgetRow(headerRect.xMax, headerRect.y, UIDirection.LeftThenDown);
+			// Delete Group button
+			if (headerRow.ButtonIcon(FindTex.Trash))
+			{
+				if (Event.current.shift)
+					Trash();
+				else
+					Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
+						"TD.Delete0".Translate(Name), Trash));
+			}
+
+			// Rename 
+			if (headerRow.ButtonIcon(TexButton.Rename))
+			{
+				Find.WindowStack.Add(new Dialog_Name(Name, name => list.name = name, rejector: name => list.siblings.Any(g => g.name == name)));
+			}
+
+			// Add new filter button
+			if (headerRow.ButtonIcon(FindTex.GreyPlus))
+				PopUpCreateFindDesc();
+		}
+
+		public override void DrawWidgetButtons(WidgetRow row, FindDescription desc, int i)
 		{
 			if (row.ButtonIcon(FindTex.Edit))
 			{
@@ -247,7 +253,7 @@ namespace TD_Find_Lib
 
 			if (row.ButtonIcon(TexButton.Rename))
 			{
-				Find.WindowStack.Add(new Dialog_Name(desc.name, newName => desc.name = newName ));
+				Find.WindowStack.Add(new Dialog_Name(desc.name, newName => desc.name = newName));
 			}
 
 			if (row.ButtonIcon(FindTex.Trash))
@@ -264,18 +270,17 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class RefreshFilterGroupDrawer : FilterListDrawer<List<RefreshFindDesc>>
+	public class RefreshFilterGroupDrawer : FilterListDrawer<List<RefreshFindDesc>, RefreshFindDesc>
 	{
 		public RefreshFilterGroupDrawer(List<RefreshFindDesc> l) : base(l) { }
 
 		public override string Name => "Active Filters";
 		public override FindDescription DescAt(int i) => list[i].desc;
 		public override int Count => list.Count;
-		
-		public override bool CanEdit => false;
+
 
 		private string currentTag;
-		public override void PreRowDraw(Listing_StandardIndent listing, int i)
+		public override void DrawPreRow(Listing_StandardIndent listing, int i)
 		{
 			if(list[i].tag != currentTag)
 			{
@@ -283,13 +288,13 @@ namespace TD_Find_Lib
 				listing.Label(currentTag);
 			}
 		}
-		public override void PostListDraw(Listing_StandardIndent listing)
+		public override void DrawPostList(Listing_StandardIndent listing)
 		{
 			currentTag = null;
 		}
 
 
-		public override void DoWidgetButtons(WidgetRow row, FindDescription desc, int i)
+		public override void DrawWidgetButtons(WidgetRow row, FindDescription desc, int i)
 		{
 			if (row.ButtonIcon(FindTex.Edit))
 			{
@@ -313,7 +318,7 @@ namespace TD_Find_Lib
 			}
 		}
 
-		public override void DoRectExtra(Rect rowRect, FindDescription desc, int i)
+		public override void DrawExtraRowRect(Rect rowRect, FindDescription desc, int i)
 		{
 			Text.Anchor = TextAnchor.UpperRight;
 			Widgets.Label(rowRect, $"Every {list[i].period} ticks");
