@@ -253,7 +253,7 @@ namespace TD_Find_Lib
 
 			if (row.ButtonIcon(TexButton.Rename))
 			{
-				Find.WindowStack.Add(new Dialog_Name(desc.name, newName => desc.name = newName));
+				Find.WindowStack.Add(new Dialog_Name(desc.name, newName => desc.name = newName, rejector: newName => list.Any(fd => fd.name == newName)));
 			}
 
 			if (row.ButtonIcon(FindTex.Trash))
