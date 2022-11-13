@@ -76,7 +76,8 @@ namespace TD_Find_Lib
 					groupDrawers.Add(drawer);
 					drawer.PopUpCreateFindDesc();
 				},
-				"Name for New Group"));
+				"Name for New Group",
+				n => Mod.settings.groupedFilters.Any(f => f.name == n)));
 			}
 			newGroupRow.Gap(4);
 			newGroupRow.Label("Add New Group", height: Text.LineHeight);

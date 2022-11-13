@@ -12,13 +12,15 @@ namespace TD_Find_Lib
 		const float TitleHeight = 35f;
 
 		Action<string> setNameAction;
+		Predicate<string> rejector;
 		string title;
 
-		public Dialog_Name(string name, Action<string> act, string title = null)
+		public Dialog_Name(string name, Action<string> act, string title = null, Predicate<string> rejector = null)
 		{
 			curName = name;
 			setNameAction = act;
 			this.title = title;
+			this.rejector = rejector;
 		}
 
 		//protected but using publicized assembly
@@ -26,6 +28,20 @@ namespace TD_Find_Lib
 		public override void SetName(string name)
 		{
 			setNameAction(name);
+		}
+
+		public override AcceptanceReport NameIsValid(string name)
+		{
+			AcceptanceReport result = base.NameIsValid(name);
+			if (!result.Accepted)
+			{
+				return result;
+			}
+
+			if (rejector != null && rejector(name))
+				return "NameIsInUse".Translate();
+
+			return true;
 		}
 
 		public override Vector2 InitialSize => title == null ? base.InitialSize : new Vector2(280f, 175f + TitleHeight);
