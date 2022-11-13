@@ -88,6 +88,8 @@ namespace TD_Find_Lib
 
 		public void ConfirmPaste(FindDescription newDesc, int i)
 		{
+			// TODO the weird case where you changed the name in the editor, to a name that already exists.
+			// Right now it'll have two with same name instead of overwriting that one.
 			Action acceptAction = delegate ()
 			{
 				this[i] = newDesc;
