@@ -9,10 +9,15 @@ namespace TD_Find_Lib
 {
 	public static class ScribeXmlFromString
 	{
+		public static string DummyName = "StupidDummyXMLTag";
+		public static string DummyTag = "<" + DummyName  + ">";
+		public static string DummyEndTag = "</" + DummyName + ">";
 		public static string SaveAsString(IExposable obj)
 		{
-			return "<StupidDummyXMLTag>" + Scribe.saver.DebugOutputFor(obj) + "</StupidDummyXMLTag>";
+			return DummyTag + Scribe.saver.DebugOutputFor(obj) + DummyEndTag;
 		}
+
+		public static bool IsValid(string xmlText) => xmlText.StartsWith(DummyTag);
 
 		// (modeled after ReadModSettings)
 		public static T LoadFromString<T>(string xmlText) where T : IExposable, new()

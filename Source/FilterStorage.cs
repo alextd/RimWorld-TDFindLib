@@ -91,12 +91,13 @@ namespace TD_Find_Lib
 			}
 
 			//Load from clipboard
-			groupOptions.Add(new FloatMenuOption("Paste from clipboard", () =>
-			{
-				string clipboard = GUIUtility.systemCopyBuffer;
-				FindDescription desc = ScribeXmlFromString.LoadFromString<FindDescription>(clipboard);
-				onLoad(desc.CloneForUse(map ?? Find.CurrentMap));
-			}));
+			string clipboard = GUIUtility.systemCopyBuffer;
+			if (ScribeXmlFromString.IsValid(clipboard))
+				groupOptions.Add(new FloatMenuOption("Paste from clipboard", () =>
+				{
+					FindDescription desc = ScribeXmlFromString.LoadFromString<FindDescription>(clipboard);
+					onLoad(desc.CloneForUse(map ?? Find.CurrentMap));
+				}));
 
 
 
