@@ -222,6 +222,7 @@ namespace TD_Find_Lib
 		public override void DrawExtraHeader(Rect headerRect)
 		{
 			WidgetRow headerRow = new WidgetRow(headerRect.xMax, headerRect.y, UIDirection.LeftThenDown);
+
 			// Delete Group button
 			if (headerRow.ButtonIcon(FindTex.Trash))
 			{
@@ -231,6 +232,11 @@ namespace TD_Find_Lib
 					Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
 						"TD.Delete0".Translate(Name), Trash));
 			}
+
+			// Rename
+			if (headerRow.ButtonIcon(FindTex.Export, "Copy to clipboard"))
+				GUIUtility.systemCopyBuffer = ScribeXmlFromString.SaveAsString(list); //todo CloneForSave each?
+			
 
 			// Rename 
 			if (headerRow.ButtonIcon(TexButton.Rename))
