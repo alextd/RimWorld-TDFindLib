@@ -124,6 +124,9 @@ namespace TD_Find_Lib
 					newName => { findDesc.name = newName; findDesc.changed = true; },
 					$"Rename {findDesc.name}"));
 
+			if (DebugSettings.godMode)
+				buttonRow.Label(findDesc.active ? "ACTIVE!" : "INACTIVE");
+
 			extraIconsDrawer?.Invoke(buttonRow);
 
 			//Listing Type
