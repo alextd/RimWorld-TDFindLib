@@ -90,7 +90,11 @@ namespace TD_Find_Lib
 				group.siblings = Mod.settings.groupedFilters;
 				Mod.settings.groupedFilters.Add(group);
 
+
 				var drawer = new FilterGroupDrawer(group, groupDrawers);
+				if (groupDrawers.Any(d => d.Name == group.name))
+					drawer.PopUpRename();
+
 				groupDrawers.Add(drawer);
 			},
 			"Load");
@@ -235,6 +239,11 @@ namespace TD_Find_Lib
 			"Name for New Search"));
 		}
 
+		public void PopUpRename()
+		{
+			Find.WindowStack.Add(new Dialog_Name(Name, name => list.name = name, rejector: name => list.siblings.Any(g => g.name == name)));
+		}
+
 
 
 		public override void DrawExtraHeader(Rect headerRect)
@@ -276,9 +285,7 @@ namespace TD_Find_Lib
 
 			// Rename 
 			if (headerRow.ButtonIcon(TexButton.Rename))
-			{
-				Find.WindowStack.Add(new Dialog_Name(Name, name => list.name = name, rejector: name => list.siblings.Any(g => g.name == name)));
-			}
+				PopUpRename();
 
 			// Add new filter button
 			if (headerRow.ButtonIcon(FindTex.GreyPlus))
