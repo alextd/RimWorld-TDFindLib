@@ -116,6 +116,8 @@ namespace TD_Find_Lib
 
 		public override bool DrawCustom(Rect rect, WidgetRow row)
 		{
+			if (sel == null) return false;
+
 			if (sel.degreeDatas.Count > 1 &&
 				row.ButtonText(sel.DataAtDegree(traitDegree).label.CapitalizeFirst()))
 			{
@@ -169,6 +171,8 @@ namespace TD_Find_Lib
 		private void MakeOrderedStages()
 		{
 			orderedStages.Clear();
+			if (sel == null) return;
+
 			orderedStages.AddRange(Enumerable.Range(0, sel.stages.Count)
 				.OrderBy(i => sel.stages[i] == null ? i : i + 1000 * sel.stages[i].baseOpinionOffset + 1000000 * sel.stages[i].baseMoodEffect));
 		}
@@ -259,6 +263,8 @@ namespace TD_Find_Lib
 
 		protected override bool DrawUnder(Listing_StandardIndent listing, bool locked)
 		{
+			if (sel == null) return false;
+
 			if (!ShowMultistage(sel)) return false;
 
 			//Buttons apparently are too tall for the line height?

@@ -1242,6 +1242,8 @@ namespace TD_Find_Lib
 
 		public override bool DrawCustom(Rect rect, WidgetRow row)
 		{
+			if (sel == null) return false;
+
 			if (sel.stackLimit > 1)
 			{
 				IntRange newRange = stackRange;
@@ -1337,7 +1339,7 @@ namespace TD_Find_Lib
 
 		public override bool DrawCustom(Rect rect, WidgetRow row)
 		{
-			FloatRange newRange = valueRange;
+			if (sel == null) return false;
 
 			Text.Anchor = TextAnchor.MiddleCenter;
 			Widgets.Label(rect, 
@@ -1351,6 +1353,8 @@ namespace TD_Find_Lib
 		private string controlNameL, controlNameR;
 		protected override bool DrawUnder(Listing_StandardIndent listing, bool locked)
 		{
+			if (sel == null) return false;
+
 			if (locked) return false;
 
 			listing.Gap(listing.verticalSpacing);
