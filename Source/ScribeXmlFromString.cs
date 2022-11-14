@@ -9,20 +9,16 @@ namespace TD_Find_Lib
 {
 	public static class ScribeXmlFromString
 	{
-		public static string DummyName = "StupidDummyXMLTag";
-		public static string DummyTag = "<" + DummyName  + ">";
-		public static string DummyEndTag = "</" + DummyName + ">";
-
-
 		// Save!
 		public static string SaveAsString(IExposable obj)
 		{
-			return DummyTag + Scribe.saver.DebugOutputFor(obj) + DummyEndTag;
+			string tag = obj.GetType().ToString();
+			return $"<{tag}>\n{Scribe.saver.DebugOutputFor(obj)}\n</{tag}>";
 		}
 
 
 		// Validate before you load!
-		public static bool IsValid(string xmlText) => xmlText.StartsWith(DummyTag);
+		public static bool IsValid<T>(string xmlText) => xmlText.StartsWith("<"+typeof(T).ToString()+">");
 
 
 		// Load!
@@ -32,11 +28,12 @@ namespace TD_Find_Lib
 			T target = default;
 			try
 			{
+				// the first <tag> is just passed over . . . so no need to pass in string tag to LoadFromString.
 				InitLoadingFromString(xmlText);
 				try
 				{
 					// name "saveable" from ScribeSaver.DebugOutputFor
-					// They didn't bother to write a ScribeLoader!
+					// They didn't bother to write a ScribeLoader.DebugInputFrom!
 					Scribe_Deep.Look(ref target, "saveable");
 				}
 				finally
