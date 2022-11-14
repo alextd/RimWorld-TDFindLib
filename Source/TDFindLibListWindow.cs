@@ -268,7 +268,6 @@ namespace TD_Find_Lib
 			FilterStorageUtil.ButtonChooseLoadFilter(headerRow, desc =>
 			{
 				list.Add(desc);
-				Mod.settings.Write();
 			},
 			"Load");
 
@@ -278,7 +277,6 @@ namespace TD_Find_Lib
 			{
 				foreach (FindDescription desc in g)
 					list.Add(desc);
-				Mod.settings.Write();
 			},
 			"Load");
 
