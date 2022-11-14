@@ -292,7 +292,7 @@ namespace TD_Find_Lib
 
 		public override void DrawWidgetButtons(WidgetRow row, FindDescription desc, int i)
 		{
-			if (row.ButtonIcon(FindTex.Edit))
+			if (row.ButtonIcon(FindTex.Edit, "Edit this filter"))
 			{
 				Find.WindowStack.Add(new TDFindLibEditorWindow(desc.CloneForEdit(), nd => list.ConfirmPaste(nd, i)));
 			}
@@ -343,7 +343,7 @@ namespace TD_Find_Lib
 
 		public override void DrawWidgetButtons(WidgetRow row, FindDescription desc, int i)
 		{
-			if (row.ButtonIcon(FindTex.Edit))
+			if (row.ButtonIcon(FindTex.Edit, "View this filter"))
 			{
 				Find.WindowStack.Add(new TDFindLibViewerWindow(desc));
 			}
@@ -354,7 +354,7 @@ namespace TD_Find_Lib
 			}
 			else
 			{
-				if (row.ButtonIcon(FindTex.Trash))
+				if (row.ButtonIcon(FindTex.Trash, "Stop this filter from running (I trust you know what you're doing)"))
 				{
 					if (Event.current.shift)
 						list.RemoveAt(i);
