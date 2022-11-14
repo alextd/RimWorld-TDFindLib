@@ -103,7 +103,7 @@ namespace TD_Find_Lib
 
 		private string GetMapLabel()
 		{
-			StringBuilder sb = new(" (");
+			StringBuilder sb = new(" <i>(");
 
 			// override requested map if a filter only works on current map
 			if (FiltersCurrentMapOnly())
@@ -114,7 +114,7 @@ namespace TD_Find_Lib
 				sb.Append(map.Parent.LabelCap);
 			else return "";
 
-			sb.Append(")");
+			sb.Append(")</i>");
 
 			return sb.ToString();
 		}
