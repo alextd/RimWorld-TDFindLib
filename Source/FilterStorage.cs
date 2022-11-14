@@ -51,7 +51,7 @@ namespace TD_Find_Lib
 
 					foreach (FilterGroup group in Mod.settings.groupedFilters)
 					{
-						submenuOptions.Add(new FloatMenuOption(group.name, () => LoadFromGroup(group, onLoad, cloneArgs)));
+						submenuOptions.Add(new FloatMenuOption("+ " + group.name, () => LoadFromGroup(group, onLoad, cloneArgs)));
 					}
 
 					Find.WindowStack.Add(new FloatMenu(submenuOptions));
@@ -110,7 +110,7 @@ namespace TD_Find_Lib
 
 					foreach (FilterGroup group in Mod.settings.groupedFilters)
 					{
-						submenuOptions.Add(new FloatMenuOption(group.name, () => SaveToGroup(desc, group)));
+						submenuOptions.Add(new FloatMenuOption("+ " + group.name, () => SaveToGroup(desc, group)));
 					}
 
 					Find.WindowStack.Add(new FloatMenu(submenuOptions));
