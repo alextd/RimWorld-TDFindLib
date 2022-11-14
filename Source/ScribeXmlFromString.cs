@@ -23,7 +23,7 @@ namespace TD_Find_Lib
 
 		// Load!
 		// (modeled after ReadModSettings)
-		public static T LoadFromString<T>(string xmlText) where T : IExposable, new()
+		public static T LoadFromString<T>(string xmlText, params object[] ctorArgs) where T : IExposable
 		{
 			T target = default;
 			try
@@ -34,7 +34,7 @@ namespace TD_Find_Lib
 				{
 					// name "saveable" from ScribeSaver.DebugOutputFor
 					// They didn't bother to write a ScribeLoader.DebugInputFrom!
-					Scribe_Deep.Look(ref target, "saveable");
+					Scribe_Deep.Look(ref target, "saveable", ctorArgs);
 				}
 				finally
 				{

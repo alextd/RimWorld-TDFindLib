@@ -64,6 +64,9 @@ namespace TD_Find_Lib
 			Text.Font = GameFont.Medium;
 			Rect newGroupRect = listing.GetRect(Text.LineHeight);
 			WidgetRow newGroupRow = new WidgetRow(newGroupRect.x, newGroupRect.y);
+
+
+			//Add button
 			if (newGroupRow.ButtonIcon(FindTex.GreyPlus))
 			{
 				Find.WindowStack.Add(new Dialog_Name("New Group", n =>
@@ -79,6 +82,21 @@ namespace TD_Find_Lib
 				"Name for New Group",
 				n => Mod.settings.groupedFilters.Any(f => f.name == n)));
 			}
+
+
+			// Import button
+			FilterStorageUtil.ButtonChooseLoadFilterGroup(newGroupRow, group =>
+			{
+				group.siblings = Mod.settings.groupedFilters;
+				Mod.settings.groupedFilters.Add(group);
+
+				var drawer = new FilterGroupDrawer(group, groupDrawers);
+				groupDrawers.Add(drawer);
+			},
+			"Load");
+
+
+			//Label
 			newGroupRow.Gap(4);
 			newGroupRow.Label("Add New Group", height: Text.LineHeight);
 			listing.Gap(4);
@@ -235,6 +253,16 @@ namespace TD_Find_Lib
 
 			// Copy
 			FilterStorageUtil.ButtonChooseExportFilterGroup(headerRow, list, "Save");
+
+
+			//Paste
+			FilterStorageUtil.ButtonChooseLoadFilterGroup(headerRow, g =>
+			{
+				foreach (FindDescription desc in g)
+					list.Add(desc);
+				Mod.settings.Write();
+			},
+			"Load");
 
 
 			// Rename 

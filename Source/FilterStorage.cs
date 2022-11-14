@@ -5,6 +5,7 @@ using System.Text;
 using Verse;
 using RimWorld;
 using UnityEngine;
+using CloneArgs = TD_Find_Lib.FindDescription.CloneArgs;
 
 namespace TD_Find_Lib
 {
@@ -18,25 +19,25 @@ namespace TD_Find_Lib
 
 
 
-		public static void ButtonChooseLoadFilter(WidgetRow row, Action<FindDescription> onLoad, CloneArgs cloneArgs = default)
+		public static void ButtonChooseLoadFilter(WidgetRow row, Action<FindDescription> onLoad, string source, CloneArgs cloneArgs = default)
 		{
 			if (row.ButtonIcon(FindTex.Import, "Import from..."))
-				ChooseLoadFilter(onLoad, cloneArgs);
+				ChooseLoadFilter(onLoad, source, cloneArgs);
 		}
-		public static void ChooseLoadFilter(Action<FindDescription> onLoad, CloneArgs cloneArgs = default)
+		public static void ChooseLoadFilter(Action<FindDescription> onLoad, string source, CloneArgs cloneArgs = default)
 		{
-			List<FloatMenuOption> groupOptions = new();
+			List<FloatMenuOption> loadOptions = new();
 
 			//Load from saved groups
 			foreach (FilterGroup group in Mod.settings.groupedFilters)
 			{
-				groupOptions.Add(new FloatMenuOption(group.name, () => LoadFromGroup(group, onLoad, cloneArgs)));
+				loadOptions.Add(new FloatMenuOption(group.name, () => LoadFromGroup(group, onLoad, cloneArgs)));
 			}
 
 			//Load from clipboard
 			string clipboard = GUIUtility.systemCopyBuffer;
 			if (ScribeXmlFromString.IsValid<FindDescription>(clipboard))
-				groupOptions.Add(new FloatMenuOption("Paste from clipboard", () =>
+				loadOptions.Add(new FloatMenuOption("Paste from clipboard", () =>
 				{
 					FindDescription desc = ScribeXmlFromString.LoadFromString<FindDescription>(clipboard);
 					onLoad(desc.Clone(cloneArgs));
@@ -44,12 +45,10 @@ namespace TD_Find_Lib
 
 
 
-			if (groupOptions.Count == 1)
-			{
-				LoadFromGroup(Mod.settings.groupedFilters[0], onLoad, cloneArgs);
-			}
-			else
-				Find.WindowStack.Add(new FloatMenu(groupOptions));
+			//Except don't load yourself
+			loadOptions.RemoveAll(o => o.Label == source);
+
+			Find.WindowStack.Add(new FloatMenu(loadOptions));
 		}
 
 		public static void LoadFromGroup(FilterGroup group, Action<FindDescription> onLoad, CloneArgs cloneArgs = default)
@@ -63,13 +62,13 @@ namespace TD_Find_Lib
 
 
 
-		public static void ButtonChooseExportFilter(WidgetRow row, FindDescription desc, string source = null)
+		public static void ButtonChooseExportFilter(WidgetRow row, FindDescription desc, string source)
 		{
 			if (row.ButtonIcon(FindTex.Export, "Export to..."))
 				ChooseExportFilter(desc, source);
 		}
 
-		public static void ChooseExportFilter(FindDescription desc, string source = null)
+		public static void ChooseExportFilter(FindDescription desc, string source)
 		{
 			List<FloatMenuOption> exportOptions = new();
 
@@ -104,9 +103,8 @@ namespace TD_Find_Lib
 			// Export to File?
 			//TODO: Other options to export to!
 
-			//Except don't export to where this comes from
-			if (source != null)
-				exportOptions.RemoveAll(o => o.Label == source);
+			//Except don't export to yourself
+			exportOptions.RemoveAll(o => o.Label == source);
 
 			Find.WindowStack.Add(new FloatMenu(exportOptions));
 		}
@@ -121,50 +119,52 @@ namespace TD_Find_Lib
 
 
 
-		public static void ButtonChooseLoadFilterGroup(WidgetRow row, Action<FilterGroup> onLoad)
+		public static void ButtonChooseLoadFilterGroup(WidgetRow row, Action<FilterGroup> onLoad, string source)
 		{
 			if (row.ButtonIcon(FindTex.Import, "Import from..."))
-				ChooseLoadFilterGroup(onLoad);
+				ChooseLoadFilterGroup(onLoad, source);
 		}
-		public static void ChooseLoadFilterGroup(Action<FilterGroup> onLoad, CloneArgs cloneArgs = default)
-		{/*
-			List<FloatMenuOption> groupOptions = new();
+
+		public static void ChooseLoadFilterGroup(Action<FilterGroup> onLoad, string source, CloneArgs cloneArgs = default)
+		{
+			List<FloatMenuOption> importOptions = new();
 
 			//Load from saved groups
+			//todo: in submenu "Load"
+			/*
 			foreach (FilterGroup group in Mod.settings.groupedFilters)
 			{
-				groupOptions.Add(new FloatMenuOption(group.name, () => LoadFromGroup(group, onLoad, cloneArgs)));
+				importOptions.Add(new FloatMenuOption(group.name, () => onLoad(group)));
 			}
+			*/
+
 
 			//Load from clipboard
 			string clipboard = GUIUtility.systemCopyBuffer;
-			if (ScribeXmlFromString.IsValid<FindDescription>(clipboard))
-				groupOptions.Add(new FloatMenuOption("Paste from clipboard", () =>
+			if (ScribeXmlFromString.IsValid<FilterGroup>(clipboard))
+				importOptions.Add(new FloatMenuOption("Paste from clipboard", () =>
 				{
-					FindDescription desc = ScribeXmlFromString.LoadFromString<FindDescription>(clipboard);
-					onLoad(desc.Clone(cloneArgs));
+					FilterGroup group = ScribeXmlFromString.LoadFromString<FilterGroup>(clipboard, null, null);
+					onLoad(group.Clone(cloneArgs));
 				}));
 
 
 
-			if (groupOptions.Count == 1)
-			{
-				LoadFromGroup(Mod.settings.groupedFilters[0], onLoad, map);
-			}
-			else
-				Find.WindowStack.Add(new FloatMenu(groupOptions));
-			*/
+			//Except don't export to where this comes from
+			importOptions.RemoveAll(o => o.Label == source);
+
+			Find.WindowStack.Add(new FloatMenu(importOptions));
 		}
 
 
 
-		public static void ButtonChooseExportFilterGroup(WidgetRow row, FilterGroup desc, string source = null)
+		public static void ButtonChooseExportFilterGroup(WidgetRow row, FilterGroup desc, string source)
 		{
 			if (row.ButtonIcon(FindTex.Export, "Export to..."))
 				ChooseExportFilterGroup(desc, source);
 		}
 
-		public static void ChooseExportFilterGroup(FilterGroup group, string source = null)
+		public static void ChooseExportFilterGroup(FilterGroup group, string source)
 		{
 			List<FloatMenuOption> exportOptions = new();
 
@@ -181,8 +181,7 @@ namespace TD_Find_Lib
 			//TODO: Other options to export to!
 
 			//Except don't export to where this comes from
-			if (source != null)
-				exportOptions.RemoveAll(o => o.Label == source);
+			exportOptions.RemoveAll(o => o.Label == source);
 
 			Find.WindowStack.Add(new FloatMenu(exportOptions));
 		}
