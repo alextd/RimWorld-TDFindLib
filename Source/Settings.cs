@@ -132,7 +132,7 @@ namespace TD_Find_Lib
 
 			string label = "descs";
 
-			//Watered down Scribe_Collections.
+			//Watered down Scribe_Collections, doing LookMode.Deep on List<FindDescription>
 			if (Scribe.EnterNode(label))
 			{
 				try
