@@ -233,10 +233,9 @@ namespace TD_Find_Lib
 						"TD.Delete0".Translate(Name), Trash));
 			}
 
-			// Rename
-			if (headerRow.ButtonIcon(FindTex.Export, "Copy to clipboard"))
-				GUIUtility.systemCopyBuffer = ScribeXmlFromString.SaveAsString(list); //todo CloneForSave each?
-			
+			// Copy
+			FilterStorageUtil.ButtonChooseExportFilterGroup(headerRow, list, "Save");
+
 
 			// Rename 
 			if (headerRow.ButtonIcon(TexButton.Rename))

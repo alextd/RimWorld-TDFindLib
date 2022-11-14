@@ -194,6 +194,17 @@ namespace TD_Find_Lib
 			}
 		}
 
+		public FindDescription Clone(CloneArgs args)
+		{
+			return args.type switch
+			{
+				CloneType.Save => CloneForSave(args.newName),
+				CloneType.Edit => CloneForEdit(args.newName),
+				CloneType.Use => CloneForUse(args.map, args.newName),
+				_ => null
+			};
+		}
+
 		public FindDescription CloneForSave(string newName = null)
 		{
 			FindDescription newDesc = new FindDescription(null)
@@ -211,11 +222,11 @@ namespace TD_Find_Lib
 			return newDesc;
 		}
 
-		public FindDescription CloneForEdit()
+		public FindDescription CloneForEdit(string newName = null)
 		{
 			FindDescription newDesc = new FindDescription()
 			{
-				name = name,
+				name = newName ?? name,
 				active = false,
 				_baseType = _baseType,
 				_map = _map,
@@ -228,11 +239,11 @@ namespace TD_Find_Lib
 			return newDesc;
 		}
 
-		public FindDescription CloneForUse(Map newMap)
+		public FindDescription CloneForUse(Map newMap, string newName = null)
 		{
 			FindDescription newDesc = new FindDescription()
 			{
-				name = name,
+				name = newName ?? name,
 				active = true,
 				_baseType = _baseType,
 				_map = newMap ?? _map,
@@ -357,5 +368,18 @@ namespace TD_Find_Lib
 		public static readonly BaseListType[] normalTypes =
 			{ BaseListType.Selectable, BaseListType.Everyone, BaseListType.Colonists, BaseListType.Animals, BaseListType.Items,
 			BaseListType.Buildings, BaseListType.Natural, BaseListType.Plants, BaseListType.Inventory, BaseListType.All};
+	}
+
+	public enum CloneType { Save, Edit, Use }//Dont? Copy?
+
+	//default(CloneArgs) CloneArgs is CloneType.Save
+	public struct CloneArgs
+	{
+		public CloneType type;
+		public Map map;
+		public string newName;
+
+		public static CloneArgs save = new CloneArgs();
+		public static CloneArgs edit = new CloneArgs() { type = CloneType.Edit };
 	}
 }
