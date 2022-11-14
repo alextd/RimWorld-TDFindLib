@@ -21,7 +21,7 @@ namespace TD_Find_Lib
 
 		public static void ButtonChooseLoadFilter(WidgetRow row, Action<FindDescription> onLoad, string source, CloneArgs cloneArgs = default)
 		{
-			var options = LoadFilterOptions(onLoad, source);
+			var options = LoadFilterOptions(onLoad, source, cloneArgs);
 			if (options.Count > 0 && row.ButtonIcon(FindTex.Import, "Import filter from..."))
 				Find.WindowStack.Add(new FloatMenu(options));
 		}
