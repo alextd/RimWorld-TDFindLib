@@ -255,7 +255,16 @@ namespace TD_Find_Lib
 			FilterStorageUtil.ButtonChooseExportFilterGroup(headerRow, list, "Save");
 
 
-			//Paste
+			// Paste Single Filter
+			FilterStorageUtil.ButtonChooseLoadFilter(headerRow, desc =>
+			{
+				list.Add(desc);
+				Mod.settings.Write();
+			},
+			"Load");
+
+
+			// Paste Group
 			FilterStorageUtil.ButtonChooseLoadFilterGroup(headerRow, g =>
 			{
 				foreach (FindDescription desc in g)
