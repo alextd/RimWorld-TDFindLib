@@ -21,10 +21,19 @@ namespace TD_Find_Lib
 
 		public static void ButtonChooseLoadFilter(WidgetRow row, Action<FindDescription> onLoad, string source, CloneArgs cloneArgs = default)
 		{
-			if (row.ButtonIcon(FindTex.Import, "Import from..."))
-				ChooseLoadFilter(onLoad, source, cloneArgs);
+			var options = LoadFilterOptions(onLoad, source);
+			if (options.Count > 0 && row.ButtonIcon(FindTex.Import, "Import from..."))
+				Find.WindowStack.Add(new FloatMenu(options));
 		}
 		public static void ChooseLoadFilter(Action<FindDescription> onLoad, string source, CloneArgs cloneArgs = default)
+		{
+			var options = LoadFilterOptions(onLoad, source, cloneArgs);
+			if (options.Count > 0)
+				Find.WindowStack.Add(new FloatMenu(options));
+			else
+				Verse.Log.Error($"ChooseLoadFilter({source}) found no filter to load from");
+		}
+		public static List<FloatMenuOption> LoadFilterOptions(Action<FindDescription> onLoad, string source, CloneArgs cloneArgs = default)
 		{
 			List<FloatMenuOption> loadOptions = new();
 
@@ -48,7 +57,7 @@ namespace TD_Find_Lib
 			//Except don't load yourself
 			loadOptions.RemoveAll(o => o.Label == source);
 
-			Find.WindowStack.Add(new FloatMenu(loadOptions));
+			return loadOptions;
 		}
 
 		public static void LoadFromGroup(FilterGroup group, Action<FindDescription> onLoad, CloneArgs cloneArgs = default)
@@ -121,11 +130,20 @@ namespace TD_Find_Lib
 
 		public static void ButtonChooseLoadFilterGroup(WidgetRow row, Action<FilterGroup> onLoad, string source)
 		{
-			if (row.ButtonIcon(FindTex.Import, "Import from..."))
-				ChooseLoadFilterGroup(onLoad, source);
+			var options = LoadFilterGroupOptions(onLoad, source);
+			if (options.Count > 0 && row.ButtonIcon(FindTex.Import, "Import from..."))
+				Find.WindowStack.Add(new FloatMenu(options));
 		}
 
 		public static void ChooseLoadFilterGroup(Action<FilterGroup> onLoad, string source, CloneArgs cloneArgs = default)
+		{
+			var options = LoadFilterGroupOptions(onLoad, source);
+			if(options.Count > 0)
+				Find.WindowStack.Add(new FloatMenu(options));
+			else
+				Verse.Log.Error($"ChooseLoadFilterGroup({source}) found no groups to load from");
+		}
+		public static List<FloatMenuOption> LoadFilterGroupOptions(Action<FilterGroup> onLoad, string source, CloneArgs cloneArgs = default)
 		{
 			List<FloatMenuOption> importOptions = new();
 
@@ -153,7 +171,7 @@ namespace TD_Find_Lib
 			//Except don't export to where this comes from
 			importOptions.RemoveAll(o => o.Label == source);
 
-			Find.WindowStack.Add(new FloatMenu(importOptions));
+			return importOptions;
 		}
 
 
