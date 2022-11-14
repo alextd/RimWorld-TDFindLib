@@ -147,7 +147,7 @@ namespace TD_Find_Lib
 		public static void ButtonChooseLoadFilterGroup(WidgetRow row, Action<FilterGroup> onLoad, string source)
 		{
 			var options = LoadFilterGroupOptions(onLoad, source);
-			if (options.Count > 0 && row.ButtonIcon(FindTex.Import, "Import group from..."))
+			if (options.Count > 0 && row.ButtonIcon(FindTex.ImportGroup, "Import group from..."))
 				Find.WindowStack.Add(new FloatMenu(options));
 		}
 
@@ -194,7 +194,7 @@ namespace TD_Find_Lib
 
 		public static void ButtonChooseExportFilterGroup(WidgetRow row, FilterGroup desc, string source)
 		{
-			if (row.ButtonIcon(FindTex.Export, "Export group to..."))
+			if (row.ButtonIcon(FindTex.ExportGroup, "Export group to..."))
 				ChooseExportFilterGroup(desc, source);
 		}
 
