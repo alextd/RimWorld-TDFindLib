@@ -59,8 +59,9 @@ namespace TD_Find_Lib
 		public override void DoWindowContents(Rect fillRect)
 		{
 			drawer.DrawFindDescription(fillRect, Find.CurrentMap == null ? null :
-				delegate(WidgetRow row)
+				row =>
 				{
+					FilterStorageUtil.ButtonChooseExportFilter(row, drawer.findDesc, "Save", null);
 					if (row.ButtonIcon(FindTex.List))
 					{
 						Find.WindowStack.Add(new TDFindListThingsWindow(drawer.findDesc.CloneForUse(Find.CurrentMap)));
