@@ -52,9 +52,9 @@ namespace TD_Find_Lib
 			listing.BeginScrollView(fillRect, ref scrollPosition, viewRect);
 
 			// Filter groups by name
-			foreach (FilterGroupDrawer drawer in groupDrawers)
+			for (int i = 0; i < groupDrawers.Count; i++)
 			{
-				drawer.DrawFindDescList(listing);
+				groupDrawers[i].DrawFindDescList(listing);
 				listing.Gap();
 			}
 
