@@ -58,7 +58,7 @@ namespace TD_Find_Lib
 			// Export to Clipboard
 			exportOptions.Add(new FloatMenuOption("Copy to clipboard", () =>
 			{
-				GUIUtility.systemCopyBuffer = Scribe.saver.DebugOutputFor(desc.CloneForSave());
+				GUIUtility.systemCopyBuffer = ScribeXmlFromString.SaveAsString(desc.CloneForSave());
 			}));
 
 
@@ -82,19 +82,25 @@ namespace TD_Find_Lib
 
 		public static void ChooseLoadFilter(Action<FindDescription> onLoad, Map map = null)
 		{
-			if (Mod.settings.groupedFilters.Count == 1)
+			List<FloatMenuOption> groupOptions = new();
+
+			//Load from saved groups
+			foreach (FilterGroup group in Mod.settings.groupedFilters)
 			{
-				LoadFromGroup(Mod.settings.groupedFilters[0], onLoad, map);
+				groupOptions.Add(new FloatMenuOption(group.name, () => LoadFromGroup(group, onLoad, map)));
 			}
-			else
+
+			//Load from clipboard
+			groupOptions.Add(new FloatMenuOption("Paste from clipboard", () =>
 			{
-				List<FloatMenuOption> groupOptions = new();
-				foreach (FilterGroup group in Mod.settings.groupedFilters)
-				{
-					groupOptions.Add(new FloatMenuOption(group.name, () => LoadFromGroup(group, onLoad, map)));
-				}
-				Find.WindowStack.Add(new FloatMenu(groupOptions));
-			}
+				string clipboard = GUIUtility.systemCopyBuffer;
+				FindDescription desc = ScribeXmlFromString.LoadFromString<FindDescription>(clipboard);
+				onLoad(desc.CloneForUse(map ?? Find.CurrentMap));
+			}));
+
+
+
+			Find.WindowStack.Add(new FloatMenu(groupOptions));
 		}
 		public static void LoadFromGroup(FilterGroup group, Action<FindDescription> onLoad, Map map = null)
 		{
