@@ -31,17 +31,32 @@ namespace TD_Find_Lib
 			if (options.Count > 0)
 				Find.WindowStack.Add(new FloatMenu(options));
 			else
-				Verse.Log.Error($"ChooseLoadFilter({source}) found no filter to load from");
+				Verse.Log.Error($"ChooseLoadFilter({source}) found no filter to load");
 		}
 		public static List<FloatMenuOption> LoadFilterOptions(Action<FindDescription> onLoad, string source, CloneArgs cloneArgs = default)
 		{
 			List<FloatMenuOption> loadOptions = new();
 
-			//Load from saved groups
-			foreach (FilterGroup group in Mod.settings.groupedFilters)
+			//Load from groups
+			loadOptions.Add(new FloatMenuOption("Load", () =>
 			{
-				loadOptions.Add(new FloatMenuOption(group.name, () => LoadFromGroup(group, onLoad, cloneArgs)));
-			}
+				if (Mod.settings.groupedFilters.Count == 1)
+				{
+					// Only one group? skip this submenu
+					LoadFromGroup(Mod.settings.groupedFilters[0], onLoad, cloneArgs);
+				}
+				else
+				{
+					List<FloatMenuOption> submenuOptions = new();
+
+					foreach (FilterGroup group in Mod.settings.groupedFilters)
+					{
+						submenuOptions.Add(new FloatMenuOption(group.name, () => LoadFromGroup(group, onLoad, cloneArgs)));
+					}
+
+					Find.WindowStack.Add(new FloatMenu(submenuOptions));
+				}
+			}));
 
 			//Load from clipboard
 			string clipboard = GUIUtility.systemCopyBuffer;
@@ -86,18 +101,19 @@ namespace TD_Find_Lib
 			{
 				if (Mod.settings.groupedFilters.Count == 1)
 				{
+					// Only one group? skip this submenu
 					SaveToGroup(desc, Mod.settings.groupedFilters[0]);
 				}
 				else
 				{
-					List<FloatMenuOption> groupOptions = new();
+					List<FloatMenuOption> submenuOptions = new();
 
 					foreach (FilterGroup group in Mod.settings.groupedFilters)
 					{
-						groupOptions.Add(new FloatMenuOption(group.name, () => SaveToGroup(desc, group)));
+						submenuOptions.Add(new FloatMenuOption(group.name, () => SaveToGroup(desc, group)));
 					}
 
-					Find.WindowStack.Add(new FloatMenu(groupOptions));
+					Find.WindowStack.Add(new FloatMenu(submenuOptions));
 				}
 			}));
 
@@ -141,7 +157,7 @@ namespace TD_Find_Lib
 			if(options.Count > 0)
 				Find.WindowStack.Add(new FloatMenu(options));
 			else
-				Verse.Log.Error($"ChooseLoadFilterGroup({source}) found no groups to load from");
+				Verse.Log.Error($"ChooseLoadFilterGroup({source}) found no group to load");
 		}
 		public static List<FloatMenuOption> LoadFilterGroupOptions(Action<FilterGroup> onLoad, string source, CloneArgs cloneArgs = default)
 		{
