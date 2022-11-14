@@ -101,7 +101,12 @@ namespace TD_Find_Lib
 
 
 
-			Find.WindowStack.Add(new FloatMenu(groupOptions));
+			if(groupOptions.Count == 1)
+			{
+				LoadFromGroup(Mod.settings.groupedFilters[0], onLoad, map);
+			}
+			else
+				Find.WindowStack.Add(new FloatMenu(groupOptions));
 		}
 		public static void LoadFromGroup(FilterGroup group, Action<FindDescription> onLoad, Map map = null)
 		{
