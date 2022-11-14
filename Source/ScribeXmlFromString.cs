@@ -12,13 +12,20 @@ namespace TD_Find_Lib
 		public static string DummyName = "StupidDummyXMLTag";
 		public static string DummyTag = "<" + DummyName  + ">";
 		public static string DummyEndTag = "</" + DummyName + ">";
+
+
+		// Save!
 		public static string SaveAsString(IExposable obj)
 		{
 			return DummyTag + Scribe.saver.DebugOutputFor(obj) + DummyEndTag;
 		}
 
+
+		// Validate before you load!
 		public static bool IsValid(string xmlText) => xmlText.StartsWith(DummyTag);
 
+
+		// Load!
 		// (modeled after ReadModSettings)
 		public static T LoadFromString<T>(string xmlText) where T : IExposable, new()
 		{
