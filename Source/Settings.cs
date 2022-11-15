@@ -78,7 +78,7 @@ namespace TD_Find_Lib
 
 		// IFilterReceiver business
 		public string Source => "Storage";  //always used
-		public string Name => "Save";
+		public string ReceiveName => "Save";
 		public void Receive(FindDescription desc)
 		{
 			//Save to groups

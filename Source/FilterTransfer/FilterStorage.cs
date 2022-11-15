@@ -58,19 +58,26 @@ namespace TD_Find_Lib
 				}
 			}));
 
-			//Load from clipboard
-			string clipboard = GUIUtility.systemCopyBuffer;
-			if (ScribeXmlFromString.IsValid<FindDescription>(clipboard))
-				loadOptions.Add(new FloatMenuOption("Paste from clipboard", () =>
+			foreach(IFilterProvider provider in FilterTransfer.providers)
+			{
+				if (provider.Source != null && provider.Source != source) continue;
+
+				switch(provider.ProvideCount())
 				{
-					FindDescription desc = ScribeXmlFromString.LoadFromString<FindDescription>(clipboard);
-					onLoad(desc.Clone(cloneArgs));
-				}));
-
-
-
-			//Except don't load yourself
-			loadOptions.RemoveAll(o => o.Label == source);
+					case 0:
+						continue;
+					case 1:
+						loadOptions.Add(new FloatMenuOption(provider.ProvideName, () =>
+						{
+							FindDescription desc = provider.ProvideSingle();
+							onLoad(desc.Clone(cloneArgs));
+						}));
+						continue;
+					default:
+						//todo submenu?
+						continue;
+				}
+			}
 
 			return loadOptions;
 		}
@@ -98,8 +105,9 @@ namespace TD_Find_Lib
 
 			foreach(IFilterReceiver receiver in FilterTransfer.receivers)
 			{
-				if(receiver.Source == null || receiver.Source != source)
-					exportOptions.Add(new FloatMenuOption(receiver.Name, () => receiver.Receive(desc)));
+				if (receiver.Source != null && receiver.Source == source) continue;
+
+				exportOptions.Add(new FloatMenuOption(receiver.ReceiveName, () => receiver.Receive(desc)));
 			}
 
 			Find.WindowStack.Add(new FloatMenu(exportOptions));

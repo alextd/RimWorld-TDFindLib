@@ -12,10 +12,20 @@ namespace TD_Find_Lib
 	public static class FilterTransfer
 	{
 		public static List<IFilterReceiver> receivers = new();
-		public static void Register(IFilterReceiver receiver) =>
-			receivers.Add(receiver);
-		public static void Deregister(IFilterReceiver receiver) =>
-			receivers.Remove(receiver);
+		public static List<IFilterProvider> providers = new();
+
+		public static void Register(object obj)
+		{
+			if (obj is IFilterReceiver receiver)
+				receivers.Add(receiver);
+			if (obj is IFilterProvider provider)
+				providers.Add(provider);
+		}
+		public static void Deregister(object obj)
+		{
+			receivers.Remove(obj as IFilterReceiver);
+			providers.Remove(obj as IFilterProvider);
+		}
 	}
 
 
@@ -24,24 +34,52 @@ namespace TD_Find_Lib
 	public interface IFilterReceiver
 	{
 		public string Source { get; }
-		public string Name { get; }
+		public string ReceiveName { get; }
 		public void Receive(FindDescription desc);
 	}
 
-	[StaticConstructorOnStartup]
-	public class ClipboardReceiver : IFilterReceiver
+	public interface IFilterProvider
 	{
-		public string Source => null;	//always used
-		public string Name => "Copy to clipboard";
-		public void Receive(FindDescription desc) =>
-			GUIUtility.systemCopyBuffer = ScribeXmlFromString.SaveAsString(desc.CloneForSave());
-
-		static ClipboardReceiver() =>
-			FilterTransfer.Register(new ClipboardReceiver());
+		public string Source { get; }
+		public string ProvideName { get; }
+		public int ProvideCount();
+		public FindDescription ProvideSingle();
 	}
 
-
-	//public interface IFilterProvider
 	//public interface IFilterGroupReceiver
 	//public interface IFilterGroupProvider
+
+
+	[StaticConstructorOnStartup]
+	public class ClipboardTransfer : IFilterReceiver, IFilterProvider
+	{
+		static ClipboardTransfer()
+		{
+			FilterTransfer.Register(new ClipboardTransfer());
+		}
+
+
+		public string Source => null;	//always used
+
+		public string ReceiveName => "Copy to clipboard";
+		public string ProvideName => "Paste from clipboard";
+
+		public void Receive(FindDescription desc)
+		{
+			GUIUtility.systemCopyBuffer = ScribeXmlFromString.SaveAsString(desc.CloneForSave());
+		}
+
+
+		public FindDescription ProvideSingle()
+		{
+			string clipboard = GUIUtility.systemCopyBuffer;
+			return ScribeXmlFromString.LoadFromString<FindDescription>(clipboard);
+		}
+
+		public int ProvideCount()
+		{
+			string clipboard = GUIUtility.systemCopyBuffer;
+			return ScribeXmlFromString.IsValid<FindDescription>(clipboard) ? 1 : 0;
+		}
+	}
 }
