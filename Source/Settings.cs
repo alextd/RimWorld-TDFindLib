@@ -8,15 +8,20 @@ using RimWorld;
 
 namespace TD_Find_Lib
 {
-	public class Settings : ModSettings
+	public class Settings : ModSettings, IFilterReceiver
 	{
 		private bool onlyAvailable = true;
 		public bool OnlyAvailable => onlyAvailable != Event.current.shift && Find.CurrentMap != null;
 
 		public static string defaultFiltersName = "Saved Filters";
+
 		//Don't touch my filters
 		internal List<FilterGroup> groupedFilters;
-		public Settings() => SanityCheck();
+		public Settings()
+		{
+			SanityCheck();
+			FilterTransfer.Register(this);
+		}
 
 		internal void SanityCheck()
 		{
@@ -29,7 +34,6 @@ namespace TD_Find_Lib
 
 		public void DoWindowContents(Rect inRect)
 		{
-			//Scrolling!
 			Listing_StandardIndent listing = new();
 			listing.Begin(inRect);
 
@@ -69,6 +73,39 @@ namespace TD_Find_Lib
 					group.siblings = groupedFilters;
 			
 			SanityCheck();
+		}
+
+
+		// IFilterReceiver business
+		public string Source => "Storage";  //always used
+		public string Name => "Save";
+		public void Receive(FindDescription desc)
+		{
+			//Save to groups
+			if (groupedFilters.Count == 1)
+			{
+				// Only one group? skip this submenu
+				SaveToGroup(desc, groupedFilters[0]);
+			}
+			else
+			{
+				List<FloatMenuOption> submenuOptions = new();
+
+				foreach (FilterGroup group in groupedFilters)
+				{
+					submenuOptions.Add(new FloatMenuOption("+ " + group.name, () => SaveToGroup(desc, group)));
+				}
+
+				Find.WindowStack.Add(new FloatMenu(submenuOptions));
+			}
+		}
+
+		public static void SaveToGroup(FindDescription desc, FilterGroup group, FindDescription.CloneArgs cloneArgs = default)
+		{
+			if (cloneArgs.newName != null)
+				group.TryAdd(desc.Clone(cloneArgs));
+			else
+				Find.WindowStack.Add(new Dialog_Name(desc.name, n => { cloneArgs.newName = n; group.TryAdd(desc.Clone(cloneArgs)); }, $"Save to {group.name}"));
 		}
 	}
 }

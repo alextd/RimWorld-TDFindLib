@@ -312,8 +312,7 @@ namespace TD_Find_Lib
 						"TD.Delete0".Translate(desc.name), () => list.Remove(desc)));
 			}
 
-			FilterStorageUtil.ButtonChooseExportFilter(row, desc, "Save");
-
+			FilterStorageUtil.ButtonChooseExportFilter(row, desc, "Storage");
 		}
 	}
 

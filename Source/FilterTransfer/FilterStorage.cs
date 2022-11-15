@@ -19,13 +19,13 @@ namespace TD_Find_Lib
 
 
 
-		public static void ButtonChooseLoadFilter(WidgetRow row, Action<FindDescription> onLoad, string source, CloneArgs cloneArgs = default)
+		public static void ButtonChooseLoadFilter(WidgetRow row, Action<FindDescription> onLoad, string source = null, CloneArgs cloneArgs = default)
 		{
 			var options = LoadFilterOptions(onLoad, source, cloneArgs);
 			if (options.Count > 0 && row.ButtonIcon(FindTex.Import, "Import filter from..."))
 				Find.WindowStack.Add(new FloatMenu(options));
 		}
-		public static void ChooseLoadFilter(Action<FindDescription> onLoad, string source, CloneArgs cloneArgs = default)
+		public static void ChooseLoadFilter(Action<FindDescription> onLoad, string source = null, CloneArgs cloneArgs = default)
 		{
 			var options = LoadFilterOptions(onLoad, source, cloneArgs);
 			if (options.Count > 0)
@@ -33,7 +33,7 @@ namespace TD_Find_Lib
 			else
 				Verse.Log.Error($"ChooseLoadFilter({source}) found no filter to load");
 		}
-		public static List<FloatMenuOption> LoadFilterOptions(Action<FindDescription> onLoad, string source, CloneArgs cloneArgs = default)
+		public static List<FloatMenuOption> LoadFilterOptions(Action<FindDescription> onLoad, string source = null, CloneArgs cloneArgs = default)
 		{
 			List<FloatMenuOption> loadOptions = new();
 
@@ -86,36 +86,15 @@ namespace TD_Find_Lib
 
 
 
-		public static void ButtonChooseExportFilter(WidgetRow row, FindDescription desc, string source)
+		public static void ButtonChooseExportFilter(WidgetRow row, FindDescription desc, string source = null)
 		{
 			if (row.ButtonIcon(FindTex.Export, "Export filter to..."))
 				ChooseExportFilter(desc, source);
 		}
 
-		public static void ChooseExportFilter(FindDescription desc, string source)
+		public static void ChooseExportFilter(FindDescription desc, string source = null)
 		{
 			List<FloatMenuOption> exportOptions = new();
-
-			//Save to groups
-			exportOptions.Add(new FloatMenuOption("Save", () =>
-			{
-				if (Mod.settings.groupedFilters.Count == 1)
-				{
-					// Only one group? skip this submenu
-					SaveToGroup(desc, Mod.settings.groupedFilters[0]);
-				}
-				else
-				{
-					List<FloatMenuOption> submenuOptions = new();
-
-					foreach (FilterGroup group in Mod.settings.groupedFilters)
-					{
-						submenuOptions.Add(new FloatMenuOption("+ " + group.name, () => SaveToGroup(desc, group)));
-					}
-
-					Find.WindowStack.Add(new FloatMenu(submenuOptions));
-				}
-			}));
 
 			foreach(IFilterReceiver receiver in FilterTransfer.receivers)
 			{
@@ -126,24 +105,16 @@ namespace TD_Find_Lib
 			Find.WindowStack.Add(new FloatMenu(exportOptions));
 		}
 
-		public static void SaveToGroup(FindDescription desc, FilterGroup group, CloneArgs cloneArgs = default)
-		{
-			if (cloneArgs.newName != null)
-				group.TryAdd(desc.Clone(cloneArgs));
-			else
-				Find.WindowStack.Add(new Dialog_Name(desc.name, n => { cloneArgs.newName = n; group.TryAdd(desc.Clone(cloneArgs)); }, $"Save to {group.name}"));
-		}
 
 
-
-		public static void ButtonChooseLoadFilterGroup(WidgetRow row, Action<FilterGroup> onLoad, string source)
+		public static void ButtonChooseLoadFilterGroup(WidgetRow row, Action<FilterGroup> onLoad, string source = null)
 		{
 			var options = LoadFilterGroupOptions(onLoad, source);
 			if (options.Count > 0 && row.ButtonIcon(FindTex.ImportGroup, "Import group from..."))
 				Find.WindowStack.Add(new FloatMenu(options));
 		}
 
-		public static void ChooseLoadFilterGroup(Action<FilterGroup> onLoad, string source, CloneArgs cloneArgs = default)
+		public static void ChooseLoadFilterGroup(Action<FilterGroup> onLoad, string source = null, CloneArgs cloneArgs = default)
 		{
 			var options = LoadFilterGroupOptions(onLoad, source);
 			if(options.Count > 0)
@@ -184,13 +155,13 @@ namespace TD_Find_Lib
 
 
 
-		public static void ButtonChooseExportFilterGroup(WidgetRow row, FilterGroup desc, string source)
+		public static void ButtonChooseExportFilterGroup(WidgetRow row, FilterGroup desc, string source = null)
 		{
 			if (row.ButtonIcon(FindTex.ExportGroup, "Export group to..."))
 				ChooseExportFilterGroup(desc, source);
 		}
 
-		public static void ChooseExportFilterGroup(FilterGroup group, string source)
+		public static void ChooseExportFilterGroup(FilterGroup group, string source = null)
 		{
 			List<FloatMenuOption> exportOptions = new();
 
