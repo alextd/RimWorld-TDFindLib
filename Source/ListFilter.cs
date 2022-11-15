@@ -1401,4 +1401,15 @@ namespace TD_Find_Lib
 			GUI.FocusControl(controlNameL);
 		}
 	}
+
+	public class ListFilterBuildingCategory : ListFilterDropDown<DesignationCategoryDef>
+	{
+		public ListFilterBuildingCategory() => sel = DesignationCategoryDefOf.Production;
+
+		protected override bool FilterApplies(Thing thing) =>
+			sel == thing.def.designationCategory;
+
+		public override IEnumerable<DesignationCategoryDef> Options() =>
+			base.Options().Where(desCatDef => desCatDef.AllResolvedDesignators.Any(d => d is Designator_Build));
+	}
 }

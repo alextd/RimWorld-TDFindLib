@@ -264,6 +264,7 @@
 		<defName>Category_BuildingInfo</defName>
 		<label>building info</label>
 		<subFilters>
+			<li>Filter_BuildingCategory</li>
 			<li>Filter_Mineable</li>
 			<li>Filter_Door</li>
 		</subFilters>
@@ -273,6 +274,12 @@
 		<defName>Filter_Mineable</defName>
 		<label>mineable</label>
 		<filterClass>TD_Find_Lib.ListFilterMineable</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_BuildingCategory</defName>
+		<label>Building category</label>
+		<filterClass>TD_Find_Lib.ListFilterBuildingCategory</filterClass>
 	</TD_Find_Lib.ListFilterDef>
 
 	<TD_Find_Lib.ListFilterDef>
