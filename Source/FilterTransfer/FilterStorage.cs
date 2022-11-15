@@ -117,19 +117,11 @@ namespace TD_Find_Lib
 				}
 			}));
 
-
-			// Export to Clipboard
-			exportOptions.Add(new FloatMenuOption("Copy to clipboard", () =>
+			foreach(IFilterReceiver receiver in FilterTransfer.receivers)
 			{
-				GUIUtility.systemCopyBuffer = ScribeXmlFromString.SaveAsString(desc.CloneForSave());
-			}));
-
-
-			// Export to File?
-			//TODO: Other options to export to!
-
-			//Except don't export to yourself
-			exportOptions.RemoveAll(o => o.Label == source);
+				if(receiver.Source == null || receiver.Source != source)
+					exportOptions.Add(new FloatMenuOption(receiver.Name, () => receiver.Receive(desc)));
+			}
 
 			Find.WindowStack.Add(new FloatMenu(exportOptions));
 		}
