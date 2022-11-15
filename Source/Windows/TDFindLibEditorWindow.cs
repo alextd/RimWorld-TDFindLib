@@ -109,6 +109,7 @@ namespace TD_Find_Lib
 			if(showName)
 				Widgets.Label(nameRect, (permalocked ? "Viewing: " : "Editing: ") + findDesc.name);
 
+
 			//Buttons
 			WidgetRow buttonRow = new WidgetRow(nameRect.xMax - 20, nameRect.yMin, UIDirection.LeftThenDown);
 
@@ -127,7 +128,9 @@ namespace TD_Find_Lib
 			if (DebugSettings.godMode)
 				buttonRow.Label(findDesc.active ? "ACTIVE!" : "INACTIVE");
 
+			// Extra custom buttons!
 			extraIconsDrawer?.Invoke(buttonRow);
+
 
 			//Listing Type
 			Text.Font = GameFont.Small;
@@ -148,8 +151,6 @@ namespace TD_Find_Lib
 				Find.WindowStack.Add(new FloatMenu(types));
 			}
 
-
-			bool filterChanged = false;
 
 			//Extra options:
 			bool allMaps = findDesc.allMaps;
@@ -182,13 +183,10 @@ namespace TD_Find_Lib
 			}
 
 			//Draw Filters:
-			filterChanged |= findDesc.Children.DrawFilters(listRect, locked);
+			if(findDesc.Children.DrawFilters(listRect, locked))
+				findDesc.RemakeList();
 
 			listing.End();
-
-			//Update if needed
-			if (filterChanged)
-				findDesc.RemakeList();
 		}
 	}
 }
