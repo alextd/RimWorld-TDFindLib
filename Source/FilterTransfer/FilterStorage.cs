@@ -103,6 +103,7 @@ namespace TD_Find_Lib
 
 		// Basically a copy of ButtonChooseImportFilter, but accepting FilterGroup instead of FindDescription.
 		// Single filters are not accepted, and one less submenu is needed to get at options 
+		// handler should set parent and siblings, or just extract each item from the list.
 		public static void ButtonChooseImportFilterGroup(WidgetRow row, Action<FilterGroup> handler, string source = null)
 		{
 			var options = ImportFilterGroupOptions(handler, source);
