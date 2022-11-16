@@ -10,13 +10,15 @@ namespace TD_Find_Lib
 {
 	public class TDFindLibListWindow : Window
 	{
+		private IFilterStorageParent parent;
 		private List<FilterGroupDrawer> groupDrawers;
 		private RefreshFilterGroupDrawer refreshDrawer;
 
-		public TDFindLibListWindow()
+		public TDFindLibListWindow(IFilterStorageParent parent)
 		{
+			this.parent = parent;
 			groupDrawers = new();
-			foreach (FilterGroup group in Mod.settings.groupedFilters)
+			foreach (FilterGroup group in parent.Children)
 			{
 				groupDrawers.Add(new FilterGroupDrawer(group, groupDrawers));
 			}
@@ -38,7 +40,7 @@ namespace TD_Find_Lib
 
 		public override void PostClose()
 		{
-			Mod.settings.Write();
+			parent.Write();
 		}
 
 
@@ -71,8 +73,8 @@ namespace TD_Find_Lib
 			{
 				Find.WindowStack.Add(new Dialog_Name("New Group", n =>
 				{
-					var group = new FilterGroup(n, Mod.settings);
-					Mod.settings.Add(group);
+					var group = new FilterGroup(n, parent);
+					parent.Add(group);
 
 					var drawer = new FilterGroupDrawer(group, groupDrawers);
 					groupDrawers.Add(drawer);
@@ -80,14 +82,14 @@ namespace TD_Find_Lib
 					drawer.PopUpCreateFindDesc();
 				},
 				"Name for New Group",
-				n => Mod.settings.groupedFilters.Any(f => f.name == n)));
+				n => parent.Children.Any(f => f.name == n)));
 			}
 
 
 			// Import button
 			FilterStorageUtil.ButtonChooseImportFilterGroup(newGroupRow, group =>
 			{
-				Mod.settings.Add(group);
+				parent.Add(group);
 
 
 				var drawer = new FilterGroupDrawer(group, groupDrawers);

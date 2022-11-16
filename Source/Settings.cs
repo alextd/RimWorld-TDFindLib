@@ -62,7 +62,7 @@ namespace TD_Find_Lib
 				Find.WindowStack.WindowOfType<Dialog_ModSettings>().Close();
 				Find.WindowStack.WindowOfType<Dialog_Options>().Close();
 
-				Find.WindowStack.Add(new TDFindLibListWindow());
+				Find.WindowStack.Add(new TDFindLibListWindow(this));
 			}
 
 			listing.End();
