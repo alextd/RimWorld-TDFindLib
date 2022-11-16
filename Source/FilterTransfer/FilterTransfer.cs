@@ -80,7 +80,9 @@ namespace TD_Find_Lib
 		public string ReceiveName => "Copy to clipboard";
 		public string ProvideName => "Paste from clipboard";
 
+
 		public FindDescription.CloneArgs CloneArgs => default; //save
+
 		public void Receive(FindDescription desc)
 		{
 			GUIUtility.systemCopyBuffer = ScribeXmlFromString.SaveAsString(desc);
