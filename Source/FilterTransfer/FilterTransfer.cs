@@ -48,6 +48,7 @@ namespace TD_Find_Lib
 
 		public FindDescription ProvideSingle();
 		public List<FindDescription> ProvideSelection();
+		public List<FilterGroup> ProvideGrouping();
 	}
 
 	//public interface IFilterGroupReceiver
@@ -94,5 +95,7 @@ namespace TD_Find_Lib
 			string clipboard = GUIUtility.systemCopyBuffer;
 			return ScribeXmlFromString.LoadFromString<FilterGroup>(clipboard, null, null);
 		}
+
+		public List<FilterGroup> ProvideGrouping() => null;
 	}
 }

@@ -8,7 +8,7 @@ using RimWorld;
 
 namespace TD_Find_Lib
 {
-	public class Settings : ModSettings, IFilterReceiver
+	public class Settings : ModSettings, IFilterReceiver, IFilterProvider
 	{
 		private bool onlyAvailable = true;
 		public bool OnlyAvailable => onlyAvailable != Event.current.shift && Find.CurrentMap != null;
@@ -76,9 +76,13 @@ namespace TD_Find_Lib
 		}
 
 
-		// IFilterReceiver business
-		public string Source => "Storage";  //always used
+		// FilterTransfer business
+		public string Source => "Storage";
 		public string ReceiveName => "Save";
+		public string ProvideName => "Load";
+
+
+		// IFilterReceiver things
 		public void Receive(FindDescription desc)
 		{
 			//Save to groups
@@ -107,5 +111,17 @@ namespace TD_Find_Lib
 			else
 				Find.WindowStack.Add(new Dialog_Name(desc.name, n => { cloneArgs.newName = n; group.TryAdd(desc.Clone(cloneArgs)); }, $"Save to {group.name}"));
 		}
+
+
+		// IFilterProvider things
+		public IFilterProvider.Method ProvideMethod()
+		{
+			return groupedFilters.Count > 1 ? IFilterProvider.Method.Grouping :
+				(groupedFilters[0].Count == 0 ? IFilterProvider.Method.None : IFilterProvider.Method.Selection);
+		}
+
+		public FindDescription ProvideSingle() => null;
+		public List<FindDescription> ProvideSelection() => groupedFilters[0];
+		public List<FilterGroup> ProvideGrouping() => groupedFilters;
 	}
 }

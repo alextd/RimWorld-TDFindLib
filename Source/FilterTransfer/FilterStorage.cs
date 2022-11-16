@@ -37,30 +37,9 @@ namespace TD_Find_Lib
 		{
 			List<FloatMenuOption> loadOptions = new();
 
-			//Load from groups
-			loadOptions.Add(new FloatMenuOption("Load", () =>
-			{
-				if (Mod.settings.groupedFilters.Count == 1)
-				{
-					// Only one group? skip this submenu
-					LoadFromList(Mod.settings.groupedFilters[0], onLoad, cloneArgs);
-				}
-				else
-				{
-					List<FloatMenuOption> submenuOptions = new();
-
-					foreach (FilterGroup group in Mod.settings.groupedFilters)
-					{
-						submenuOptions.Add(new FloatMenuOption("+ " + group.name, () => LoadFromList(group, onLoad, cloneArgs)));
-					}
-
-					Find.WindowStack.Add(new FloatMenu(submenuOptions));
-				}
-			}));
-
 			foreach(IFilterProvider provider in FilterTransfer.providers)
 			{
-				if (provider.Source != null && provider.Source != source) continue;
+				if (provider.Source != null && provider.Source == source) continue;
 
 				switch(provider.ProvideMethod())
 				{
@@ -79,7 +58,19 @@ namespace TD_Find_Lib
 						}));
 						continue;
 					case IFilterProvider.Method.Grouping:
+						loadOptions.Add(new FloatMenuOption(provider.ProvideName, () =>
+						{
+							List<FloatMenuOption> submenuOptions = new();
+
+							foreach (FilterGroup group in provider.ProvideGrouping())
+							{
+								submenuOptions.Add(new FloatMenuOption("+ " + group.name, () => LoadFromList(group, onLoad, cloneArgs)));
+							}
+
+							Find.WindowStack.Add(new FloatMenu(submenuOptions));
+						}));
 						continue;
+					//TODO no way we want 3 nested sublists right?
 				}
 			}
 
