@@ -265,20 +265,11 @@ namespace TD_Find_Lib
 
 
 			// Paste Single Filter
-			FilterStorageUtil.ButtonChooseLoadFilter(headerRow, desc =>
-			{
-				list.Add(desc);
-			},
-			"Load");
+			FilterStorageUtil.ButtonChooseLoadFilter(headerRow, list.Add, "Storage");
 
 
 			// Paste Group
-			FilterStorageUtil.ButtonChooseLoadFilterGroup(headerRow, g =>
-			{
-				foreach (FindDescription desc in g)
-					list.Add(desc);
-			},
-			"Load");
+			FilterStorageUtil.ButtonChooseLoadFilterGroup(headerRow, list.AddRange, "Load");
 
 
 			// Rename 
