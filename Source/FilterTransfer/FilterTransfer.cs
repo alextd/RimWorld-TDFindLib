@@ -88,7 +88,7 @@ namespace TD_Find_Lib
 
 		public void Receive(FilterGroup group)
 		{
-			GUIUtility.systemCopyBuffer = ScribeXmlFromString.SaveAsString(group);//aka save
+			GUIUtility.systemCopyBuffer = ScribeXmlFromString.SaveAsString(group);
 		}
 
 

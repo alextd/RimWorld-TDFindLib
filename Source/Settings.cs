@@ -8,7 +8,7 @@ using RimWorld;
 
 namespace TD_Find_Lib
 {
-	public class Settings : ModSettings, IFilterReceiver, IFilterProvider
+	public class Settings : ModSettings, IFilterReceiver, IFilterProvider, IFilterStorageParent
 	{
 		private bool onlyAvailable = true;
 		public bool OnlyAvailable => onlyAvailable != Event.current.shift && Find.CurrentMap != null;
@@ -23,12 +23,21 @@ namespace TD_Find_Lib
 			FilterTransfer.Register(this);
 		}
 
+		//IFilterStorageParent stuff
+		//public void Write(); //in parent class
+		public List<FilterGroup> Children => groupedFilters;
+		public void Add(FilterGroup group)
+		{
+			Children.Add(group);
+			group.parent = this;
+		}
+
 		internal void SanityCheck()
 		{
 			if (groupedFilters == null || groupedFilters.Count == 0)
 			{
 				groupedFilters = new();
-				groupedFilters.Add(new FilterGroup(defaultFiltersName, groupedFilters));
+				Add(new FilterGroup(defaultFiltersName, null));
 			}
 		}
 
@@ -64,13 +73,7 @@ namespace TD_Find_Lib
 		{
 			Scribe_Values.Look(ref onlyAvailable, "onlyAvailable", true);
 
-			// Can't pass ctorArgs 'groupedFilters' here because that's by value, and ref groupedFilters gets reset inside.
-			Scribe_Collections.Look(ref groupedFilters, "groupedFilters", LookMode.Undefined, "??Group Name??", null);
-
-			// Set siblings here instead
-			if (Scribe.mode == LoadSaveMode.LoadingVars)
-				foreach (var group in groupedFilters)
-					group.siblings = groupedFilters;
+			Scribe_Collections.Look(ref groupedFilters, "groupedFilters", LookMode.Undefined, "??Group Name??", this);
 			
 			SanityCheck();
 		}

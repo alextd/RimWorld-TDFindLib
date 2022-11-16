@@ -71,8 +71,8 @@ namespace TD_Find_Lib
 			{
 				Find.WindowStack.Add(new Dialog_Name("New Group", n =>
 				{
-					var group = new FilterGroup(n, Mod.settings.groupedFilters);
-					Mod.settings.groupedFilters.Add(group);
+					var group = new FilterGroup(n, Mod.settings);
+					Mod.settings.Add(group);
 
 					var drawer = new FilterGroupDrawer(group, groupDrawers);
 					groupDrawers.Add(drawer);
@@ -87,8 +87,7 @@ namespace TD_Find_Lib
 			// Import button
 			FilterStorageUtil.ButtonChooseImportFilterGroup(newGroupRow, group =>
 			{
-				group.siblings = Mod.settings.groupedFilters;
-				Mod.settings.groupedFilters.Add(group);
+				Mod.settings.Add(group);
 
 
 				var drawer = new FilterGroupDrawer(group, groupDrawers);
@@ -225,7 +224,7 @@ namespace TD_Find_Lib
 		public void Trash()
 		{
 			siblings.Remove(this);
-			list.siblings.Remove(list);
+			list.parent.Children.Remove(list);
 		}
 
 		public void PopUpCreateFindDesc()
@@ -241,7 +240,7 @@ namespace TD_Find_Lib
 
 		public void PopUpRename()
 		{
-			Find.WindowStack.Add(new Dialog_Name(Name, name => list.name = name, rejector: name => list.siblings.Any(g => g.name == name)));
+			Find.WindowStack.Add(new Dialog_Name(Name, name => list.name = name, rejector: name => list.parent.Children.Any(g => g.name == name)));
 		}
 
 
@@ -260,15 +259,15 @@ namespace TD_Find_Lib
 						"TD.Delete0".Translate(Name), Trash));
 			}
 
-			// Copy
+			// Export Group
 			FilterStorageUtil.ButtonChooseExportFilterGroup(headerRow, list, "Storage");
 
 
-			// Paste Single Filter
+			// Import single filter
 			FilterStorageUtil.ButtonChooseImportFilter(headerRow, list.Add, "Storage");
 
 
-			// Paste Group
+			// Paste Group and merge
 			FilterStorageUtil.ButtonChooseImportFilterGroup(headerRow, list.AddRange, "Storage");
 
 

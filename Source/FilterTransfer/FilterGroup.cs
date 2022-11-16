@@ -11,21 +11,27 @@ namespace TD_Find_Lib
 {
 	// Trying to save a List<List<Deep>> doesn't work.
 	// Need List to be "exposable" on its own.
+	public interface IFilterStorageParent
+	{
+		public void Write();
+		public List<FilterGroup> Children { get; }
+		public void Add(FilterGroup group);
+	}
 	public class FilterGroup : List<FindDescription>, IExposable
 	{
 		public string name;
-		public List<FilterGroup> siblings;
+		public IFilterStorageParent parent;
 
-		public FilterGroup(string name, List<FilterGroup> siblings)
+		public FilterGroup(string name, IFilterStorageParent parent)
 		{
 			this.name = name;
-			this.siblings = siblings;
+			this.parent = parent;
 		}
 
 
-		public FilterGroup Clone(CloneArgs cloneArgs, string newName = null, List<FilterGroup> newSiblings = null)
+		public FilterGroup Clone(CloneArgs cloneArgs, string newName = null, IFilterStorageParent newParent = null)
 		{
-			FilterGroup clone = new FilterGroup(newName ?? name, newSiblings);
+			FilterGroup clone = new FilterGroup(newName ?? name, newParent);
 			foreach (FindDescription filter in this)
 			{
 				//obviously don't set newName in cloneArgs
@@ -41,13 +47,13 @@ namespace TD_Find_Lib
 			Action acceptAction = delegate ()
 			{
 				this[i] = newDesc;
-				Mod.settings.Write();
+				parent.Write();
 			};
 			Action copyAction = delegate ()
 			{
 				newDesc.name = newDesc.name + " (Copy)";
 				Insert(i + 1, newDesc);
-				Mod.settings.Write();
+				parent.Write();
 			};
 			Verse.Find.WindowStack.Add(new Dialog_MessageBox(
 				$"Save changes to {newDesc.name}?",
@@ -70,7 +76,7 @@ namespace TD_Find_Lib
 			else
 			{
 				base.Add(desc);
-				Mod.settings.Write();
+				parent.Write();
 			}
 		}
 
