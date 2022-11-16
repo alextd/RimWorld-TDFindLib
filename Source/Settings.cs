@@ -93,6 +93,7 @@ namespace TD_Find_Lib
 			}
 			else
 			{
+				//TODO: generalize this in FilterStorage if we think many Receivers are going to want to specify which group to receive?
 				List<FloatMenuOption> submenuOptions = new();
 
 				foreach (FilterGroup group in groupedFilters)
