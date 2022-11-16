@@ -18,14 +18,14 @@ namespace TD_Find_Lib
 		public void RemoveRefresh(FindDescription desc) =>
 			findDescRefreshers.RemoveAll(r => r.desc == desc);
 
-		public void RegisterRefresh(FindDescription desc, string tag, int period, bool permanent = false)
+		public void RegisterRefresh(RefreshFindDesc refDesc)
 		{
-			RemoveRefresh(desc);
-			int insert = findDescRefreshers.FindLastIndex(r => r.tag == tag);
+			RemoveRefresh(refDesc.desc);
+			int insert = findDescRefreshers.FindLastIndex(r => r.tag == refDesc.tag);
 			if(insert == -1)
-				findDescRefreshers.Add(new RefreshFindDesc(desc, tag, period, permanent));
+				findDescRefreshers.Add(refDesc);
 			else
-				findDescRefreshers.Insert(insert + 1, new RefreshFindDesc(desc, tag, period, permanent));
+				findDescRefreshers.Insert(insert + 1, refDesc);
 		}
 
 		public bool IsRefreshing(FindDescription desc) =>
@@ -57,7 +57,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class RefreshFindDesc : IExposable
+	public abstract class RefreshFindDesc : IExposable
 	{
 		public FindDescription desc;
 		public string tag;
@@ -75,6 +75,7 @@ namespace TD_Find_Lib
 		public void ExposeData()
 		{
 			Scribe_Deep.Look(ref desc, "desc");
+			Scribe_Deep.Look(ref tag, "tag");
 			Scribe_Values.Look(ref period, "period");
 			permanent = true;//ofcourse.
 		}
