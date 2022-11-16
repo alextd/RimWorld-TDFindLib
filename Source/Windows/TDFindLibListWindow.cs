@@ -97,7 +97,7 @@ namespace TD_Find_Lib
 
 				groupDrawers.Add(drawer);
 			},
-			"Load");
+			"Storage");
 
 
 			//Label
@@ -269,7 +269,7 @@ namespace TD_Find_Lib
 
 
 			// Paste Group
-			FilterStorageUtil.ButtonChooseLoadFilterGroup(headerRow, list.AddRange, "Load");
+			FilterStorageUtil.ButtonChooseLoadFilterGroup(headerRow, list.AddRange, "Storage");
 
 
 			// Rename 

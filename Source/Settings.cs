@@ -119,7 +119,7 @@ namespace TD_Find_Lib
 		}
 
 		public FindDescription ProvideSingle() => null;
-		public List<FindDescription> ProvideSelection() => groupedFilters[0];
+		public FilterGroup ProvideSelection() => groupedFilters[0];
 		public List<FilterGroup> ProvideGrouping() => groupedFilters;
 	}
 }

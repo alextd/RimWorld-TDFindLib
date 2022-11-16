@@ -51,7 +51,7 @@ namespace TD_Find_Lib
 		public Method ProvideMethod();
 
 		public FindDescription ProvideSingle();
-		public List<FindDescription> ProvideSelection();
+		public FilterGroup ProvideSelection();
 		public List<FilterGroup> ProvideGrouping();
 	}
 
@@ -103,7 +103,7 @@ namespace TD_Find_Lib
 			return ScribeXmlFromString.LoadFromString<FindDescription>(clipboard);
 		}
 
-		public List<FindDescription> ProvideSelection()
+		public FilterGroup ProvideSelection()
 		{
 			string clipboard = GUIUtility.systemCopyBuffer;
 			return ScribeXmlFromString.LoadFromString<FilterGroup>(clipboard, null, null);

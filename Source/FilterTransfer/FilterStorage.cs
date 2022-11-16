@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using Verse;
 using RimWorld;
-using UnityEngine;
 using CloneArgs = TD_Find_Lib.FindDescription.CloneArgs;
 
 namespace TD_Find_Lib
@@ -102,6 +101,8 @@ namespace TD_Find_Lib
 
 
 
+		// Basically a copy of ButtonChooseLoadFilter, but accepting FilterGroup instead of FindDescription.
+		// Single filters are not accepted, and one less submenu is needed to get at options 
 		public static void ButtonChooseLoadFilterGroup(WidgetRow row, Action<FilterGroup> onLoad, string source = null)
 		{
 			var options = LoadFilterGroupOptions(onLoad, source);
@@ -110,33 +111,44 @@ namespace TD_Find_Lib
 		}
 		public static List<FloatMenuOption> LoadFilterGroupOptions(Action<FilterGroup> onLoad, string source, CloneArgs cloneArgs = default)
 		{
-			List<FloatMenuOption> importOptions = new();
+			List<FloatMenuOption> loadOptions = new();
 
-			//Load from saved groups
-			//todo: in submenu "Load"
-			/*
-			foreach (FilterGroup group in Mod.settings.groupedFilters)
+			foreach (IFilterProvider provider in FilterTransfer.providers)
 			{
-				importOptions.Add(new FloatMenuOption(group.name, () => onLoad(group)));
-			}
-			*/
+				if (provider.Source != null && provider.Source == source) continue;
 
-
-			//Load from clipboard
-			string clipboard = GUIUtility.systemCopyBuffer;
-			if (ScribeXmlFromString.IsValid<FilterGroup>(clipboard))
-				importOptions.Add(new FloatMenuOption("Paste from clipboard", () =>
+				switch (provider.ProvideMethod())
 				{
-					FilterGroup group = ScribeXmlFromString.LoadFromString<FilterGroup>(clipboard, null, null);
-					onLoad(group.Clone(cloneArgs));
-				}));
+					case IFilterProvider.Method.None:
+					case IFilterProvider.Method.Single:
+						continue;
+					case IFilterProvider.Method.Selection:
+						loadOptions.Add(new FloatMenuOption(provider.ProvideName, () =>
+						{
+							onLoad(provider.ProvideSelection().Clone(cloneArgs));
+						}));
+						continue;
+					case IFilterProvider.Method.Grouping:
+						loadOptions.Add(new FloatMenuOption(provider.ProvideName, () =>
+						{
+							List<FloatMenuOption> submenuOptions = new();
 
+							foreach (FilterGroup group in provider.ProvideGrouping())
+							{
+								submenuOptions.Add(new FloatMenuOption("+ " + group.name, () =>
+								{
+									onLoad(provider.ProvideSelection().Clone(cloneArgs));
+								}));
+							}
 
+							Find.WindowStack.Add(new FloatMenu(submenuOptions));
+						}));
+						continue;
+						//TODO no way we want 3 nested sublists right?
+				}
+			}
 
-			//Except don't export to where this comes from
-			importOptions.RemoveAll(o => o.Label == source);
-
-			return importOptions;
+			return loadOptions;
 		}
 
 
