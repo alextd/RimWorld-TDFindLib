@@ -41,7 +41,7 @@ namespace TD_Find_Lib
 			thing is Pawn pawn &&
 				pawn.skills?.GetSkill(sel) is SkillRecord rec &&
 				!rec.TotallyDisabled &&
-				skillRange.Includes(rec.Level) && (passion == 3 || (int)rec.passion == passion);
+				skillRange.Includes(rec.Level) && (passion == 3 ? rec.passion != Passion.None : (int)rec.passion == passion);
 
 		public override bool DrawCustom(Rect rect, WidgetRow row)
 		{
