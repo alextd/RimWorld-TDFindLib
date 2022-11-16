@@ -34,12 +34,6 @@ namespace TD_Find_Lib
 			doCloseX = true;
 		}
 
-		public override void SetInitialSizeAndPosition()
-		{
-			base.SetInitialSizeAndPosition();
-			windowRect.x = UI.screenWidth - windowRect.width;
-		}
-
 		public override void PostClose()
 		{
 			parent.Write();
