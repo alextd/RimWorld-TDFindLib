@@ -15,11 +15,13 @@ namespace TD_Find_Lib
 
 		public TDFindLibEditorWindow(FindDescription desc, Action<FindDescription> onCloseIfChanged = null)
 		{
-			drawer = new FindDescriptionDrawer(desc) { showName = true };
+			drawer = new FindDescriptionDrawer(desc, "Editing") { showNameAfterTitle = true };
 			onlyOneOfTypeAllowed = false;
 			preventCameraMotion = false;
 			draggable = true;
 			resizeable = true;
+			closeOnAccept = false;
+			//closeOnCancel = false;
 			doCloseX = true;
 			this.onCloseIfChanged = onCloseIfChanged;
 		}
@@ -74,6 +76,7 @@ namespace TD_Find_Lib
 		public TDFindLibViewerWindow(FindDescription desc):base(desc)
 		{
 			drawer.permalocked = true;
+			drawer.title = "Viewing";
 		}
 	}
 
@@ -87,11 +90,15 @@ namespace TD_Find_Lib
 			set => _locked = value;
 		}
 		public bool permalocked;
-		public bool showName;
 
-		public FindDescriptionDrawer(FindDescription desc)
+		//Pick one or the other.
+		public bool showNameAfterTitle;
+		public string title;
+
+		public FindDescriptionDrawer(FindDescription findDesc, string title)
 		{
-			findDesc = desc;
+			this.findDesc = findDesc;
+			this.title = title;
 		}
 
 		//Draw Filters
@@ -106,8 +113,10 @@ namespace TD_Find_Lib
 			//Filter Name
 			Text.Font = GameFont.Medium;
 			Rect nameRect = listing.GetRect(Text.LineHeight);
-			if(showName)
-				Widgets.Label(nameRect, (permalocked ? "Viewing: " : "Editing: ") + findDesc.name);
+			string titleLabel = title;
+			if (showNameAfterTitle)
+				titleLabel += ": " + findDesc.name;
+			Widgets.Label(nameRect, titleLabel);
 
 
 			//Buttons
@@ -119,7 +128,7 @@ namespace TD_Find_Lib
 			if (!permalocked && buttonRow.ButtonIcon(locked ? FindTex.LockOn : FindTex.LockOff, "TD.LockEditing".Translate()))
 				locked = !locked;
 
-			if (!locked && showName && buttonRow.ButtonIcon(TexButton.Rename))
+			if (!locked && showNameAfterTitle && buttonRow.ButtonIcon(TexButton.Rename))
 				Find.WindowStack.Add(new Dialog_Name(
 					findDesc.name, 
 					newName => { findDesc.name = newName; findDesc.changed = true; },

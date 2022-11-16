@@ -19,6 +19,8 @@ namespace TD_Find_Lib
 			preventCameraMotion = false;
 			draggable = true;
 			resizeable = true;
+			closeOnAccept = false;
+			//closeOnCancel = false;
 			doCloseX = true;
 		}
 
