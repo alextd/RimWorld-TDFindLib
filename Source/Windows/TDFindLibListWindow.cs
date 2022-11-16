@@ -85,7 +85,7 @@ namespace TD_Find_Lib
 
 
 			// Import button
-			FilterStorageUtil.ButtonChooseLoadFilterGroup(newGroupRow, group =>
+			FilterStorageUtil.ButtonChooseImportFilterGroup(newGroupRow, group =>
 			{
 				group.siblings = Mod.settings.groupedFilters;
 				Mod.settings.groupedFilters.Add(group);
@@ -265,11 +265,11 @@ namespace TD_Find_Lib
 
 
 			// Paste Single Filter
-			FilterStorageUtil.ButtonChooseLoadFilter(headerRow, list.Add, "Storage");
+			FilterStorageUtil.ButtonChooseImportFilter(headerRow, list.Add, "Storage");
 
 
 			// Paste Group
-			FilterStorageUtil.ButtonChooseLoadFilterGroup(headerRow, list.AddRange, "Storage");
+			FilterStorageUtil.ButtonChooseImportFilterGroup(headerRow, list.AddRange, "Storage");
 
 
 			// Rename 

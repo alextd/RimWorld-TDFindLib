@@ -18,15 +18,15 @@ namespace TD_Find_Lib
 
 
 
-		public static void ButtonChooseLoadFilter(WidgetRow row, Action<FindDescription> onLoad, string source = null, CloneArgs cloneArgs = default)
+		public static void ButtonChooseImportFilter(WidgetRow row, Action<FindDescription> handler, string source = null, CloneArgs cloneArgs = default)
 		{
-			var options = LoadFilterOptions(onLoad, source, cloneArgs);
+			var options = ImportFilterOptions(handler, source, cloneArgs);
 			if (options.Count > 0 && row.ButtonIcon(FindTex.Import, "Import filter from..."))
 				Find.WindowStack.Add(new FloatMenu(options));
 		}
-		public static List<FloatMenuOption> LoadFilterOptions(Action<FindDescription> onLoad, string source = null, CloneArgs cloneArgs = default)
+		public static List<FloatMenuOption> ImportFilterOptions(Action<FindDescription> handler, string source = null, CloneArgs cloneArgs = default)
 		{
-			List<FloatMenuOption> loadOptions = new();
+			List<FloatMenuOption> importOptions = new();
 
 			foreach(IFilterProvider provider in FilterTransfer.providers)
 			{
@@ -37,25 +37,25 @@ namespace TD_Find_Lib
 					case IFilterProvider.Method.None:
 						continue;
 					case IFilterProvider.Method.Single:
-						loadOptions.Add(new FloatMenuOption(provider.ProvideName, () =>
+						importOptions.Add(new FloatMenuOption(provider.ProvideName, () =>
 						{
-							onLoad(provider.ProvideSingle().Clone(cloneArgs));
+							handler(provider.ProvideSingle().Clone(cloneArgs));
 						}));
 						continue;
 					case IFilterProvider.Method.Selection:
-						loadOptions.Add(new FloatMenuOption(provider.ProvideName, () =>
+						importOptions.Add(new FloatMenuOption(provider.ProvideName, () =>
 						{
-							LoadFromListSubmenu(provider.ProvideSelection(), onLoad, cloneArgs);
+							ImportFromListSubmenu(provider.ProvideSelection(), handler, cloneArgs);
 						}));
 						continue;
 					case IFilterProvider.Method.Grouping:
-						loadOptions.Add(new FloatMenuOption(provider.ProvideName, () =>
+						importOptions.Add(new FloatMenuOption(provider.ProvideName, () =>
 						{
 							List<FloatMenuOption> submenuOptions = new();
 
 							foreach (FilterGroup group in provider.ProvideGrouping())
 							{
-								submenuOptions.Add(new FloatMenuOption("+ " + group.name, () => LoadFromListSubmenu(group, onLoad, cloneArgs)));
+								submenuOptions.Add(new FloatMenuOption("+ " + group.name, () => ImportFromListSubmenu(group, handler, cloneArgs)));
 							}
 
 							Find.WindowStack.Add(new FloatMenu(submenuOptions));
@@ -65,14 +65,14 @@ namespace TD_Find_Lib
 				}
 			}
 
-			return loadOptions;
+			return importOptions;
 		}
 
-		public static void LoadFromListSubmenu(List<FindDescription> descs, Action<FindDescription> onLoad, CloneArgs cloneArgs = default)
+		public static void ImportFromListSubmenu(List<FindDescription> descs, Action<FindDescription> handler, CloneArgs cloneArgs = default)
 		{
 			List<FloatMenuOption> descOptions = new();
 			foreach (FindDescription desc in descs)
-				descOptions.Add(new FloatMenuOption(desc.name, () => onLoad(desc.Clone(cloneArgs))));
+				descOptions.Add(new FloatMenuOption(desc.name, () => handler(desc.Clone(cloneArgs))));
 
 			Find.WindowStack.Add(new FloatMenu(descOptions));
 		}
@@ -101,17 +101,17 @@ namespace TD_Find_Lib
 
 
 
-		// Basically a copy of ButtonChooseLoadFilter, but accepting FilterGroup instead of FindDescription.
+		// Basically a copy of ButtonChooseImportFilter, but accepting FilterGroup instead of FindDescription.
 		// Single filters are not accepted, and one less submenu is needed to get at options 
-		public static void ButtonChooseLoadFilterGroup(WidgetRow row, Action<FilterGroup> onLoad, string source = null)
+		public static void ButtonChooseImportFilterGroup(WidgetRow row, Action<FilterGroup> handler, string source = null)
 		{
-			var options = LoadFilterGroupOptions(onLoad, source);
+			var options = ImportFilterGroupOptions(handler, source);
 			if (options.Count > 0 && row.ButtonIcon(FindTex.ImportGroup, "Import group from..."))
 				Find.WindowStack.Add(new FloatMenu(options));
 		}
-		public static List<FloatMenuOption> LoadFilterGroupOptions(Action<FilterGroup> onLoad, string source, CloneArgs cloneArgs = default)
+		public static List<FloatMenuOption> ImportFilterGroupOptions(Action<FilterGroup> handler, string source, CloneArgs cloneArgs = default)
 		{
-			List<FloatMenuOption> loadOptions = new();
+			List<FloatMenuOption> importOptions = new();
 
 			foreach (IFilterProvider provider in FilterTransfer.providers)
 			{
@@ -123,13 +123,13 @@ namespace TD_Find_Lib
 					case IFilterProvider.Method.Single:
 						continue;
 					case IFilterProvider.Method.Selection:
-						loadOptions.Add(new FloatMenuOption(provider.ProvideName, () =>
+						importOptions.Add(new FloatMenuOption(provider.ProvideName, () =>
 						{
-							onLoad(provider.ProvideSelection().Clone(cloneArgs));
+							handler(provider.ProvideSelection().Clone(cloneArgs));
 						}));
 						continue;
 					case IFilterProvider.Method.Grouping:
-						loadOptions.Add(new FloatMenuOption(provider.ProvideName, () =>
+						importOptions.Add(new FloatMenuOption(provider.ProvideName, () =>
 						{
 							List<FloatMenuOption> submenuOptions = new();
 
@@ -137,7 +137,7 @@ namespace TD_Find_Lib
 							{
 								submenuOptions.Add(new FloatMenuOption("+ " + group.name, () =>
 								{
-									onLoad(provider.ProvideSelection().Clone(cloneArgs));
+									handler(provider.ProvideSelection().Clone(cloneArgs));
 								}));
 							}
 
@@ -148,7 +148,7 @@ namespace TD_Find_Lib
 				}
 			}
 
-			return loadOptions;
+			return importOptions;
 		}
 
 
