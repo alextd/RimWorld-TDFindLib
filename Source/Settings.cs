@@ -83,6 +83,8 @@ namespace TD_Find_Lib
 
 
 		// IFilterReceiver things
+		public FindDescription.CloneArgs CloneArgs => default; //save
+
 		public void Receive(FindDescription desc)
 		{
 			//Save to groups
@@ -107,7 +109,7 @@ namespace TD_Find_Lib
 
 		public static void SaveToGroup(FindDescription desc, FilterGroup group)
 		{
-			Find.WindowStack.Add(new Dialog_Name(desc.name, n => group.TryAdd(desc.CloneForSave(n)), $"Save to {group.name}"));
+			Find.WindowStack.Add(new Dialog_Name(desc.name, n => { desc.name = n; group.TryAdd(desc); }, $"Save to {group.name}"));
 		}
 
 

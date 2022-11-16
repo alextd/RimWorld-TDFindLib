@@ -93,7 +93,7 @@ namespace TD_Find_Lib
 			{
 				if (receiver.Source != null && receiver.Source == source) continue;
 
-				exportOptions.Add(new FloatMenuOption(receiver.ReceiveName, () => receiver.Receive(desc)));
+				exportOptions.Add(new FloatMenuOption(receiver.ReceiveName, () => receiver.Receive(desc.Clone(receiver.CloneArgs))));
 			}
 
 			Find.WindowStack.Add(new FloatMenu(exportOptions));
@@ -167,7 +167,7 @@ namespace TD_Find_Lib
 			{
 				if (receiver.Source != null && receiver.Source == source) continue;
 
-				exportOptions.Add(new FloatMenuOption(receiver.ReceiveName, () => receiver.Receive(group)));
+				exportOptions.Add(new FloatMenuOption(receiver.ReceiveName, () => receiver.Receive(group.Clone(receiver.CloneArgs))));
 			}
 
 			Find.WindowStack.Add(new FloatMenu(exportOptions));

@@ -14,6 +14,7 @@ namespace TD_Find_Lib
 		public static List<IFilterReceiver> receivers = new();
 		public static List<IFilterGroupReceiver> groupReceivers = new();
 		public static List<IFilterProvider> providers = new();
+		//providers work overtime, providing none/single/list/group-of-lists
 
 		public static void Register(object obj)
 		{
@@ -35,13 +36,6 @@ namespace TD_Find_Lib
 
 	// You can export  to  a receiver
 	// You can import from a provider
-	public interface IFilterReceiver
-	{
-		public string Source { get; }
-		public string ReceiveName { get; }
-		public void Receive(FindDescription desc);
-	}
-
 	public interface IFilterProvider
 	{
 		public enum Method { None, Single, Selection, Grouping }
@@ -55,13 +49,21 @@ namespace TD_Find_Lib
 		public List<FilterGroup> ProvideGrouping();
 	}
 
+	public interface IFilterReceiver
+	{
+		public string Source { get; }
+		public string ReceiveName { get; }
+		public FindDescription.CloneArgs CloneArgs { get; }
+		public void Receive(FindDescription desc);
+	}
+
 	public interface IFilterGroupReceiver
 	{
 		public string Source { get; }
 		public string ReceiveName { get; }
+		public FindDescription.CloneArgs CloneArgs { get; }
 		public void Receive(FilterGroup desc);
 	}
-	//public interface IFilterGroupProvider
 
 
 	[StaticConstructorOnStartup]
@@ -78,14 +80,15 @@ namespace TD_Find_Lib
 		public string ReceiveName => "Copy to clipboard";
 		public string ProvideName => "Paste from clipboard";
 
+		public FindDescription.CloneArgs CloneArgs => default; //save
 		public void Receive(FindDescription desc)
 		{
-			GUIUtility.systemCopyBuffer = ScribeXmlFromString.SaveAsString(desc.CloneForSave());
+			GUIUtility.systemCopyBuffer = ScribeXmlFromString.SaveAsString(desc);
 		}
 
 		public void Receive(FilterGroup group)
 		{
-			GUIUtility.systemCopyBuffer = ScribeXmlFromString.SaveAsString(group.Clone(default(FindDescription.CloneArgs)));//aka save
+			GUIUtility.systemCopyBuffer = ScribeXmlFromString.SaveAsString(group);//aka save
 		}
 
 
