@@ -48,7 +48,7 @@
 	<TD.Name>Name:</TD.Name>
 	<TD.CertainFiltersDontWorkForAllMaps-LikeZonesAndAreasThatAreObviouslySpecificToASingleMap>Certain filters don't work for all maps - like zones and areas that are obviously specific to a single map</TD.CertainFiltersDontWorkForAllMaps-LikeZonesAndAreasThatAreObviouslySpecificToASingleMap>
 	<TD.OnlyShowFilterOptionsForAvailableThings>Only show existing things as an option (shift invert)</TD.OnlyShowFilterOptionsForAvailableThings>
-	<TD.ForExampleDontShowTheOptionMadeFromPlasteelIfNothingIsMadeFromPlasteel>When selecting filter options, don't show the option 'Made from Plasteel' if nothing is made from plasteel.\n\nShift-click the option to show the reverse this setting for that click.</TD.ForExampleDontShowTheOptionMadeFromPlasteelIfNothingIsMadeFromPlasteel>
+	<TD.ForExampleDontShowTheOptionMadeFromPlasteelIfNothingIsMadeFromPlasteel>When selecting filter options, don't show the option 'Made from Plasteel' if nothing is made from plasteel.\n\nShift-click the option to reverse this setting for that click.</TD.ForExampleDontShowTheOptionMadeFromPlasteelIfNothingIsMadeFromPlasteel>
 	<TD.AddNewFilter...>Add new filter...</TD.AddNewFilter...>
 	<TD.OverwriteSavedFilter>Overwrite saved filter?</TD.OverwriteSavedFilter>
 	<TD.AnyOption>Any</TD.AnyOption>
