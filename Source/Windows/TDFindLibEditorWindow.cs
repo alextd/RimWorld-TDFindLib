@@ -66,7 +66,7 @@ namespace TD_Find_Lib
 					FilterStorageUtil.ButtonChooseExportFilter(row, drawer.findDesc, "Storage");
 					if (row.ButtonIcon(FindTex.List, "List things matching this filter"))
 					{
-						Find.WindowStack.Add(new TDFindListThingsWindow(drawer.findDesc.CloneForUse(Find.CurrentMap)));
+						Find.WindowStack.Add(new TDFindLibThingsWindow(drawer.findDesc.CloneForUse(Find.CurrentMap)));
 					}
 				});
 		}
