@@ -12,18 +12,22 @@ namespace TD_Find_Lib
 	public static class FilterTransfer
 	{
 		public static List<IFilterReceiver> receivers = new();
+		public static List<IFilterGroupReceiver> groupReceivers = new();
 		public static List<IFilterProvider> providers = new();
 
 		public static void Register(object obj)
 		{
 			if (obj is IFilterReceiver receiver)
 				receivers.Add(receiver);
+			if (obj is IFilterGroupReceiver greceiver)
+				groupReceivers.Add(greceiver);
 			if (obj is IFilterProvider provider)
 				providers.Add(provider);
 		}
 		public static void Deregister(object obj)
 		{
 			receivers.Remove(obj as IFilterReceiver);
+			groupReceivers.Remove(obj as IFilterGroupReceiver);
 			providers.Remove(obj as IFilterProvider);
 		}
 	}
@@ -51,12 +55,17 @@ namespace TD_Find_Lib
 		public List<FilterGroup> ProvideGrouping();
 	}
 
-	//public interface IFilterGroupReceiver
+	public interface IFilterGroupReceiver
+	{
+		public string Source { get; }
+		public string ReceiveName { get; }
+		public void Receive(FilterGroup desc);
+	}
 	//public interface IFilterGroupProvider
 
 
 	[StaticConstructorOnStartup]
-	public class ClipboardTransfer : IFilterReceiver, IFilterProvider
+	public class ClipboardTransfer : IFilterReceiver, IFilterProvider, IFilterGroupReceiver
 	{
 		static ClipboardTransfer()
 		{
@@ -74,6 +83,10 @@ namespace TD_Find_Lib
 			GUIUtility.systemCopyBuffer = ScribeXmlFromString.SaveAsString(desc.CloneForSave());
 		}
 
+		public void Receive(FilterGroup group)
+		{
+			GUIUtility.systemCopyBuffer = ScribeXmlFromString.SaveAsString(group.Clone(default(FindDescription.CloneArgs)));//aka save
+		}
 
 
 		public IFilterProvider.Method ProvideMethod()

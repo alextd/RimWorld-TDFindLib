@@ -105,12 +105,9 @@ namespace TD_Find_Lib
 			}
 		}
 
-		public static void SaveToGroup(FindDescription desc, FilterGroup group, FindDescription.CloneArgs cloneArgs = default)
+		public static void SaveToGroup(FindDescription desc, FilterGroup group)
 		{
-			if (cloneArgs.newName != null)
-				group.TryAdd(desc.Clone(cloneArgs));
-			else
-				Find.WindowStack.Add(new Dialog_Name(desc.name, n => { cloneArgs.newName = n; group.TryAdd(desc.Clone(cloneArgs)); }, $"Save to {group.name}"));
+			Find.WindowStack.Add(new Dialog_Name(desc.name, n => group.TryAdd(desc.CloneForSave(n)), $"Save to {group.name}"));
 		}
 
 

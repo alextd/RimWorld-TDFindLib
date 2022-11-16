@@ -168,20 +168,12 @@ namespace TD_Find_Lib
 		{
 			List<FloatMenuOption> exportOptions = new();
 
-			// Export to Clipboard
-			exportOptions.Add(new FloatMenuOption("Copy to clipboard", () =>
+			foreach (IFilterGroupReceiver receiver in FilterTransfer.groupReceivers)
 			{
-				GUIUtility.systemCopyBuffer = ScribeXmlFromString.SaveAsString(group);
-				//todo CloneForSave each? Right now they're in storage, already inactive.
-				//Or can this just work actually if you copy/paste into same active map . . ?
-			}));
+				if (receiver.Source != null && receiver.Source == source) continue;
 
-
-			// Export to File?
-			//TODO: Other options to export to!
-
-			//Except don't export to where this comes from
-			exportOptions.RemoveAll(o => o.Label == source);
+				exportOptions.Add(new FloatMenuOption(receiver.ReceiveName, () => receiver.Receive(group)));
+			}
 
 			Find.WindowStack.Add(new FloatMenu(exportOptions));
 		}

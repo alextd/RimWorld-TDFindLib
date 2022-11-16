@@ -261,7 +261,7 @@ namespace TD_Find_Lib
 			}
 
 			// Copy
-			FilterStorageUtil.ButtonChooseExportFilterGroup(headerRow, list, "Save");
+			FilterStorageUtil.ButtonChooseExportFilterGroup(headerRow, list, "Storage");
 
 
 			// Paste Single Filter
