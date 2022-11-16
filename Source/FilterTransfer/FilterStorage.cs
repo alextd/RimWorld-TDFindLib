@@ -43,7 +43,7 @@ namespace TD_Find_Lib
 				if (Mod.settings.groupedFilters.Count == 1)
 				{
 					// Only one group? skip this submenu
-					LoadFromGroup(Mod.settings.groupedFilters[0], onLoad, cloneArgs);
+					LoadFromList(Mod.settings.groupedFilters[0], onLoad, cloneArgs);
 				}
 				else
 				{
@@ -51,7 +51,7 @@ namespace TD_Find_Lib
 
 					foreach (FilterGroup group in Mod.settings.groupedFilters)
 					{
-						submenuOptions.Add(new FloatMenuOption("+ " + group.name, () => LoadFromGroup(group, onLoad, cloneArgs)));
+						submenuOptions.Add(new FloatMenuOption("+ " + group.name, () => LoadFromList(group, onLoad, cloneArgs)));
 					}
 
 					Find.WindowStack.Add(new FloatMenu(submenuOptions));
@@ -62,19 +62,23 @@ namespace TD_Find_Lib
 			{
 				if (provider.Source != null && provider.Source != source) continue;
 
-				switch(provider.ProvideCount())
+				switch(provider.ProvideMethod())
 				{
-					case 0:
+					case IFilterProvider.Method.None:
 						continue;
-					case 1:
+					case IFilterProvider.Method.Single:
 						loadOptions.Add(new FloatMenuOption(provider.ProvideName, () =>
 						{
-							FindDescription desc = provider.ProvideSingle();
-							onLoad(desc.Clone(cloneArgs));
+							onLoad(provider.ProvideSingle().Clone(cloneArgs));
 						}));
 						continue;
-					default:
-						//todo submenu?
+					case IFilterProvider.Method.Selection:
+						loadOptions.Add(new FloatMenuOption(provider.ProvideName, () =>
+						{
+							LoadFromList(provider.ProvideSelection(), onLoad, cloneArgs);
+						}));
+						continue;
+					case IFilterProvider.Method.Grouping:
 						continue;
 				}
 			}
@@ -82,10 +86,10 @@ namespace TD_Find_Lib
 			return loadOptions;
 		}
 
-		public static void LoadFromGroup(FilterGroup group, Action<FindDescription> onLoad, CloneArgs cloneArgs = default)
+		public static void LoadFromList(List<FindDescription> descs, Action<FindDescription> onLoad, CloneArgs cloneArgs = default)
 		{
 			List<FloatMenuOption> descOptions = new();
-			foreach (FindDescription desc in group)
+			foreach (FindDescription desc in descs)
 				descOptions.Add(new FloatMenuOption(desc.name, () => onLoad(desc.Clone(cloneArgs))));
 
 			Find.WindowStack.Add(new FloatMenu(descOptions));

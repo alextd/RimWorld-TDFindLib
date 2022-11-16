@@ -40,10 +40,14 @@ namespace TD_Find_Lib
 
 	public interface IFilterProvider
 	{
+		public enum Method { None, Single, Selection, Grouping }
+
 		public string Source { get; }
 		public string ProvideName { get; }
-		public int ProvideCount();
+		public Method ProvideMethod();
+
 		public FindDescription ProvideSingle();
+		public List<FindDescription> ProvideSelection();
 	}
 
 	//public interface IFilterGroupReceiver
@@ -70,16 +74,25 @@ namespace TD_Find_Lib
 		}
 
 
+
+		public IFilterProvider.Method ProvideMethod()
+		{
+			string clipboard = GUIUtility.systemCopyBuffer;
+			return ScribeXmlFromString.IsValid<FindDescription>(clipboard) ? IFilterProvider.Method.Single
+				: ScribeXmlFromString.IsValid<FilterGroup>(clipboard) ? IFilterProvider.Method.Selection
+				: IFilterProvider.Method.None;
+		}
+
 		public FindDescription ProvideSingle()
 		{
 			string clipboard = GUIUtility.systemCopyBuffer;
 			return ScribeXmlFromString.LoadFromString<FindDescription>(clipboard);
 		}
 
-		public int ProvideCount()
+		public List<FindDescription> ProvideSelection()
 		{
 			string clipboard = GUIUtility.systemCopyBuffer;
-			return ScribeXmlFromString.IsValid<FindDescription>(clipboard) ? 1 : 0;
+			return ScribeXmlFromString.LoadFromString<FilterGroup>(clipboard, null, null);
 		}
 	}
 }
