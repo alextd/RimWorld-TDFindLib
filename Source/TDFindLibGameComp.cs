@@ -79,5 +79,7 @@ namespace TD_Find_Lib
 			Scribe_Values.Look(ref period, "period");
 			permanent = true;//ofcourse.
 		}
+
+		public abstract void OpenUI(FindDescription desc);
 	}
 }

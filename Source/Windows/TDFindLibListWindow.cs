@@ -123,11 +123,11 @@ namespace TD_Find_Lib
 		}
 	}
 
-	abstract public class FilterListDrawer<T, Y> where T : IList<Y>
+	abstract public class FilterListDrawer<TList, TItem> where TList : IList<TItem>
 	{
-		public T list;
+		public TList list;
 
-		public FilterListDrawer(T list)
+		public FilterListDrawer(TList list)
 		{
 			this.list = list;
 		}
@@ -144,8 +144,8 @@ namespace TD_Find_Lib
 
 		public virtual void DrawExtraHeader(Rect headerRect) { }
 		public virtual void DrawPreRow(Listing_StandardIndent listing, int i) { }
-		public virtual void DrawWidgetButtons(WidgetRow row, FindDescription desc, int i) { }
-		public virtual void DrawExtraRowRect(Rect rowRect, FindDescription desc, int i) { }
+		public virtual void DrawWidgetButtons(WidgetRow row, TItem item, int i) { }
+		public virtual void DrawExtraRowRect(Rect rowRect, TItem item, int i) { }
 		public virtual void DrawPostList(Listing_StandardIndent listing) { }
 		//Drawing
 		private const float RowHeight = WidgetRow.IconSize + 6;
@@ -180,19 +180,20 @@ namespace TD_Find_Lib
 			for (int i = 0; i < Count; i++)
 			{
 				DrawPreRow(listing, i);
+				TItem item = list[i];
 				FindDescription desc = DescAt(i);
 				Rect rowRect = listing.GetRect(RowHeight);
 
 				WidgetRow row = new WidgetRow(rowRect.x, rowRect.y, UIDirection.RightThenDown, rowRect.width);
 
 				// Buttons
-				DrawWidgetButtons(row, desc, i);
+				DrawWidgetButtons(row, item, i);
 
 				// Name
 				row.Gap(6);
 				row.Label(desc.name + desc.mapLabel);
 
-				DrawExtraRowRect(rowRect, desc, i);
+				DrawExtraRowRect(rowRect, item, i);
 
 				ReorderableWidget.Reorderable(reorderID, rowRect);
 			}
@@ -336,11 +337,16 @@ namespace TD_Find_Lib
 		}
 
 
-		public override void DrawWidgetButtons(WidgetRow row, FindDescription desc, int i)
+		public override void DrawWidgetButtons(WidgetRow row, RefreshFindDesc refDesc, int i)
 		{
 			if (row.ButtonIcon(FindTex.Edit, "View this filter"))
 			{
-				Find.WindowStack.Add(new TDFindLibViewerWindow(desc));
+				Find.WindowStack.Add(new TDFindLibViewerWindow(refDesc.desc));
+			}
+
+			if (row.ButtonIcon(TexButton.AutoHomeArea, "Open the mod controlling this filter"))
+			{
+				refDesc.OpenUI(refDesc.desc);
 			}
 
 			if (list[i].permanent)
@@ -355,15 +361,15 @@ namespace TD_Find_Lib
 						list.RemoveAt(i);
 					else
 						Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
-							"TD.StopRefresh0".Translate(desc.name), () => list.RemoveAt(i)));
+							"TD.StopRefresh0".Translate(refDesc.desc.name), () => list.RemoveAt(i)));
 				}
 			}
 		}
 
-		public override void DrawExtraRowRect(Rect rowRect, FindDescription desc, int i)
+		public override void DrawExtraRowRect(Rect rowRect, RefreshFindDesc refDesc, int i)
 		{
 			Text.Anchor = TextAnchor.UpperRight;
-			Widgets.Label(rowRect, $"Every {list[i].period} ticks");
+			Widgets.Label(rowRect, $"Every {refDesc.period} ticks");
 			Text.Anchor = TextAnchor.UpperLeft;
 		}
 	}
