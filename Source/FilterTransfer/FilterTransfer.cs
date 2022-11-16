@@ -54,6 +54,7 @@ namespace TD_Find_Lib
 		public string Source { get; }
 		public string ReceiveName { get; }
 		public FindDescription.CloneArgs CloneArgs { get; }
+		public bool CanReceive();
 		public void Receive(FindDescription desc);
 	}
 
@@ -62,6 +63,7 @@ namespace TD_Find_Lib
 		public string Source { get; }
 		public string ReceiveName { get; }
 		public FindDescription.CloneArgs CloneArgs { get; }
+		public bool CanReceive();
 		public void Receive(FilterGroup desc);
 	}
 
@@ -82,6 +84,7 @@ namespace TD_Find_Lib
 
 
 		public FindDescription.CloneArgs CloneArgs => default; //save
+		public bool CanReceive() => true;
 
 		public void Receive(FindDescription desc)
 		{

@@ -92,6 +92,7 @@ namespace TD_Find_Lib
 			foreach(IFilterReceiver receiver in FilterTransfer.receivers)
 			{
 				if (receiver.Source != null && receiver.Source == source) continue;
+				if (!receiver.CanReceive()) continue;
 
 				exportOptions.Add(new FloatMenuOption(receiver.ReceiveName, () => receiver.Receive(desc.Clone(receiver.CloneArgs))));
 			}
@@ -167,6 +168,7 @@ namespace TD_Find_Lib
 			foreach (IFilterGroupReceiver receiver in FilterTransfer.groupReceivers)
 			{
 				if (receiver.Source != null && receiver.Source == source) continue;
+				if (!receiver.CanReceive()) continue;
 
 				exportOptions.Add(new FloatMenuOption(receiver.ReceiveName, () => receiver.Receive(group.Clone(receiver.CloneArgs))));
 			}

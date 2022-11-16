@@ -87,6 +87,7 @@ namespace TD_Find_Lib
 
 		// IFilterReceiver things
 		public FindDescription.CloneArgs CloneArgs => default; //save
+		public bool CanReceive() => true;
 
 		public void Receive(FindDescription desc)
 		{
