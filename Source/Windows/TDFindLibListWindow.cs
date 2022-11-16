@@ -45,6 +45,14 @@ namespace TD_Find_Lib
 
 		public override void DoWindowContents(Rect fillRect)
 		{
+			Text.Font = GameFont.Medium;
+			Text.Anchor = TextAnchor.UpperCenter;
+			Rect headerRect = fillRect.TopPartPixels(Text.LineHeight).AtZero();
+			Widgets.Label(headerRect, "TD Find Lib: Filter Library");
+			Text.Anchor = default;
+
+			fillRect.yMin = headerRect.yMax;
+
 			Listing_StandardIndent listing = new();
 			Rect viewRect = new Rect(0f, 0f, fillRect.width - 16f, scrollViewHeight);
 			listing.BeginScrollView(fillRect, ref scrollPosition, viewRect);
