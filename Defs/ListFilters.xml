@@ -15,9 +15,9 @@
 	</TD_Find_Lib.ListFilterDef>
 	
 	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_ItemCategory</defName>
-		<label>item category</label>
-		<filterClass>TD_Find_Lib.ListFilterItemCategory</filterClass>
+		<defName>Filter_Category</defName>
+		<label>general category</label>
+		<filterClass>TD_Find_Lib.ListFilterCategory</filterClass>
 	</TD_Find_Lib.ListFilterDef>
 
 	<TD_Find_Lib.ListFilterDef>
@@ -226,13 +226,20 @@
 		<defName>Category_ItemInfo</defName>
 		<label>item info</label>
 		<subFilters>
+			<li>Filter_ItemCategory</li>
 			<li>Filter_Quality</li>
-			<!-- though anything could be CompQuality, only items seem to have it -->
 			<li>Filter_Stuff</li>
 			<li>Filter_SpecialFilter</li>
 			<li>Filter_Forbidden</li>
 		</subFilters>
 	</TD_Find_Lib.ListFilterCategoryDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_ItemCategory</defName>
+		<label>item category</label>
+		<filterClass>TD_Find_Lib.ListFilterItemCategory</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
 
 	<TD_Find_Lib.ListFilterDef>
 		<defName>Filter_Quality</defName>
@@ -265,6 +272,8 @@
 		<label>building info</label>
 		<subFilters>
 			<li>Filter_BuildingCategory</li>
+			<li>Filter_Stuff</li>
+			<li>Filter_Quality</li>
 			<li>Filter_Mineable</li>
 			<li>Filter_Door</li>
 		</subFilters>
