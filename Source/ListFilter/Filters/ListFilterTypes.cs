@@ -716,6 +716,13 @@ namespace TD_Find_Lib
 	}
 
 
+	public class ListFilterSelectable : ListFilter
+	{
+		protected override bool FilterApplies(Thing thing) =>
+			thing.def.selectable;
+	}
+
+
 	public class ListFilterStat : ListFilterDropDown<StatDef>
 	{
 		FloatRange valueRange;

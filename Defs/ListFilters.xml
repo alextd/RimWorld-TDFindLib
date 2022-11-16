@@ -422,6 +422,12 @@
 	</TD_Find_Lib.ListFilterDef>
 
 	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Selectable</defName>
+		<label>selectable</label>
+		<filterClass>TD_Find_Lib.ListFilterSelectable</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
 		<defName>Filter_Group</defName>
 		<label>filter group</label>
 		<filterClass>TD_Find_Lib.ListFilterGroup</filterClass>
