@@ -143,16 +143,8 @@ namespace TD_Find_Lib
 		public override bool DrawMain(Rect rect, bool locked)
 		{
 			base.DrawMain(rect, locked);
-
-			IntRange newRange = ticksRange;
-			Widgets.IntRange(rect.RightPart(0.5f), id, ref newRange, 0, GenDate.TicksPerDay * 20,
+			return TDWidgets.IntRange(rect.RightPart(0.5f), id, ref ticksRange, 0, GenDate.TicksPerDay * 20,
 				$"{ticksRange.min * 1f / GenDate.TicksPerDay:0.0} - {ticksRange.max * 1f / GenDate.TicksPerDay:0.0}");
-			if (newRange != ticksRange)
-			{
-				ticksRange = newRange;
-				return true;
-			}
-			return false;
 		}
 	}
 
@@ -691,15 +683,8 @@ namespace TD_Find_Lib
 			if (sel == null) return false;
 
 			if (sel.stackLimit > 1)
-			{
-				IntRange newRange = stackRange;
-				Widgets.IntRange(rect, id, ref newRange, 1, sel.stackLimit);
-				if (newRange != stackRange)
-				{
-					stackRange = newRange;
-					return true;
-				}
-			}
+				return TDWidgets.IntRange(rect, id, ref stackRange, 1, sel.stackLimit);
+
 			return false;
 		}
 	}

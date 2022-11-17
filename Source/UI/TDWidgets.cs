@@ -21,5 +21,17 @@ namespace TD_Find_Lib
 			}
 			return false;
 		}
+
+		public static bool IntRange(Rect rect, int id, ref IntRange range, int min = 0, int max = 100, string labelKey = null, int minWidth = 0)
+		{
+			IntRange newRange = range;
+			Widgets.IntRange(rect, id, ref newRange, min, max, labelKey, minWidth);
+			if (range != newRange)
+			{
+				range = newRange;
+				return true;
+			}
+			return false;
+		}
 	}
 }

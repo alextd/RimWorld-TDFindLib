@@ -121,14 +121,14 @@ namespace TD_Find_Lib
 
 	public class ListFilterNearby: ListFilterGroup
 	{
-		int range;
+		IntRange range;
 
 		protected override bool FilterApplies(Thing t)
 		{
 			IntVec3 pos = t.PositionHeld;
 			Map map = t.MapHeld;
 
-			CellRect cells = new CellRect(pos.x - range, pos.z - range, range * 2 + 1, range * 2 + 1);
+			CellRect cells = new CellRect(pos.x - range.max, pos.z - range.max, range.max * 2 + 1, range.max * 2 + 1);
 			foreach (IntVec3 p in cells)
 				if (map.thingGrid.ThingsAt(p).Any(child => base.FilterApplies(child)))
 					return true;
@@ -158,14 +158,10 @@ namespace TD_Find_Lib
 				changed = true;
 			}
 
-			IntRange slider = new IntRange(0, range);
 			rect.xMin = row.FinalX;
-			Widgets.IntRange(rect, id, ref slider, max: 10);
-			if(range != slider.max)
-			{
-				range = slider.max;
-				changed = true;
-			}
+			changed |= TDWidgets.IntRange(rect, id, ref range, max: 10);
+			range.min = 0; // sorry we're not looking in a ring but we do want the slider UI
+
 			return changed;
 		}
 	}

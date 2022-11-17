@@ -57,14 +57,8 @@ namespace TD_Find_Lib
 			}
 			rect.x += 100;
 			rect.width -= 100;
-			IntRange newRange = skillRange;
-			Widgets.IntRange(rect, id, ref newRange, SkillRecord.MinLevel, SkillRecord.MaxLevel);
-			if (newRange != skillRange)
-			{
-				skillRange = newRange;
-				return true;
-			}
-			return false;
+
+			return TDWidgets.IntRange(rect, id, ref skillRange, SkillRecord.MinLevel, SkillRecord.MaxLevel);
 		}
 	}
 
@@ -740,7 +734,7 @@ namespace TD_Find_Lib
 		public ListFilterProduct()
 		{
 			extraOption = 1;
-			countRange = new IntRange(0, Max());	//Not PostChosen as this depends on subclass, not selection
+			countRange = new IntRange(0, Max);	//Not PostChosen as this depends on subclass, not selection
 		}
 
 		public override void ExposeData()
@@ -774,21 +768,13 @@ namespace TD_Find_Lib
 			return false;
 		}
 
-		public abstract int Max();
+		public abstract int Max { get; }
 		public override bool DrawCustom(Rect rect, WidgetRow row)
 		{
 			//TODO: write 'IsNull' method to handle confusing extraOption == 1 but Sel == null
 			if (extraOption == 0 && sel == null) return false;
 
-			IntRange newRange = countRange;
-			
-			Widgets.IntRange(rect, id, ref newRange, 0, Max());
-			if (newRange != countRange)
-			{
-				countRange = newRange;
-				return true;
-			}
-			return false;
+			return TDWidgets.IntRange(rect, id, ref countRange, 0, Max);
 		}
 
 		public abstract IEnumerable<ThingDef> AllOptions();
@@ -823,7 +809,7 @@ namespace TD_Find_Lib
 		public override IEnumerable<ThingDef> AllOptions() => allMeats;
 
 		public static int mostMeat = DefDatabase<ThingDef>.AllDefs.Select(d => Mathf.RoundToInt(AnimalProductionUtility.AdultMeatAmount(d))).Max();
-		public override int Max() => mostMeat;
+		public override int Max => mostMeat;
 	}
 
 	public class ListFilterLeather : ListFilterProduct
@@ -835,7 +821,7 @@ namespace TD_Find_Lib
 		public override IEnumerable<ThingDef> AllOptions() => allLeathers;
 
 		public static int mostLeather = DefDatabase<ThingDef>.AllDefs.Select(d => Mathf.RoundToInt(AnimalProductionUtility.AdultLeatherAmount(d))).Max();
-		public override int Max() => mostLeather;
+		public override int Max => mostLeather;
 	}
 
 	public class ListFilterEgg : ListFilterProduct //Per Year
@@ -857,7 +843,7 @@ namespace TD_Find_Lib
 		public override IEnumerable<ThingDef> AllOptions() => allEggs;
 
 		public static int mostEggs = DefDatabase<ThingDef>.AllDefs.Select(d => Mathf.RoundToInt(AnimalProductionUtility.EggsPerYear(d))).Max();
-		public override int Max() => mostEggs;
+		public override int Max => mostEggs;
 	}
 
 
@@ -880,7 +866,7 @@ namespace TD_Find_Lib
 		public override IEnumerable<ThingDef> AllOptions() => allMilks;
 
 		public static int mostMilk = DefDatabase<ThingDef>.AllDefs.Select(d => Mathf.RoundToInt(AnimalProductionUtility.MilkPerYear(d))).Max();
-		public override int Max() => mostMilk;
+		public override int Max => mostMilk;
 	}
 
 	public class ListFilterWool : ListFilterProduct //Per Year
@@ -892,7 +878,7 @@ namespace TD_Find_Lib
 		public override IEnumerable<ThingDef> AllOptions() => allWools;
 
 		public static int mostWool = DefDatabase<ThingDef>.AllDefs.Select(d => Mathf.RoundToInt(AnimalProductionUtility.WoolPerYear(d))).Max();
-		public override int Max() => mostWool;
+		public override int Max => mostWool;
 	}
 	
 	//Enum values matching existing translation keys
