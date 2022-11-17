@@ -368,8 +368,18 @@ namespace TD_Find_Lib
 
 		public override void DrawExtraRowRect(Rect rowRect, RefreshFindDesc refDesc, int i)
 		{
+			Rect textRect = rowRect.RightPart(.3f);
 			Text.Anchor = TextAnchor.UpperRight;
-			Widgets.Label(rowRect, $"Every {refDesc.period} ticks");
+			Widgets.Label(textRect, $"Every {refDesc.period} ticks");
+			if (Widgets.ButtonInvisible(textRect))
+			{
+				Find.WindowStack.Add(new Dialog_Name($"{refDesc.period}", s =>
+				{
+					if (int.TryParse(s, out int n))
+						refDesc.period = n;
+				}
+				, "Set refresh period in ticks"));
+			}
 			Text.Anchor = TextAnchor.UpperLeft;
 		}
 	}
