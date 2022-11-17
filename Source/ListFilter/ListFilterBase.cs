@@ -585,4 +585,34 @@ namespace TD_Find_Lib
 			}
 		}
 	}
+
+	public abstract class ListFilterFloatRange : ListFilterWithOption<FloatRange>
+	{
+		public virtual float Min => 0f;
+		public virtual float Max => 1f;
+		public virtual ToStringStyle Style => ToStringStyle.PercentZero;
+
+		public ListFilterFloatRange() => sel = FloatRange.ZeroToOne;
+
+		// The Min and Max allowed range is assumed to be min and max possible in-game.
+		// In the rare case where a thing lies outside the range,
+		// it'll be included if the range includes that edge.
+		public bool Includes(float value) =>
+			sel.Includes(value)
+			|| (value < Min && sel.min == Min)
+			|| (value > Max && sel.max == Max);
+
+		public override bool DrawMain(Rect rect, bool locked)
+		{
+			base.DrawMain(rect, locked);
+			FloatRange newRange = sel;
+			Widgets.FloatRange(rect.RightPart(0.5f), id, ref newRange, Min, Max, valueStyle: Style);
+			if (sel != newRange)
+			{
+				sel = newRange;
+				return true;
+			}
+			return false;
+		}
+	}
 }

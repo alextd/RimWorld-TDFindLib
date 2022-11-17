@@ -457,25 +457,16 @@ namespace TD_Find_Lib
 		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
 	}
 
-	public class ListFilterTemp : ListFilterWithOption<FloatRange>
+	public class ListFilterTemp : ListFilterFloatRange
 	{
-		public ListFilterTemp() => sel = FloatRange.ZeroToOne;
+		public ListFilterTemp() => sel = new FloatRange(10, 30);
+
+		public override float Min => -100f;
+		public override float Max => 100f;
+		public override ToStringStyle Style => ToStringStyle.Temperature;
 
 		protected override bool FilterApplies(Thing thing) =>
-			sel.Includes(thing.AmbientTemperature);
-
-		public override bool DrawMain(Rect rect, bool locked)
-		{
-			base.DrawMain(rect, locked);
-			FloatRange newRange = sel;
-			Widgets.FloatRange(rect.RightPart(0.5f), id, ref newRange, -100, 100, valueStyle: ToStringStyle.Temperature);
-			if (sel != newRange)
-			{
-				sel = newRange;
-				return true;
-			}
-			return false;
-		}
+			Includes(thing.AmbientTemperature);
 	}
 
 	public enum ComfyTemp { Cold, Cool, Okay, Warm, Hot }

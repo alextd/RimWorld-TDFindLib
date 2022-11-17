@@ -156,45 +156,20 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class ListFilterGrowth : ListFilterWithOption<FloatRange>
+	public class ListFilterGrowth : ListFilterFloatRange
 	{
 		public ListFilterGrowth() => sel = FloatRange.ZeroToOne;
 
 		protected override bool FilterApplies(Thing thing) =>
-			thing is Plant p && sel.Includes(p.Growth);
-		public override bool DrawMain(Rect rect, bool locked)
-		{
-			base.DrawMain(rect, locked);
-			FloatRange newRange = sel;
-			Widgets.FloatRange(rect.RightPart(0.5f), id, ref newRange, valueStyle: ToStringStyle.PercentZero);
-			if (sel != newRange)
-			{
-				sel = newRange;
-				return true;
-			}
-			return false;
-		}
+			thing is Plant p && Includes(p.Growth);
 	}
 
-	public class ListFilterGrowthRate : ListFilterWithOption<FloatRange>
+	public class ListFilterGrowthRate : ListFilterFloatRange
 	{
-		public ListFilterGrowthRate() => sel = FloatRange.ZeroToOne;
-
 		protected override bool FilterApplies(Thing thing) =>
-			thing is Plant p && sel.Includes(p.GrowthRate);
-		public override bool DrawMain(Rect rect, bool locked)
-		{
-			base.DrawMain(rect, locked);
-			FloatRange newRange = sel;
-			Widgets.FloatRange(rect.RightPart(0.5f), id, ref newRange, max: maxGrowthRate, valueStyle: ToStringStyle.PercentZero);
-			if (sel != newRange)
-			{
-				sel = newRange;
-				return true;
-			}
-			return false;
-		}
+			thing is Plant p && Includes(p.GrowthRate);
 
+		public override float Max => maxGrowthRate;
 		public static float maxGrowthRate;
 		static ListFilterGrowthRate()
 		{
@@ -426,30 +401,16 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class ListFilterHP : ListFilterWithOption<FloatRange>
+	public class ListFilterHP : ListFilterFloatRange
 	{
-		public ListFilterHP() => sel = FloatRange.ZeroToOne;
-
 		protected override bool FilterApplies(Thing thing)
 		{
-			float? pct = null;
 			if (thing is Pawn pawn)
-				pct = pawn.health.summaryHealth.SummaryHealthPercent;
-			if (thing.def.useHitPoints)
-				pct = (float)thing.HitPoints / thing.MaxHitPoints;
-			return pct != null && sel.Includes(pct.Value);
-		}
+				return Includes(pawn.health.summaryHealth.SummaryHealthPercent);
 
-		public override bool DrawMain(Rect rect, bool locked)
-		{
-			base.DrawMain(rect, locked);
-			FloatRange newRange = sel;
-			Widgets.FloatRange(rect.RightPart(0.5f), id, ref newRange, valueStyle: ToStringStyle.PercentZero);
-			if (sel != newRange)
-			{
-				sel = newRange;
-				return true;
-			}
+			if (thing.def.useHitPoints)
+				return Includes((float)thing.HitPoints / thing.MaxHitPoints);
+
 			return false;
 		}
 	}
