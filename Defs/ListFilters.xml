@@ -43,6 +43,7 @@
 			<li>Filter_Guest</li>
 			<li>Filter_MentalState</li>
 			<li>Filter_Temp</li>
+			<li>Filter_ComfyTemp</li>
 			<li>Filter_Incapable</li>
 			<li>Filter_AreaRestriction</li>
 			<li>Filter_Drafted</li>
@@ -100,6 +101,12 @@
 		<defName>Filter_Temp</defName>
 		<label>temperature</label>
 		<filterClass>TD_Find_Lib.ListFilterTemp</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_ComfyTemp</defName>
+		<label>comfort at temperature</label>
+		<filterClass>TD_Find_Lib.ListFilterComfyTemp</filterClass>
 	</TD_Find_Lib.ListFilterDef>
 
 	<TD_Find_Lib.ListFilterDef>

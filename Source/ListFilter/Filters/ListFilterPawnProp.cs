@@ -457,8 +457,29 @@ namespace TD_Find_Lib
 		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
 	}
 
-	public enum TemperatureFilter { Cold, Cool, Okay, Warm, Hot }
-	public class ListFilterTemp : ListFilterDropDown<TemperatureFilter>
+	public class ListFilterTemp : ListFilterWithOption<FloatRange>
+	{
+		public ListFilterTemp() => sel = FloatRange.ZeroToOne;
+
+		protected override bool FilterApplies(Thing thing) =>
+			sel.Includes(thing.AmbientTemperature);
+
+		public override bool DrawMain(Rect rect, bool locked)
+		{
+			base.DrawMain(rect, locked);
+			FloatRange newRange = sel;
+			Widgets.FloatRange(rect.RightPart(0.5f), id, ref newRange, -100, 100, valueStyle: ToStringStyle.Temperature);
+			if (sel != newRange)
+			{
+				sel = newRange;
+				return true;
+			}
+			return false;
+		}
+	}
+
+	public enum ComfyTemp { Cold, Cool, Okay, Warm, Hot }
+	public class ListFilterComfyTemp : ListFilterDropDown<ComfyTemp>
 	{
 		protected override bool FilterApplies(Thing thing)
 		{
@@ -469,23 +490,23 @@ namespace TD_Find_Lib
 			FloatRange comfRange = pawn.ComfortableTemperatureRange();
 			switch (sel)
 			{
-				case TemperatureFilter.Cold: return temp < safeRange.min;
-				case TemperatureFilter.Cool: return temp >= safeRange.min && temp < comfRange.min;
-				case TemperatureFilter.Okay: return comfRange.Includes(temp);
-				case TemperatureFilter.Warm: return temp <= safeRange.max && temp > comfRange.max;
-				case TemperatureFilter.Hot: return temp > safeRange.max;
+				case ComfyTemp.Cold: return temp < safeRange.min;
+				case ComfyTemp.Cool: return temp >= safeRange.min && temp < comfRange.min;
+				case ComfyTemp.Okay: return comfRange.Includes(temp);
+				case ComfyTemp.Warm: return temp <= safeRange.max && temp > comfRange.max;
+				case ComfyTemp.Hot: return temp > safeRange.max;
 			}
 			return false;//???
 		}
-		public override string NameFor(TemperatureFilter o)
+		public override string NameFor(ComfyTemp o)
 		{
 			switch (o)
 			{
-				case TemperatureFilter.Cold: return "TD.Cold".Translate();
-				case TemperatureFilter.Cool: return "TD.ALittleCold".Translate();
-				case TemperatureFilter.Okay: return "TD.Comfortable".Translate();
-				case TemperatureFilter.Warm: return "TD.ALittleHot".Translate();
-				case TemperatureFilter.Hot: return "TD.Hot".Translate();
+				case ComfyTemp.Cold: return "TD.Cold".Translate();
+				case ComfyTemp.Cool: return "TD.ALittleCold".Translate();
+				case ComfyTemp.Okay: return "TD.Comfortable".Translate();
+				case ComfyTemp.Warm: return "TD.ALittleHot".Translate();
+				case ComfyTemp.Hot: return "TD.Hot".Translate();
 			}
 			return "???";
 		}
