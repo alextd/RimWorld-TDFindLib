@@ -52,7 +52,6 @@ namespace TD_Find_Lib
 		public static ListFilterDef Filter_Name;
 		public static ListFilterDef Filter_Nearby;
 		public static ListFilterDef Filter_Need;
-		public static ListFilterDef Filter_Onscreen;
 		public static ListFilterDef Filter_Prisoner;
 		public static ListFilterDef Filter_ProductProgress;
 		public static ListFilterDef Filter_Quality;

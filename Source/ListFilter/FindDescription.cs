@@ -43,14 +43,47 @@ namespace TD_Find_Lib
 
 		public IEnumerable<Thing> ListedThings => listedThings;
 
+
+		private void Setup()
+		{
+			SetBaseList();
+			MakeMapLabel();
+		}
+
+		//internal pointer to live lists do not edit!
+		private List<Thing> baseList;
 		public BaseListType BaseType
 		{
 			get => _baseType;
 			set
 			{
 				_baseType = value;
+
+				SetBaseList();
 				RemakeList();
 			}
+		}
+		private void SetBaseList()
+		{
+			if (!active) return;
+
+			baseList = _baseType switch
+			{
+				BaseListType.Selectable => _map.listerThings.AllThings,
+				BaseListType.Buildings => _map.listerThings.ThingsInGroup(ThingRequestGroup.BuildingArtificial),
+				BaseListType.Natural => _map.listerThings.AllThings,
+				BaseListType.Plants => _map.listerThings.ThingsInGroup(ThingRequestGroup.HarvestablePlant),
+				BaseListType.Inventory => _map.listerThings.ThingsInGroup(ThingRequestGroup.ThingHolder),
+				BaseListType.Items => _map.listerThings.ThingsInGroup(ThingRequestGroup.HaulableAlways),
+				BaseListType.ItemsAndJunk => _map.listerThings.ThingsInGroup(ThingRequestGroup.HaulableEver),
+				BaseListType.Everyone => _map.listerThings.ThingsInGroup(ThingRequestGroup.Pawn),
+				BaseListType.All => _map.listerThings.AllThings,
+				BaseListType.AllAndInventory => _map.listerThings.AllThings,
+				BaseListType.Haulables => _map.listerHaulables.ThingsPotentiallyNeedingHauling(),
+				BaseListType.Mergables => _map.listerMergeables.ThingsPotentiallyNeedingMerging(),
+				BaseListType.FilthInHomeArea => _map.listerFilthInHomeArea.FilthInHomeArea,
+				_ => null
+			};
 		}
 
 		public FilterHolder Children => children;
@@ -92,8 +125,6 @@ namespace TD_Find_Lib
 			}
 		}
 
-		// Certain filters only work on the current map, so the entire tree will only work on the current map
-		public bool FiltersCurrentMapOnly() => Children.Any(f => f.CurrentMapOnly);
 
 		public string mapLabel;
 		public void MakeMapLabel()
@@ -106,9 +137,7 @@ namespace TD_Find_Lib
 			StringBuilder sb = new(" <i>(");
 
 			// override requested map if a filter only works on current map
-			if (FiltersCurrentMapOnly())
-				sb.Append("Current Map");
-			else if (allMaps)
+			if (allMaps)
 				sb.Append("TD.AllMaps".Translate());
 			else if (map != null)
 				sb.Append(map.Parent.LabelCap);
@@ -137,7 +166,7 @@ namespace TD_Find_Lib
 				active = true;
 				_allMaps = false;
 			}
-			MakeMapLabel();
+			Setup();
 		}
 
 
@@ -146,32 +175,8 @@ namespace TD_Find_Lib
 			changed = true;
 			children.Clear();
 			_baseType = default;
+			SetBaseList();
 			listedThings.Clear();
-		}
-
-		public void RemakeList()
-		{
-			changed = true;
-
-			// inactive = Don't do anything!
-			if (!active)
-				return;
-
-
-			listedThings.Clear();
-
-			// "Current map only" overrides other choices
-			if (FiltersCurrentMapOnly())
-				listedThings.AddRange(Get(Find.CurrentMap));
-
-			// All maps
-			else if (allMaps)
-				foreach (Map m in Find.Maps)
-					listedThings.AddRange(Get(m));
-
-			// Single map
-			else
-				listedThings.AddRange(Get(map));
 		}
 
 
@@ -190,7 +195,7 @@ namespace TD_Find_Lib
 
 			if (Scribe.mode == LoadSaveMode.PostLoadInit)
 			{
-				MakeMapLabel();
+				Setup();
 			}
 		}
 
@@ -230,7 +235,7 @@ namespace TD_Find_Lib
 
 			newDesc.children = children.Clone(newDesc);
 
-			newDesc.MakeMapLabel();
+			newDesc.Setup();
 
 			return newDesc;
 		}
@@ -243,11 +248,12 @@ namespace TD_Find_Lib
 				active = false,
 				_baseType = _baseType,
 				_map = _map,
-				_allMaps = allMaps,
-				mapLabel = mapLabel,
+				_allMaps = allMaps
 			};
 
 			newDesc.children = children.Clone(newDesc);
+
+			newDesc.Setup();
 
 			return newDesc;
 		}
@@ -277,77 +283,89 @@ namespace TD_Find_Lib
 			if (!active || newMap != null)
 				newDesc.Children.ForEach(f => f.DoResolveRef());
 
-			newDesc.MakeMapLabel();
+			newDesc.Setup();
 			newDesc.RemakeList();
 
 			return newDesc;
 		}
 
-		public IEnumerable<Thing> Get(Map searchMap)
+
+		public void RemakeList()
 		{
-			IEnumerable<Thing> allThings = Enumerable.Empty<Thing>();
-			switch (BaseType)
+			changed = true;
+
+			// inactive = Don't do anything!
+			if (!active)
+				return;
+
+
+			listedThings.Clear();
+
+			// All maps
+			if (allMaps)
+				foreach (Map m in Find.Maps)
+					Get(m);
+
+			// Single map
+			else
+				Get(map);
+		}
+
+		public void Get(Map searchMap)
+		{
+			List<Thing> newThings;
+			//Filter a but more:
+			switch (_baseType)
 			{
+				/*
 				case BaseListType.Selectable: //Known as "Map"
-					allThings = searchMap.listerThings.AllThings.Where(t => t.def.selectable);
+					newThings = baseList.Where(d => d.def.selectable);
 					break;
-				case BaseListType.Buildings:
-					allThings = searchMap.listerThings.ThingsInGroup(ThingRequestGroup.BuildingArtificial);
-					break;
+					*/
 				case BaseListType.Natural:
-					allThings = searchMap.listerThings.AllThings.Where(t => t.def.filthLeaving == ThingDefOf.Filth_RubbleRock);
-					break;
-				case BaseListType.Plants:
-					allThings = searchMap.listerThings.ThingsInGroup(ThingRequestGroup.Plant);
+					newThings = baseList.FindAll(t => t.def.filthLeaving == ThingDefOf.Filth_RubbleRock);
 					break;
 				case BaseListType.Inventory:
-					List<IThingHolder> holders = new List<IThingHolder>();
-					searchMap.GetChildHolders(holders);
-					List<Thing> list = new List<Thing>();
-					foreach (IThingHolder holder in holders.Where(ContentsUtility.CanPeekInventory))
-						list.AddRange(ContentsUtility.AllKnownThings(holder));
-					allThings = list;
+					newThings = baseList.SelectMany(t => t.TryGetInnerInteractableThingOwner() ?? Enumerable.Empty<Thing>()).ToList();
 					break;
-				case BaseListType.Items:
-					allThings = searchMap.listerThings.ThingsInGroup(ThingRequestGroup.HaulableAlways);
+				case BaseListType.AllAndInventory:
+					newThings = baseList.SelectMany(t => new[] { t }.ConcatIfNotNull((t.TryGetInnerInteractableThingOwner() as IEnumerable<Thing>))).ToList();
 					break;
-				case BaseListType.Everyone:
-					allThings = searchMap.mapPawns.AllPawnsSpawned.Cast<Thing>();
-					break;
-				case BaseListType.Colonists:
-					allThings = searchMap.mapPawns.FreeColonistsSpawned.Cast<Thing>();
-					break;
-				case BaseListType.Animals:
-					allThings = searchMap.mapPawns.AllPawnsSpawned.Where(p => !p.RaceProps.Humanlike).Cast<Thing>();
-					break;
-				case BaseListType.All:
-					allThings = ContentsUtility.AllKnownThings(searchMap);
-					break;
-
-				//Devmode options:
-				case BaseListType.Haulables:
-					allThings = searchMap.listerHaulables.ThingsPotentiallyNeedingHauling();
-					break;
-				case BaseListType.Mergables:
-					allThings = searchMap.listerMergeables.ThingsPotentiallyNeedingMerging();
-					break;
-				case BaseListType.FilthInHomeArea:
-					allThings = searchMap.listerFilthInHomeArea.FilthInHomeArea;
+				default:
+					newThings = baseList;
 					break;
 			}
 
+			foreach (Thing t in newThings)
+			{
+				bool include = true;
+				foreach (ListFilter filter in Children.Filters)
+				{
+					if (!filter.Enabled) continue;
+					if (!filter.AppliesTo(t))
+					{
+						include = false;
+						break;
+					}
+				}
+				if (include)
+					listedThings.Add(t);
+			}
+
+			/*
+			 * 
 			//Filters
-			allThings = allThings.Where(t => !(t.ParentHolder is Corpse) && !(t.ParentHolder is MinifiedThing));
+			IEnumerable<Thing> enumerator = GetThings.Where(t => !(t.ParentHolder is Corpse) && !(t.ParentHolder is MinifiedThing));
 			if (!DebugSettings.godMode)
 			{
-				allThings = allThings.Where(t => ValidDef(t.def));
-				allThings = allThings.Where(t => !t.PositionHeld.Fogged(searchMap));
+				enumerator = enumerator.Where(t => ValidDef(t.def));
+				enumerator = enumerator.Where(t => !t.PositionHeld.Fogged(searchMap));
 			}
-			foreach (ListFilter filter in Children.Filters)
-				allThings = filter.Apply(allThings);
 
 			//Sort
-			return allThings.OrderBy(t => t.def.shortHash).ThenBy(t => t.Stuff?.shortHash ?? 0).ThenBy(t => t.Position.x + t.Position.z * 1000);
+			return enumerator.OrderBy(t => t.def.shortHash).ThenBy(t => t.Stuff?.shortHash ?? 0).ThenBy(t => t.Position.x + t.Position.z * 1000).ToList();
+			
+			 */
 		}
 
 		//Probably a good filter
@@ -356,19 +374,20 @@ namespace TD_Find_Lib
 			!typeof(Projectile).IsAssignableFrom(def.thingClass) &&
 			def.drawerType != DrawerType.None;
 	}
+		
 
 	public enum BaseListType
 	{
 		Selectable,
 		Everyone,
-		Colonists,
-		Animals,
 		Items,
+		ItemsAndJunk,
 		Buildings,
 		Natural,
 		Plants,
 		Inventory,
 		All,
+		AllAndInventory,
 
 		//devmode options
 		Haulables,
@@ -379,7 +398,7 @@ namespace TD_Find_Lib
 	public static class BaseListNormalTypes
 	{
 		public static readonly BaseListType[] normalTypes =
-			{ BaseListType.Selectable, BaseListType.Everyone, BaseListType.Colonists, BaseListType.Animals, BaseListType.Items,
-			BaseListType.Buildings, BaseListType.Natural, BaseListType.Plants, BaseListType.Inventory, BaseListType.All};
+			{ BaseListType.Selectable, BaseListType.Everyone, BaseListType.Items, BaseListType.ItemsAndJunk, BaseListType.Buildings, BaseListType.Natural,
+			BaseListType.Plants, BaseListType.Inventory, BaseListType.All, BaseListType.AllAndInventory};
 	}
 }

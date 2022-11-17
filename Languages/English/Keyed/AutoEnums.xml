@@ -3,10 +3,10 @@
 
 	<TD.BaseListType.Selectable>Map</TD.BaseListType.Selectable>
 	<TD.BaseListType.All>All</TD.BaseListType.All>
+	<TD.BaseListType.AllAndInventory>Literally everything</TD.BaseListType.AllAndInventory>
 	<TD.BaseListType.Items>Items</TD.BaseListType.Items>
+	<TD.BaseListType.ItemsAndJunk>Items and Junk</TD.BaseListType.ItemsAndJunk>
 	<TD.BaseListType.Everyone>Everyone</TD.BaseListType.Everyone>
-	<TD.BaseListType.Colonists>Colonists</TD.BaseListType.Colonists>
-	<TD.BaseListType.Animals>Animals</TD.BaseListType.Animals>
 	<TD.BaseListType.Buildings>Buildings</TD.BaseListType.Buildings>
 	<TD.BaseListType.Natural>Natural</TD.BaseListType.Natural>
 	<TD.BaseListType.Plants>Plants</TD.BaseListType.Plants>
