@@ -346,20 +346,15 @@ namespace TD_Find_Lib
 
 		public override bool DrawCustom(Rect rect, WidgetRow row)
 		{
-			FloatRange newRange = needRange;
-			Widgets.FloatRange(rect, id, ref newRange, valueStyle: ToStringStyle.PercentOne);
-			if (newRange != needRange)
-			{
-				needRange = newRange;
-				return true;
-			}
-			return false;
+			return TDWidgets.FloatRange(rect, id, ref needRange, valueStyle: ToStringStyle.PercentOne);
 		}
 	}
 
 	public class ListFilterHealth : ListFilterDropDown<HediffDef>
 	{
-		FloatRange? severityRange;
+		FloatRange severityRange;
+		FloatRange boundRange;
+		bool usesSeverity;
 
 		public ListFilterHealth()
 		{
@@ -367,7 +362,13 @@ namespace TD_Find_Lib
 		}
 		protected override void PostSelected()
 		{
-			severityRange = SeverityRangeFor(sel);
+			FloatRange? r = SeverityRangeFor(sel);
+			usesSeverity = r.HasValue;
+			if (usesSeverity)
+			{
+				severityRange = r.Value;
+				boundRange = SeverityRangeFor(sel).Value;
+			}
 		}
 
 		public override void ExposeData()
@@ -391,7 +392,7 @@ namespace TD_Find_Lib
 				extraOption == 1 ? pawn.health.hediffSet.hediffs.Any(h => h.Visible || DebugSettings.godMode) :
 				sel == null ? !pawn.health.hediffSet.hediffs.Any(h => h.Visible || DebugSettings.godMode) :
 				(pawn.health.hediffSet.GetFirstHediffOfDef(sel, !DebugSettings.godMode) is Hediff hediff &&
-				(!severityRange.HasValue || severityRange.Value.Includes(hediff.Severity)));
+				(!usesSeverity || severityRange.Includes(hediff.Severity)));
 		}
 
 		public override string NullOption() => "None".Translate();
@@ -407,19 +408,9 @@ namespace TD_Find_Lib
 
 		public override bool DrawCustom(Rect rect, WidgetRow row)
 		{
-			if (sel != null && severityRange.HasValue)
-			{
-				Rect rangeRect = rect;
-				rangeRect.xMin = row.FinalX;
-				FloatRange newRange = severityRange.Value;
-				FloatRange boundRange = SeverityRangeFor(sel).Value;
-				Widgets.FloatRange(rangeRect, id, ref newRange, boundRange.min, boundRange.max, valueStyle: ToStringStyle.FloatOne);
-				if (newRange != severityRange.Value)
-				{
-					severityRange = newRange;
-					return true;
-				}
-			}
+			if (sel != null && usesSeverity)
+				return TDWidgets.FloatRange(rect, id, ref severityRange, boundRange.min, boundRange.max, valueStyle: ToStringStyle.FloatOne);
+
 			return false;
 		}
 
@@ -627,8 +618,7 @@ namespace TD_Find_Lib
 	public class ListFilterRaceProps : ListFilterDropDown<RacePropsFilter>
 	{
 		Intelligence intelligence;
-		FloatRange wild;
-		FloatRange petness;
+		FloatRange valueRange;
 		TrainabilityDef trainability;
 
 		protected override void PostSelected()
@@ -636,8 +626,8 @@ namespace TD_Find_Lib
 			switch (sel)
 			{
 				case RacePropsFilter.Intelligence: intelligence = Intelligence.Humanlike; return;
-				case RacePropsFilter.Wildness: wild = new FloatRange(0.25f, 0.75f); return;
-				case RacePropsFilter.Petness: petness = new FloatRange(0.25f, 0.75f); return;
+				case RacePropsFilter.Wildness:
+				case RacePropsFilter.Petness: valueRange = new FloatRange(0.25f, 0.75f); return;
 				case RacePropsFilter.Trainability: trainability = TrainabilityDefOf.Advanced; return;
 			}
 		}
@@ -646,16 +636,14 @@ namespace TD_Find_Lib
 		{
 			base.ExposeData();
 			Scribe_Values.Look(ref intelligence, "intelligence");
-			Scribe_Values.Look(ref wild, "wild");
-			Scribe_Values.Look(ref petness, "petness");
+			Scribe_Values.Look(ref valueRange, "valueRange");
 			Scribe_Defs.Look(ref trainability, "trainability");
 		}
 		public override ListFilter Clone()
 		{
 			ListFilterRaceProps clone = (ListFilterRaceProps)base.Clone();
 			clone.intelligence = intelligence;
-			clone.wild = wild;
-			clone.petness = petness;
+			clone.valueRange = valueRange;
 			clone.trainability = trainability;
 			return clone;
 		}
@@ -680,9 +668,9 @@ namespace TD_Find_Lib
 				case RacePropsFilter.Prey: 
 					return props.canBePredatorPrey;
 				case RacePropsFilter.Wildness: 
-					return wild.Includes(props.wildness);
+					return valueRange.Includes(props.wildness);
 				case RacePropsFilter.Petness: 
-					return petness.Includes(props.petness);
+					return valueRange.Includes(props.petness);
 				case RacePropsFilter.Trainability:
 					return props.trainability == trainability;
 			}
@@ -707,18 +695,7 @@ namespace TD_Find_Lib
 
 				case RacePropsFilter.Wildness:
 				case RacePropsFilter.Petness:
-					ref FloatRange oldRange = ref wild;
-					if (sel == RacePropsFilter.Petness)
-						oldRange = ref petness;
-
-					FloatRange newRange = oldRange;
-					Widgets.FloatRange(rect, id, ref newRange, valueStyle:ToStringStyle.PercentZero);
-					if (newRange != oldRange)
-					{
-						oldRange = newRange;
-						return true;
-					}
-					break;
+					return TDWidgets.FloatRange(rect, id, ref valueRange, valueStyle: ToStringStyle.PercentZero);
 
 				case RacePropsFilter.Trainability:
 					if (row.ButtonText(trainability.LabelCap))
@@ -986,15 +963,7 @@ namespace TD_Find_Lib
 			if (sel == ProgressType.Milkable || sel == ProgressType.Shearable)
 				return false;
 
-			FloatRange newRange = progressRange;
-
-			Widgets.FloatRange(rect, id, ref newRange, valueStyle: ToStringStyle.PercentZero);
-			if (newRange != progressRange)
-			{
-				progressRange = newRange;
-				return true;
-			}
-			return false;
+			return TDWidgets.FloatRange(rect, id, ref progressRange, valueStyle: ToStringStyle.PercentZero);
 		}
 	}
 
@@ -1067,16 +1036,13 @@ namespace TD_Find_Lib
 
 		public override bool DrawCustom(Rect rect, WidgetRow row)
 		{
-			FloatRange newRange = capacityRange;
-			Widgets.FloatRange(rect, id, ref newRange, max: MaxReasonable, 
+			if(TDWidgets.FloatRange(rect, id, ref capacityRange, max: MaxReasonable,
 				labelKey: capacityRange.max == MaxReasonable ? $"> {capacityRange.min.ToStringByStyle(ToStringStyle.PercentZero)}" : null,
-				valueStyle: ToStringStyle.PercentZero);
-
-			if (newRange != capacityRange)
+				valueStyle: ToStringStyle.PercentZero))
 			{
 				//round down to 1%
-				capacityRange.min = (int)(100*newRange.min)/100f;
-				capacityRange.max = (int)(100*newRange.max)/100f;
+				capacityRange.min = (int)(100 * capacityRange.min) / 100f;
+				capacityRange.max = (int)(100 * capacityRange.max) / 100f;
 				return true;
 			}
 			return false;

@@ -228,6 +228,7 @@ namespace TD_Find_Lib
 		public override string DisableReason => base.DisableReason ?? selectionError;
 
 		// would like this to be T const * sel;
+		public ref T selByRef => ref _sel;
 		public T sel
 		{
 			get => _sel;
@@ -605,14 +606,7 @@ namespace TD_Find_Lib
 		public override bool DrawMain(Rect rect, bool locked)
 		{
 			base.DrawMain(rect, locked);
-			FloatRange newRange = sel;
-			Widgets.FloatRange(rect.RightPart(0.5f), id, ref newRange, Min, Max, valueStyle: Style);
-			if (sel != newRange)
-			{
-				sel = newRange;
-				return true;
-			}
-			return false;
+			return TDWidgets.FloatRange(rect.RightPart(0.5f), id, ref selByRef, Min, Max, valueStyle: Style);
 		}
 	}
 }
