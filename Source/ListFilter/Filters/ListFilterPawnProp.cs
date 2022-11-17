@@ -13,9 +13,10 @@ namespace TD_Find_Lib
 	public class ListFilterSkill : ListFilterDropDown<SkillDef>
 	{
 		IntRange skillRange = new IntRange(0, 20);
-		int passion = 3;
+		int passion = 4;
 
-		static string[] passionText = new string[] { "PassionNone", "PassionMinor", "PassionMajor", "TD.AnyOption" };//notranslate
+		static string[] passionText = new string[]
+		{ "PassionNone", "PassionMinor", "PassionMajor", "TD.EitherOption", "TD.AnyOption" };//notranslate
 		public static string GetPassionText(int x) => passionText[x].Translate().ToString().Split(' ')[0];
 
 		public ListFilterSkill()
@@ -37,23 +38,31 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		protected override bool FilterApplies(Thing thing) =>
-			thing is Pawn pawn &&
-				pawn.skills?.GetSkill(sel) is SkillRecord rec &&
-				!rec.TotallyDisabled &&
-				skillRange.Includes(rec.Level) && (passion == 3 ? rec.passion != Passion.None : (int)rec.passion == passion);
+		public override string NullOption() => "TD.AnyOption".Translate();
+
+		protected override bool FilterApplies(Thing thing)
+		{
+			Pawn_SkillTracker skills = (thing as Pawn)?.skills;
+			if (skills == null) return false;
+
+			return sel == null ? skills.skills.Any(AppliesRecord) :
+				skills.GetSkill(sel) is SkillRecord rec && AppliesRecord(rec);
+		}
+
+		private bool AppliesRecord(SkillRecord rec) =>
+			!rec.TotallyDisabled &&
+			skillRange.Includes(rec.Level) &&
+			(passion == 4 ? true :
+			 passion == 3 ? rec.passion != Passion.None :
+			 (int)rec.passion == passion);
+
 
 		public override bool DrawCustom(Rect rect, WidgetRow row)
 		{
 			if (row.ButtonText(GetPassionText(passion)))
 			{
-				List<FloatMenuOption> options = new List<FloatMenuOption>{
-					new FloatMenuOptionAndRefresh(GetPassionText(0), () => passion = 0, this),
-					new FloatMenuOptionAndRefresh(GetPassionText(1), () => passion = 1, this),
-					new FloatMenuOptionAndRefresh(GetPassionText(2), () => passion = 2, this),
-					new FloatMenuOptionAndRefresh(GetPassionText(3), () => passion = 3, this),
-				};
-				DoFloatOptions(options);
+				DoFloatOptions(Enumerable.Range(0, 5).Select(
+					p => new FloatMenuOptionAndRefresh(GetPassionText(p), () => passion = p, this)).Cast<FloatMenuOption>().ToList());
 			}
 			rect.x += 100;
 			rect.width -= 100;
