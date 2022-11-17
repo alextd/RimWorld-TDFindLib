@@ -306,6 +306,7 @@
 			<li>Filter_Harvest</li>
 			<li>Filter_Harvestable</li>
 			<li>Filter_Growth</li>
+			<li>Filter_GrowthRate</li>
 			<li>Filter_Freshness</li>
 			<li>Filter_TimeToRot</li>
 			<li>Filter_Crop</li>
@@ -335,6 +336,12 @@
 		<defName>Filter_Growth</defName>
 		<label>plant growth</label>
 		<filterClass>TD_Find_Lib.ListFilterGrowth</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_GrowthRate</defName>
+		<label>plant growth rate</label>
+		<filterClass>TD_Find_Lib.ListFilterGrowthRate</filterClass>
 	</TD_Find_Lib.ListFilterDef>
 
 	<TD_Find_Lib.ListFilterDef>

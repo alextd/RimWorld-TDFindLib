@@ -176,6 +176,40 @@ namespace TD_Find_Lib
 		}
 	}
 
+	public class ListFilterGrowthRate : ListFilterWithOption<FloatRange>
+	{
+		public ListFilterGrowthRate() => sel = FloatRange.ZeroToOne;
+
+		protected override bool FilterApplies(Thing thing) =>
+			thing is Plant p && sel.Includes(p.GrowthRate);
+		public override bool DrawMain(Rect rect, bool locked)
+		{
+			base.DrawMain(rect, locked);
+			FloatRange newRange = sel;
+			Widgets.FloatRange(rect.RightPart(0.5f), id, ref newRange, max: maxGrowthRate, valueStyle: ToStringStyle.PercentZero);
+			if (sel != newRange)
+			{
+				sel = newRange;
+				return true;
+			}
+			return false;
+		}
+
+		public static float maxGrowthRate;
+		static ListFilterGrowthRate()
+		{
+			float bestFertility = 0f;
+			foreach (BuildableDef def in DefDatabase<BuildableDef>.AllDefs)
+				bestFertility = Mathf.Max(bestFertility, def.fertility);
+
+			float bestSensitivity = 0f;
+			foreach (ThingDef def in DefDatabase<ThingDef>.AllDefs)
+				bestSensitivity = Mathf.Max(bestSensitivity, def.plant?.fertilitySensitivity ?? 0);
+
+			maxGrowthRate = 1 + bestSensitivity * (bestFertility - 1);
+		}
+	}
+
 	public class ListFilterPlantHarvest : ListFilterDropDown<ThingDef>
 	{
 		public ListFilterPlantHarvest() => extraOption = 1;
