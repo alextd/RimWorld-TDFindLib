@@ -142,9 +142,10 @@ namespace TD_Find_Lib
 		{
 			changed = true;
 			children.Clear();
+			//_allMaps = false;
 			_baseType = default;
 			listedThings.Clear();
-		}
+	}
 
 
 		public void ExposeData()
@@ -273,16 +274,22 @@ namespace TD_Find_Lib
 
 				foreach (Map m in Find.Maps)
 					listedThings.AddRange(Get(m, BaseType));
+
+				newListedThings.Clear();
 			}
 
 			// Single map
 			else
 				listedThings = Get(map, BaseType);
+
+
+			// SORT.
+			listedThings.SortBy(t => t.def.shortHash, t => t.Stuff?.shortHash ?? 0, t => t.Position.x + t.Position.z * 1000);
 		}
 
 		private List<Thing> newListedThings = new();
 		private List<Thing> newFilteredThings = new();
-		public List<Thing> Get(Map searchMap, BaseListType baseListType)
+		private List<Thing> Get(Map searchMap, BaseListType baseListType)
 		{
 			List<Thing> baseList = baseListType switch
 			{
@@ -317,7 +324,7 @@ namespace TD_Find_Lib
 				case BaseListType.Inventory:
 					foreach (Thing t in baseList)
 					{
-						if (!DebugSettings.godMode && t.PositionHeld.Fogged(searchMap)) continue;
+						if (!DebugSettings.godMode && t.Position.Fogged(searchMap)) continue;
 
 						//We asked for ThingHolders, they will be, this is really just a cast. Also, don't count these wrappers as "inventory"
 						if (t is IThingHolder holder && t is not Corpse && t is not MinifiedThing)
@@ -329,40 +336,34 @@ namespace TD_Find_Lib
 					break;
 			}
 
+			if (!DebugSettings.godMode)
+			{
+				newListedThings.RemoveAll(t => !ValidDef(t.def) || t.Position.Fogged(searchMap));
+			}
+
 
 			foreach (ListFilter filter in Children.filters)
 			{
 				if (!filter.Enabled)
 					continue;
 
-				//Clears newFilteredThings, fills with newListedThings what pass filter.
+				//Clears newFilteredThings, fills with newListedThings which pass filter.
 				filter.Apply(newListedThings, newFilteredThings);
 
-				//newFilteredThings is now the list of things ; swap to 
+				//newFilteredThings is now the list of things ; swap them
 				(newListedThings, newFilteredThings) = (newFilteredThings, newListedThings);
 			}
-			return newListedThings;
-			/*
-			 * 
-			//Filters
-			IEnumerable<Thing> enumerator = GetThings.Where(t => !(t.ParentHolder is Corpse) && !(t.ParentHolder is MinifiedThing));
-			if (!DebugSettings.godMode)
-			{
-				enumerator = enumerator.Where(t => ValidDef(t.def));
-				enumerator = enumerator.Where(t => !t.PositionHeld.Fogged(searchMap));
-			}
 
-			//Sort
-			return enumerator.OrderBy(t => t.def.shortHash).ThenBy(t => t.Stuff?.shortHash ?? 0).ThenBy(t => t.Position.x + t.Position.z * 1000).ToList();
-			
-			 */
+			newFilteredThings.Clear();
+
+			return newListedThings;
 		}
 
 		//Probably a good filter
 		public static bool ValidDef(ThingDef def) =>
 			!typeof(Mote).IsAssignableFrom(def.thingClass) &&
 			!typeof(Projectile).IsAssignableFrom(def.thingClass) &&
-			def.drawerType != DrawerType.None;
+			def.drawerType != DrawerType.None;	//non-drawers are weird abstract things.
 	}
 		
 
