@@ -15,18 +15,49 @@ namespace TD_Find_Lib
 			=> holder.IsEnclosingContainer() && !(holder is MinifiedThing);
 
 
+		// or godmode.
 		public static bool CanPeekInventory(this IThingHolder holder) =>
-			DebugSettings.godMode ||
-			(holder is Building_Casket c ? c.contentsKnown : true) &&
-			!(holder is TradeShip);
+			holder is Building_Casket c ? c.contentsKnown :
+			true;
 
-		public static List<Thing> AllKnownThings(IThingHolder holder)
+		private static List<Thing> _allKnownThingsList = new();
+		public static void AddAllKnownThingsInside(IThingHolder holder, List<Thing> outThings)
 		{
-			if (holder == null) return new List<Thing>();
+			//outThings would get cleared inside so can't be added to directly
+			ThingOwnerUtility.GetAllThingsRecursively(holder, _allKnownThingsList, true, DebugSettings.godMode ? null : ContentsUtility.CanPeekInventory);
+			outThings.AddRange(_allKnownThingsList);
+		}
 
-			List<Thing> knownThings = new List<Thing>();
-			ThingOwnerUtility.GetAllThingsRecursively(holder, knownThings, true, ContentsUtility.CanPeekInventory);
-			return knownThings.FindAll(t => DebugSettings.godMode || !t.PositionHeld.Fogged(t.MapHeld));
+		// I assume you won't ask about fogged things, or tradeships
+		public static void AllKnownThingsInside(IThingHolder holder, List<Thing> outThings)
+		{
+			ThingOwnerUtility.GetAllThingsRecursively(holder, outThings, true, DebugSettings.godMode ? null : ContentsUtility.CanPeekInventory);
+		}
+
+		private static bool CanPeekMap(Map map, IThingHolder holder)
+		{
+			//Let's not look at tradeships
+			if (holder is TradeShip) return false;
+
+			//After this, godmode can peek in
+			if (DebugSettings.godMode) return true;
+
+			// Can't list what you don't know
+			if (holder is Building_Casket c && !c.contentsKnown)
+				return false;
+
+			// Can't list what you can't see
+			if (holder is Thing t && t.Position.Fogged(map))
+				return false;
+
+			return true;
+		}
+
+		private static IEnumerable<Thing> AllKnownThings(Map map)
+		{
+			ThingOwnerUtility.GetAllThingsRecursively(map, _allKnownThingsList, true, h => ContentsUtility.CanPeekMap(map, h));
+			
+			return _allKnownThingsList;
 		}
 
 		public static HashSet<T> AvailableInGame<T>(Func<Thing, IEnumerable<T>> validGetter)
@@ -37,6 +68,7 @@ namespace TD_Find_Lib
 					foreach (T tDef in validGetter(t))
 						ret.Add(tDef);
 
+			_allKnownThingsList.Clear();
 			return ret;
 		}
 
@@ -48,6 +80,7 @@ namespace TD_Find_Lib
 					if(validGetter(t) is T def)
 						ret.Add(def);
 
+			_allKnownThingsList.Clear();
 			return ret;
 		}
 	}

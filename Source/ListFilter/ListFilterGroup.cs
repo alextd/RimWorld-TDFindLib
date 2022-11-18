@@ -19,8 +19,8 @@ namespace TD_Find_Lib
 			children = new FilterHolder(this);
 		}
 		protected override bool FilterApplies(Thing t) =>
-			any ? Children.Filters.Any(f => f.Enabled && f.AppliesTo(t)) :
-			Children.Filters.All(f => !f.Enabled || f.AppliesTo(t));
+			any ? Children.filters.Any(f => f.Enabled && f.AppliesTo(t)) :
+			Children.filters.All(f => !f.Enabled || f.AppliesTo(t));
 
 		public override void ExposeData()
 		{
@@ -69,6 +69,7 @@ namespace TD_Find_Lib
 	{
 		protected bool holdingThis;//or what I'm holding
 
+		List<Thing> _containedThings = new();
 		protected override bool FilterApplies(Thing t)
 		{
 			if (holdingThis)
@@ -80,12 +81,20 @@ namespace TD_Find_Lib
 						return true;
 					parent = parent.ParentHolder;
 				}
-				return false;
 			}
 			else
 			{
-				return ContentsUtility.AllKnownThings(t as IThingHolder).Any(child => base.FilterApplies(child));
+				if (t is IThingHolder holder)
+				{
+					//It wouldn't get this far it if were fogged so don't need to check that.
+					ContentsUtility.AllKnownThingsInside(holder, _containedThings);
+
+					foreach (Thing containedThing in _containedThings)
+						if (base.FilterApplies(containedThing))
+							return true;
+				}
 			}
+			return false;
 		}
 		public override void ExposeData()
 		{

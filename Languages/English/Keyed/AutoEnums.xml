@@ -3,7 +3,6 @@
 
 	<TD.BaseListType.Selectable>Map</TD.BaseListType.Selectable>
 	<TD.BaseListType.All>All</TD.BaseListType.All>
-	<TD.BaseListType.AllAndInventory>Literally everything</TD.BaseListType.AllAndInventory>
 	<TD.BaseListType.Items>Items</TD.BaseListType.Items>
 	<TD.BaseListType.ItemsAndJunk>Items and Junk</TD.BaseListType.ItemsAndJunk>
 	<TD.BaseListType.Everyone>Everyone</TD.BaseListType.Everyone>

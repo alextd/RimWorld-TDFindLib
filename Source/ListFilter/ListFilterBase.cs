@@ -75,9 +75,12 @@ namespace TD_Find_Lib
 		public virtual void DoResolveRef() { }
 
 
-		public IEnumerable<Thing> Apply(IEnumerable<Thing> list)
+		public void Apply( /* const */ List<Thing> inList, List<Thing> outList)
 		{
-			return Enabled ? list.Where(t => AppliesTo(t)) : list;
+			outList.Clear();
+			foreach (Thing thing in inList)
+				if (AppliesTo(thing))
+					outList.Add(thing);
 		}
 
 		//This can be problematic for minified things: We want the qualities of the inner things,

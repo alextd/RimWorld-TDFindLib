@@ -17,15 +17,12 @@ namespace TD_Find_Lib
 	public class FilterHolder//	 : IExposable //Not IExposable because that means ctor FilterHolder() should exist.
 	{
 		private IFilterHolder parent;
-		private List<ListFilter> filters = new List<ListFilter>() { };
+		public List<ListFilter> filters = new List<ListFilter>() { };
 
 		public FilterHolder(IFilterHolder p)
 		{
 			parent = p;
 		}
-
-
-		public IEnumerable<ListFilter> Filters => filters;
 
 		public void ExposeData()
 		{
@@ -38,8 +35,8 @@ namespace TD_Find_Lib
 		public FilterHolder Clone(IFilterHolder newParent)
 		{
 			FilterHolder clone = new FilterHolder(newParent);
-			foreach (var f in Filters.Select(f => f.Clone()))
-				clone.Add(f, remake: false);
+			foreach (var f in filters)
+				clone.Add(f.Clone(), remake: false);
 			return clone;
 		}
 
@@ -210,7 +207,7 @@ namespace TD_Find_Lib
 					ReorderableDirection.Vertical,
 					coveredRect, 1f,
 					extraDraggedItemOnGUI: (int index, Vector2 dragStartPos) =>
-						DrawMouseAttachedFilter(Filters.ElementAt(index), coveredRect.width - 100));
+						DrawMouseAttachedFilter(filters[index], coveredRect.width - 100));
 
 				// Turn off The Multigroup system assuming that if you're closer to group A but in group B's rect, that you want to insert at end of B.
 				// That just doesn't apply here.
@@ -222,7 +219,7 @@ namespace TD_Find_Lib
 
 			bool changed = false;
 			HashSet<ListFilter> removedFilters = new();
-			foreach (ListFilter filter in Filters)
+			foreach (ListFilter filter in filters)
 			{
 				Rect usedRect = listing.GetRect(0);
 
