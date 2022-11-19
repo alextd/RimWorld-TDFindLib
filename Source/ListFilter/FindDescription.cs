@@ -340,12 +340,8 @@ namespace TD_Find_Lib
 				newListedThings.RemoveAll(t => !ValidDef(t.def) || t.Position.Fogged(searchMap));
 			}
 
-
-			foreach (ListFilter filter in Children.filters)
+			foreach (ListFilter filter in Children.filters.FindAll(f => f.Enabled))
 			{
-				if (!filter.Enabled)
-					continue;
-
 				//Clears newFilteredThings, fills with newListedThings which pass filter.
 				filter.Apply(newListedThings, newFilteredThings);
 
