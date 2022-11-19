@@ -42,7 +42,6 @@ namespace TD_Find_Lib
 		public FindDescription RootFindDesc => this;
 
 		public IEnumerable<Thing> ListedThings => listedThings;
-		//internal pointer to live lists do not edit!
 		public BaseListType BaseType
 		{
 			get => _baseType;
