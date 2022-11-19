@@ -11,7 +11,7 @@ namespace TD_Find_Lib
 	{
 		public ListFilterClassType() => sel = typeof(Thing);
 
-		protected override bool FilterApplies(Thing thing) =>
+		public override bool ApplesDirectlyTo(Thing thing) =>
 			sel.IsAssignableFrom(thing.GetType());
 
 		public static List<Type> types = typeof(Thing).AllSubclassesNonAbstract().OrderBy(t => t.ToString()).ToList();
@@ -23,13 +23,13 @@ namespace TD_Find_Lib
 
 	public class ListFilterDrawerType : ListFilterDropDown<DrawerType>
 	{
-		protected override bool FilterApplies(Thing thing) =>
+		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing.def.drawerType == sel;
 	}
 
 	public class ListFilterFogged : ListFilter
 	{
-		protected override bool FilterApplies(Thing thing) =>
+		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing.PositionHeld.Fogged(thing.MapHeld);
 	}
 }

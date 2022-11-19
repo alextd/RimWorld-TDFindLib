@@ -40,7 +40,7 @@ namespace TD_Find_Lib
 
 		public override string NullOption() => "TD.AnyOption".Translate();
 
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			Pawn_SkillTracker skills = (thing as Pawn)?.skills;
 			if (skills == null) return false;
@@ -101,7 +101,7 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
@@ -205,7 +205,7 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
@@ -342,7 +342,7 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		protected override bool FilterApplies(Thing thing) =>
+		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing is Pawn pawn &&
 			(!pawn.RaceProps.Animal || pawn.Faction != null || DebugSettings.godMode) &&
 				pawn.needs?.TryGetNeed(sel) is Need need && needRange.Includes(need.CurLevelPercentage);
@@ -386,7 +386,7 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
@@ -436,7 +436,7 @@ namespace TD_Find_Lib
 		public override string NameFor(WorkTags tags) =>
 			tags.LabelTranslated().CapitalizeFirst();
 
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
@@ -459,14 +459,14 @@ namespace TD_Find_Lib
 		public override float Max => 100f;
 		public override ToStringStyle Style => ToStringStyle.Temperature;
 
-		protected override bool FilterApplies(Thing thing) =>
+		public override bool ApplesDirectlyTo(Thing thing) =>
 			Includes(thing.AmbientTemperature);
 	}
 
 	public enum ComfyTemp { Cold, Cool, Okay, Warm, Hot }
 	public class ListFilterComfyTemp : ListFilterDropDown<ComfyTemp>
 	{
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
@@ -504,7 +504,7 @@ namespace TD_Find_Lib
 
 		public override bool ValidForAllMaps => extraOption > 0 || sel == null;
 
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			Area selectedArea = extraOption == 1 ? thing.MapHeld.areaManager.Home : sel;
 			return thing is Pawn pawn && pawn.playerSettings is Pawn_PlayerSettings set && set.AreaRestriction == selectedArea;
@@ -520,7 +520,7 @@ namespace TD_Find_Lib
 
 	public class ListFilterMentalState : ListFilterDropDown<MentalStateDef>
 	{
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
@@ -551,7 +551,7 @@ namespace TD_Find_Lib
 			sel = PrisonerInteractionModeDefOf.NoInteraction;
 		}
 
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			if (extraOption == 2)
 				return thing.GetRoom()?.IsPrisonCell ?? false;
@@ -574,7 +574,7 @@ namespace TD_Find_Lib
 	public enum DraftFilter { Drafted, Undrafted, Controllable }
 	public class ListFilterDrafted : ListFilterDropDown<DraftFilter>
 	{
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
@@ -591,7 +591,7 @@ namespace TD_Find_Lib
 
 	public class ListFilterJob : ListFilterDropDown<JobDef>
 	{
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
@@ -613,7 +613,7 @@ namespace TD_Find_Lib
 
 	public class ListFilterGuestStatus : ListFilterDropDown<GuestStatus>
 	{
-		protected override bool FilterApplies(Thing thing) =>
+		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing is Pawn pawn && pawn.GuestStatus is GuestStatus status && status == sel;
 	}
 
@@ -651,7 +651,7 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
@@ -719,7 +719,7 @@ namespace TD_Find_Lib
 	{
 		public ListFilterGender() => sel = Gender.Male;
 
-		protected override bool FilterApplies(Thing thing) =>
+		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing is Pawn pawn && pawn.gender == sel;
 	}
 
@@ -727,7 +727,7 @@ namespace TD_Find_Lib
 	{
 		public ListFilterDevelopmentalStage() => sel = DevelopmentalStage.Adult;
 
-		protected override bool FilterApplies(Thing thing) =>
+		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing is Pawn pawn && pawn.DevelopmentalStage == sel;
 	}
 
@@ -761,7 +761,7 @@ namespace TD_Find_Lib
 		public abstract ThingDef DefFor(Pawn pawn);
 		public abstract int CountFor(Pawn pawn);
 
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
@@ -921,7 +921,7 @@ namespace TD_Find_Lib
 				_ => 0,
 			});
 
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			if (!thing.def.HasComp(sel switch
 			{
@@ -965,7 +965,7 @@ namespace TD_Find_Lib
 
 	public class ListFilterInspiration : ListFilterDropDown<InspirationDef>
 	{
-		protected override bool FilterApplies(Thing thing) =>
+		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing is Pawn p && 
 			(extraOption == 1 ?
 				p.InspirationDef != null :
@@ -1015,7 +1015,7 @@ namespace TD_Find_Lib
 
 			return false;
 		}
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			if (thing is Pawn pawn)
 			{

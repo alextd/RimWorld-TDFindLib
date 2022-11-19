@@ -13,7 +13,7 @@ namespace TD_Find_Lib
 	{
 		public ListFilterName() => sel = "";
 
-		protected override bool FilterApplies(Thing thing) =>
+		public override bool ApplesDirectlyTo(Thing thing) =>
 			//thing.Label.Contains(sel, CaseInsensitiveComparer.DefaultInvariant);	//Contains doesn't accept comparer with strings. okay.
 			sel == "" || thing.Label.IndexOf(sel, StringComparison.OrdinalIgnoreCase) >= 0;
 
@@ -66,7 +66,7 @@ namespace TD_Find_Lib
 	public enum ForbiddenType { Forbidden, Allowed, Forbiddable }
 	public class ListFilterForbidden : ListFilterDropDown<ForbiddenType>
 	{
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			bool forbiddable = thing.def.HasComp(typeof(CompForbiddable)) && thing.Spawned;
 			if (!forbiddable) return false;
@@ -82,7 +82,7 @@ namespace TD_Find_Lib
 
 	public class ListFilterDesignation : ListFilterDropDown<DesignationDef>
 	{
-		protected override bool FilterApplies(Thing thing) =>
+		public override bool ApplesDirectlyTo(Thing thing) =>
 			sel != null ?
 			(sel.targetType == TargetType.Thing ? thing.MapHeld.designationManager.DesignationOn(thing, sel) != null :
 			thing.MapHeld.designationManager.DesignationAt(thing.PositionHeld, sel) != null) :
@@ -102,7 +102,7 @@ namespace TD_Find_Lib
 
 	public class ListFilterFreshness : ListFilterDropDown<RotStage>
 	{
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			CompRottable rot = thing.TryGetComp<CompRottable>();
 			return
@@ -137,7 +137,7 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		protected override bool FilterApplies(Thing thing) =>
+		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing.TryGetComp<CompRottable>()?.TicksUntilRotAtCurrentTemp is int t && ticksRange.Includes(t);
 
 		public override bool DrawMain(Rect rect, bool locked)
@@ -152,13 +152,13 @@ namespace TD_Find_Lib
 	{
 		public ListFilterGrowth() => sel = FloatRange.ZeroToOne;
 
-		protected override bool FilterApplies(Thing thing) =>
+		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing is Plant p && Includes(p.Growth);
 	}
 
 	public class ListFilterGrowthRate : ListFilterFloatRange
 	{
-		protected override bool FilterApplies(Thing thing) =>
+		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing is Plant p && Includes(p.GrowthRate);
 
 		public override float Max => maxGrowthRate;
@@ -181,7 +181,7 @@ namespace TD_Find_Lib
 	{
 		public ListFilterPlantHarvest() => extraOption = 1;
 
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			Plant plant = thing as Plant;
 			if (plant == null)
@@ -233,19 +233,19 @@ namespace TD_Find_Lib
 
 	public class ListFilterPlantHarvestable : ListFilter
 	{
-		protected override bool FilterApplies(Thing thing) =>
+		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing is Plant plant && plant.HarvestableNow;
 	}
 
 	public class ListFilterPlantCrop : ListFilter
 	{
-		protected override bool FilterApplies(Thing thing) =>
+		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing is Plant plant && plant.IsCrop;
 	}
 
 	public class ListFilterPlantDies : ListFilter
 	{
-		protected override bool FilterApplies(Thing thing) =>
+		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing is Plant plant && (plant.def.plant?.dieIfLeafless ?? false);
 	}
 
@@ -266,7 +266,7 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			Faction fac = thing.Faction;
 			if (host)
@@ -325,7 +325,7 @@ namespace TD_Find_Lib
 	}
 	class ListFilterCategory : ListFilterDropDown<ListCategory>
 	{
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			switch (sel)
 			{
@@ -346,7 +346,7 @@ namespace TD_Find_Lib
 	{
 		public ListFilterItemCategory() => sel = ThingCategoryDefOf.Root;
 
-		protected override bool FilterApplies(Thing thing) =>
+		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing.def.IsWithinCategory(sel);
 
 		public override IEnumerable<ThingCategoryDef> Options() =>
@@ -374,14 +374,14 @@ namespace TD_Find_Lib
 	{
 		public ListFilterSpecialFilter() => sel = SpecialThingFilterDefOf.AllowFresh;
 
-		protected override bool FilterApplies(Thing thing) =>
+		public override bool ApplesDirectlyTo(Thing thing) =>
 			sel.Worker.Matches(thing);
 	}
 
 	public enum MineableType { Resource, Rock, All }
 	public class ListFilterMineable : ListFilterDropDown<MineableType>
 	{
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			switch (sel)
 			{
@@ -395,7 +395,7 @@ namespace TD_Find_Lib
 
 	public class ListFilterHP : ListFilterFloatRange
 	{
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			if (thing is Pawn pawn)
 				return Includes(pawn.health.summaryHealth.SummaryHealthPercent);
@@ -411,7 +411,7 @@ namespace TD_Find_Lib
 	{
 		public ListFilterQuality() => sel = QualityRange.All;
 
-		protected override bool FilterApplies(Thing thing) =>
+		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing.TryGetQuality(out QualityCategory qc) &&
 			sel.Includes(qc);
 
@@ -431,7 +431,7 @@ namespace TD_Find_Lib
 
 	public class ListFilterStuff : ListFilterDropDown<ThingDef>
 	{
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			ThingDef stuff = thing is IConstructible c ? c.EntityToBuildStuff() : thing.Stuff;
 			return
@@ -456,7 +456,7 @@ namespace TD_Find_Lib
 
 	public class ListFilterMissingBodyPart : ListFilterDropDown<BodyPartDef>
 	{
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
@@ -502,7 +502,7 @@ namespace TD_Find_Lib
 
 		public override bool ValidForAllMaps => extraOption > 0 || sel == null;
 
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			Map map = thing.MapHeld;
 			IntVec3 pos = thing.PositionHeld;
@@ -550,7 +550,7 @@ namespace TD_Find_Lib
 
 		public override bool ValidForAllMaps => extraOption != 0 || sel == null;
 
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			IntVec3 pos = thing.PositionHeld;
 			Zone zoneAtPos = thing.MapHeld.zoneManager.ZoneAt(pos);
@@ -570,14 +570,14 @@ namespace TD_Find_Lib
 
 	public class ListFilterDeterioration : ListFilter
 	{
-		protected override bool FilterApplies(Thing thing) =>
+		public override bool ApplesDirectlyTo(Thing thing) =>
 			SteadyEnvironmentEffects.FinalDeteriorationRate(thing) >= 0.001f;
 	}
 
 	public enum DoorOpenFilter { Open, Close, HoldOpen, BlockedOpenMomentary }
 	public class ListFilterDoorOpen : ListFilterDropDown<DoorOpenFilter>
 	{
-		protected override bool FilterApplies(Thing thing)
+		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			Building_Door door = thing as Building_Door;
 			if (door == null) return false;
@@ -629,7 +629,7 @@ namespace TD_Find_Lib
 		}
 
 
-		protected override bool FilterApplies(Thing thing) =>
+		public override bool ApplesDirectlyTo(Thing thing) =>
 			sel == thing.def &&
 			(sel.stackLimit <= 1 || stackRange.Includes(thing.stackCount));
 
@@ -705,7 +705,7 @@ namespace TD_Find_Lib
 			LoadedModManager.RunningMods.FirstOrDefault(mod => mod.PackageIdPlayerFacing == selName);
 
 
-		protected override bool FilterApplies(Thing thing) =>
+		public override bool ApplesDirectlyTo(Thing thing) =>
 			sel == thing.ContentSource;
 
 		public override IEnumerable<ModContentPack> Options() =>
@@ -717,7 +717,7 @@ namespace TD_Find_Lib
 
 	public class ListFilterSelectable : ListFilter
 	{
-		protected override bool FilterApplies(Thing thing) =>
+		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing.def.selectable;
 	}
 
@@ -749,7 +749,7 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		protected override bool FilterApplies(Thing t) =>
+		public override bool ApplesDirectlyTo(Thing t) =>
 			sel.Worker.ShouldShowFor(StatRequest.For(t)) &&
 			valueRange.Includes(t.GetStatValue(sel, cacheStaleAfterTicks: 1));
 
@@ -835,7 +835,7 @@ namespace TD_Find_Lib
 	{
 		public ListFilterBuildingCategory() => sel = DesignationCategoryDefOf.Production;
 
-		protected override bool FilterApplies(Thing thing) =>
+		public override bool ApplesDirectlyTo(Thing thing) =>
 			sel == thing.def.designationCategory;
 
 		public override IEnumerable<DesignationCategoryDef> Options() =>

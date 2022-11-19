@@ -18,7 +18,7 @@ namespace TD_Find_Lib
 		{
 			children = new FilterHolder(this);
 		}
-		protected override bool FilterApplies(Thing t) =>
+		public override bool ApplesDirectlyTo(Thing t) =>
 			any ? Children.filters.Any(f => f.Enabled && f.AppliesTo(t)) :
 			Children.filters.All(f => !f.Enabled || f.AppliesTo(t));
 
@@ -70,14 +70,14 @@ namespace TD_Find_Lib
 		protected bool holdingThis;//or what I'm holding
 
 		List<Thing> _containedThings = new();
-		protected override bool FilterApplies(Thing t)
+		public override bool ApplesDirectlyTo(Thing t)
 		{
 			if (holdingThis)
 			{
 				IThingHolder parent = t.ParentHolder;
 				while (parent.IsValidHolder())
 				{
-					if (parent is Thing parentThing && base.FilterApplies(parentThing))
+					if (parent is Thing parentThing && base.ApplesDirectlyTo(parentThing))
 						return true;
 					parent = parent.ParentHolder;
 				}
@@ -90,7 +90,7 @@ namespace TD_Find_Lib
 					ContentsUtility.AllKnownThingsInside(holder, _containedThings);
 
 					foreach (Thing containedThing in _containedThings)
-						if (base.FilterApplies(containedThing))
+						if (base.ApplesDirectlyTo(containedThing))
 							return true;
 				}
 			}
@@ -132,14 +132,14 @@ namespace TD_Find_Lib
 	{
 		IntRange range;
 
-		protected override bool FilterApplies(Thing t)
+		public override bool ApplesDirectlyTo(Thing t)
 		{
 			IntVec3 pos = t.PositionHeld;
 			Map map = t.MapHeld;
 
 			CellRect cells = new CellRect(pos.x - range.max, pos.z - range.max, range.max * 2 + 1, range.max * 2 + 1);
 			foreach (IntVec3 p in cells)
-				if (map.thingGrid.ThingsAt(p).Any(child => base.FilterApplies(child)))
+				if (map.thingGrid.ThingsAt(p).Any(child => base.ApplesDirectlyTo(child)))
 					return true;
 			return false;
 		}
