@@ -314,11 +314,11 @@ namespace TD_Find_Lib
 			switch (baseListType)
 			{
 				case BaseListType.Selectable: //Known as "Map"
-					newListedThings.AddRange(baseList.AsParallel().Where(t => t.def.selectable));
+					newListedThings.AddRange(baseList.Where(t => t.def.selectable));
 					break;
 
 				case BaseListType.Natural:
-					newListedThings.AddRange(baseList.AsParallel().Where(t => t.def.filthLeaving == ThingDefOf.Filth_RubbleRock));
+					newListedThings.AddRange(baseList.Where(t => t.def.filthLeaving == ThingDefOf.Filth_RubbleRock));
 					break;
 				case BaseListType.Inventory:
 					foreach (Thing t in baseList)
