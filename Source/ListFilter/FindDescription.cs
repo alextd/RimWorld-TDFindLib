@@ -310,34 +310,30 @@ namespace TD_Find_Lib
 
 			// newListedThings is what we're gonna return
 			newListedThings.Clear();
+			bool Listable(Thing t) =>
+				DebugSettings.godMode ||
+				ValidDef(t.def) && !t.Position.Fogged(searchMap);
+
 			//Filter a but more:
 			switch (baseListType)
 			{
 				case BaseListType.Selectable: //Known as "Map"
-					newListedThings.AddRange(baseList.Where(t => t.def.selectable));
+					newListedThings.AddRange(baseList.Where(t => t.def.selectable && Listable(t)));
 					break;
 
 				case BaseListType.Natural:
-					newListedThings.AddRange(baseList.Where(t => t.def.filthLeaving == ThingDefOf.Filth_RubbleRock));
+					newListedThings.AddRange(baseList.Where(t => t.def.filthLeaving == ThingDefOf.Filth_RubbleRock && Listable(t)));
 					break;
-				case BaseListType.Inventory:
-					foreach (Thing t in baseList)
-					{
-						if (!DebugSettings.godMode && t.Position.Fogged(searchMap)) continue;
 
-						//We asked for ThingHolders, they will be, this is really just a cast. Also, don't count these wrappers as "inventory"
+				case BaseListType.Inventory:
+					foreach (Thing t in baseList.Where(Listable))
 						if (t is IThingHolder holder && t is not Corpse && t is not MinifiedThing)
 							ContentsUtility.AddAllKnownThingsInside(holder, newListedThings);
-					}
 					break;
-				default:
-					newListedThings.AddRange(baseList);
-					break;
-			}
 
-			if (!DebugSettings.godMode)
-			{
-				newListedThings.RemoveAll(t => !ValidDef(t.def) || t.Position.Fogged(searchMap));
+				default:
+					newListedThings.AddRange(baseList.Where(Listable));
+					break;
 			}
 
 			foreach (ListFilter filter in Children.filters.FindAll(f => f.Enabled))
