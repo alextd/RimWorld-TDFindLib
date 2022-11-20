@@ -715,6 +715,15 @@ namespace TD_Find_Lib
 	}
 
 
+	public class ListFilterOnScreen : ListFilter
+	{
+		public override bool ApplesDirectlyTo(Thing thing) =>
+			thing.OccupiedRect().Overlaps(Find.CameraDriver.CurrentViewRect);
+
+		public override bool CurrentMapOnly => true;
+	}
+
+
 	public class ListFilterSelectable : ListFilter
 	{
 		public override bool ApplesDirectlyTo(Thing thing) =>

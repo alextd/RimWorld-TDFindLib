@@ -51,6 +51,7 @@ namespace TD_Find_Lib
 
 			if (focus) newFilter.Focus();
 			if (remake) parent.RootFindDesc?.RemakeList();
+			if (newFilter.CurrentMapOnly) parent.RootFindDesc?.MakeMapLabel();
 		}
 
 		public void Clear()
@@ -61,6 +62,8 @@ namespace TD_Find_Lib
 		public void RemoveAll(HashSet<ListFilter> removedFilters)
 		{
 			filters.RemoveAll(f => removedFilters.Contains(f));
+			if (removedFilters.Any(f => f.CurrentMapOnly))
+				parent.RootFindDesc?.MakeMapLabel();
 		}
 
 		public bool Any(Predicate<ListFilter> predicate)

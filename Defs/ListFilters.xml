@@ -439,6 +439,12 @@
 	</TD_Find_Lib.ListFilterDef>
 
 	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Onscreen</defName>
+		<label>currently on screen</label>
+		<filterClass>TD_Find_Lib.ListFilterOnscreen</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
 		<defName>Filter_Selectable</defName>
 		<label>selectable</label>
 		<filterClass>TD_Find_Lib.ListFilterSelectable</filterClass>
