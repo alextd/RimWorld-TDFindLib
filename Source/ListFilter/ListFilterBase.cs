@@ -54,7 +54,7 @@ namespace TD_Find_Lib
 			if (Scribe.mode == LoadSaveMode.ResolvingCrossRefs)
 			{
 				DoResolveName();
-				if (RootFindDesc.active)
+				if (RootFindDesc.active && RootFindDesc.map != null)
 					DoResolveRef();
 			}
 		}
@@ -392,6 +392,8 @@ namespace TD_Find_Lib
 		public override void DoResolveRef()
 		{
 			if (!UsesResolveRef || extraOption > 0) return;
+
+			if (RootFindDesc.map == null) return; //Not gonna go well
 
 			if (selName == SaveLoadXmlConstants.IsNullAttributeName)
 			{

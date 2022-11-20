@@ -56,7 +56,7 @@ namespace TD_Find_Lib
 
 		public FilterHolder Children => children;
 
-		// the Map for when active and !allMaps and !curMap
+		// the Map for when active and !allMaps, or whatever the current map is . . 
 		public Map map
 		{
 			get => _map;
@@ -271,7 +271,7 @@ namespace TD_Find_Lib
 				_baseType = _baseType,
 				_map = newMap ?? _map,
 				_allMaps = allMaps,
-				_curMap = curMap,
+				_curMap = curMap && newMap == null,
 			};
 
 
@@ -285,6 +285,9 @@ namespace TD_Find_Lib
 
 			// If cloning from inactive filters, or setting a new map,
 			// Must resolve refs
+			if (newDesc.curMap)
+				newDesc._map = Find.CurrentMap;
+
 			if (!active || newMap != null)
 				newDesc.Children.ForEach(f => f.DoResolveRef());
 
@@ -306,8 +309,14 @@ namespace TD_Find_Lib
 
 			if (CurMapOnly())
 			{
-				_map = Find.CurrentMap;
-				MakeMapLabel();
+				if (_map != Find.CurrentMap)
+				{
+					_map = Find.CurrentMap;
+
+					Children.ForEach(f => f.DoResolveRef());
+
+					MakeMapLabel();
+				}
 				listedThings = Get(map, BaseType);
 			}
 			// All maps
