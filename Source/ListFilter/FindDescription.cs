@@ -136,9 +136,6 @@ namespace TD_Find_Lib
 				sb.Append("TD.AllMaps".Translate());
 			else if (map != null)
 				sb.Append(map.Parent.LabelCap);
-			// If you have set curMap but not made the list, map is null, so just say this:
-			else if (curMap)
-				sb.Append("Current map");
 			else return "";
 
 			sb.Append(")</i>");
