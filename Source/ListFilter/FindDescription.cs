@@ -22,7 +22,7 @@ namespace TD_Find_Lib
 		private FilterHolder children;
 		private Map _map;
 		private bool _allMaps;
-		private bool _currentMap = true;
+		private bool _curMap = true;
 
 
 		// "Inactive" is for the saved library of filters to Clone from.
@@ -57,7 +57,7 @@ namespace TD_Find_Lib
 
 		public FilterHolder Children => children;
 
-		// the Map for when active and !allMaps and !currentMap
+		// the Map for when active and !allMaps and !curMap
 		public Map map
 		{
 			get => _map;
@@ -69,7 +69,7 @@ namespace TD_Find_Lib
 					// The only reason to set map would be for active maps
 					active = true;
 					_allMaps = false;
-					_currentMap = false;
+					_curMap = false;
 				}
 				/* Do not set allmaps false - an inactive findDesc for a single map has null map
 				else
@@ -90,7 +90,7 @@ namespace TD_Find_Lib
 				_allMaps = value;
 				if (_allMaps)
 				{
-					currentMap = false;
+					curMap = false;
 					//But keep the map around just in case this gets checked off
 				}
 
@@ -99,13 +99,13 @@ namespace TD_Find_Lib
 			}
 		}
 
-		public bool currentMap
+		public bool curMap
 		{
-			get => _currentMap;
+			get => _curMap;
 			set
 			{
-				_currentMap = value;
-				if (_currentMap)
+				_curMap = value;
+				if (_curMap)
 				{
 					_allMaps = false;
 					_map = null;
@@ -118,8 +118,8 @@ namespace TD_Find_Lib
 		}
 
 		// Certain filters only work on the current map, so the entire tree will only work on the current map
-		public bool CurrentMapOnly() =>
-			currentMap || Children.Any(f => f.CurrentMapOnly);
+		public bool CurMapOnly() =>
+			curMap || Children.Any(f => f.CurMapOnly);
 
 
 		public string mapLabel;
@@ -137,8 +137,8 @@ namespace TD_Find_Lib
 				sb.Append("TD.AllMaps".Translate());
 			else if (map != null)
 				sb.Append(map.Parent.LabelCap);
-			// If you have set currentMap but not made the list, map is null, so just say this:
-			else if (currentMap)
+			// If you have set curMap but not made the list, map is null, so just say this:
+			else if (curMap)
 				sb.Append("Current map");
 			else return "";
 
@@ -166,7 +166,7 @@ namespace TD_Find_Lib
 
 				// The only reason to set map would be for active maps
 				active = true;
-				_currentMap = false;
+				_curMap = false;
 			}
 		}
 
@@ -187,7 +187,7 @@ namespace TD_Find_Lib
 			Scribe_Values.Look(ref _baseType, "baseType");
 			Scribe_Values.Look(ref active, "active");
 			Scribe_Values.Look(ref _allMaps, "allMaps");
-			Scribe_Values.Look(ref _currentMap, "currentMap");
+			Scribe_Values.Look(ref _curMap, "curMap", true);
 
 			//no need to save map null
 			if (Scribe.mode != LoadSaveMode.Saving || _map != null)
@@ -234,7 +234,7 @@ namespace TD_Find_Lib
 				active = false,
 				_baseType = _baseType,
 				_allMaps = allMaps,
-				_currentMap = currentMap,
+				_curMap = curMap,
 			};
 
 			newDesc.children = children.Clone(newDesc);
@@ -253,7 +253,7 @@ namespace TD_Find_Lib
 				_baseType = _baseType,
 				_map = _map,
 				_allMaps = allMaps,
-				_currentMap = currentMap,
+				_curMap = curMap,
 			};
 
 			newDesc.children = children.Clone(newDesc);
@@ -272,14 +272,14 @@ namespace TD_Find_Lib
 				_baseType = _baseType,
 				_map = newMap ?? _map,
 				_allMaps = allMaps,
-				_currentMap = currentMap,
+				_curMap = curMap,
 			};
 
 
-			if (newDesc._map == null && !allMaps && !currentMap)
+			if (newDesc._map == null && !allMaps && !curMap)
 			{
-				newDesc.currentMap = true;
-				Verse.Log.Warning("Tried to CloneForUse with no map set. Setting currentMap=true instead!");
+				newDesc.curMap = true;
+				Verse.Log.Warning("Tried to CloneForUse with no map set. Setting curMap=true instead!");
 			}
 
 			newDesc.children = children.Clone(newDesc);
@@ -305,7 +305,7 @@ namespace TD_Find_Lib
 				return;
 
 
-			if (CurrentMapOnly())
+			if (CurMapOnly())
 			{
 				_map = Find.CurrentMap;
 				MakeMapLabel();

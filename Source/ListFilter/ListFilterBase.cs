@@ -181,8 +181,8 @@ namespace TD_Find_Lib
 		}
 		protected virtual bool DrawUnder(Listing_StandardIndent listing, bool locked) => false;
 
-		public virtual bool ValidForAllMaps => true && !CurrentMapOnly;
-		public virtual bool CurrentMapOnly => false;
+		public virtual bool ValidForAllMaps => true && !CurMapOnly;
+		public virtual bool CurMapOnly => false;
 
 		public virtual string DisableReason =>
 			!ValidForAllMaps && RootFindDesc.allMaps

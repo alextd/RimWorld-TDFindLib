@@ -720,7 +720,7 @@ namespace TD_Find_Lib
 		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing.OccupiedRect().Overlaps(Find.CameraDriver.CurrentViewRect);
 
-		public override bool CurrentMapOnly => true;
+		public override bool CurMapOnly => true;
 	}
 
 
