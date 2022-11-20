@@ -31,6 +31,9 @@ namespace TD_Find_Lib
 		public bool IsRefreshing(FindDescription desc) =>
 			findDescRefreshers.Any(r => r.desc == desc);
 
+		public T GetRefresher<T>(FindDescription desc) where T : RefreshFindDesc =>
+			findDescRefreshers.FirstOrDefault(r => r.desc == desc) as T;
+
 
 		public override void GameComponentTick()
 		{
