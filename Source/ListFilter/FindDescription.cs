@@ -209,7 +209,6 @@ namespace TD_Find_Lib
 		{
 			public CloneType type;
 			public Map map;
-			public bool currentMap;
 			public string newName;
 
 			public static CloneArgs save = new CloneArgs();
@@ -264,7 +263,7 @@ namespace TD_Find_Lib
 			return newDesc;
 		}
 
-		public FindDescription CloneForUse(Map newMap, string newName = null)
+		public FindDescription CloneForUse(Map newMap = null, string newName = null)
 		{
 			FindDescription newDesc = new FindDescription()
 			{
@@ -277,7 +276,7 @@ namespace TD_Find_Lib
 			};
 
 
-			if (newMap == null && _map == null && !allMaps && !currentMap)
+			if (newDesc._map == null && !allMaps && !currentMap)
 			{
 				newDesc.currentMap = true;
 				Verse.Log.Warning("Tried to CloneForUse with no map set. Setting currentMap=true instead!");
