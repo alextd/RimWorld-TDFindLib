@@ -12,7 +12,6 @@ namespace TD_Find_Lib
 	// - Holds the list of things and performs the search
 	// - BaseListType which narrows what that things to look at
 	// - Checkbox bool allMaps that apply to all nested filters
-	// - Apparently support for alerts which I'll probably separate out
 	public class FindDescription : IExposable, IFilterHolder
 	{
 		public string name = "TD.NewFindFilters".Translate();
