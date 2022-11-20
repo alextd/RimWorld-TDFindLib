@@ -201,7 +201,7 @@ namespace TD_Find_Lib
 		}
 
 
-		public enum CloneType { Save, Edit, Use }//Dont? Copy?
+		public enum CloneType { Save, Edit, Use }//Reference? Copy?
 
 		//default(CloneArgs) CloneArgs is CloneType.Save
 		public struct CloneArgs
