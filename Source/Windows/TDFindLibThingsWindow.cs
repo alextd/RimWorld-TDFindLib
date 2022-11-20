@@ -24,11 +24,6 @@ namespace TD_Find_Lib
 			doCloseX = true;
 		}
 
-		public override void PostClose()
-		{
-			drawer.Close();
-		}
-
 
 		public override Vector2 InitialSize => new Vector2(360, 800);
 
@@ -52,36 +47,34 @@ namespace TD_Find_Lib
 	{
 		public FindDescription findDesc;
 
-		public ThingListDrawer(FindDescription d)
+		public ThingListDrawer(FindDescription findDesc)
 		{
-			findDesc = d;
+			this.findDesc = findDesc;
 		}
 
-		public void Close()
+		public virtual void DrawIconButtons(WidgetRow row)
 		{
-			Current.Game.GetComponent<TDFindLibGameComp>().RemoveRefresh(findDesc);
+			//Select All
+			selectAll = row.ButtonIcon(FindTex.SelectAll, "TD.SelectAllGameAllowsUpTo".Translate(Selector.MaxNumSelected));
 		}
 
 		private Vector2 scrollPositionList = Vector2.zero;
 		private float scrollViewHeightList;
 		ThingDef selectAllDef;
 		bool selectAll;
-		public void DrawThingList(Rect inRect, Action<WidgetRow> extraIconsDrawer = null)
+		public void DrawThingList(Rect inRect)
 		{
 			Text.Font = GameFont.Small;
 
 			//Top-row buttons
-			WidgetRow buttRow = new WidgetRow(inRect.x, inRect.y, UIDirection.RightThenDown, inRect.width);
+			WidgetRow row = new WidgetRow(inRect.x, inRect.y, UIDirection.RightThenDown, inRect.width);
 
-			//Select All
-			selectAll = buttRow.ButtonIcon(FindTex.SelectAll, "TD.SelectAllGameAllowsUpTo".Translate(Selector.MaxNumSelected));
-
-			extraIconsDrawer?.Invoke(buttRow);
+			DrawIconButtons(row);
 
 			//Godmode showing fogged
 			if (DebugSettings.godMode)
 			{
-				buttRow.Icon(Verse.TexButton.GodModeEnabled, "God mode is allowed you to see into fogged areas and various weird things");
+				row.Icon(Verse.TexButton.GodModeEnabled, "God mode is allowing you to see into fogged areas and various weird things");
 			}
 
 
@@ -129,7 +122,7 @@ namespace TD_Find_Lib
 
 			foreach (Thing thing in findDesc.ListedThings)
 			{
-				//Be smart about drawing only what's shown.
+				//Be smart about drawing only what's visible.
 				if (thingRect.y + 32 >= scrollPositionList.y)
 					DrawThingRow(thing, ref thingRect);
 
@@ -176,7 +169,7 @@ namespace TD_Find_Lib
 			if (Mouse.IsOver(rect))
 			{
 				Vector3 center = UI.UIToMapPosition((float)(UI.screenWidth / 2), (float)(UI.screenHeight / 2));
-				bool arrow = (center - thing.DrawPos).MagnitudeHorizontalSquared() >= 121f;//Normal arrow is 9^2, using 11^1 seems good too.
+				bool arrow = (center - thing.DrawPos).MagnitudeHorizontalSquared() >= 121f;//Normal arrow is 9^2, using 11^2 seems good too.
 				TargetHighlighter.Highlight(thing, arrow, true, true);
 			}
 
@@ -244,7 +237,7 @@ namespace TD_Find_Lib
 			}
 		}
 
-		public static void DrawThing(Rect rect, Thing thing)
+		protected virtual void DrawThing(Rect rect, Thing thing)
 		{
 			//Label
 			Widgets.Label(rect, thing.LabelCap);

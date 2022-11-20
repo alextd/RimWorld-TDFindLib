@@ -15,8 +15,8 @@ namespace TD_Find_Lib
 		//continuousRefresh
 		public List<RefreshFindDesc> findDescRefreshers = new();
 
-		public void RemoveRefresh(FindDescription desc) =>
-			findDescRefreshers.RemoveAll(r => r.desc == desc);
+		public bool RemoveRefresh(FindDescription desc) =>
+			findDescRefreshers.RemoveAll(r => r.desc == desc) > 0;
 
 		public void RegisterRefresh(RefreshFindDesc refDesc)
 		{
