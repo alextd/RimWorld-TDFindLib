@@ -502,8 +502,6 @@ namespace TD_Find_Lib
 		protected override Area ResolveRef(Map map) =>
 			map.areaManager.GetLabeled(selName);
 
-		public override bool ValidForAllMaps => extraOption > 0 || sel == null;
-
 		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			Area selectedArea = extraOption == 1 ? thing.MapHeld.areaManager.Home : sel;

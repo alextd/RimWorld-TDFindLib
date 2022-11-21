@@ -179,13 +179,9 @@ namespace TD_Find_Lib
 		}
 		protected virtual bool DrawUnder(Listing_StandardIndent listing, bool locked) => false;
 
-		public virtual bool ValidForAllMaps => true && !CurMapOnly;
 		public virtual bool CurMapOnly => false;
 
-		public virtual string DisableReason =>
-			!ValidForAllMaps && RootFindDesc.AllMaps
-				? "TD.ThisFilterDoesntWorkWithAllMaps".Translate()
-				: null;
+		public virtual string DisableReason => null;
 
 		public static void DoFloatOptions(List<FloatMenuOption> options)
 		{
@@ -226,7 +222,7 @@ namespace TD_Find_Lib
 		// A subclass with extra fields needs to override ExposeData and Clone to copy them
 
 		public string selectionError; // Probably set on load when selection is invalid (missing mod?)
-		public override string DisableReason => base.DisableReason ?? selectionError;
+		public override string DisableReason => selectionError;
 
 		// would like this to be T const * sel;
 		public ref T selByRef => ref _sel;
@@ -408,8 +404,8 @@ namespace TD_Find_Lib
 
 				if (_sel == null)
 				{
-					selectionError = $"Missing {def.LabelCap}: {selName}?";
-					Messages.Message("TD.TriedToLoad0FilterNamed1ButCouldNotBeFound".Translate(def.LabelCap, selName), MessageTypeDefOf.RejectInput);
+					selectionError = $"Missing {def.LabelCap}: {selName} on {map.Parent.LabelCap}?";
+					Messages.Message("TD.TriedToLoad0FilterNamed1On2ButCouldNotBeFound".Translate(def.LabelCap, selName, map.Parent.LabelCap), MessageTypeDefOf.RejectInput);
 				}
 				else selectionError = null;
 			}

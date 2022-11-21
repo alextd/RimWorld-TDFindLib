@@ -500,8 +500,6 @@ namespace TD_Find_Lib
 		protected override Area ResolveRef(Map map) =>
 			map.areaManager.GetLabeled(selName);
 
-		public override bool ValidForAllMaps => extraOption > 0 || sel == null;
-
 		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			Map map = thing.MapHeld;
@@ -547,8 +545,6 @@ namespace TD_Find_Lib
 	{
 		protected override Zone ResolveRef(Map map) =>
 			map.zoneManager.AllZones.FirstOrDefault(z => z.label == selName);
-
-		public override bool ValidForAllMaps => extraOption != 0 || sel == null;
 
 		public override bool ApplesDirectlyTo(Thing thing)
 		{
