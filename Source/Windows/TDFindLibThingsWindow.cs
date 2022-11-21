@@ -140,13 +140,13 @@ namespace TD_Find_Lib
 			if (selectAll)
 				foreach (Thing t in findDesc.result.things)
 					if(t.Map == currentMap)
-						TrySelect.Select(t, false);
+						TrySelect.Select(t);
 
 			//Select all for double-click
 			if (selectAllDef != null)
 				foreach (Thing t in findDesc.result.things)
 					if (t.Map == currentMap && t.def == selectAllDef)
-						TrySelect.Select(t, false);
+						TrySelect.Select(t);
 
 			Widgets.EndScrollView();
 
