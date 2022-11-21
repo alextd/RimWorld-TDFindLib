@@ -103,17 +103,59 @@ namespace TD_Find_Lib
 
 		protected virtual void DrawHeader(Rect headerRect)
 		{
-			Rect typeRect = headerRect.LeftPart(.6f);
-			Widgets.DrawHighlightIfMouseover(typeRect);
+			Rect typeRect = headerRect.LeftPart(.49f);
 
 			Widgets.Label(typeRect, "TD.Listing".Translate() + findDesc.BaseType.TranslateEnum());
-			if (!locked && Widgets.ButtonInvisible(typeRect))
+			if (!locked)
 			{
-				List<FloatMenuOption> types = new List<FloatMenuOption>();
-				foreach (BaseListType type in DebugSettings.godMode ? Enum.GetValues(typeof(BaseListType)) : BaseListNormalTypes.normalTypes)
-					types.Add(new FloatMenuOption(type.TranslateEnum(), () => findDesc.BaseType = type));
+				Widgets.DrawHighlightIfMouseover(typeRect);
+				if (Widgets.ButtonInvisible(typeRect))
+				{
+					List<FloatMenuOption> types = new List<FloatMenuOption>();
+					foreach (BaseListType type in DebugSettings.godMode ? Enum.GetValues(typeof(BaseListType)) : BaseListNormalTypes.normalTypes)
+						types.Add(new FloatMenuOption(type.TranslateEnum(), () => findDesc.BaseType = type));
 
-				Find.WindowStack.Add(new FloatMenu(types));
+					Find.WindowStack.Add(new FloatMenu(types));
+				}
+			}
+
+
+			//Extra options:
+			Rect mapTypeRect = headerRect.RightPart(.49f);
+			Widgets.Label(mapTypeRect, findDesc.GetMapOptionLabel());
+			if(!locked)
+			{
+				Widgets.DrawHighlightIfMouseover(mapTypeRect);
+				if(Widgets.ButtonInvisible(mapTypeRect))
+				{
+					List<FloatMenuOption> mapOptions = new List<FloatMenuOption>();
+
+					//Current Map
+					mapOptions.Add(new FloatMenuOption("Search current map only", () => findDesc.SetSearchCurrentMap()));
+
+					//All maps
+					mapOptions.Add(new FloatMenuOption("Search all maps", () => findDesc.SetSearchAllMaps()));
+
+					if (findDesc.active)
+					{
+						//Toggle each map
+						foreach (Map map in Find.Maps)
+						{
+							bool notEvenChosenMaps = findDesc.ChosenMaps == null;
+							bool thisMapChosen = findDesc.ChosenMaps?.Contains(map) ?? false;
+							mapOptions.Add(new FloatMenuOption(
+								map.Parent.LabelCap,
+								() => findDesc.ToggleSearchMap(map),
+								notEvenChosenMaps ? Widgets.CheckboxPartialTex : thisMapChosen ? Widgets.CheckboxOnTex : Widgets.CheckboxOffTex, Color.white));
+						}
+					}
+					else
+					{
+						mapOptions.Add(new FloatMenuOption("Search chosen maps (once loaded)", () => findDesc.SetSearchChosenMaps()));
+					}
+
+					Find.WindowStack.Add(new FloatMenu(mapOptions));
+				}
 			}
 		}
 

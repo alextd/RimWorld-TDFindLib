@@ -5,6 +5,8 @@
 	<TD.Delete0>Delete {0}?</TD.Delete0>
 	<TD.StopRefresh0>Stop refreshing {0}?</TD.StopRefresh0>
 	<TD.AllMaps>All maps</TD.AllMaps>
+	<TD.CurrentMap>Current map</TD.CurrentMap>
+	<TD.ChosenMaps>Chosen maps</TD.ChosenMaps>
 	<TD.SavedFindFilters>Saved Find Filters:</TD.SavedFindFilters>
 	<TD.NewFindFilters>(Name)</TD.NewFindFilters>
 	<TD.IncludeShort>Inc</TD.IncludeShort>
@@ -46,7 +48,6 @@
 	<TD.LockEditing>Lock Editing</TD.LockEditing>
 	<TD.Listing>Listing: </TD.Listing>
 	<TD.Name>Name:</TD.Name>
-	<TD.CertainFiltersDontWorkForAllMaps-LikeZonesAndAreasThatAreObviouslySpecificToASingleMap>Certain filters don't work for all maps - like zones and areas that are obviously specific to a single map</TD.CertainFiltersDontWorkForAllMaps-LikeZonesAndAreasThatAreObviouslySpecificToASingleMap>
 	<TD.OnlyShowFilterOptionsForAvailableThings>Only show existing things as an option (shift invert)</TD.OnlyShowFilterOptionsForAvailableThings>
 	<TD.ForExampleDontShowTheOptionMadeFromPlasteelIfNothingIsMadeFromPlasteel>When selecting filter options, don't show the option 'Made from Plasteel' if nothing is made from plasteel.\n\nShift-click the option to reverse this setting for that click.</TD.ForExampleDontShowTheOptionMadeFromPlasteelIfNothingIsMadeFromPlasteel>
 	<TD.AddNewFilter...>Add new filter...</TD.AddNewFilter...>

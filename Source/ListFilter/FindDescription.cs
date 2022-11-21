@@ -170,6 +170,13 @@ namespace TD_Find_Lib
 
 
 		//Map shenanigans setters
+		public void SetSearchChosenMaps()
+		{
+			//Pretty much for inactive filters right?
+			parameters.mapType = QueryMapType.ChosenMaps;
+			parameters.searchMaps = null;
+		}
+
 		public void SetSearchMap(Map newMap, bool remake = true)
 		{
 			parameters.mapType = QueryMapType.ChosenMaps;
@@ -196,6 +203,36 @@ namespace TD_Find_Lib
 			if (remake) RemakeList();
 		}
 
+		public void RemoveSearchMap(Map oldMap, bool remake = true)
+		{
+			if (parameters.mapType != QueryMapType.ChosenMaps) return; //Huh?
+
+			parameters.searchMaps.Remove(oldMap);
+
+			if (remake) RemakeList();
+		}
+
+		public void ToggleSearchMap(Map toggleMap, bool remake = true)
+		{
+			if (parameters.mapType != QueryMapType.ChosenMaps)
+			{
+				SetSearchMap(toggleMap, remake);
+				return;
+			}
+
+			if (parameters.searchMaps.Contains(toggleMap))
+			{
+				if (parameters.searchMaps.Count == 1)
+					Messages.Message("Hey man we have to search somewhere", MessageTypeDefOf.RejectInput, false);
+				else
+					parameters.searchMaps.Remove(toggleMap);
+			}
+			else
+				parameters.searchMaps.Add(toggleMap);
+
+			if (remake) RemakeList();
+		}
+
 		public void SetSearchCurrentMap(bool remake = true)
 		{
 			if (parameters.mapType == QueryMapType.CurMap) return;
@@ -218,7 +255,9 @@ namespace TD_Find_Lib
 
 
 		// Get maps shenanigans
-		public List<Map> SelectedMaps =>
+		public QueryMapType MapType => parameters.mapType;
+
+		public List<Map> ChosenMaps =>
 			parameters.mapType == QueryMapType.ChosenMaps ? parameters.searchMaps : null;
 
 		public bool AllMaps => parameters.mapType == QueryMapType.AllMaps;
@@ -228,7 +267,7 @@ namespace TD_Find_Lib
 			parameters.mapType == QueryMapType.CurMap || Children.Any(f => f.CurMapOnly);
 
 
-		public string GetMapLabel()
+		public string GetMapNameSuffix()
 		{
 			StringBuilder sb = new(" <i>(");
 
@@ -244,6 +283,26 @@ namespace TD_Find_Lib
 			//Don't write "Current Map", doesn't look good. It is "unknown" until searched anyway
 
 			sb.Append(")</i>");
+
+			return sb.ToString();
+		}
+
+
+		public string GetMapOptionLabel()
+		{
+			StringBuilder sb = new("Searching: ");
+
+			// override requested map if a filter only works on current map
+			if (parameters.mapType == QueryMapType.AllMaps)
+				sb.Append("TD.AllMaps".Translate());
+			else if (parameters.mapType == QueryMapType.CurMap)
+				sb.Append("TD.CurrentMap".Translate());
+			else if (parameters.searchMaps?.Count == 1)
+				sb.Append(parameters.searchMaps[0].Parent.LabelCap);
+			else if (parameters.searchMaps?.Count > 1)
+				sb.Append("TD.ChosenMaps".Translate());
+			else
+				sb.Append("??Missing??");
 
 			return sb.ToString();
 		}
@@ -289,7 +348,6 @@ namespace TD_Find_Lib
 				active = false,
 				parameters = parameters
 			};
-			//Does it make sense to store an inactive filter with ChosenMap but no maps? whatever.
 			newDesc.parameters.searchMaps = null;
 
 			newDesc.children = children.Clone(newDesc);
@@ -319,8 +377,8 @@ namespace TD_Find_Lib
 
 			if (newDesc.parameters.mapType == QueryMapType.ChosenMaps && newDesc.parameters.searchMaps == null)
 			{
-				newDesc.SetSearchCurrentMap();
-				Verse.Log.Warning("Tried to CloneForUse with no map set. Setting to search current map instead!");
+				newDesc.SetSearchMap(Find.CurrentMap);
+				Messages.Message($"Tried to clone Search \"{newDesc.name}\" with no maps given. Setting to search current map ({Find.CurrentMap.Parent.LabelCap}) instead!", MessageTypeDefOf.CautionInput, false);
 			}
 
 

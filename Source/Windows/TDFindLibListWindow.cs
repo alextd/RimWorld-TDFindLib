@@ -191,7 +191,7 @@ namespace TD_Find_Lib
 
 				// Name
 				row.Gap(6);
-				row.Label(desc.name + desc.GetMapLabel());
+				row.Label(desc.name + desc.GetMapNameSuffix());
 
 				DrawExtraRowRect(rowRect, item, i);
 
