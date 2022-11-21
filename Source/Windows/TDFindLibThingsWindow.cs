@@ -81,7 +81,7 @@ namespace TD_Find_Lib
 
 			//Count text
 			Text.Anchor = TextAnchor.UpperRight;
-			Widgets.Label(inRect, LabelCountThings(findDesc.result.things));
+			Widgets.Label(inRect, LabelCountThings(findDesc.result.allThings));
 			Text.Anchor = TextAnchor.UpperLeft;
 
 			//Handle mouse selection
@@ -120,7 +120,7 @@ namespace TD_Find_Lib
 			Widgets.BeginScrollView(listRect, ref scrollPositionList, viewRect);
 			Rect thingRect = new Rect(viewRect.x, 0, viewRect.width, 32);
 
-			foreach (Thing thing in findDesc.result.things)
+			foreach (Thing thing in findDesc.result.allThings)
 			{
 				//Be smart about drawing only what's visible.
 				if (thingRect.y + 32 >= scrollPositionList.y)
@@ -133,18 +133,18 @@ namespace TD_Find_Lib
 			}
 
 			if (Event.current.type == EventType.Layout)
-				scrollViewHeightList = findDesc.result.things.Count * 34f;
+				scrollViewHeightList = findDesc.result.allThings.Count * 34f;
 
 			//Select all 
 			Map currentMap = Find.CurrentMap;
 			if (selectAll)
-				foreach (Thing t in findDesc.result.things)
+				foreach (Thing t in findDesc.result.allThings)
 					if(t.Map == currentMap)
 						TrySelect.Select(t);
 
 			//Select all for double-click
 			if (selectAllDef != null)
-				foreach (Thing t in findDesc.result.things)
+				foreach (Thing t in findDesc.result.allThings)
 					if (t.Map == currentMap && t.def == selectAllDef)
 						TrySelect.Select(t);
 

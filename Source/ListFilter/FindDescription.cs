@@ -72,9 +72,10 @@ namespace TD_Find_Lib
 	// What was found, and from where.
 	public struct QueryResult
 	{
+		public Dictionary<Map, List<Thing>> mapThings;
 		public List<Map> resultMaps;
 
-		public List<Thing> things;
+		public List<Thing> allThings;
 		//Todo things by def/map?
 	}
 
@@ -127,7 +128,8 @@ namespace TD_Find_Lib
 		{
 			children = new(this);
 			result.resultMaps = new();
-			result.things = new();
+			result.allThings = new();
+			result.mapThings = new();
 		}
 
 		//A new FindDescription, active, with this map
@@ -148,7 +150,8 @@ namespace TD_Find_Lib
 			parameters = default;
 			children.Clear();
 			result.resultMaps.Clear();
-			result.things.Clear();
+			result.allThings.Clear();
+			result.mapThings.Clear();
 		}
 
 
@@ -429,16 +432,21 @@ namespace TD_Find_Lib
 
 
 			// Peform the search on the maps:
-			result.things.Clear();
+			result.allThings.Clear();
+			result.mapThings.Clear();
 
 			foreach (Map map in result.resultMaps)
-				result.things.AddRange(Get(map, BaseType));
+			{
+				List<Thing> things = new(Get(map, BaseType));
+
+				// SORT. TODO: more sensical than shortHash.
+				things.SortBy(t => t.def.shortHash, t => t.Stuff?.shortHash ?? 0, t => t.Position.x + t.Position.z * 1000);
+
+				result.mapThings[map] = things;
+				result.allThings.AddRange(things);
+			}
 
 			newListedThings.Clear();
-
-
-			// SORT. TODO: more sensical than shortHash.
-			result.things.SortBy(t => t.def.shortHash, t => t.Stuff?.shortHash ?? 0, t => t.Position.x + t.Position.z * 1000);
 		}
 
 		private List<Thing> newListedThings = new();
