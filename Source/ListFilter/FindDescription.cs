@@ -61,6 +61,7 @@ namespace TD_Find_Lib
 
 			result.baseType = baseType;
 			result.mapType = mapType;
+
 			if (searchMaps != null)
 				result.searchMaps = new(searchMaps);
 
@@ -371,15 +372,14 @@ namespace TD_Find_Lib
 				parameters = parameters.Clone()
 			};
 
+
+			// If you ask for a map, you're changing the setting.
 			if (newMaps != null)
 				newDesc.SetSearchMaps(newMaps, false);
 
-
+			// If you loaded from a filter that chose the map, but didn't choose, I guess we'll choose for you.
 			if (newDesc.parameters.mapType == QueryMapType.ChosenMaps && newDesc.parameters.searchMaps == null)
-			{
-				newDesc.SetSearchMap(Find.CurrentMap);
-				Messages.Message($"Tried to clone Search \"{newDesc.name}\" with no maps given. Setting to search current map ({Find.CurrentMap.Parent.LabelCap}) instead!", MessageTypeDefOf.CautionInput, false);
-			}
+				newDesc.SetSearchMap(Find.CurrentMap, false);
 
 
 			newDesc.children = children.Clone(newDesc);
