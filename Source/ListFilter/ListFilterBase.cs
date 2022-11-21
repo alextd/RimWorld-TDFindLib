@@ -186,7 +186,7 @@ namespace TD_Find_Lib
 		public static void DoFloatOptions(List<FloatMenuOption> options)
 		{
 			if (options.NullOrEmpty())
-				Messages.Message("TD.ThereAreNoOptionsAvailablePerhapsYouShouldUncheckOnlyAvailableThings".Translate(), MessageTypeDefOf.RejectInput);
+				Messages.Message("TD.ThereAreNoOptionsAvailablePerhapsYouShouldUncheckOnlyAvailableThings".Translate(), MessageTypeDefOf.RejectInput, false);
 			else
 				Find.WindowStack.Add(new FloatMenu(options));
 		}
@@ -405,7 +405,7 @@ namespace TD_Find_Lib
 				if (_sel == null)
 				{
 					selectionError = $"Missing {def.LabelCap}: {selName} on {map.Parent.LabelCap}?";
-					Messages.Message("TD.TriedToLoad0FilterNamed1On2ButCouldNotBeFound".Translate(def.LabelCap, selName, map.Parent.LabelCap), MessageTypeDefOf.RejectInput);
+					Messages.Message("TD.TriedToLoad0FilterNamed1On2ButCouldNotBeFound".Translate(def.LabelCap, selName, map.Parent.LabelCap), MessageTypeDefOf.RejectInput, false);
 				}
 				else selectionError = null;
 			}
