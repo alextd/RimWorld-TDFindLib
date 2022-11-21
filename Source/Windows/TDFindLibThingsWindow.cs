@@ -136,14 +136,16 @@ namespace TD_Find_Lib
 				scrollViewHeightList = findDesc.result.things.Count * 34f;
 
 			//Select all 
+			Map currentMap = Find.CurrentMap;
 			if (selectAll)
 				foreach (Thing t in findDesc.result.things)
-					TrySelect.Select(t, false);
+					if(t.Map == currentMap)
+						TrySelect.Select(t, false);
 
 			//Select all for double-click
 			if (selectAllDef != null)
 				foreach (Thing t in findDesc.result.things)
-					if (t.def == selectAllDef)
+					if (t.Map == currentMap && t.def == selectAllDef)
 						TrySelect.Select(t, false);
 
 			Widgets.EndScrollView();
