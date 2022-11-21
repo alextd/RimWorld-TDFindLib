@@ -191,7 +191,7 @@ namespace TD_Find_Lib
 
 				// Name
 				row.Gap(6);
-				row.Label(desc.name + desc.mapLabel);
+				row.Label(desc.name + desc.GetMapLabel());
 
 				DrawExtraRowRect(rowRect, item, i);
 
@@ -291,7 +291,7 @@ namespace TD_Find_Lib
 		{
 			if (row.ButtonIcon(FindTex.Edit, "Edit this filter"))
 			{
-				Find.WindowStack.Add(new TDFindLibEditorWindow(desc.CloneForEdit(), nd => list.ConfirmPaste(nd, i)));
+				Find.WindowStack.Add(new TDFindLibEditorWindow(desc.CloneInactive(), nd => list.ConfirmPaste(nd, i)));
 			}
 
 

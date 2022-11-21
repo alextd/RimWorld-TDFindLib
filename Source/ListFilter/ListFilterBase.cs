@@ -54,8 +54,6 @@ namespace TD_Find_Lib
 			if (Scribe.mode == LoadSaveMode.ResolvingCrossRefs)
 			{
 				DoResolveName();
-				if (RootFindDesc.active && RootFindDesc.map != null)
-					DoResolveRef();
 			}
 		}
 
@@ -72,7 +70,7 @@ namespace TD_Find_Lib
 			return clone;
 		}
 		public virtual void DoResolveName() { }
-		public virtual void DoResolveRef() { }
+		public virtual void DoResolveRef(Map map) { }
 
 
 		public void Apply( /* const */ List<Thing> inList, List<Thing> outList)
@@ -185,7 +183,7 @@ namespace TD_Find_Lib
 		public virtual bool CurMapOnly => false;
 
 		public virtual string DisableReason =>
-			!ValidForAllMaps && RootFindDesc.allMaps
+			!ValidForAllMaps && RootFindDesc.AllMaps
 				? "TD.ThisFilterDoesntWorkWithAllMaps".Translate()
 				: null;
 
@@ -283,25 +281,29 @@ namespace TD_Find_Lib
 		//In-game, as an alert, as a saved filter to load in, saved to file to load into another game, etc.
 		//ExposeData and Clone can just copy that string, because a string is the same everywhere.
 		//But a filter that references in-game things can't be used universally.
-		//Filters are saved outside a running world, so even things like defs might not exist when loaded with different mods.
+		//Filters can be saved outside a running world, so even things like defs might not exist when loaded with different mods.
 		//When such a filter is run in-game, it does of course set 'sel' and reference it like normal
 		//But when such a filter is saved, it cannot be bound to an instance or even an ILoadReferencable id
 		//So ExposeData saves and loads 'string selName' instead of the 'T sel'
-		//When editing that filter when active, that's fine, sel isn't set but selName is - so selName should be readable.
+		//When editing that filter when inactive, that's fine, sel isn't set but selName is - so selName should be readable.
+		//TODO: allow editing of selName: e.g. You can't add a "Stockpile Zone 1" filter without that filter existing in-game.
 
 		//ListFilters have 3 levels of saving, sort of like ExposeData's 3 passes.
 		//Raw values can be saved/loaded by value easily in ExposeData.
-		//Filters that SaveLoadByName, are saved  by name in ExposeData
-		// - so they can be loaded into another game, 
-		// - if that name cannot be resolved, the name is still saved instead of saving null
-		//For loading there's two different times to load:
+		//Then there's UsesResolveName, and UsesResolveRef, which both SaveLoadByName
+		//All SaveLoadByName filters are simply saved by a string name in ExposeData
+		// - So it can be loaded into another game
+		// - if that name cannot be resolved, the name is still kept instead of writing null
+		//For loading, there's two different times to load:
 		//Filters that UsesResolveName can be resolved after the game starts up (e.g. defs),
 		// - ResolveName is called from ExposeData, ResolvingCrossRefs
+		// - Filters that fail to resolve name are disabled until reset.
 		//Filters that UsesResolveRef must be resolved on a map (e.g. Zones, ILoadReferenceable)
 		// - Filters that are loaded and active also call ResolveRef in ExposeData, ResolvingCrossRefs
 		// - Filters that are loaded and inactive do not call ResolveRef and only have selName set.
 		// - Filters that are Cloned from a saved filter, which was inactive, will have ResolveRef called after the Clone.
 		// - Filters that are Cloned from an active filter, onto a new map, will have ResolveRef called after the Clone.
+		// - Search Queries that run on multiple maps will ResolveRef on each map and change the filter for it.
 
 		protected readonly static bool IsDef = typeof(Def).IsAssignableFrom(typeof(T));
 		protected readonly static bool IsRef = typeof(ILoadReferenceable).IsAssignableFrom(typeof(T));
@@ -327,7 +329,7 @@ namespace TD_Find_Lib
 			}
 
 			//Oh Jesus T can be anything but Scribe doesn't like that much flexibility so here we are:
-			//(avoid using property 'sel' so it doesn't MakeRefName())
+			//(avoid using property 'sel' setter!)
 			if (SaveLoadByName)
 			{
 				// Of course between games you can't get references so just save by name should be good enough
@@ -336,7 +338,8 @@ namespace TD_Find_Lib
 				// Saving a null selName saves "IsNull"
 				Scribe_Values.Look(ref selName, "refName");
 
-				// ResolveName() will be called when loaded onto a map for actual use
+				// ResolveName() will be called on startup
+				// ResolveRefs() will be called when a map is set
 			}
 			else if (typeof(IExposable).IsAssignableFrom(typeof(T)))
 			{
@@ -365,8 +368,8 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		// Subclasses where SaveLoadByName is true need to implement ResolveName() or ResolveRef()
-		// (unless it's just a Def)
+		// Subclasses where SaveLoadByName is true need to override ResolveName() or ResolveRef()
+		// (unless it's just a Def, already handled)
 		// return matching object based on refName (refName will not be "null")
 		// returning null produces a selection error and the filter will be disabled
 		public override void DoResolveName()
@@ -389,11 +392,11 @@ namespace TD_Find_Lib
 				else selectionError = null;
 			}
 		}
-		public override void DoResolveRef()
+		public override void DoResolveRef(Map map)
 		{
 			if (!UsesResolveRef || extraOption > 0) return;
 
-			if (RootFindDesc.map == null) return; //Not gonna go well
+			if (map == null) return; //Not gonna go well
 
 			if (selName == SaveLoadXmlConstants.IsNullAttributeName)
 			{
@@ -401,7 +404,7 @@ namespace TD_Find_Lib
 			}
 			else
 			{
-				_sel = ResolveRef(RootFindDesc.map);
+				_sel = ResolveRef(map);
 
 				if (_sel == null)
 				{

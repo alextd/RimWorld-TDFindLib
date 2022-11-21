@@ -66,7 +66,7 @@ namespace TD_Find_Lib
 					FilterStorageUtil.ButtonChooseExportFilter(row, drawer.findDesc, "Storage");
 					if (row.ButtonIcon(FindTex.List, "List things matching this filter"))
 					{
-						Find.WindowStack.Add(new TDFindLibThingsWindow(drawer.findDesc.CloneForUse()));
+						Find.WindowStack.Add(new TDFindLibThingsWindow(drawer.findDesc.CloneForUseSingle()));
 					}
 				});
 		}
@@ -99,6 +99,22 @@ namespace TD_Find_Lib
 		{
 			this.findDesc = findDesc;
 			this.title = title;
+		}
+
+		protected virtual void DrawHeader(Rect headerRect)
+		{
+			Rect typeRect = headerRect.LeftPart(.6f);
+			Widgets.DrawHighlightIfMouseover(typeRect);
+
+			Widgets.Label(typeRect, "TD.Listing".Translate() + findDesc.BaseType.TranslateEnum());
+			if (!locked && Widgets.ButtonInvisible(typeRect))
+			{
+				List<FloatMenuOption> types = new List<FloatMenuOption>();
+				foreach (BaseListType type in DebugSettings.godMode ? Enum.GetValues(typeof(BaseListType)) : BaseListNormalTypes.normalTypes)
+					types.Add(new FloatMenuOption(type.TranslateEnum(), () => findDesc.BaseType = type));
+
+				Find.WindowStack.Add(new FloatMenu(types));
+			}
 		}
 
 		//Draw Filters
@@ -145,33 +161,7 @@ namespace TD_Find_Lib
 			Text.Font = GameFont.Small;
 
 			Rect headerRect = listing.GetRect(Text.LineHeight);
-			Rect typeRect = headerRect.LeftPart(.6f);
-			Rect allMapsRect = headerRect.RightPart(.3f);
-			Widgets.DrawHighlightIfMouseover(typeRect);
-			Widgets.DrawHighlightIfMouseover(allMapsRect);
-
-			Widgets.Label(typeRect, "TD.Listing".Translate() + findDesc.BaseType.TranslateEnum());
-			if (!locked && Widgets.ButtonInvisible(typeRect))
-			{
-				List<FloatMenuOption> types = new List<FloatMenuOption>();
-				foreach (BaseListType type in DebugSettings.godMode ? Enum.GetValues(typeof(BaseListType)) : BaseListNormalTypes.normalTypes)
-					types.Add(new FloatMenuOption(type.TranslateEnum(), () => findDesc.BaseType = type));
-
-				Find.WindowStack.Add(new FloatMenu(types));
-			}
-
-
-			//Extra options:
-			bool allMaps = findDesc.allMaps;
-			Widgets.CheckboxLabeled(allMapsRect,
-				"TD.AllMaps".Translate(),
-				ref allMaps);
-			TooltipHandler.TipRegion(allMapsRect, "TD.CertainFiltersDontWorkForAllMaps-LikeZonesAndAreasThatAreObviouslySpecificToASingleMap".Translate());
-
-			if(!locked && allMaps != findDesc.allMaps)
-			{
-				findDesc.allMaps = allMaps; //Re-writes map label, remakes list. Hopefully the map is set if allmaps is checked off?
-			}
+			DrawHeader(headerRect);
 
 			listing.GapLine();
 
@@ -197,5 +187,12 @@ namespace TD_Find_Lib
 
 			listing.End();
 		}
+	}
+
+	public static class BaseListNormalTypes
+	{
+		public static readonly BaseListType[] normalTypes =
+			{ BaseListType.Selectable, BaseListType.Everyone, BaseListType.Items, BaseListType.Buildings, BaseListType.Plants,
+			BaseListType.Natural, BaseListType.ItemsAndJunk, BaseListType.All, BaseListType.Inventory};
 	}
 }

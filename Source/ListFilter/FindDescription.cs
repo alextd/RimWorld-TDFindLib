@@ -7,48 +7,112 @@ using RimWorld;
 
 namespace TD_Find_Lib
 {
-	// The FindDescription is the root owner of a set of filters,
-	// (It's a little more than a mere ListFilterGroup)
-	// - Holds the list of things and performs the search
+	// FindDescription is the class to do a TDFindLib Thing Query Search, 
+	// There's a few parts:
+	// - The BaseListType narrows the basic type of thing you're searching
+	// - The filters (the bulk of the lib) are countless query options
+	//    to select from every detail about a thing.
+	// - And then, which map/maps to run the search on.
+
+
+	// BaseListType:
+	// What basic type of thing are you searching.
+	public enum BaseListType
+	{
+		Selectable,	// Known as "Map", requires processing on All things.
+
+		// Direct references to listerThings lists
+		Everyone,
+		Items,
+		Buildings,
+		Plants,
+
+		Natural,	// Extra processing required
+		ItemsAndJunk, // "Haulable" things, because "Items" above doesn't include e.g. chunks
+		All,  // Very long including every blade of grass
+		Inventory,	// Actually fast since there aren't many ThingHolders on a map
+
+		//devmode options
+		Haulables,
+		Mergables,
+		FilthInHomeArea
+	}
+
+	// QueryMapType:
+	// What map or maps you're searching on.
+	// For ChosenMaps, QueryParameters.searchMaps is set by the user
+	// For CurMap / AllMaps, QueryParameters.searchMaps is null, but QueryResult.resultMaps is set when a search is run
+	// TODO filter for colony/raid maps.
+	public enum QueryMapType	{ CurMap, AllMaps, ChosenMaps}
+	public struct BasicQueryParameters
+	{
+		// What basic list to search (TODO: list of types.)
+		public BaseListType baseType; //default is Selectable
+
+		// How to look
+		public QueryMapType mapType; //default is CurMap
+
+		// Where to look
+		public List<Map> searchMaps;
+
+		public BasicQueryParameters Clone()
+		{
+			BasicQueryParameters result = new();
+
+			result.baseType = baseType;
+			result.mapType = mapType;
+			if (searchMaps != null)
+				result.searchMaps = new(searchMaps);
+
+			return result;
+		}
+	}
+
+	// What was found, and from where.
+	public struct QueryResult
+	{
+		public List<Map> resultMaps;
+
+		public List<Thing> things;
+		//Todo things by def/map?
+	}
+
+	// The FindDescription is the root of a TDFindLib search
 	// - BaseListType which narrows what that things to look at
-	// - Checkbox bool allMaps that apply to all nested filters
+	// - owner of a set of filters
+	// - What maps to search on
+	// - Performs the search
+	// - Holds the list of found things.
 	public class FindDescription : IExposable, IFilterHolder
 	{
 		public string name = "TD.NewFindFilters".Translate();
 
-		private List<Thing> listedThings = new();
-		private BaseListType _baseType;
-		private FilterHolder children;
-		private Map _map;
-		private bool _allMaps;
-		private bool _curMap = true;
+		// Basic query settings:
+		private BasicQueryParameters parameters;
+		// What to filter for
+		public FilterHolder children;
+		// Resulting things
+		public QueryResult result;
 
 
 		// "Inactive" is for the saved library of filters to Clone from.
 		// inactive won't actually fill their lists
-		// activating a finddesc should have ResolveRefs called
 		public bool active;
 
 		// If you clone a FindDesciption it starts unchanged.
+		// Not used directly but good to know if a save is needed.
 		public bool changed;
 
 
-		// There's 4 states to be in active/inactive + singlemap/allmaps
-		// Map _map is there for when active and singlemap
-		// But _map == null doesn't imply allmaps, since it would be null for inactive singlemap 
-		// _map != null with allMaps is fine - it won't use the map, but allMaps could be checked off and it has a map to use.
-
-
-		// from IFilterHolder
+		// from IFilterHolder: FindDescription is the end of the chain of any nested filter's parent up to this root.
 		public FindDescription RootFindDesc => this;
 
-		public IEnumerable<Thing> ListedThings => listedThings;
 		public BaseListType BaseType
 		{
-			get => _baseType;
+			get => parameters.baseType;
 			set
 			{
-				_baseType = value;
+				parameters.baseType = value;
 
 				RemakeList();
 			}
@@ -56,113 +120,23 @@ namespace TD_Find_Lib
 
 		public FilterHolder Children => children;
 
-		// the Map for when active and !allMaps, or whatever the current map is . . 
-		public Map map
-		{
-			get => _map;
-			set
-			{
-				_map = value;
-				if (map != null)
-				{
-					// The only reason to set map would be for active maps
-					active = true;
-					_allMaps = false;
-					_curMap = false;
-				}
-				/* Do not set allmaps false - an inactive findDesc for a single map has null map
-				else
-				{
-					_allMaps = true;
-				}*/
-
-
-				MakeMapLabel();
-				RemakeList();
-			}
-		}
-		public bool allMaps
-		{
-			get => _allMaps;
-			set
-			{
-				_allMaps = value;
-				if (_allMaps)
-				{
-					curMap = false;
-					//But keep the map around just in case this gets checked off
-				}
-
-				MakeMapLabel();
-				RemakeList();
-			}
-		}
-
-		public bool curMap
-		{
-			get => _curMap;
-			set
-			{
-				_curMap = value;
-				if (_curMap)
-				{
-					_allMaps = false;
-					_map = null;
-					//map will get updated with current map each remake
-				}
-
-				MakeMapLabel();
-				RemakeList();
-			}
-		}
-
-		// Certain filters only work on the current map, so the entire tree will only work on the current map
-		public bool CurMapOnly() =>
-			curMap || Children.Any(f => f.CurMapOnly);
-
-
-		public string mapLabel;
-		public void MakeMapLabel()
-		{
-			mapLabel = GetMapLabel();
-		}
-
-		private string GetMapLabel()
-		{
-			StringBuilder sb = new(" <i>(");
-
-			// override requested map if a filter only works on current map
-			if (allMaps)
-				sb.Append("TD.AllMaps".Translate());
-			else if (map != null)
-				sb.Append(map.Parent.LabelCap);
-			else return "";
-
-			sb.Append(")</i>");
-
-			return sb.ToString();
-		}
-
 
 		//A new FindDescription, inactive, current map
 		public FindDescription()
 		{
-			children = new FilterHolder(this);
-			MakeMapLabel();
+			children = new(this);
+			result.resultMaps = new();
+			result.things = new();
 		}
 
 		//A new FindDescription, active, with this map
-		//Or calls base constructor when null
+		// (Or just calls base constructor when null)
 		public FindDescription(Map map = null) : this()
 		{
 			if (map != null)
 			{
-				// the same as map property setter except don't remake list
-				_map = map;
-
-				// The only reason to set map would be for active maps
 				active = true;
-				_curMap = false;
+				SetSearchMap(map, false);
 			}
 		}
 
@@ -170,34 +144,113 @@ namespace TD_Find_Lib
 		public void Reset()
 		{
 			changed = true;
+			parameters = default;
 			children.Clear();
-			//_allMaps = false;
-			_baseType = default;
-			listedThings.Clear();
-	}
+			result.resultMaps.Clear();
+			result.things.Clear();
+		}
 
 
 		public void ExposeData()
 		{
 			Scribe_Values.Look(ref name, "name");
-			Scribe_Values.Look(ref _baseType, "baseType");
 			Scribe_Values.Look(ref active, "active");
-			Scribe_Values.Look(ref _allMaps, "allMaps");
-			Scribe_Values.Look(ref _curMap, "curMap", true);
+			Scribe_Values.Look(ref parameters.baseType, "baseType");
+			Scribe_Values.Look(ref parameters.mapType, "mapType");
 
-			//no need to save map null
-			if (Scribe.mode != LoadSaveMode.Saving || _map != null)
-				Scribe_References.Look(ref _map, "map");
+			//no need to save null searchMaps
+			if (parameters.mapType == QueryMapType.ChosenMaps)
+			{
+				Scribe_Collections.Look(ref parameters.searchMaps, "searchMaps", LookMode.Reference);
+			}
 
 			Children.ExposeData();
-
-			if (Scribe.mode == LoadSaveMode.PostLoadInit)
-			{
-				MakeMapLabel();
-			}
 		}
 
 
+
+		//Map shenanigans setters
+		public void SetSearchMap(Map newMap, bool remake = true)
+		{
+			parameters.mapType = QueryMapType.ChosenMaps;
+			parameters.searchMaps = new List<Map>() { newMap };
+
+			if (remake) RemakeList();
+		}
+
+		public void SetSearchMaps(IEnumerable<Map> newMaps, bool remake = true)
+		{
+			parameters.mapType = QueryMapType.ChosenMaps;
+			parameters.searchMaps = new List<Map>(newMaps);
+
+			if (remake) RemakeList();
+		}
+
+		public void AddSearchMap(Map newMap, bool remake = true)
+		{
+			parameters.mapType = QueryMapType.ChosenMaps;
+			if (parameters.searchMaps == null)
+				parameters.searchMaps = new List<Map>();
+			parameters.searchMaps.Add(newMap);
+
+			if (remake) RemakeList();
+		}
+
+		public void SetSearchCurrentMap(bool remake = true)
+		{
+			if (parameters.mapType == QueryMapType.CurMap) return;
+
+			parameters.mapType = QueryMapType.CurMap;
+			parameters.searchMaps = null;
+
+			if (remake) RemakeList();
+		}
+
+		public void SetSearchAllMaps(bool remake = true)
+		{
+			if (parameters.mapType == QueryMapType.AllMaps) return;
+
+			parameters.mapType = QueryMapType.AllMaps;
+			parameters.searchMaps = null;
+
+			if (remake) RemakeList();
+		}
+
+
+		// Get maps shenanigans
+		public List<Map> SelectedMaps =>
+			parameters.mapType == QueryMapType.ChosenMaps ? parameters.searchMaps : null;
+
+		public bool AllMaps => parameters.mapType == QueryMapType.AllMaps;
+
+		// Certain filters only work on the current map, so the entire tree will only work on the current map
+		public bool CurMapOnly() =>
+			parameters.mapType == QueryMapType.CurMap || Children.Any(f => f.CurMapOnly);
+
+
+		public string GetMapLabel()
+		{
+			StringBuilder sb = new(" <i>(");
+
+			// override requested map if a filter only works on current map
+			if (parameters.mapType == QueryMapType.AllMaps)
+				sb.Append("TD.AllMaps".Translate());
+			else if (result.resultMaps?.Count > 0)
+				sb.Append(string.Join(", ", result.resultMaps.Select(m => m.Parent.LabelCap)));
+			else if (parameters.searchMaps?.Count > 0)
+				sb.Append(string.Join(", ", parameters.searchMaps.Select(m => m.Parent.LabelCap)));
+			else return "";
+
+			//Don't write "Current Map", doesn't look good. It is "unknown" until searched anyway
+
+			sb.Append(")</i>");
+
+			return sb.ToString();
+		}
+
+
+
+		// Cloning shenanigans
 		public enum CloneType { Save, Edit, Use }//Reference? Copy?
 
 		//default(CloneArgs) CloneArgs is CloneType.Save
@@ -205,6 +258,7 @@ namespace TD_Find_Lib
 		{
 			public CloneType type;
 			public Map map;
+			public List<Map> maps;
 			public string newName;
 
 			public static CloneArgs save = new CloneArgs();
@@ -215,86 +269,89 @@ namespace TD_Find_Lib
 		{
 			return args.type switch
 			{
-				CloneType.Save => CloneForSave(args.newName),
-				CloneType.Edit => CloneForEdit(args.newName),
-				CloneType.Use => CloneForUse(args.map, args.newName),
+				CloneType.Save => CloneInactive(args.newName),
+
+				CloneType.Edit => CloneInactive(args.newName),
+
+				CloneType.Use =>
+				args.maps != null ? CloneForUse(args.maps, args.newName)
+				: CloneForUseSingle(args.map, args.newName),
+
 				_ => null
 			};
 		}
 
-		public FindDescription CloneForSave(string newName = null)
-		{
-			FindDescription newDesc = new FindDescription(null)
-			{
-				name = newName ?? name,
-				active = false,
-				_baseType = _baseType,
-				_allMaps = allMaps,
-				_curMap = curMap,
-			};
-
-			newDesc.children = children.Clone(newDesc);
-
-			newDesc.MakeMapLabel();
-
-			return newDesc;
-		}
-
-		public FindDescription CloneForEdit(string newName = null)
+		public FindDescription CloneInactive(string newName = null)
 		{
 			FindDescription newDesc = new FindDescription()
 			{
 				name = newName ?? name,
 				active = false,
-				_baseType = _baseType,
-				_map = _map,
-				_allMaps = allMaps,
-				_curMap = curMap,
+				parameters = parameters
 			};
+			//Does it make sense to store an inactive filter with ChosenMap but no maps? whatever.
+			newDesc.parameters.searchMaps = null;
 
 			newDesc.children = children.Clone(newDesc);
 
-			newDesc.MakeMapLabel();
-
 			return newDesc;
 		}
+		public FindDescription CloneForUseSingle(Map newMap = null, string newName = null)
+		{
+			if (newMap != null)
+				return CloneForUse(new List<Map> { newMap }, newName);
+			else
+				return CloneForUse(null, newName);
+		}
 
-		public FindDescription CloneForUse(Map newMap = null, string newName = null)
+		public FindDescription CloneForUse(List<Map> newMaps = null, string newName = null)
 		{
 			FindDescription newDesc = new FindDescription()
 			{
 				name = newName ?? name,
 				active = true,
-				_baseType = _baseType,
-				_map = newMap ?? _map,
-				_allMaps = allMaps,
-				_curMap = curMap && newMap == null,
+				parameters = parameters.Clone()
 			};
 
+			if (newMaps != null)
+				newDesc.SetSearchMaps(newMaps, false);
 
-			if (newDesc._map == null && !allMaps && !curMap)
+
+			if (newDesc.parameters.mapType == QueryMapType.ChosenMaps && newDesc.parameters.searchMaps == null)
 			{
-				newDesc.curMap = true;
-				Verse.Log.Warning("Tried to CloneForUse with no map set. Setting curMap=true instead!");
+				newDesc.SetSearchCurrentMap();
+				Verse.Log.Warning("Tried to CloneForUse with no map set. Setting to search current map instead!");
 			}
+
 
 			newDesc.children = children.Clone(newDesc);
 
-			// If cloning from inactive filters, or setting a new map,
-			// Must resolve refs
-			if (newDesc.curMap)
-				newDesc._map = Find.CurrentMap;
 
-			if (!active || newMap != null)
-				newDesc.Children.ForEach(f => f.DoResolveRef());
-
-			newDesc.MakeMapLabel();
 			newDesc.RemakeList();
 
 			return newDesc;
 		}
 
+		private Map boundMap;
+		private void BindToMap(Map map)
+		{
+			if (boundMap == map) return;
 
+			boundMap = map;
+
+			DoResolveRef(boundMap);
+		}
+
+
+		public void DoResolveRef(Map map)
+		{
+			Children.ForEach(f => f.DoResolveRef(map));
+		}
+
+
+
+		// Here we are finally
+		// Actually searching and finding the list of things:
 		public void RemakeList()
 		{
 			changed = true;
@@ -303,42 +360,35 @@ namespace TD_Find_Lib
 			if (!active)
 				return;
 
-
+			// Set up the maps:
+			result.resultMaps.Clear();
 			if (CurMapOnly())
-			{
-				if (_map != Find.CurrentMap)
-				{
-					_map = Find.CurrentMap;
-
-					Children.ForEach(f => f.DoResolveRef());
-
-					MakeMapLabel();
-				}
-				listedThings = Get(map, BaseType);
-			}
-			// All maps
-			else if (allMaps)
-			{
-				listedThings.Clear();
-
-				foreach (Map m in Find.Maps)
-					listedThings.AddRange(Get(m, BaseType));
-
-				newListedThings.Clear();
-			}
-			// Single selected map
+				result.resultMaps.Add(Find.CurrentMap);
+			else if (AllMaps)
+				result.resultMaps.AddRange(Find.Maps);
 			else
-				listedThings = Get(map, BaseType);
+				result.resultMaps.AddRange(parameters.searchMaps);
 
 
-			// SORT.
-			listedThings.SortBy(t => t.def.shortHash, t => t.Stuff?.shortHash ?? 0, t => t.Position.x + t.Position.z * 1000);
+			// Peform the search on the maps:
+			result.things.Clear();
+
+			foreach (Map map in result.resultMaps)
+				result.things.AddRange(Get(map, BaseType));
+
+			newListedThings.Clear();
+
+
+			// SORT. TODO: more sensical than shortHash.
+			result.things.SortBy(t => t.def.shortHash, t => t.Stuff?.shortHash ?? 0, t => t.Position.x + t.Position.z * 1000);
 		}
 
 		private List<Thing> newListedThings = new();
 		private List<Thing> newFilteredThings = new();
 		private List<Thing> Get(Map searchMap, BaseListType baseListType)
-		{
+		{ 
+			BindToMap(searchMap);
+
 			List<Thing> baseList = baseListType switch
 			{
 				BaseListType.Selectable => searchMap.listerThings.AllThings,
@@ -359,11 +409,12 @@ namespace TD_Find_Lib
 
 			// newListedThings is what we're gonna return
 			newListedThings.Clear();
+
 			bool Listable(Thing t) =>
 				DebugSettings.godMode ||
 				ValidDef(t.def) && !t.Position.Fogged(searchMap);
 
-			//Filter a but more:
+			//Filter a bit more:
 			switch (baseListType)
 			{
 				case BaseListType.Selectable: //Known as "Map"
@@ -385,12 +436,14 @@ namespace TD_Find_Lib
 					break;
 			}
 
+
+			// Apply the actual filters, finally
 			foreach (ListFilter filter in Children.filters.FindAll(f => f.Enabled))
 			{
-				//Clears newFilteredThings, fills with newListedThings which pass filter.
+				// Clears newFilteredThings, fills with newListedThings which pass filter.
 				filter.Apply(newListedThings, newFilteredThings);
 
-				//newFilteredThings is now the list of things ; swap them
+				// newFilteredThings is now the list of things ; swap them
 				(newListedThings, newFilteredThings) = (newFilteredThings, newListedThings);
 			}
 
@@ -404,31 +457,5 @@ namespace TD_Find_Lib
 			!typeof(Mote).IsAssignableFrom(def.thingClass) &&
 			!typeof(Projectile).IsAssignableFrom(def.thingClass) &&
 			def.drawerType != DrawerType.None;	//non-drawers are weird abstract things.
-	}
-		
-
-	public enum BaseListType
-	{
-		Selectable,
-		Everyone,
-		Items,
-		Buildings,
-		Plants,
-		Natural,
-		ItemsAndJunk,
-		All,
-		Inventory,
-
-		//devmode options
-		Haulables,
-		Mergables,
-		FilthInHomeArea
-	}
-
-	public static class BaseListNormalTypes
-	{
-		public static readonly BaseListType[] normalTypes =
-			{ BaseListType.Selectable, BaseListType.Everyone, BaseListType.Items, BaseListType.Buildings, BaseListType.Plants,
-			BaseListType.Natural, BaseListType.ItemsAndJunk, BaseListType.All, BaseListType.Inventory};
 	}
 }
