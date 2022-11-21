@@ -88,10 +88,7 @@ namespace TD_Find_Lib
 		{
 			bool prev = checkOn;
 
-			CheckboxLabeled(
-				"TD.AllMaps".Translate(),
-				ref checkOn,
-				"TD.CertainFiltersDontWorkForAllMaps-LikeZonesAndAreasThatAreObviouslySpecificToASingleMap".Translate());
+			CheckboxLabeled(label, ref checkOn, tooltip, height, labelPct);
 
 			return prev != checkOn;
 		}
