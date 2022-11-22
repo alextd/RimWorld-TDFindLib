@@ -26,6 +26,12 @@ namespace TD_Find_Lib
 			this.onCloseIfChanged = onCloseIfChanged;
 		}
 
+		public override void OnCancelKeyPressed()
+		{
+			if (!drawer.findDesc.OnCancelKeyPressed())
+				base.OnCancelKeyPressed();
+		}
+
 		public override void PostClose()
 		{
 			if (drawer.findDesc.changed)

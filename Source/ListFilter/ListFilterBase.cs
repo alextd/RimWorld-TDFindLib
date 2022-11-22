@@ -98,6 +98,8 @@ namespace TD_Find_Lib
 		private bool shouldFocus;
 		public void Focus() => shouldFocus = true;
 		protected virtual void DoFocus() { }
+		// Handle esc key before windows do
+		public virtual bool OnCancelKeyPressed() => false;
 
 
 		// Seems to be GameFont.Small on load so we're good

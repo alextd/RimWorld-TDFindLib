@@ -154,6 +154,14 @@ namespace TD_Find_Lib
 		}
 
 
+		// This is a roundabout way to hijack the esc-keypress from a window before it closes the window.
+		// Any window displaying this has to override OnCancelKeyPressed and call this
+		public bool OnCancelKeyPressed()
+		{
+			return children.Any(f => f.OnCancelKeyPressed());
+		}
+
+
 		public void ExposeData()
 		{
 			Scribe_Values.Look(ref name, "name");

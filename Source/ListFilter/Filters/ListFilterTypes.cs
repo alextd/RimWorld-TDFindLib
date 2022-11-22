@@ -61,6 +61,16 @@ namespace TD_Find_Lib
 		{
 			GUI.FocusControl($"LIST_FILTER_NAME_INPUT{id}");
 		}
+		public override bool OnCancelKeyPressed()
+		{
+			if (GUI.GetNameOfFocusedControl() == $"LIST_FILTER_NAME_INPUT{id}")
+			{
+				GUI.FocusControl("");
+				return true;
+			}
+
+			return false;
+		}
 	}
 
 	public enum ForbiddenType { Forbidden, Allowed, Forbiddable }
