@@ -485,7 +485,7 @@
 
 	<TD_Find_Lib.ListFilterDef>
 		<defName>Filter_Fogged</defName>
-		<label>fogged</label>
+		<label>fogged (also you need to turn on godmode)</label>
 		<filterClass>TD_Find_Lib.ListFilterFogged</filterClass>
 		<devOnly>true</devOnly>
 	</TD_Find_Lib.ListFilterDef>
