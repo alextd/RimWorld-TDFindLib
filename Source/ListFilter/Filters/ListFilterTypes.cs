@@ -34,12 +34,9 @@ namespace TD_Find_Lib
 				return false;
 			}
 
-			if (GUI.GetNameOfFocusedControl() == $"LIST_FILTER_NAME_INPUT{id}" &&
-				Mouse.IsOver(rect) && Event.current.type == EventType.MouseDown && Event.current.button == 1)
-			{
-				GUI.FocusControl("");
-				Event.current.Use();
-			}
+			if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Tab
+				&& GUI.GetNameOfFocusedControl() == $"LIST_FILTER_NAME_INPUT{id}")
+					Event.current.Use();
 
 			GUI.SetNextControlName($"LIST_FILTER_NAME_INPUT{id}");
 			string newStr = Widgets.TextField(rect.LeftPart(0.9f), sel);
@@ -807,7 +804,7 @@ namespace TD_Find_Lib
 			Rect lRect = rect.LeftPart(.45f);
 			Rect rRect = rect.RightPart(.45f);
 
-			//From inner TextFieldNumeric
+			// these wil be the names generated inside TextFieldNumeric
 			controlNameL = "TextField" + lRect.y.ToString("F0") + lRect.x.ToString("F0");
 			controlNameR = "TextField" + rRect.y.ToString("F0") + rRect.x.ToString("F0");
 
@@ -828,14 +825,11 @@ namespace TD_Find_Lib
 				Widgets.TextFieldNumeric<float>(rRect, ref valueRange.max, ref rBuffer, float.MinValue, float.MaxValue);
 			}
 
-			/* TODO: figure this out. Unity seems to have override the tab.
-			if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Tab)
-			{
-				//Why wrong place.
-				GUI.FocusControl(controlNameR);
-				Event.current.Use();
-			}
-			*/
+
+			if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Tab
+				 && (GUI.GetNameOfFocusedControl() == controlNameL || GUI.GetNameOfFocusedControl() == controlNameR))
+					Event.current.Use();
+			
 
 			return valueRange != oldRange;
 		}
@@ -847,7 +841,7 @@ namespace TD_Find_Lib
 
 		public override bool OnCancelKeyPressed()
 		{
-			if (GUI.GetNameOfFocusedControl() == controlNameL)
+			if (GUI.GetNameOfFocusedControl() == controlNameL || GUI.GetNameOfFocusedControl() == controlNameR)
 			{
 				GUI.FocusControl("");
 				return true;
