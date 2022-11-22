@@ -295,10 +295,8 @@ namespace TD_Find_Lib
 				sb.Append("TD.CurrentMap".Translate());
 			else if (parameters.searchMaps.Count == 1)
 				sb.Append(parameters.searchMaps[0].Parent.LabelCap);
-			else if (parameters.searchMaps.Count > 1)
-				sb.Append("TD.ChosenMaps".Translate());
 			else
-				sb.Append("??Missing??");
+				sb.Append("TD.ChosenMaps".Translate());
 
 			return sb.ToString();
 		}
