@@ -7,7 +7,7 @@ using Verse;
 
 namespace TD_Find_Lib
 {
-	static class TrySelect
+	public static class TrySelect
 	{
 		public static void Select(Thing t, bool playSound = true)
 		{
