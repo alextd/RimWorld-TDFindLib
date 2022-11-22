@@ -230,7 +230,10 @@ namespace TD_Find_Lib
 					else if (dragJump)
 						CameraJumper.TryJump(thing);
 					else if (dragSelect)
-						TrySelect.Select(thing, false);
+					{
+						if (thing.Map == Find.CurrentMap)
+							TrySelect.Select(thing, false);
+					}
 					else if (dragDeselect)
 						Find.Selector.Deselect(thing);
 
