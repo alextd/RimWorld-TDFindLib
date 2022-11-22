@@ -141,12 +141,13 @@ namespace TD_Find_Lib
 						//Toggle each map
 						foreach (Map map in Find.Maps)
 						{
-							bool notEvenChosenMaps = findDesc.ChosenMaps == null;
-							bool thisMapChosen = findDesc.ChosenMaps?.Contains(map) ?? false;
 							mapOptions.Add(new FloatMenuOption(
 								map.Parent.LabelCap,
 								() => findDesc.ToggleSearchMap(map),
-								notEvenChosenMaps ? Widgets.CheckboxPartialTex : thisMapChosen ? Widgets.CheckboxOnTex : Widgets.CheckboxOffTex, Color.white));
+								findDesc.ChosenMaps == null ? Widgets.CheckboxPartialTex
+								: findDesc.ChosenMaps.Contains(map) ? Widgets.CheckboxOnTex
+								: Widgets.CheckboxOffTex,
+								Color.white));
 						}
 					}
 					else

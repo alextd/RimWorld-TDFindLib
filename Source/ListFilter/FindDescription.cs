@@ -44,7 +44,7 @@ namespace TD_Find_Lib
 	// For CurMap / AllMaps, QueryParameters.searchMaps is null, but QueryResult.resultMaps is set when a search is run
 	// TODO filter for colony/raid maps.
 	public enum QueryMapType	{ CurMap, AllMaps, ChosenMaps}
-	public struct BasicQueryParameters
+	public class BasicQueryParameters
 	{
 		// What basic list to search (TODO: list of types.)
 		public BaseListType baseType; //default is Selectable
@@ -53,29 +53,29 @@ namespace TD_Find_Lib
 		public QueryMapType mapType; //default is CurMap
 
 		// Where to look
-		public List<Map> searchMaps;
+		public List<Map> searchMaps = new();
 
-		public BasicQueryParameters Clone()
+		public BasicQueryParameters Clone(bool includeMaps = true)
 		{
 			BasicQueryParameters result = new();
 
 			result.baseType = baseType;
 			result.mapType = mapType;
 
-			if (searchMaps != null)
-				result.searchMaps = new(searchMaps);
-
+			if(includeMaps)
+				result.searchMaps.AddRange(searchMaps);
+			
 			return result;
 		}
 	}
 
 	// What was found, and from where.
-	public struct QueryResult
+	public class QueryResult
 	{
-		public Dictionary<Map, List<Thing>> mapThings;
-		public List<Map> resultMaps;
+		public List<Map> resultMaps = new();
 
-		public List<Thing> allThings;
+		public List<Thing> allThings = new();
+		public Dictionary<Map, List<Thing>> mapThings = new();
 		//Todo things by def/map?
 	}
 
@@ -90,11 +90,11 @@ namespace TD_Find_Lib
 		public string name = "TD.NewFindFilters".Translate();
 
 		// Basic query settings:
-		private BasicQueryParameters parameters;
+		private BasicQueryParameters parameters = new();
 		// What to filter for
 		public FilterHolder children;
 		// Resulting things
-		public QueryResult result;
+		public QueryResult result = new();
 
 
 		// "Inactive" is for the saved library of filters to Clone from.
@@ -127,9 +127,6 @@ namespace TD_Find_Lib
 		public FindDescription()
 		{
 			children = new(this);
-			result.resultMaps = new();
-			result.allThings = new();
-			result.mapThings = new();
 		}
 
 		//A new FindDescription, active, with this map
@@ -147,11 +144,10 @@ namespace TD_Find_Lib
 		public void Reset()
 		{
 			changed = true;
+
 			parameters = default;
 			children.Clear();
-			result.resultMaps.Clear();
-			result.allThings.Clear();
-			result.mapThings.Clear();
+			result = default;
 		}
 
 
@@ -162,11 +158,7 @@ namespace TD_Find_Lib
 			Scribe_Values.Look(ref parameters.baseType, "baseType");
 			Scribe_Values.Look(ref parameters.mapType, "mapType");
 
-			//no need to save null searchMaps
-			if (parameters.mapType == QueryMapType.ChosenMaps)
-			{
-				Scribe_Collections.Look(ref parameters.searchMaps, "searchMaps", LookMode.Reference);
-			}
+			Scribe_Collections.Look(ref parameters.searchMaps, "searchMaps", LookMode.Reference);
 
 			Children.ExposeData();
 		}
@@ -178,13 +170,14 @@ namespace TD_Find_Lib
 		{
 			//Pretty much for inactive filters right?
 			parameters.mapType = QueryMapType.ChosenMaps;
-			parameters.searchMaps = null;
+			parameters.searchMaps.Clear();
 		}
 
 		public void SetSearchMap(Map newMap, bool remake = true)
 		{
 			parameters.mapType = QueryMapType.ChosenMaps;
-			parameters.searchMaps = new List<Map>() { newMap };
+			parameters.searchMaps.Clear();
+			parameters.searchMaps.Add(newMap);
 
 			if (remake) RemakeList();
 		}
@@ -192,7 +185,8 @@ namespace TD_Find_Lib
 		public void SetSearchMaps(IEnumerable<Map> newMaps, bool remake = true)
 		{
 			parameters.mapType = QueryMapType.ChosenMaps;
-			parameters.searchMaps = new List<Map>(newMaps);
+			parameters.searchMaps.Clear();
+			parameters.searchMaps.AddRange(newMaps);
 
 			if (remake) RemakeList();
 		}
@@ -200,8 +194,6 @@ namespace TD_Find_Lib
 		public void AddSearchMap(Map newMap, bool remake = true)
 		{
 			parameters.mapType = QueryMapType.ChosenMaps;
-			if (parameters.searchMaps == null)
-				parameters.searchMaps = new List<Map>();
 			parameters.searchMaps.Add(newMap);
 
 			if (remake) RemakeList();
@@ -242,7 +234,7 @@ namespace TD_Find_Lib
 			if (parameters.mapType == QueryMapType.CurMap) return;
 
 			parameters.mapType = QueryMapType.CurMap;
-			parameters.searchMaps = null;
+			parameters.searchMaps.Clear();
 
 			if (remake) RemakeList();
 		}
@@ -252,7 +244,7 @@ namespace TD_Find_Lib
 			if (parameters.mapType == QueryMapType.AllMaps) return;
 
 			parameters.mapType = QueryMapType.AllMaps;
-			parameters.searchMaps = null;
+			parameters.searchMaps.Clear();
 
 			if (remake) RemakeList();
 		}
@@ -278,9 +270,9 @@ namespace TD_Find_Lib
 			// override requested map if a filter only works on current map
 			if (parameters.mapType == QueryMapType.AllMaps)
 				sb.Append("TD.AllMaps".Translate());
-			else if (result.resultMaps?.Count > 0)
+			else if (result.resultMaps.Count > 0)
 				sb.Append(string.Join(", ", result.resultMaps.Select(m => m.Parent.LabelCap)));
-			else if (parameters.searchMaps?.Count > 0)
+			else if (parameters.searchMaps.Count > 0)
 				sb.Append(string.Join(", ", parameters.searchMaps.Select(m => m.Parent.LabelCap)));
 			else return "";
 
@@ -301,9 +293,9 @@ namespace TD_Find_Lib
 				sb.Append("TD.AllMaps".Translate());
 			else if (parameters.mapType == QueryMapType.CurMap)
 				sb.Append("TD.CurrentMap".Translate());
-			else if (parameters.searchMaps?.Count == 1)
+			else if (parameters.searchMaps.Count == 1)
 				sb.Append(parameters.searchMaps[0].Parent.LabelCap);
-			else if (parameters.searchMaps?.Count > 1)
+			else if (parameters.searchMaps.Count > 1)
 				sb.Append("TD.ChosenMaps".Translate());
 			else
 				sb.Append("??Missing??");
@@ -350,9 +342,8 @@ namespace TD_Find_Lib
 			{
 				name = newName ?? name,
 				active = false,
-				parameters = parameters
+				parameters = parameters.Clone(false)
 			};
-			newDesc.parameters.searchMaps = null;
 
 			newDesc.children = children.Clone(newDesc);
 
@@ -380,9 +371,11 @@ namespace TD_Find_Lib
 			if (newMaps != null)
 				newDesc.SetSearchMaps(newMaps, false);
 
+
 			// If you loaded from a filter that chose the map, but didn't choose, I guess we'll choose for you.
-			if (newDesc.parameters.mapType == QueryMapType.ChosenMaps && newDesc.parameters.searchMaps == null)
+			if (newDesc.parameters.mapType == QueryMapType.ChosenMaps && newDesc.parameters.searchMaps.Count == 0)
 				newDesc.SetSearchMap(Find.CurrentMap, false);
+
 
 
 			newDesc.children = children.Clone(newDesc);
