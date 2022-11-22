@@ -77,6 +77,8 @@ namespace TD_Find_Lib
 		public List<Thing> allThings = new();
 		public Dictionary<Map, List<Thing>> mapThings = new();
 		//Todo things by def/map?
+
+		public bool godMode;
 	}
 
 	// The FindDescription is the root of a TDFindLib search
@@ -438,6 +440,9 @@ namespace TD_Find_Lib
 			}
 
 			newListedThings.Clear();
+
+			//Btw, were we looking with godmode?
+			result.godMode = DebugSettings.godMode;
 		}
 
 		private List<Thing> newListedThings = new();

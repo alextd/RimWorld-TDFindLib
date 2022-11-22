@@ -72,9 +72,9 @@ namespace TD_Find_Lib
 			DrawIconButtons(row);
 
 			//Godmode showing fogged
-			if (DebugSettings.godMode)
+			if (findDesc.result.godMode)
 			{
-				row.Icon(Verse.TexButton.GodModeEnabled, "God mode is allowing you to see into fogged areas and various weird things");
+				row.Icon(Verse.TexButton.GodModeEnabled, "God mode is allowing you to see things in fogged areas, things you can't normally know, and various other weird things");
 			}
 
 
