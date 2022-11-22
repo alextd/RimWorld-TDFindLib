@@ -818,10 +818,10 @@ namespace TD_Find_Lib
 				Widgets.TextFieldPercent(rRect, ref valueRange.max, ref rBuffer, float.MinValue, float.MaxValue);
 			}
 			/*			else if(sel.toStringStyle == ToStringStyle.Integer)
-						{
-							Widgets.TextFieldNumeric<int>(lRect, ref valueRangeI.min, ref lBuffer, float.MinValue, float.MaxValue);
-							Widgets.TextFieldNumeric<int>(rRect, ref valueRangeI.max, ref rBuffer, float.MinValue, float.MaxValue);
-						}*/
+			{
+				Widgets.TextFieldNumeric<int>(lRect, ref valueRangeI.min, ref lBuffer, float.MinValue, float.MaxValue);
+				Widgets.TextFieldNumeric<int>(rRect, ref valueRangeI.max, ref rBuffer, float.MinValue, float.MaxValue);
+			}*/
 			else
 			{
 				Widgets.TextFieldNumeric<float>(lRect, ref valueRange.min, ref lBuffer, float.MinValue, float.MaxValue);
@@ -843,6 +843,17 @@ namespace TD_Find_Lib
 		protected override void DoFocus()
 		{
 			GUI.FocusControl(controlNameL);
+		}
+
+		public override bool OnCancelKeyPressed()
+		{
+			if (GUI.GetNameOfFocusedControl() == controlNameL)
+			{
+				GUI.FocusControl("");
+				return true;
+			}
+
+			return false;
 		}
 	}
 
