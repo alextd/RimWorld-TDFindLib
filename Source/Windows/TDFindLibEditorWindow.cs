@@ -143,7 +143,13 @@ namespace TD_Find_Lib
 						{
 							mapOptions.Add(new FloatMenuOption(
 								map.Parent.LabelCap,
-								() => findDesc.ToggleSearchMap(map),
+								() =>
+								{
+									if (Event.current.shift)
+										findDesc.SetSearchMap(map);
+									else
+										findDesc.ToggleSearchMap(map);
+								},
 								findDesc.ChosenMaps == null ? Widgets.CheckboxPartialTex
 								: findDesc.ChosenMaps.Contains(map) ? Widgets.CheckboxOnTex
 								: Widgets.CheckboxOffTex,
