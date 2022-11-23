@@ -159,7 +159,7 @@ namespace TD_Find_Lib
 		public override bool DrawMain(Rect rect, bool locked)
 		{
 			base.DrawMain(rect, locked);
-			return TDWidgets.IntRangeUB(rect.RightPart(0.5f), id, ref ticksRange, ticks => $"{ticks * 1f / GenDate.TicksPerDay:0.0}");
+			return TDWidgets.IntRangeUB(rect.RightHalf(), id, ref ticksRange, ticks => $"{ticks * 1f / GenDate.TicksPerDay:0.0}");
 		}
 	}
 
@@ -432,7 +432,7 @@ namespace TD_Find_Lib
 		{
 			base.DrawMain(rect, locked);
 			QualityRange newRange = sel;
-			Widgets.QualityRange(rect.RightPart(0.5f), id, ref newRange);
+			Widgets.QualityRange(rect.RightHalf(), id, ref newRange);
 			if (sel != newRange)
 			{
 				sel = newRange;
@@ -688,12 +688,12 @@ namespace TD_Find_Lib
 		}
 
 
-		public override bool DrawCustom(Rect rect, WidgetRow row)
+		public override bool DrawCustom(Rect rect, WidgetRow row, Rect rightHalfRect)
 		{
 			if (sel == null) return false;
 
 			if (sel.stackLimit > 1)
-				return TDWidgets.IntRangeUB(rect, id, ref stackRange);
+				return TDWidgets.IntRangeUB(rightHalfRect, id, ref stackRange);
 
 			return false;
 		}
@@ -785,12 +785,12 @@ namespace TD_Find_Lib
 			def.LabelForFullStatListCap;
 
 
-		public override bool DrawCustom(Rect rect, WidgetRow row)
+		public override bool DrawCustom(Rect rect, WidgetRow row, Rect rightHalfRect)
 		{
 			if (sel == null) return false;
 
 			Text.Anchor = TextAnchor.MiddleCenter;
-			Widgets.Label(rect,
+			Widgets.Label(rightHalfRect,
 				$"{valueRange.min.ToStringByStyle(sel.toStringStyle, sel.toStringNumberSense)} - {valueRange.max.ToStringByStyle(sel.toStringStyle, sel.toStringNumberSense)}");
 			Text.Anchor = TextAnchor.UpperLeft;
 

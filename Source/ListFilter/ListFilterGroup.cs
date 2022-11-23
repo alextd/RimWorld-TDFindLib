@@ -167,8 +167,7 @@ namespace TD_Find_Lib
 				changed = true;
 			}
 
-			rect.xMin = row.FinalX;
-			changed |= TDWidgets.IntRange(rect, id, ref range, max: 10);
+			changed |= TDWidgets.IntRange(rect.RightHalfClamped(row.FinalX), id, ref range, max: 10);
 			range.min = 0; // sorry we're not looking in a ring but we do want the slider UI
 
 			return changed;

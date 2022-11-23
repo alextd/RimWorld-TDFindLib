@@ -57,17 +57,15 @@ namespace TD_Find_Lib
 			 (int)rec.passion == passion);
 
 
-		public override bool DrawCustom(Rect rect, WidgetRow row)
+		public override bool DrawCustom(Rect rect, WidgetRow row, Rect rightHalfRect)
 		{
 			if (row.ButtonText(GetPassionText(passion)))
 			{
 				DoFloatOptions(Enumerable.Range(0, 5).Select(
 					p => new FloatMenuOptionAndRefresh(GetPassionText(p), () => passion = p, this)).Cast<FloatMenuOption>().ToList());
 			}
-			rect.x += 100;
-			rect.width -= 100;
 
-			return TDWidgets.IntRangeUB(rect, id, ref skillRange);
+			return TDWidgets.IntRangeUB(rightHalfRect, id, ref skillRange);
 		}
 	}
 
@@ -117,7 +115,7 @@ namespace TD_Find_Lib
 
 		public override bool Ordered => true;
 
-		public override bool DrawCustom(Rect rect, WidgetRow row)
+		public override bool DrawCustom(Rect rect, WidgetRow row, Rect rightHalfRect)
 		{
 			if (sel == null) return false;
 
@@ -344,9 +342,9 @@ namespace TD_Find_Lib
 			(!pawn.RaceProps.Animal || pawn.Faction != null || DebugSettings.godMode) &&
 				pawn.needs?.TryGetNeed(sel) is Need need && needRange.Includes(need.CurLevelPercentage);
 
-		public override bool DrawCustom(Rect rect, WidgetRow row)
+		public override bool DrawCustom(Rect rect, WidgetRow row, Rect rightHalfRect)
 		{
-			return TDWidgets.FloatRangeUB(rect, id, ref needRange, valueStyle: ToStringStyle.PercentOne);
+			return TDWidgets.FloatRangeUB(rightHalfRect, id, ref needRange, valueStyle: ToStringStyle.PercentOne);
 		}
 	}
 
@@ -410,10 +408,10 @@ namespace TD_Find_Lib
 		public override int ExtraOptionsCount => 1;
 		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
 
-		public override bool DrawCustom(Rect rect, WidgetRow row)
+		public override bool DrawCustom(Rect rect, WidgetRow row, Rect rightHalfRect)
 		{
 			if (sel != null && usesSeverity)
-				return TDWidgets.FloatRangeUB(rect, id, ref severityRange, valueStyle: ToStringStyle.FloatOne);
+				return TDWidgets.FloatRangeUB(rightHalfRect, id, ref severityRange, valueStyle: ToStringStyle.FloatOne);
 
 			return false;
 		}
@@ -679,7 +677,7 @@ namespace TD_Find_Lib
 			return false;
 		}
 
-		public override bool DrawCustom(Rect rect, WidgetRow row)
+		public override bool DrawCustom(Rect rect, WidgetRow row, Rect rightHalfRect)
 		{
 			List<FloatMenuOption> options = new List<FloatMenuOption>();
 			switch (sel)
@@ -697,7 +695,7 @@ namespace TD_Find_Lib
 
 				case RacePropsFilter.Wildness:
 				case RacePropsFilter.Petness:
-					return TDWidgets.FloatRangeUB(rect, id, ref valueRange, valueStyle: ToStringStyle.PercentZero);
+					return TDWidgets.FloatRangeUB(rightHalfRect, id, ref valueRange, valueStyle: ToStringStyle.PercentZero);
 
 				case RacePropsFilter.Trainability:
 					if (row.ButtonText(trainability.LabelCap))
@@ -777,12 +775,12 @@ namespace TD_Find_Lib
 		}
 
 		public abstract int Max { get; }
-		public override bool DrawCustom(Rect rect, WidgetRow row)
+		public override bool DrawCustom(Rect rect, WidgetRow row, Rect rightHalfRect)
 		{
 			//TODO: write 'IsNull' method to handle confusing extraOption == 1 but Sel == null
 			if (extraOption == 0 && sel == null) return false;
 
-			return TDWidgets.IntRangeUB(rect, id, ref countRange);
+			return TDWidgets.IntRangeUB(rightHalfRect, id, ref countRange);
 		}
 
 		public abstract IEnumerable<ThingDef> AllOptions();
@@ -952,12 +950,12 @@ namespace TD_Find_Lib
 				return progressRange.Includes(progress);
 		}
 
-		public override bool DrawCustom(Rect rect, WidgetRow row)
+		public override bool DrawCustom(Rect rect, WidgetRow row, Rect rightHalfRect)
 		{
 			if (sel == ProgressType.Milkable || sel == ProgressType.Shearable)
 				return false;
 
-			return TDWidgets.FloatRangeUB(rect, id, ref progressRange, valueStyle: ToStringStyle.PercentZero);
+			return TDWidgets.FloatRangeUB(rightHalfRect, id, ref progressRange, valueStyle: ToStringStyle.PercentZero);
 		}
 	}
 
@@ -1018,9 +1016,9 @@ namespace TD_Find_Lib
 			return false;
 		}
 
-		public override bool DrawCustom(Rect rect, WidgetRow row)
+		public override bool DrawCustom(Rect rect, WidgetRow row, Rect rightHalfRect)
 		{
-			if(TDWidgets.FloatRangeUB(rect, id, ref capacityRange, valueStyle: ToStringStyle.PercentZero))
+			if(TDWidgets.FloatRangeUB(rightHalfRect, id, ref capacityRange, valueStyle: ToStringStyle.PercentZero))
 			{
 				//round down to 1%
 				capacityRange.min = (int)(100 * capacityRange.min) / 100f;
