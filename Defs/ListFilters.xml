@@ -98,12 +98,6 @@
 	</TD_Find_Lib.ListFilterDef>
 
 	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Temp</defName>
-		<label>temperature</label>
-		<filterClass>TD_Find_Lib.ListFilterTemp</filterClass>
-	</TD_Find_Lib.ListFilterDef>
-
-	<TD_Find_Lib.ListFilterDef>
 		<defName>Filter_ComfyTemp</defName>
 		<label>comfort at temperature</label>
 		<filterClass>TD_Find_Lib.ListFilterComfyTemp</filterClass>
@@ -377,8 +371,9 @@
 		<subFilters>
 			<li>Filter_Area</li>
 			<li>Filter_Zone</li>
-			<li>Filter_Nearby</li>
+			<li>Filter_Temp</li>
 			<li>Filter_Deterioration</li>
+			<li>Filter_Nearby</li>
 		</subFilters>
 	</TD_Find_Lib.ListFilterCategoryDef>
 
@@ -395,15 +390,21 @@
 	</TD_Find_Lib.ListFilterDef>
 
 	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Nearby</defName>
-		<label>nearby</label>
-		<filterClass>TD_Find_Lib.ListFilterNearby</filterClass>
+		<defName>Filter_Temp</defName>
+		<label>temperature</label>
+		<filterClass>TD_Find_Lib.ListFilterTemp</filterClass>
 	</TD_Find_Lib.ListFilterDef>
 
 	<TD_Find_Lib.ListFilterDef>
 		<defName>Filter_Deterioration</defName>
 		<label>deteriorating</label>
 		<filterClass>TD_Find_Lib.ListFilterDeterioration</filterClass>
+	</TD_Find_Lib.ListFilterDef>
+
+	<TD_Find_Lib.ListFilterDef>
+		<defName>Filter_Nearby</defName>
+		<label>nearby</label>
+		<filterClass>TD_Find_Lib.ListFilterNearby</filterClass>
 	</TD_Find_Lib.ListFilterDef>
 
 
