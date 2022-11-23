@@ -58,7 +58,7 @@ namespace TD_Find_Lib
 			listing.Gap();
 
 			//Draw filters
-			bool changed = Children.DrawFilters(listing, locked);
+			bool changed = Children.DrawFiltersListing(listing, locked);
 
 			listing.NestedOutdent();
 			return changed;

@@ -169,7 +169,7 @@ namespace TD_Find_Lib
 		private Vector2 scrollPositionFilt = Vector2.zero;
 		private float scrollHeight;
 
-		public bool DrawFilters(Rect listRect, bool locked)
+		public bool DrawFiltersInRect(Rect listRect, bool locked)
 		{
 			Listing_StandardIndent listing = new Listing_StandardIndent()
 				{ maxOneColumn = true };
@@ -181,7 +181,7 @@ namespace TD_Find_Lib
 
 			listing.BeginScrollView(listRect, ref scrollPositionFilt, viewRect);
 
-			bool changed = DrawFilters(listing, locked);
+			bool changed = DrawFiltersListing(listing, locked);
 
 			List<int> reorderIDs = new(Gather<int>(f => f.Children.reorderID));
 
@@ -197,7 +197,7 @@ namespace TD_Find_Lib
 		public int reorderID;
 		private float reorderRectHeight;
 
-		public bool DrawFilters(Listing_StandardIndent listing, bool locked)
+		public bool DrawFiltersListing(Listing_StandardIndent listing, bool locked)
 		{
 			Rect coveredRect = new Rect(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight);
 			if (Event.current.type == EventType.Repaint)

@@ -237,7 +237,7 @@ namespace TD_Find_Lib
 			}
 
 			//Draw Filters:
-			if(findDesc.Children.DrawFilters(listRect, locked))
+			if(findDesc.Children.DrawFiltersInRect(listRect, locked))
 				findDesc.RemakeList();
 
 			listing.End();
