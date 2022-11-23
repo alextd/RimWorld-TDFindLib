@@ -95,10 +95,11 @@ namespace TD_Find_Lib
 			{
 				parent.Add(group);
 
-
 				var drawer = new FilterGroupDrawer(group, groupDrawers);
 				if (groupDrawers.Any(d => d.Name == group.name))
 					drawer.PopUpRename();
+				else
+					parent.Write();
 
 				groupDrawers.Add(drawer);
 			},
@@ -232,6 +233,7 @@ namespace TD_Find_Lib
 		{
 			siblings.Remove(this);
 			list.parent.Children.Remove(list);
+			list.parent.Write();
 		}
 
 		public void PopUpCreateFindDesc()
@@ -240,14 +242,14 @@ namespace TD_Find_Lib
 			{
 				var desc = new FindDescription() { name = n };
 				list.TryAdd(desc);
-				Find.WindowStack.Add(new TDFindLibEditorWindow(desc));
+				Find.WindowStack.Add(new TDFindLibEditorWindow(desc, f => list.parent.Write())) ;
 			},
 			"Name for New Search"));
 		}
 
 		public void PopUpRename()
 		{
-			Find.WindowStack.Add(new Dialog_Name(Name, name => list.name = name, rejector: name => list.parent.Children.Any(g => g.name == name)));
+			Find.WindowStack.Add(new Dialog_Name(Name, name => { list.name = name; list.parent.Write(); }, rejector: name => list.parent.Children.Any(g => g.name == name)));
 		}
 
 
