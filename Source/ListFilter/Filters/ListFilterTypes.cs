@@ -17,7 +17,7 @@ namespace TD_Find_Lib
 			//thing.Label.Contains(sel, CaseInsensitiveComparer.DefaultInvariant);	//Contains doesn't accept comparer with strings. okay.
 			sel == "" || thing.Label.IndexOf(sel, StringComparison.OrdinalIgnoreCase) >= 0;
 
-		public static readonly string namedLabel = "Named: ";
+		public const string namedLabel = "Named: ";
 		public static float? namedLabelWidth;
 		public static float NamedLabelWidth =>
 			namedLabelWidth.HasValue ? namedLabelWidth.Value :

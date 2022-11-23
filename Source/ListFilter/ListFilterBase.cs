@@ -37,7 +37,30 @@ namespace TD_Find_Lib
 		private bool enabled = true; //simply turn off but keep in list
 		public bool Enabled => enabled && DisableReason == null;
 
-		private bool include = true; //or exclude
+		private bool _include = true; //or exclude
+		public bool include
+		{
+			get => _include;
+			private set
+			{
+				_include = value;
+				_label = null;
+			}
+		}
+
+		private string _label;
+		public string Label
+		{
+			get {
+				if (_label == null)
+				{
+					_label = def.LabelCap;
+					if (!include)
+						_label = "<color=#FF0000>NOT</color> " + Label;
+				}
+				return _label;
+			}
+		}
 
 
 		// Okay, save/load. The basic gist here is:
@@ -49,7 +72,7 @@ namespace TD_Find_Lib
 		{
 			Scribe_Defs.Look(ref def, "def");
 			Scribe_Values.Look(ref enabled, "enabled", true);
-			Scribe_Values.Look(ref include, "include", true);
+			Scribe_Values.Look(ref _include, "include", true);
 
 			if (Scribe.mode == LoadSaveMode.ResolvingCrossRefs)
 			{
@@ -115,11 +138,10 @@ namespace TD_Find_Lib
 
 			if (!include)
 			{
-				GUI.color = Color.red;
-				Widgets.DrawLineHorizontal(rowRect.x + 1, rowRect.y + Text.LineHeight / 2 - 2, 8);
+				Widgets.DrawBoxSolid(rowRect.ContractedBy(2), new Color(1, 0, 0, 0.1f));
+				GUI.color = new Color(1, 0, 0, 0.25f);
+				Widgets.DrawLineHorizontal(rowRect.x + 2, rowRect.y + Text.LineHeight / 2, rowRect.width - 4);
 				GUI.color = Color.white;
-
-				rowRect.xMin += 12;
 			}
 			WidgetRow row = new WidgetRow(rowRect.xMax, rowRect.y, UIDirection.LeftThenDown, rowRect.width);
 
@@ -176,7 +198,7 @@ namespace TD_Find_Lib
 
 		public virtual bool DrawMain(Rect rect, bool locked)
 		{
-			Widgets.Label(rect, def.LabelCap);
+			Widgets.Label(rect, Label);
 			return false;
 		}
 		protected virtual bool DrawUnder(Listing_StandardIndent listing, bool locked) => false;
@@ -519,7 +541,7 @@ namespace TD_Find_Lib
 			{
 				// Label, Selection option button on left, custom on the remaining rect
 				WidgetRow row = new WidgetRow(rect.x, rect.y);
-				row.Label(def.LabelCap);
+				row.Label(Label);
 				changeSelection = row.ButtonText(GetLabel());
 
 				Rect customRect = rect;
