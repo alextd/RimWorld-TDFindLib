@@ -9,14 +9,15 @@ using CloneArgs = TD_Find_Lib.FindDescription.CloneArgs;
 
 namespace TD_Find_Lib
 {
-	// Trying to save a List<List<Deep>> doesn't work.
-	// Need List to be "exposable" on its own.
 	public interface IFilterStorageParent
 	{
 		public void Write();
 		public List<FilterGroup> Children { get; }
 		public void Add(FilterGroup group);
 	}
+
+	// Trying to save a List<List<Deep>> doesn't work.
+	// Need List to be "exposable" on its own.
 	public class FilterGroup : List<FindDescription>, IExposable
 	{
 		public string name;
