@@ -130,12 +130,21 @@ namespace TD_Find_Lib
 
 	public class ListFilterTimeToRot : ListFilter
 	{
-		IntRange ticksRange = new IntRange(0, GenDate.TicksPerDay * 10);
+		public const int MinReasonable = 0;
+		public const int MaxReasonable = GenDate.TicksPerDay * 20;
+
+		IntRangeUB ticksRange;
+		
+		public ListFilterTimeToRot()
+		{
+			ticksRange = new IntRangeUB(MinReasonable, MaxReasonable);
+			ticksRange.max = MaxReasonable / 2;
+		}
 
 		public override void ExposeData()
 		{
 			base.ExposeData();
-			Scribe_Values.Look(ref ticksRange, "ticksRange");
+			Scribe_Values.Look(ref ticksRange.range, "ticksRange");
 		}
 		public override ListFilter Clone()
 		{
@@ -150,8 +159,7 @@ namespace TD_Find_Lib
 		public override bool DrawMain(Rect rect, bool locked)
 		{
 			base.DrawMain(rect, locked);
-			return TDWidgets.IntRange(rect.RightPart(0.5f), id, ref ticksRange, 0, GenDate.TicksPerDay * 20,
-				$"{ticksRange.min * 1f / GenDate.TicksPerDay:0.0} - {ticksRange.max * 1f / GenDate.TicksPerDay:0.0}");
+			return TDWidgets.IntRangeUB(rect.RightPart(0.5f), id, ref ticksRange, ticks => $"{ticks * 1f / GenDate.TicksPerDay:0.0}");
 		}
 	}
 
@@ -608,21 +616,22 @@ namespace TD_Find_Lib
 
 	public class ListFilterThingDef : ListFilterDropDown<ThingDef>
 	{
-		public IntRange stackRange;
+		public IntRangeUB stackRange;
 		public ListFilterThingDef()
 		{
 			sel = ThingDefOf.WoodLog;
 		}
 		protected override void PostSelected()
 		{
-			stackRange.min = 1;
-			stackRange.max = sel.stackLimit;
+			stackRange = new(1, sel.stackLimit);
 		}
 
 		public override void ExposeData()
 		{
 			base.ExposeData();
-			Scribe_Values.Look(ref stackRange, "stackRange");
+			
+			if(sel.stackLimit > 1)
+				Scribe_Values.Look(ref stackRange.range, "stackRange");
 		}
 		public override ListFilter Clone()
 		{
@@ -686,7 +695,7 @@ namespace TD_Find_Lib
 			if (sel == null) return false;
 
 			if (sel.stackLimit > 1)
-				return TDWidgets.IntRange(rect, id, ref stackRange, 1, sel.stackLimit);
+				return TDWidgets.IntRangeUB(rect, id, ref stackRange);
 
 			return false;
 		}

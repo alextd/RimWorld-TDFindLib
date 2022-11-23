@@ -12,7 +12,7 @@ namespace TD_Find_Lib
 {
 	public class ListFilterSkill : ListFilterDropDown<SkillDef>
 	{
-		IntRange skillRange = new IntRange(0, 20);
+		IntRangeUB skillRange = new IntRangeUB(SkillRecord.MinLevel, SkillRecord.MaxLevel);
 		int passion = 4;
 
 		static string[] passionText = new string[]
@@ -27,7 +27,7 @@ namespace TD_Find_Lib
 		public override void ExposeData()
 		{
 			base.ExposeData();
-			Scribe_Values.Look(ref skillRange, "skillRange");
+			Scribe_Values.Look(ref skillRange.range, "skillRange");
 			Scribe_Values.Look(ref passion, "passion");
 		}
 		public override ListFilter Clone()
@@ -67,7 +67,7 @@ namespace TD_Find_Lib
 			rect.x += 100;
 			rect.width -= 100;
 
-			return TDWidgets.IntRange(rect, id, ref skillRange, SkillRecord.MinLevel, SkillRecord.MaxLevel);
+			return TDWidgets.IntRangeUB(rect, id, ref skillRange);
 		}
 	}
 
@@ -736,18 +736,18 @@ namespace TD_Find_Lib
 
 	abstract public class ListFilterProduct : ListFilterDropDown<ThingDef>
 	{
-		protected IntRange countRange;
+		protected IntRangeUB countRange;
 
 		public ListFilterProduct()
 		{
 			extraOption = 1;
-			countRange = new IntRange(0, Max);	//Not PostChosen as this depends on subclass, not selection
+			countRange = new IntRangeUB(0, Max);	//Not PostChosen as this depends on subclass, not selection
 		}
 
 		public override void ExposeData()
 		{
 			base.ExposeData();
-			Scribe_Values.Look(ref countRange, "countRange");
+			Scribe_Values.Look(ref countRange.range, "countRange");
 		}
 		public override ListFilter Clone()
 		{
@@ -781,7 +781,7 @@ namespace TD_Find_Lib
 			//TODO: write 'IsNull' method to handle confusing extraOption == 1 but Sel == null
 			if (extraOption == 0 && sel == null) return false;
 
-			return TDWidgets.IntRange(rect, id, ref countRange, 0, Max);
+			return TDWidgets.IntRangeUB(rect, id, ref countRange);
 		}
 
 		public abstract IEnumerable<ThingDef> AllOptions();

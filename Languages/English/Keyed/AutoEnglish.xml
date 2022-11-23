@@ -49,13 +49,15 @@
 	<TD.Listing>Listing: </TD.Listing>
 	<TD.Name>Name:</TD.Name>
 	<TD.OnlyShowFilterOptionsForAvailableThings>Only show existing things as an option (shift invert)</TD.OnlyShowFilterOptionsForAvailableThings>
-	<TD.ForExampleDontShowTheOptionMadeFromPlasteelIfNothingIsMadeFromPlasteel>When selecting filter options, don't show the option 'Made from Plasteel' if nothing is made from plasteel.\n\nShift-click the option to reverse this setting for that click.</TD.ForExampleDontShowTheOptionMadeFromPlasteelIfNothingIsMadeFromPlasteel>
+	<TD.ForExampleDontShowTheOptionMadeFromPlasteelIfNothingIsMadeFromPlasteel>For exmaple, When selecting filter options, don't show the option 'Made from Plasteel' if nothing is made from plasteel.\n\nShift-click the option to reverse this setting for that click.</TD.ForExampleDontShowTheOptionMadeFromPlasteelIfNothingIsMadeFromPlasteel>
 	<TD.AddNewFilter...>Add new filter...</TD.AddNewFilter...>
 	<TD.OverwriteSavedFilter>Overwrite saved filter?</TD.OverwriteSavedFilter>
 	<TD.AnyOption>Any</TD.AnyOption>
 	<TD.EitherOption>Either</TD.EitherOption>
 	<TD.AllOptions>All</TD.AllOptions>
 
+	<TD.AnyValue>Any</TD.AnyValue>
+	
 	<TD.LabelCountThings>{0} thing(s)</TD.LabelCountThings>
 	<TD.SelectAllGameAllowsUpTo>Select All ( game allows up to {0} )</TD.SelectAllGameAllowsUpTo>
 	<TD.Refresh>Refresh</TD.Refresh>
