@@ -217,7 +217,7 @@ namespace TD_Find_Lib
 	public abstract class ListFilterWithOption<T> : ListFilter
 	{
 		// selection
-		private T _sel;
+		protected T _sel;
 		protected string selName;// if UsesSaveLoadName,  = SaveLoadXmlConstants.IsNullAttributeName;
 		private int _extraOption; //0 meaning use _sel, what 1+ means is defined in subclass
 
@@ -256,6 +256,8 @@ namespace TD_Find_Lib
 			// Most common usage is to set a default value that is valid for the selection
 			// e.g. the skill filter has a range 0-20, but that's valid for all skills, so no need to reset here
 			// e.g. the hediff filter has a range too, but that depends on the selected hediff, so the selected range needs to be set here
+
+			// Oh geez this also means maybe shenanigans in ExposeData during PostLoadInit.
 		}
 
 		// This method works double duty:
@@ -343,6 +345,15 @@ namespace TD_Find_Lib
 			{
 				//This might just be to handle ListFilterSelection
 				Scribe_Deep.Look(ref _sel, "sel");
+			}
+			// Any subclass that RangeUB this has to ExposeData itself because I don't think we can force this struct to ref a certain type.
+			else if (_sel is FloatRangeUB)
+			{
+				// Scribe_Values.Look(ref sel.range, "sel");
+			}
+			else if (_sel is IntRangeUB)
+			{
+				// Scribe_Values.Look(ref sel.range, "sel");
 			}
 			else
 				Scribe_Values.Look(ref _sel, "sel");
@@ -593,26 +604,26 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public abstract class ListFilterFloatRange : ListFilterWithOption<FloatRange>
+	public abstract class ListFilterFloatRange : ListFilterWithOption<FloatRangeUB>
 	{
 		public virtual float Min => 0f;
 		public virtual float Max => 1f;
 		public virtual ToStringStyle Style => ToStringStyle.PercentZero;
 
-		public ListFilterFloatRange() => sel = FloatRange.ZeroToOne;
+		public ListFilterFloatRange() => sel = new FloatRangeUB(Min, Max);
 
-		// The Min and Max allowed range is assumed to be min and max possible in-game.
-		// In the rare case where a thing lies outside the range,
-		// it'll be included if the range includes that edge.
-		public bool Includes(float value) =>
-			sel.Includes(value)
-			|| (value < Min && sel.min == Min)
-			|| (value > Max && sel.max == Max);
+
+		public override void ExposeData()
+		{
+			base.ExposeData();
+
+			Scribe_Values.Look(ref _sel.range, "sel");
+		}
 
 		public override bool DrawMain(Rect rect, bool locked)
 		{
 			base.DrawMain(rect, locked);
-			return TDWidgets.FloatRange(rect.RightPart(0.5f), id, ref selByRef, Min, Max, valueStyle: Style);
+			return TDWidgets.FloatRangeUB(rect.RightPart(0.5f), id, ref selByRef, valueStyle: Style);
 		}
 	}
 }

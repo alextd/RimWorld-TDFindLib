@@ -323,17 +323,14 @@ namespace TD_Find_Lib
 
 	public class ListFilterNeed : ListFilterDropDown<NeedDef>
 	{
-		FloatRange needRange = new FloatRange(0, 0.5f);
+		FloatRangeUB needRange = new FloatRangeUB(0, 1, 0, 0.5f);
 
-		public ListFilterNeed()
-		{
-			sel = NeedDefOf.Food;
-		}
+		public ListFilterNeed() => sel = NeedDefOf.Food;
 
 		public override void ExposeData()
 		{
 			base.ExposeData();
-			Scribe_Values.Look(ref needRange, "needRange");
+			Scribe_Values.Look(ref needRange.range, "needRange");
 		}
 		public override ListFilter Clone()
 		{
@@ -349,14 +346,13 @@ namespace TD_Find_Lib
 
 		public override bool DrawCustom(Rect rect, WidgetRow row)
 		{
-			return TDWidgets.FloatRange(rect, id, ref needRange, valueStyle: ToStringStyle.PercentOne);
+			return TDWidgets.FloatRangeUB(rect, id, ref needRange, valueStyle: ToStringStyle.PercentOne);
 		}
 	}
 
 	public class ListFilterHealth : ListFilterDropDown<HediffDef>
 	{
-		FloatRange severityRange;
-		FloatRange boundRange;
+		FloatRangeUB severityRange;
 		bool usesSeverity;
 
 		public ListFilterHealth()
@@ -368,21 +364,26 @@ namespace TD_Find_Lib
 			FloatRange? r = SeverityRangeFor(sel);
 			usesSeverity = r.HasValue;
 			if (usesSeverity)
-			{
 				severityRange = r.Value;
-				boundRange = SeverityRangeFor(sel).Value;
-			}
 		}
 
 		public override void ExposeData()
 		{
 			base.ExposeData();
-			Scribe_Values.Look(ref severityRange, "severityRange");
+
+			Scribe_Values.Look(ref severityRange.range, "severityRange");
+			if (Scribe.mode == LoadSaveMode.PostLoadInit)
+			{
+				FloatRange selRange = severityRange.range;
+				PostSelected();
+				severityRange.range = selRange;
+			}
 		}
 		public override ListFilter Clone()
 		{
 			ListFilterHealth clone = (ListFilterHealth)base.Clone();
 			clone.severityRange = severityRange;
+			clone.usesSeverity = usesSeverity;
 			return clone;
 		}
 
@@ -412,7 +413,7 @@ namespace TD_Find_Lib
 		public override bool DrawCustom(Rect rect, WidgetRow row)
 		{
 			if (sel != null && usesSeverity)
-				return TDWidgets.FloatRange(rect, id, ref severityRange, boundRange.min, boundRange.max, valueStyle: ToStringStyle.FloatOne);
+				return TDWidgets.FloatRangeUB(rect, id, ref severityRange, valueStyle: ToStringStyle.FloatOne);
 
 			return false;
 		}
@@ -453,14 +454,14 @@ namespace TD_Find_Lib
 
 	public class ListFilterTemp : ListFilterFloatRange
 	{
-		public ListFilterTemp() => sel = new FloatRange(10, 30);
+		public ListFilterTemp() => _sel.range = new FloatRange(10, 30);
 
 		public override float Min => -100f;
 		public override float Max => 100f;
 		public override ToStringStyle Style => ToStringStyle.Temperature;
 
 		public override bool ApplesDirectlyTo(Thing thing) =>
-			Includes(thing.AmbientTemperature);
+			sel.Includes(thing.AmbientTemperature);
 	}
 
 	public enum ComfyTemp { Cold, Cool, Okay, Warm, Hot }
@@ -619,7 +620,7 @@ namespace TD_Find_Lib
 	public class ListFilterRaceProps : ListFilterDropDown<RacePropsFilter>
 	{
 		Intelligence intelligence;
-		FloatRange valueRange;
+		FloatRangeUB valueRange;
 		TrainabilityDef trainability;
 
 		protected override void PostSelected()
@@ -628,7 +629,7 @@ namespace TD_Find_Lib
 			{
 				case RacePropsFilter.Intelligence: intelligence = Intelligence.Humanlike; return;
 				case RacePropsFilter.Wildness:
-				case RacePropsFilter.Petness: valueRange = new FloatRange(0.25f, 0.75f); return;
+				case RacePropsFilter.Petness: valueRange = new FloatRangeUB(0, 1, 0.25f, 0.75f); return;
 				case RacePropsFilter.Trainability: trainability = TrainabilityDefOf.Advanced; return;
 			}
 		}
@@ -637,7 +638,7 @@ namespace TD_Find_Lib
 		{
 			base.ExposeData();
 			Scribe_Values.Look(ref intelligence, "intelligence");
-			Scribe_Values.Look(ref valueRange, "valueRange");
+			Scribe_Values.Look(ref valueRange.range, "valueRange");
 			Scribe_Defs.Look(ref trainability, "trainability");
 		}
 		public override ListFilter Clone()
@@ -696,7 +697,7 @@ namespace TD_Find_Lib
 
 				case RacePropsFilter.Wildness:
 				case RacePropsFilter.Petness:
-					return TDWidgets.FloatRange(rect, id, ref valueRange, valueStyle: ToStringStyle.PercentZero);
+					return TDWidgets.FloatRangeUB(rect, id, ref valueRange, valueStyle: ToStringStyle.PercentZero);
 
 				case RacePropsFilter.Trainability:
 					if (row.ButtonText(trainability.LabelCap))
@@ -892,12 +893,12 @@ namespace TD_Find_Lib
 	public enum ProgressType { Milkable, Shearable, MilkFullness, WoolGrowth, EggProgress, EggHatch}
 	public class ListFilterProductProgress : ListFilterDropDown<ProgressType>
 	{
-		protected FloatRange progressRange = new FloatRange(0, 1);
+		protected FloatRangeUB progressRange = new FloatRangeUB(0, 1);
 
 		public override void ExposeData()
 		{
 			base.ExposeData();
-			Scribe_Values.Look(ref progressRange, "progressRange");
+			Scribe_Values.Look(ref progressRange.range, "progressRange");
 		}
 		public override ListFilter Clone()
 		{
@@ -956,7 +957,7 @@ namespace TD_Find_Lib
 			if (sel == ProgressType.Milkable || sel == ProgressType.Shearable)
 				return false;
 
-			return TDWidgets.FloatRange(rect, id, ref progressRange, valueStyle: ToStringStyle.PercentZero);
+			return TDWidgets.FloatRangeUB(rect, id, ref progressRange, valueStyle: ToStringStyle.PercentZero);
 		}
 	}
 
@@ -979,7 +980,7 @@ namespace TD_Find_Lib
 	public class ListFilterCapacity : ListFilterDropDown<PawnCapacityDef>
 	{
 		public const float MaxReasonable = 4;
-		FloatRange capacityRange = new FloatRange(0, 1);
+		FloatRangeUB capacityRange = new FloatRangeUB(0, MaxReasonable, 1, 1);
 
 		public ListFilterCapacity()
 		{
@@ -989,7 +990,7 @@ namespace TD_Find_Lib
 		public override void ExposeData()
 		{
 			base.ExposeData();
-			Scribe_Values.Look(ref capacityRange, "capacityRange");
+			Scribe_Values.Look(ref capacityRange.range, "capacityRange");
 		}
 		public override ListFilter Clone()
 		{
@@ -1000,19 +1001,9 @@ namespace TD_Find_Lib
 
 		public override string NullOption() => "TD.AnyOption".Translate();
 
-		private bool Includes(Pawn pawn, PawnCapacityDef def)
-		{
-			float level = pawn.health.capacities.GetLevel(def);
+		private bool Includes(Pawn pawn, PawnCapacityDef def) =>
+			capacityRange.Includes(pawn.health.capacities.GetLevel(def));
 
-			if (capacityRange.Includes(level))
-				return true;
-
-			// Including "up to 1000%" really means "no limit"
-			if (level > MaxReasonable && capacityRange.max == MaxReasonable)
-				return true;
-
-			return false;
-		}
 		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			if (thing is Pawn pawn)
@@ -1029,9 +1020,7 @@ namespace TD_Find_Lib
 
 		public override bool DrawCustom(Rect rect, WidgetRow row)
 		{
-			if(TDWidgets.FloatRange(rect, id, ref capacityRange, max: MaxReasonable,
-				labelKey: capacityRange.max == MaxReasonable ? $"> {capacityRange.min.ToStringByStyle(ToStringStyle.PercentZero)}" : null,
-				valueStyle: ToStringStyle.PercentZero))
+			if(TDWidgets.FloatRangeUB(rect, id, ref capacityRange, valueStyle: ToStringStyle.PercentZero))
 			{
 				//round down to 1%
 				capacityRange.min = (int)(100 * capacityRange.min) / 100f;

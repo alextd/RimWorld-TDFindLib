@@ -165,16 +165,14 @@ namespace TD_Find_Lib
 
 	public class ListFilterGrowth : ListFilterFloatRange
 	{
-		public ListFilterGrowth() => sel = FloatRange.ZeroToOne;
-
 		public override bool ApplesDirectlyTo(Thing thing) =>
-			thing is Plant p && Includes(p.Growth);
+			thing is Plant p && sel.Includes(p.Growth);
 	}
 
 	public class ListFilterGrowthRate : ListFilterFloatRange
 	{
 		public override bool ApplesDirectlyTo(Thing thing) =>
-			thing is Plant p && Includes(p.GrowthRate);
+			thing is Plant p && sel.Includes(p.GrowthRate);
 
 		public override float Max => maxGrowthRate;
 		public static float maxGrowthRate;
@@ -413,10 +411,10 @@ namespace TD_Find_Lib
 		public override bool ApplesDirectlyTo(Thing thing)
 		{
 			if (thing is Pawn pawn)
-				return Includes(pawn.health.summaryHealth.SummaryHealthPercent);
+				return sel.Includes(pawn.health.summaryHealth.SummaryHealthPercent);
 
 			if (thing.def.useHitPoints)
-				return Includes((float)thing.HitPoints / thing.MaxHitPoints);
+				return sel.Includes((float)thing.HitPoints / thing.MaxHitPoints);
 
 			return false;
 		}

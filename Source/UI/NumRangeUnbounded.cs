@@ -25,12 +25,23 @@ namespace TD_Find_Lib
 			range = absRange;
 		}
 
-		public IntRangeUB(int min, int max, int selMin, int selMax)
+		public IntRangeUB(int absMin, int absMax, int selMin, int selMax)
 		{
-			absRange.min = min;
-			absRange.max = max;
+			absRange.min = absMin;
+			absRange.max = absMax;
 			range.min = selMin;
-			range.max = selMax;	//Tok'ra Kree
+			range.max = selMax; //Tok'ra Kree
+		}
+
+		public IntRangeUB(IntRange range)
+		{
+			this.range = this.absRange = range;
+		}
+
+		public IntRangeUB(IntRange absRange, IntRange selRange)
+		{
+			this.absRange = absRange;
+			this.range = selRange;
 		}
 
 		public int min
@@ -45,6 +56,57 @@ namespace TD_Find_Lib
 		}
 
 		public bool Includes(int val) =>
+			range.Includes(val)
+			|| (val < absRange.min && range.min == absRange.min)
+			|| (val < absRange.max && range.max == absRange.max);
+	}
+
+
+	public struct FloatRangeUB
+	{
+		public FloatRange range;
+		public readonly FloatRange absRange; //If you want new boundaries ... just make a new FloatRangeUB.
+
+		public FloatRangeUB(float min, float max)
+		{
+			absRange.min = min;
+			absRange.max = max;
+			range = absRange;
+		}
+
+		public FloatRangeUB(float absMin, float absMax, float selMin, float selMax)
+		{
+			absRange.min = absMin;
+			absRange.max = absMax;
+			range.min = selMin;
+			range.max = selMax; //Tok'ra Kree
+		}
+
+		public FloatRangeUB(FloatRange range)
+		{
+			this.range = this.absRange = range;
+		}
+
+		public FloatRangeUB(FloatRange absRange, FloatRange selRange)
+		{
+			this.absRange = absRange;
+			this.range = selRange;
+		}
+
+		public static implicit operator FloatRangeUB(FloatRange range) => new(range);
+
+		public float min
+		{
+			get => range.min;
+			set => range.min = value;
+		}
+		public float max
+		{
+			get => range.max;
+			set => range.max = value;
+		}
+
+		public bool Includes(float val) =>
 			range.Includes(val)
 			|| (val < absRange.min && range.min == absRange.min)
 			|| (val < absRange.max && range.max == absRange.max);
