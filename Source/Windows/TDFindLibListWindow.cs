@@ -229,10 +229,16 @@ namespace TD_Find_Lib
 		public override int Count => list.Count;
 
 
-		public void Trash()
+		public void TrashThis()
 		{
 			siblings.Remove(this);
 			list.parent.Children.Remove(list);
+			list.parent.Write();
+		}
+
+		public void Trash(int i)
+		{
+			list.RemoveAt(i);
 			list.parent.Write();
 		}
 
@@ -262,10 +268,10 @@ namespace TD_Find_Lib
 			if (headerRow.ButtonIcon(FindTex.Trash))
 			{
 				if (Event.current.shift)
-					Trash();
+					TrashThis();
 				else
 					Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
-						"TD.Delete0".Translate(Name), Trash));
+						"TD.Delete0".Translate(Name), TrashThis));
 			}
 
 			// Export Group
@@ -305,10 +311,10 @@ namespace TD_Find_Lib
 			if (row.ButtonIcon(FindTex.Trash))
 			{
 				if (Event.current.shift)
-					list.Remove(desc);
+					Trash(i);
 				else
 					Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
-						"TD.Delete0".Translate(desc.name), () => list.Remove(desc)));
+						"TD.Delete0".Translate(desc.name), () => Trash(i)));
 			}
 
 			FilterStorageUtil.ButtonChooseExportFilter(row, desc, "Storage");
