@@ -91,6 +91,13 @@ namespace TD_Find_Lib
 					new Rect(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight), 1f,
 					extraDraggedItemOnGUI: (int index, Vector2 dragStartPos) =>
 						DrawMouseAttachedFilterGroup(parent.Children[index], listing.ColumnWidth));
+
+				// Turn off The Multigroup system assuming that if you're closer to group A but in group B's rect, that you want to insert at end of B.
+				// That just doesn't apply here.
+				// (it uses absRect to check mouseover group B and that overrides if you're in an okay place to drop in group A)
+				var group = ReorderableWidget.groups[reorderID];  //immutable struct O_o
+				group.absRect = new Rect();
+				ReorderableWidget.groups[reorderID] = group;
 			}
 
 			// Draw each Filter groups
@@ -239,6 +246,13 @@ namespace TD_Find_Lib
 					new Rect(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight), 1f,
 					extraDraggedItemOnGUI: (int index, Vector2 dragStartPos) =>
 						DrawMouseAttachedFindDesc(DescAt(index), listing.ColumnWidth));
+
+				// Turn off The Multigroup system assuming that if you're closer to group A but in group B's rect, that you want to insert at end of B.
+				// That just doesn't apply here.
+				// (it uses absRect to check mouseover group B and that overrides if you're in an okay place to drop in group A)
+				var group = ReorderableWidget.groups[reorderID];  //immutable struct O_o
+				group.absRect = new Rect();
+				ReorderableWidget.groups[reorderID] = group;
 			}
 
 
