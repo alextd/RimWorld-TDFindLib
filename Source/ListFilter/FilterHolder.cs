@@ -246,8 +246,9 @@ namespace TD_Find_Lib
 						listing.NestedIndent(indentAfterFirst);
 				}
 			}
-			if (indentAfterFirst != null)
-				listing.NestedOutdent();
+			// do the indent with no objects for the "Add new"
+			if (first && indentAfterFirst != null)
+					listing.NestedIndent(indentAfterFirst);
 
 			reorderRectHeight = listing.CurHeight - coveredRect.y;
 
@@ -255,6 +256,9 @@ namespace TD_Find_Lib
 
 			if (!locked)
 				DrawAddRow(listing);
+
+			if (indentAfterFirst != null)
+				listing.NestedOutdent();
 
 			return changed;
 		}
