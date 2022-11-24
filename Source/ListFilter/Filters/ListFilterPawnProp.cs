@@ -120,7 +120,7 @@ namespace TD_Find_Lib
 			if (sel == null) return false;
 
 			if (sel.degreeDatas.Count > 1 &&
-				row.ButtonText(sel.DataAtDegree(traitDegree).label.CapitalizeFirst()))
+				row.ButtonTextNoGap(sel.DataAtDegree(traitDegree).label.CapitalizeFirst()))
 			{
 				List<FloatMenuOption> options = new List<FloatMenuOption>();
 				foreach (TraitDegreeData deg in sel.degreeDatas)
@@ -283,7 +283,7 @@ namespace TD_Find_Lib
 		private void DoStageDropdown(WidgetRow row, int setI, Action<int> selectedAction)
 		{
 			int setStageI = orderedStages[setI];
-			if (row.ButtonText(NameForStage(setStageI), TipForStage(setStageI)))
+			if (row.ButtonTextNoGap(NameForStage(setStageI), TipForStage(setStageI)))
 			{
 				List<FloatMenuOption> options = new List<FloatMenuOption>();
 				foreach (int stageI in SelectableStages)
@@ -676,7 +676,7 @@ namespace TD_Find_Lib
 			switch (sel)
 			{
 				case RacePropsFilter.Intelligence:
-					if (row.ButtonText(intelligence.TranslateEnum()))
+					if (row.ButtonTextNoGap(intelligence.TranslateEnum()))
 					{
 						foreach (Intelligence intel in Enum.GetValues(typeof(Intelligence)))
 						{
@@ -691,7 +691,7 @@ namespace TD_Find_Lib
 					return TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref valueRange, valueStyle: ToStringStyle.PercentZero);
 
 				case RacePropsFilter.Trainability:
-					if (row.ButtonText(trainability.LabelCap))
+					if (row.ButtonTextNoGap(trainability.LabelCap))
 					{
 						foreach (TrainabilityDef def in DefDatabase<TrainabilityDef>.AllDefs)
 						{

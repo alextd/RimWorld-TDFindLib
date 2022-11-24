@@ -52,5 +52,13 @@ namespace TD_Find_Lib
 			}
 			return result;
 		}
+
+		//Same as buttonText but with no gap.
+		public static bool ButtonTextNoGap(this WidgetRow row, string label, string tooltip = null, bool drawBackground = true, bool doMouseoverSound = true, bool active = true, float? fixedWidth = null)
+		{
+			bool result = row.ButtonText(label, tooltip, drawBackground, doMouseoverSound, active, fixedWidth);
+			row.IncrementPosition(-row.gap);
+			return result;
+		}
 	}
 }

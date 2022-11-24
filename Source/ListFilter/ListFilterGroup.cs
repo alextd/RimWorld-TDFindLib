@@ -43,7 +43,7 @@ namespace TD_Find_Lib
 			bool changed = false;
 			WidgetRow row = new WidgetRow(rect.x, rect.y);
 			row.Label("TD.IncludeThingsThatMatch".Translate());
-			if (row.ButtonText(any ? "TD.AnyOption".Translate() : "TD.AllOptions".Translate()))
+			if (row.ButtonTextNoGap(any ? "TD.AnyOption".Translate() : "TD.AllOptions".Translate()))
 			{
 				any = !any;
 				changed = true;
@@ -112,13 +112,13 @@ namespace TD_Find_Lib
 		{
 			bool changed = false;
 			WidgetRow row = new WidgetRow(rect.x, rect.y);
-			if (row.ButtonText(holdingThis ? "TD.TheThingHoldingThis".Translate() : "TD.AnythingThisIsHolding".Translate()))
+			if (row.ButtonTextNoGap(holdingThis ? "TD.TheThingHoldingThis".Translate() : "TD.AnythingThisIsHolding".Translate()))
 			{
 				changed = true;
 				holdingThis = !holdingThis;
 			}
 			row.Label("TD.Matches".Translate());
-			if (row.ButtonText(any ? "TD.AnyOption".Translate() : "TD.AllOptions".Translate()))
+			if (row.ButtonTextNoGap(any ? "TD.AnyOption".Translate() : "TD.AllOptions".Translate()))
 			{
 				changed = true;
 				any = !any;
