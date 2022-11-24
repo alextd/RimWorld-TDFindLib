@@ -556,7 +556,7 @@ namespace TD_Find_Lib
 
 				Rect customRect = rect;
 				customRect.xMin = row.FinalX;
-				changed = DrawCustom(customRect, row, rect.RightHalfClamped(row.FinalX));
+				changed = DrawCustom(customRect, row, rect);
 			}
 			else
 			{
@@ -604,7 +604,7 @@ namespace TD_Find_Lib
 		// Subclass can override DrawCustom to draw anything custom
 		// (otherwise it's just label and option selection button)
 		// Use either rect or WidgetRow in the implementation
-		public virtual bool DrawCustom(Rect rect, WidgetRow row, Rect rightHalfRect) => throw new NotImplementedException();
+		public virtual bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect) => throw new NotImplementedException();
 
 		// Auto detection of subclasses that use DrawCustom:
 		private static readonly HashSet<Type> customDrawers = null;
@@ -656,7 +656,7 @@ namespace TD_Find_Lib
 		public override bool DrawMain(Rect rect, bool locked)
 		{
 			base.DrawMain(rect, locked);
-			return TDWidgets.FloatRangeUB(rect.RightHalf(), id, ref selByRef, valueStyle: Style);
+			return TDWidgets.FloatRangeUB(rect.RightHalfClamped(Text.CalcSize(Label).x), id, ref selByRef, valueStyle: Style);
 		}
 	}
 }
