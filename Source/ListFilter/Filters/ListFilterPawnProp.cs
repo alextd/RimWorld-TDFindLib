@@ -77,7 +77,7 @@ namespace TD_Find_Lib
 		{
 			sel = TraitDefOf.Beauty;  //Todo: beauty shows even if it's not on map
 		}
-		protected override void PostSelected()
+		protected override void PostChosen()
 		{
 			traitDegree = sel.degreeDatas.First().degree;
 		}
@@ -169,7 +169,7 @@ namespace TD_Find_Lib
 		public IEnumerable<int> SelectableStages =>
 			orderedStages.Where(i => VisibleStage(sel.stages[i]));
 
-		private void MakeOrderedStages()
+		protected override void PostProcess()
 		{
 			orderedStages.Clear();
 			if (sel == null) return;
@@ -178,11 +178,8 @@ namespace TD_Find_Lib
 				.OrderBy(i => sel.stages[i] == null ? i : i + 1000 * sel.stages[i].baseOpinionOffset + 1000000 * sel.stages[i].baseMoodEffect));
 		}
 
-		protected override void PostSelected()
+		protected override void PostChosen()
 		{
-			//Whether it's multistage, visible, or not, alls doesn't matter, just order them ffs.
-			MakeOrderedStages();
-
 			stageRange = new IntRange(0, SelectableStages.Count() - 1);
 		}
 
@@ -191,15 +188,12 @@ namespace TD_Find_Lib
 			base.ExposeData();
 
 			Scribe_Values.Look(ref stageRange, "stageRange");
-
-			if(Scribe.mode == LoadSaveMode.PostLoadInit)
-				MakeOrderedStages();
 		}
 		public override ListFilter Clone()
 		{
 			ListFilterThought clone = (ListFilterThought)base.Clone();
 			clone.stageRange = stageRange;
-			clone.MakeOrderedStages();
+			clone.PostProcess();
 			return clone;
 		}
 
@@ -350,19 +344,24 @@ namespace TD_Find_Lib
 
 	public class ListFilterHealth : ListFilterDropDown<HediffDef>
 	{
-		FloatRangeUB severityRange;
+		FloatRangeUB severityRange;//unknown until sel set
 		bool usesSeverity;
 
 		public ListFilterHealth()
 		{
 			sel = null;
 		}
-		protected override void PostSelected()
+		protected override void PostProcess()
 		{
 			FloatRange? r = SeverityRangeFor(sel);
 			usesSeverity = r.HasValue;
 			if (usesSeverity)
-				severityRange = r.Value;
+				severityRange.absRange = r.Value;
+		}
+		protected override void PostChosen()
+		{
+			if (SeverityRangeFor(sel) is FloatRange range)
+				severityRange.range = range;
 		}
 
 		public override void ExposeData()
@@ -370,12 +369,6 @@ namespace TD_Find_Lib
 			base.ExposeData();
 
 			Scribe_Values.Look(ref severityRange.range, "severityRange");
-			if (Scribe.mode == LoadSaveMode.PostLoadInit)
-			{
-				FloatRange selRange = severityRange.range;
-				PostSelected();
-				severityRange.range = selRange;
-			}
 		}
 		public override ListFilter Clone()
 		{
@@ -618,16 +611,16 @@ namespace TD_Find_Lib
 	public class ListFilterRaceProps : ListFilterDropDown<RacePropsFilter>
 	{
 		Intelligence intelligence;
-		FloatRangeUB valueRange;
+		FloatRangeUB valueRange = new FloatRange(0, 1);
 		TrainabilityDef trainability;
 
-		protected override void PostSelected()
+		protected override void PostChosen()
 		{
 			switch (sel)
 			{
 				case RacePropsFilter.Intelligence: intelligence = Intelligence.Humanlike; return;
 				case RacePropsFilter.Wildness:
-				case RacePropsFilter.Petness: valueRange = new FloatRangeUB(0, 1, 0.25f, 0.75f); return;
+				case RacePropsFilter.Petness: valueRange.range = new FloatRange(0.25f, 0.75f); return;
 				case RacePropsFilter.Trainability: trainability = TrainabilityDefOf.Advanced; return;
 			}
 		}

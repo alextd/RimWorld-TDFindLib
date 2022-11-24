@@ -16,7 +16,7 @@ namespace TD_Find_Lib
 	public struct IntRangeUB
 	{
 		public IntRange range;
-		public readonly IntRange absRange; //If you want new boundaries ... just make a new IntRangeUB.
+		public IntRange absRange;
 
 		public IntRangeUB(int min, int max)
 		{
@@ -65,7 +65,7 @@ namespace TD_Find_Lib
 	public struct FloatRangeUB
 	{
 		public FloatRange range;
-		public readonly FloatRange absRange; //If you want new boundaries ... just make a new FloatRangeUB.
+		public FloatRange absRange;
 
 		public FloatRangeUB(float min, float max)
 		{

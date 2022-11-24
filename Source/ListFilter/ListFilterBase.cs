@@ -259,7 +259,8 @@ namespace TD_Find_Lib
 				_extraOption = 0;
 				selectionError = null;
 				if (SaveLoadByName) selName = MakeSaveName();
-				PostSelected();
+				PostProcess();
+				PostChosen();
 			}
 		}
 
@@ -272,15 +273,21 @@ namespace TD_Find_Lib
 			if (SaveLoadByName)
 				selName = SaveLoadXmlConstants.IsNullAttributeName;
 		}
-		protected virtual void PostSelected()
-		{
-			// A subclass with fields whose validity depends on the selection should override this
-			// Most common usage is to set a default value that is valid for the selection
-			// e.g. the skill filter has a range 0-20, but that's valid for all skills, so no need to reset here
-			// e.g. the hediff filter has a range too, but that depends on the selected hediff, so the selected range needs to be set here
 
-			// Oh geez this also means maybe shenanigans in ExposeData during PostLoadInit.
-		}
+
+		// PostProcess is called any time the selection is set: even after loading and cloning, etc.
+		// PostChosen is called when the user selects the option (after a call to PostProcess)
+
+		// A subclass with fields whose validity depends on the selection should override these
+		//  PostProcess: to load extra data about the selection
+		//   e.g. thoughts that have a range of stages, based on the selected def.
+		//   e.g. the hediff filter has a range of severity, which depends on the selected hediff, so the selectable range needs to be set here
+		//  PostChosen: to set a default value, that is valid for the selection
+		//   e.g. Specific Thing filter sets the 
+		//   e.g. NOT with the skill filter which has a range 0-20, but that's valid for all skills, so no need to set per def
+		// Most sublcasses needing PostChosen will also override PostProcess, to set the valid range and the default
+		protected virtual void PostProcess() { }
+		protected virtual void PostChosen() { }
 
 		// This method works double duty:
 		// Both telling if Sel can be set to null, and the string to show for null selection
@@ -379,6 +386,9 @@ namespace TD_Find_Lib
 			}
 			else
 				Scribe_Values.Look(ref _sel, "sel");
+
+			if (Scribe.mode == LoadSaveMode.PostLoadInit)
+				PostProcess();
 		}
 		public override ListFilter Clone()
 		{

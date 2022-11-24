@@ -614,14 +614,19 @@ namespace TD_Find_Lib
 
 	public class ListFilterThingDef : ListFilterDropDown<ThingDef>
 	{
-		public IntRangeUB stackRange;
+		public IntRangeUB stackRange;//unknown until sel set
+
 		public ListFilterThingDef()
 		{
 			sel = ThingDefOf.WoodLog;
 		}
-		protected override void PostSelected()
+		protected override void PostProcess()
 		{
-			stackRange = new(1, sel.stackLimit);
+			stackRange.absRange = new(1, sel.stackLimit);
+		}
+		protected override void PostChosen()
+		{
+			stackRange.range = new(1, sel.stackLimit);
 		}
 
 		public override void ExposeData()
@@ -750,7 +755,7 @@ namespace TD_Find_Lib
 			sel = StatDefOf.GeneralLaborSpeed;
 		}
 
-		protected override void PostSelected()
+		protected override void PostChosen()
 		{
 			valueRange = new FloatRange(sel.minValue, sel.maxValue);
 			lBuffer = rBuffer = null;
