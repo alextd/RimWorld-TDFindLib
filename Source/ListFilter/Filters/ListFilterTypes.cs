@@ -624,7 +624,7 @@ namespace TD_Find_Lib
 		}
 		protected override void PostProcess()
 		{
-			stackRange.absRange = new(1, sel.stackLimit);
+			stackRange.absRange = new(1, sel?.stackLimit ?? 1);
 		}
 		protected override void PostChosen()
 		{
@@ -635,7 +635,7 @@ namespace TD_Find_Lib
 		{
 			base.ExposeData();
 			
-			if(sel.stackLimit > 1)
+			if(Scribe.mode != LoadSaveMode.Saving || sel.stackLimit > 1)
 				Scribe_Values.Look(ref stackRange.range, "stackRange");
 		}
 		public override ListFilter Clone()
