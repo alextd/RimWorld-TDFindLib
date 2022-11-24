@@ -700,7 +700,7 @@ namespace TD_Find_Lib
 			if (sel == null) return false;
 
 			if (sel.stackLimit > 1)
-				return TDWidgets.IntRangeUB(rect.RightHalfClamped(row.FinalX), id, ref stackRange);
+				return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref stackRange);
 
 			return false;
 		}

@@ -65,7 +65,7 @@ namespace TD_Find_Lib
 					p => new FloatMenuOptionAndRefresh(GetPassionText(p), () => passion = p, this)).Cast<FloatMenuOption>().ToList());
 			}
 
-			return TDWidgets.IntRangeUB(rect.RightHalfClamped(row.FinalX), id, ref skillRange);
+			return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref skillRange);
 		}
 	}
 
@@ -338,7 +338,7 @@ namespace TD_Find_Lib
 
 		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
 		{
-			return TDWidgets.FloatRangeUB(rect.RightHalfClamped(row.FinalX), id, ref needRange, valueStyle: ToStringStyle.PercentOne);
+			return TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref needRange, valueStyle: ToStringStyle.PercentOne);
 		}
 	}
 
@@ -404,7 +404,7 @@ namespace TD_Find_Lib
 		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
 		{
 			if (sel != null && usesSeverity)
-				return TDWidgets.FloatRangeUB(rect.RightHalfClamped(row.FinalX), id, ref severityRange, valueStyle: ToStringStyle.FloatOne);
+				return TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref severityRange, valueStyle: ToStringStyle.FloatOne);
 
 			return false;
 		}
@@ -688,7 +688,7 @@ namespace TD_Find_Lib
 
 				case RacePropsFilter.Wildness:
 				case RacePropsFilter.Petness:
-					return TDWidgets.FloatRangeUB(rect.RightHalfClamped(row.FinalX), id, ref valueRange, valueStyle: ToStringStyle.PercentZero);
+					return TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref valueRange, valueStyle: ToStringStyle.PercentZero);
 
 				case RacePropsFilter.Trainability:
 					if (row.ButtonText(trainability.LabelCap))
@@ -773,7 +773,7 @@ namespace TD_Find_Lib
 			//TODO: write 'IsNull' method to handle confusing extraOption == 1 but Sel == null
 			if (extraOption == 0 && sel == null) return false;
 
-			return TDWidgets.IntRangeUB(rect.RightHalfClamped(row.FinalX), id, ref countRange);
+			return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref countRange);
 		}
 
 		public abstract IEnumerable<ThingDef> AllOptions();
@@ -948,7 +948,7 @@ namespace TD_Find_Lib
 			if (sel == ProgressType.Milkable || sel == ProgressType.Shearable)
 				return false;
 
-			return TDWidgets.FloatRangeUB(rect.RightHalfClamped(row.FinalX), id, ref progressRange, valueStyle: ToStringStyle.PercentZero);
+			return TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref progressRange, valueStyle: ToStringStyle.PercentZero);
 		}
 	}
 
@@ -1011,7 +1011,7 @@ namespace TD_Find_Lib
 
 		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
 		{
-			if(TDWidgets.FloatRangeUB(rect.RightHalfClamped(row.FinalX), id, ref capacityRange, valueStyle: ToStringStyle.PercentZero))
+			if(TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref capacityRange, valueStyle: ToStringStyle.PercentZero))
 			{
 				//round down to 1%
 				capacityRange.min = (int)(100 * capacityRange.min) / 100f;
