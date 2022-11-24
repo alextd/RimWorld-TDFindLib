@@ -24,30 +24,30 @@ namespace TD_Find_Lib
 		public static void AddAllKnownThingsInside(IThingHolder holder, List<Thing> outThings)
 		{
 			//outThings would get cleared inside so can't be added to directly
-			ThingOwnerUtility.GetAllThingsRecursively(holder, _allKnownThingsList, true, DebugSettings.godMode ? null : ContentsUtility.CanPeekInventory);
+			ThingOwnerUtility.GetAllThingsRecursively(holder, _allKnownThingsList, true, DebugSettings.godMode ? null : CanPeekInventory);
 			outThings.AddRange(_allKnownThingsList);
 		}
 
 		// I assume you won't ask about fogged things, or tradeships
 		public static void AllKnownThingsInside(IThingHolder holder, List<Thing> outThings)
 		{
-			ThingOwnerUtility.GetAllThingsRecursively(holder, outThings, true, DebugSettings.godMode ? null : ContentsUtility.CanPeekInventory);
+			ThingOwnerUtility.GetAllThingsRecursively(holder, outThings, true, DebugSettings.godMode ? null : CanPeekInventory);
 		}
 
-		private static bool CanPeekMap(Map map, IThingHolder holder)
+		private static bool CanPeekMap(Map map, object obj)
 		{
 			//Let's not look at tradeships
-			if (holder is TradeShip) return false;
+			if (obj is TradeShip) return false;
 
 			//After this, godmode can peek in
 			if (DebugSettings.godMode) return true;
 
 			// Can't list what you don't know
-			if (holder is Building_Casket c && !c.contentsKnown)
+			if (obj is Building_Casket c && !c.contentsKnown)
 				return false;
 
 			// Can't list what you can't see
-			if (holder is Thing t && t.Position.Fogged(map))
+			if (obj is Thing t && t.Position.Fogged(map))
 				return false;
 
 			return true;
@@ -55,7 +55,9 @@ namespace TD_Find_Lib
 
 		private static IEnumerable<Thing> AllKnownThings(Map map)
 		{
-			ThingOwnerUtility.GetAllThingsRecursively(map, _allKnownThingsList, true, h => ContentsUtility.CanPeekMap(map, h));
+			ThingOwnerUtility.GetAllThingsRecursively(map, _allKnownThingsList, true, h => CanPeekMap(map, h));
+
+			_allKnownThingsList.RemoveAll(t => !CanPeekMap(map, t));
 			
 			return _allKnownThingsList;
 		}
@@ -64,7 +66,7 @@ namespace TD_Find_Lib
 		{
 			HashSet<T> ret = new HashSet<T>();
 			foreach(Map map in Find.Maps)
-				foreach (Thing t in ContentsUtility.AllKnownThings(map))
+				foreach (Thing t in AllKnownThings(map))
 					foreach (T tDef in validGetter(t))
 						ret.Add(tDef);
 
@@ -76,7 +78,7 @@ namespace TD_Find_Lib
 		{
 			HashSet<T> ret = new HashSet<T>();
 			foreach (Map map in Find.Maps)
-				foreach (Thing t in ContentsUtility.AllKnownThings(map))
+				foreach (Thing t in AllKnownThings(map))
 					if(validGetter(t) is T def)
 						ret.Add(def);
 
