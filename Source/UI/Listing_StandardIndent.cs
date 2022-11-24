@@ -10,16 +10,29 @@ namespace TD_Find_Lib
 	public class Listing_StandardIndent : Listing_Standard
 	{
 		float totalIndent;
-		private Stack<float> indentSizes = new Stack<float>();
-		private Stack<float> indentHeights = new Stack<float>();
+		private Stack<float> indentSizes = new();
+		private Stack<float> indentHeights = new();
+		private Stack<string> indentLabels = new();
 
-		public void NestedIndent(float size)
+		public void NestedIndent(float size = DefaultIndent)
 		{
 			Indent(size);
 			totalIndent += size;
 			SetWidthForIndent();
 			indentSizes.Push(size);
 			indentHeights.Push(curY);
+			indentLabels.Push(null);
+		}
+
+		public void NestedIndent(string label)
+		{
+			float size = Text.CalcSize(label).x + DefaultIndent;
+			Indent(size);
+			totalIndent += size;
+			SetWidthForIndent();
+			indentSizes.Push(size);
+			indentHeights.Push(curY);
+			indentLabels.Push(label);
 		}
 
 		public void NestedOutdent()
@@ -31,11 +44,16 @@ namespace TD_Find_Lib
 				totalIndent -= size;
 				SetWidthForIndent();
 
-				//Draw vertical line marking indention
+				string label = indentLabels.Pop();
+
+				//Draw vertical line marking indention, unless we've been drawing strings.
 				float startHeight = indentHeights.Pop();
-				GUI.color = Color.grey;
-				Widgets.DrawLineVertical(curX, startHeight, curY - startHeight - verticalSpacing);//TODO columns?
-				GUI.color = Color.white;
+				if (label == null)
+				{
+					GUI.color = Color.grey;
+					Widgets.DrawLineVertical(curX, startHeight, curY - startHeight - verticalSpacing);//TODO columns?
+					GUI.color = Color.white;
+				}
 			}
 		}
 
@@ -43,7 +61,39 @@ namespace TD_Find_Lib
 		{
 			ColumnWidth = listingRect.width - totalIndent;
 		}
-		
+
+		// When GetRect is called, draw the indent label on that line.
+		// GetRect is used for labels for sure...
+		// Maybe other Listing_Standard options don't use GetRect and won't have this drawn - but it'll still be indented!
+		public new Rect GetRect(float height, float widthPct = 1f)
+		{
+			Rect result = base.GetRect(height, widthPct);
+
+
+			if(indentLabels.Count > 0 && indentLabels.Peek() is string label)
+			{
+				Rect labelRect = result;
+				labelRect.xMin -= indentSizes.Peek();
+				Widgets.Label(labelRect, label);
+			}
+
+			/*
+			// Excessively draw all labels?
+			float indent = 0;
+			for (int i = 0 ; i < indentSizes.Count ; i++)
+			{
+				indent += indentSizes.ElementAt(i);
+				if (indentLabels.ElementAt(i) is string label)
+				{
+					Rect labelRect = result;
+					labelRect.xMin -= indent;
+					Widgets.Label(labelRect, label);
+				}
+			}*/
+
+			return result;
+		}
+
 		public void BeginScrollView(Rect rect, ref Vector2 scrollPosition, Rect viewRect, GameFont font = GameFont.Small)
 		{
 			//Widgets.BeginScrollView(rect, ref scrollPosition, viewRect, true);

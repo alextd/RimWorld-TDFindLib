@@ -54,11 +54,11 @@ namespace TD_Find_Lib
 
 		protected override bool DrawUnder(Listing_StandardIndent listing, bool locked)
 		{
-			listing.NestedIndent(Listing_Standard.DefaultIndent);
+			listing.NestedIndent();
 			listing.Gap(listing.verticalSpacing);
 
 			//Draw filters
-			bool changed = Children.DrawFiltersListing(listing, locked);
+			bool changed = Children.DrawFiltersListing(listing, locked, (any ? "OR" : "AND").Colorize(Color.green));
 
 			listing.NestedOutdent();
 			return changed;

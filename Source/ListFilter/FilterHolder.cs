@@ -194,7 +194,7 @@ namespace TD_Find_Lib
 		public int reorderID;
 		private float reorderRectHeight;
 
-		public bool DrawFiltersListing(Listing_StandardIndent listing, bool locked)
+		public bool DrawFiltersListing(Listing_StandardIndent listing, bool locked, string indentAfterFirst = null)
 		{
 			Rect coveredRect = new Rect(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight);
 			if (Event.current.type == EventType.Repaint)
@@ -216,6 +216,7 @@ namespace TD_Find_Lib
 
 			bool changed = false;
 			HashSet<ListFilter> removedFilters = new();
+			bool first = true;
 			foreach (ListFilter filter in filters)
 			{
 				Rect usedRect = listing.GetRect(0);
@@ -238,7 +239,15 @@ namespace TD_Find_Lib
 					usedRect.yMax = listing.CurHeight;
 					Widgets.DrawHighlight(usedRect);
 				}
+				if(first)
+				{
+					first = false;
+					if (indentAfterFirst != null)
+						listing.NestedIndent(indentAfterFirst);
+				}
 			}
+			if (indentAfterFirst != null)
+				listing.NestedOutdent();
 
 			reorderRectHeight = listing.CurHeight - coveredRect.y;
 

@@ -812,7 +812,7 @@ namespace TD_Find_Lib
 
 			if (locked) return false;
 
-			listing.NestedIndent(Listing_Standard.DefaultIndent);
+			listing.NestedIndent();
 			listing.Gap(listing.verticalSpacing);
 
 			Rect rect = listing.GetRect(Text.LineHeight);

@@ -265,7 +265,7 @@ namespace TD_Find_Lib
 			//Buttons apparently are too tall for the line height?
 			listing.Gap(listing.verticalSpacing);
 
-			listing.NestedIndent(Listing_Standard.DefaultIndent);
+			listing.NestedIndent();
 			Rect nextRect = listing.GetRect(Text.LineHeight);
 			listing.NestedOutdent();
 
