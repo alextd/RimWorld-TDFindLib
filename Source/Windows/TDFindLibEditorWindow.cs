@@ -193,7 +193,9 @@ namespace TD_Find_Lib
 			//Buttons
 			WidgetRow buttonRow = new WidgetRow(nameRect.xMax - 20, nameRect.yMin, UIDirection.LeftThenDown);
 
-			if (!locked && buttonRow.ButtonIcon(FindTex.Cancel, "ClearAll".Translate()))
+			if (locked)
+				buttonRow.IncrementPosition(WidgetRow.IconSize); //not Gap because that checks for 0 and doesn't actually gap
+			else if (buttonRow.ButtonIcon(FindTex.Cancel, "ClearAll".Translate()))
 				findDesc.Reset();
 
 			if (!permalocked && buttonRow.ButtonIcon(locked ? FindTex.LockOn : FindTex.LockOff, "TD.LockEditing".Translate()))
