@@ -46,8 +46,18 @@ namespace TD_Find_Lib
 
 		public void Reorder(int from, int to)
 		{
-			parent.Reorder(from, to);
+			parent.ReorderGroup(from, to);
 			SetupDrawers();
+		}
+
+		public void MasterReorderFilter(int from, int fromGroupID, int to, int toGroupID)
+		{
+			Log.Message($"Settings.MasterReorderFilter(int from={from}, int fromGroup={fromGroupID}, int to={to}, int toGroup={toGroupID})");
+			FilterGroup fromGroup = groupDrawers.First(dr => dr.reorderID == fromGroupID).list;
+			FilterGroup toGroup = groupDrawers.First(dr => dr.reorderID == toGroupID).list;
+			var desc = fromGroup[from];
+			fromGroup.RemoveAt(from);
+			toGroup.Insert(to, desc);
 		}
 
 
@@ -88,11 +98,15 @@ namespace TD_Find_Lib
 			{
 				Rect headerRect = groupDrawers[i].DrawHeader(listing);
 				ReorderableWidget.Reorderable(reorderID, headerRect);
+				reorderRectHeight = listing.CurHeight; // - startHeight; but the start is 0
 
 				groupDrawers[i].DrawFindDescList(listing);
 				listing.Gap();
 			}
-			reorderRectHeight = listing.CurHeight; // - startHeight; but the start is 0
+
+			List<int> reorderIDs = new(groupDrawers.Select(d => d.reorderID));
+
+			ReorderableWidget.NewMultiGroup(reorderIDs, MasterReorderFilter);
 
 
 			// Add new group
@@ -183,7 +197,7 @@ namespace TD_Find_Lib
 		public abstract FindDescription DescAt(int i);
 		public abstract int Count { get; }
 
-		public virtual void Reorder(int from, int to)
+		public virtual void ReorderFilter(int from, int to)
 		{
 			var desc = list[from];
 			list.RemoveAt(from);
@@ -198,7 +212,7 @@ namespace TD_Find_Lib
 		//Drawing
 		private const float RowHeight = WidgetRow.IconSize + 6;
 
-		private int reorderID;
+		public int reorderID;
 		private float reorderRectHeight;
 
 		public Rect DrawHeader(Listing_StandardIndent listing)
@@ -220,7 +234,7 @@ namespace TD_Find_Lib
 			if (Event.current.type == EventType.Repaint)
 			{
 				reorderID = ReorderableWidget.NewGroup(
-					Reorder,
+					ReorderFilter,
 					ReorderableDirection.Vertical,
 					new Rect(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight), 1f,
 					extraDraggedItemOnGUI: (int index, Vector2 dragStartPos) =>

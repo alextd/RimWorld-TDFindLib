@@ -139,7 +139,7 @@ namespace TD_Find_Lib
 
 		public void MasterReorder(int from, int fromGroup, int to, int toGroup)
 		{
-			Log.Message($"MasterReorder(int from={from}, int fromGroup={fromGroup}, int to={to}, int toGroup={toGroup})");
+			Log.Message($"FilterHolder.MasterReorder(int from={from}, int fromGroup={fromGroup}, int to={to}, int toGroup={toGroup})");
 
 			ListFilter draggedFilter = Gather(delegate (IFilterHolder holder)
 			{
