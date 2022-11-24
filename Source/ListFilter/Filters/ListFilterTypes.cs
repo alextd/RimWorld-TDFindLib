@@ -797,7 +797,7 @@ namespace TD_Find_Lib
 			Text.Anchor = TextAnchor.MiddleCenter;
 			Widgets.Label(rightHalfRect,
 				$"{valueRange.min.ToStringByStyle(sel.toStringStyle, sel.toStringNumberSense)} - {valueRange.max.ToStringByStyle(sel.toStringStyle, sel.toStringNumberSense)}");
-			Text.Anchor = TextAnchor.UpperLeft;
+			Text.Anchor = default;
 
 			return false;
 		}

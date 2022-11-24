@@ -82,7 +82,7 @@ namespace TD_Find_Lib
 			//Count text
 			Text.Anchor = TextAnchor.UpperRight;
 			Widgets.Label(inRect, LabelCountThings(findDesc.result.allThings));
-			Text.Anchor = TextAnchor.UpperLeft;
+			Text.Anchor = default;
 
 			//Handle mouse selection
 			if (!Input.GetMouseButton(0))

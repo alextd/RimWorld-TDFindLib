@@ -388,7 +388,7 @@ namespace TD_Find_Lib
 				}
 				, "Set refresh period in ticks"));
 			}
-			Text.Anchor = TextAnchor.UpperLeft;
+			Text.Anchor = default;
 		}
 	}
 }
