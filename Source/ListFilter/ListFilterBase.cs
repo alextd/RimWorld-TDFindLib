@@ -133,7 +133,7 @@ namespace TD_Find_Lib
 
 		public (bool, bool) Listing(Listing_StandardIndent listing, bool locked)
 		{
-			Rect rowRect = listing.GetRect(Text.LineHeight);
+			Rect rowRect = listing.GetRect(Text.LineHeight + listing.verticalSpacing); //ends up being 22 which is height of Text.CalcSize 
 
 
 			if (!include)
