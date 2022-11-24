@@ -83,7 +83,7 @@ namespace TD_Find_Lib
 						DrawMouseAttachedFilterGroup(parent.Children[index], listing.ColumnWidth));
 			}
 
-			// Filter groups by name
+			// Draw each Filter groups
 			for (int i = 0; i < groupDrawers.Count; i++)
 			{
 				Rect headerRect = groupDrawers[i].DrawHeader(listing);
@@ -96,59 +96,64 @@ namespace TD_Find_Lib
 
 
 			// Add new group
+
 			listing.Gap(4);
-			Text.Font = GameFont.Medium;
 			Rect newGroupRect = listing.GetRect(Text.LineHeight);
-			WidgetRow newGroupRow = new WidgetRow(newGroupRect.x, newGroupRect.y);
-
-
-			//Add button
-			if (newGroupRow.ButtonIcon(FindTex.GreyPlus))
+			if (!ReorderableWidget.Dragging)
 			{
-				Find.WindowStack.Add(new Dialog_Name("New Group", n =>
+				WidgetRow newGroupRow = new WidgetRow(newGroupRect.x, newGroupRect.y);
+				Text.Font = GameFont.Medium;
+
+
+				//Add button
+				if (newGroupRow.ButtonIcon(FindTex.GreyPlus))
 				{
-					var group = new FilterGroup(n, parent);
+					Find.WindowStack.Add(new Dialog_Name("New Group", n =>
+					{
+						var group = new FilterGroup(n, parent);
+						parent.Add(group);
+
+						var drawer = new FilterGroupDrawer(group, groupDrawers);
+						groupDrawers.Add(drawer);
+
+						drawer.PopUpCreateFindDesc();
+					},
+					"Name for New Group",
+					n => parent.Children.Any(f => f.name == n)));
+				}
+
+
+				// Import button
+				FilterStorageUtil.ButtonChooseImportFilterGroup(newGroupRow, group =>
+				{
 					parent.Add(group);
 
 					var drawer = new FilterGroupDrawer(group, groupDrawers);
-					groupDrawers.Add(drawer);
+					if (groupDrawers.Any(d => d.Name == group.name))
+						drawer.PopUpRename();
+					else
+						parent.Write();
 
-					drawer.PopUpCreateFindDesc();
+					groupDrawers.Add(drawer);
 				},
-				"Name for New Group",
-				n => parent.Children.Any(f => f.name == n)));
+				"Storage");
+
+
+				//Label
+				newGroupRow.Gap(4);
+				newGroupRow.Label("Add New Group", height: Text.LineHeight);
+				Text.Font = GameFont.Small;
 			}
 
-
-			// Import button
-			FilterStorageUtil.ButtonChooseImportFilterGroup(newGroupRow, group =>
-			{
-				parent.Add(group);
-
-				var drawer = new FilterGroupDrawer(group, groupDrawers);
-				if (groupDrawers.Any(d => d.Name == group.name))
-					drawer.PopUpRename();
-				else
-					parent.Write();
-
-				groupDrawers.Add(drawer);
-			},
-			"Storage");
-
-
-			//Label
-			newGroupRow.Gap(4);
-			newGroupRow.Label("Add New Group", height: Text.LineHeight);
-			listing.Gap(4);
-			Text.Font = GameFont.Small;
 
 			// Active filters, possibly from mods
 			if (refreshDrawer?.Count > 0)
 			{
+				listing.Gap(4);
+
 				listing.GapLine();
 				refreshDrawer?.DrawFindDescList(listing);
 			}
-
 
 			listing.EndScrollView(ref scrollViewHeight);
 		}
