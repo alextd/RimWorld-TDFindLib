@@ -148,9 +148,9 @@ namespace TD_Find_Lib
 		{
 			changed = true;
 
-			parameters = default;
+			parameters = new();
 			children.Clear();
-			result = default;
+			result = new();
 		}
 
 
@@ -166,6 +166,7 @@ namespace TD_Find_Lib
 		{
 			Scribe_Values.Look(ref name, "name");
 			Scribe_Values.Look(ref active, "active");
+			//todo: IExposable parameters?
 			Scribe_Values.Look(ref parameters.baseType, "baseType");
 			Scribe_Values.Look(ref parameters.mapType, "mapType");
 
