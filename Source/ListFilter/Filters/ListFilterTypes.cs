@@ -810,6 +810,7 @@ namespace TD_Find_Lib
 
 			if (locked) return false;
 
+			listing.NestedIndent(Listing_Standard.DefaultIndent);
 			listing.Gap(listing.verticalSpacing);
 
 			Rect rect = listing.GetRect(Text.LineHeight);
@@ -841,7 +842,10 @@ namespace TD_Find_Lib
 			if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Tab
 				 && (GUI.GetNameOfFocusedControl() == controlNameL || GUI.GetNameOfFocusedControl() == controlNameR))
 					Event.current.Use();
-			
+
+
+
+			listing.NestedOutdent();
 
 			return valueRange != oldRange;
 		}

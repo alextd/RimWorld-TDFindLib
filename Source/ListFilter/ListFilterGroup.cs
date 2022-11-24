@@ -55,7 +55,7 @@ namespace TD_Find_Lib
 		protected override bool DrawUnder(Listing_StandardIndent listing, bool locked)
 		{
 			listing.NestedIndent(Listing_Standard.DefaultIndent);
-			listing.Gap();
+			listing.Gap(listing.verticalSpacing);
 
 			//Draw filters
 			bool changed = Children.DrawFiltersListing(listing, locked);
