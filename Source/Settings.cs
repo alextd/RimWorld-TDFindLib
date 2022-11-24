@@ -31,6 +31,12 @@ namespace TD_Find_Lib
 			Children.Add(group);
 			group.parent = this;
 		}
+		public void Reorder(int from, int to)
+		{
+			var desc = groupedFilters[from];
+			groupedFilters.RemoveAt(from);
+			groupedFilters.Insert(from < to ? to - 1 : to, desc);
+		}
 
 		internal void SanityCheck()
 		{

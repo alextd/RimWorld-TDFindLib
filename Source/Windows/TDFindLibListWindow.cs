@@ -11,17 +11,14 @@ namespace TD_Find_Lib
 	public class TDFindLibListWindow : Window
 	{
 		private IFilterStorageParent parent;
-		private List<FilterGroupDrawer> groupDrawers;
+		private List<FilterGroupDrawer> groupDrawers = new();
 		private RefreshFilterGroupDrawer refreshDrawer;
 
 		public TDFindLibListWindow(IFilterStorageParent parent)
 		{
 			this.parent = parent;
-			groupDrawers = new();
-			foreach (FilterGroup group in parent.Children)
-			{
-				groupDrawers.Add(new FilterGroupDrawer(group, groupDrawers));
-			}
+
+			SetupDrawers();
 
 			if (Current.Game != null)
 				refreshDrawer = new RefreshFilterGroupDrawer(Current.Game.GetComponent<TDFindLibGameComp>().findDescRefreshers);
@@ -34,35 +31,68 @@ namespace TD_Find_Lib
 			doCloseX = true;
 		}
 
+		private void SetupDrawers()
+		{
+			groupDrawers.Clear();
+			foreach (FilterGroup group in parent.Children)
+				groupDrawers.Add(new FilterGroupDrawer(group, groupDrawers));
+		}
+
 		public override void PostClose()
 		{
 			parent.Write();
 		}
 
 
+		public void Reorder(int from, int to)
+		{
+			parent.Reorder(from, to);
+			SetupDrawers();
+		}
+
+
 		private Vector2 scrollPosition = Vector2.zero;
 		private float scrollViewHeight;
+		private int reorderID;
+		private float reorderRectHeight;
 
 		public override void DoWindowContents(Rect fillRect)
 		{
 			Text.Font = GameFont.Medium;
 			Text.Anchor = TextAnchor.UpperCenter;
-			Rect headerRect = fillRect.TopPartPixels(Text.LineHeight).AtZero();
-			Widgets.Label(headerRect, "TD Find Lib: Filter Library");
+			Rect titleRect = fillRect.TopPartPixels(Text.LineHeight).AtZero();
+			Widgets.Label(titleRect, "TD Find Lib: Filter Library");
 			Text.Anchor = default;
 
-			fillRect.yMin = headerRect.yMax;
+			fillRect.yMin = titleRect.yMax;
 
 			Listing_StandardIndent listing = new();
 			Rect viewRect = new Rect(0f, 0f, fillRect.width - 16f, scrollViewHeight);
 			listing.BeginScrollView(fillRect, ref scrollPosition, viewRect);
 
+
+
+			// Reorder group rect
+			if (Event.current.type == EventType.Repaint)
+			{
+				reorderID = ReorderableWidget.NewGroup(
+					Reorder,
+					ReorderableDirection.Vertical,
+					new Rect(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight), 1f,
+					extraDraggedItemOnGUI: (int index, Vector2 dragStartPos) =>
+						DrawMouseAttachedFilterGroup(parent.Children[index], listing.ColumnWidth));
+			}
+
 			// Filter groups by name
 			for (int i = 0; i < groupDrawers.Count; i++)
 			{
+				Rect headerRect = groupDrawers[i].DrawHeader(listing);
+				ReorderableWidget.Reorderable(reorderID, headerRect);
+
 				groupDrawers[i].DrawFindDescList(listing);
 				listing.Gap();
 			}
+			reorderRectHeight = listing.CurHeight; // - startHeight; but the start is 0
 
 
 			// Add new group
@@ -122,6 +152,18 @@ namespace TD_Find_Lib
 
 			listing.EndScrollView(ref scrollViewHeight);
 		}
+
+
+		public static void DrawMouseAttachedFilterGroup(FilterGroup group, float width)
+		{
+			Vector2 mousePositionOffset = Event.current.mousePosition + Vector2.one * 12;
+			Rect dragRect = new Rect(mousePositionOffset, new(width, Text.LineHeight));
+
+			//Same id 34003428 as GenUI.DrawMouseAttachment
+			Find.WindowStack.ImmediateWindow(34003428, dragRect, WindowLayer.Super,
+				() => Widgets.Label(new Rect(0, 0, width, Text.LineHeight), group.name),
+				doBackground: false, absorbInputAroundWindow: false, 0f);
+		}
 	}
 
 	abstract public class FilterListDrawer<TList, TItem> where TList : IList<TItem>
@@ -153,7 +195,8 @@ namespace TD_Find_Lib
 
 		private int reorderID;
 		private float reorderRectHeight;
-		public void DrawFindDescList(Listing_StandardIndent listing)
+
+		public Rect DrawHeader(Listing_StandardIndent listing)
 		{
 			// Name Header
 			Text.Font = GameFont.Medium;
@@ -163,7 +206,11 @@ namespace TD_Find_Lib
 
 			DrawExtraHeader(headerRect);
 
+			return headerRect;
+		}
 
+		public void DrawFindDescList(Listing_StandardIndent listing)
+		{
 			// Reorder rect
 			if (Event.current.type == EventType.Repaint)
 			{

@@ -14,6 +14,7 @@ namespace TD_Find_Lib
 		public void Write();
 		public List<FilterGroup> Children { get; }
 		public void Add(FilterGroup group);
+		public void Reorder(int from, int to);
 	}
 
 	// Trying to save a List<List<Deep>> doesn't work.
