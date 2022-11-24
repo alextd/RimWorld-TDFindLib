@@ -58,7 +58,7 @@ namespace TD_Find_Lib
 			
 			maxOneColumn = true;
 
-			rect.width -= 20f;
+			rect.width  = viewRect.width;
 			listingRect = rect;
 			ColumnWidth = listingRect.width;
 
