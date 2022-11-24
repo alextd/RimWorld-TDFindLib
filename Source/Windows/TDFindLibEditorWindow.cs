@@ -109,7 +109,8 @@ namespace TD_Find_Lib
 
 		protected virtual void DrawHeader(Rect headerRect)
 		{
-			Rect typeRect = headerRect.LeftPart(.49f);
+			// Listing BaseType
+			Rect typeRect = headerRect.LeftPart(.32f);
 
 			Widgets.Label(typeRect, "TD.Listing".Translate() + findDesc.BaseType.TranslateEnum());
 			if (!locked)
@@ -126,8 +127,20 @@ namespace TD_Find_Lib
 			}
 
 
-			//Extra options:
-			Rect mapTypeRect = headerRect.RightPart(.49f);
+			// Matching All or Any
+			Rect matchRect = typeRect.CenteredOnXIn(headerRect);
+
+			Widgets.Label(matchRect, findDesc.MatchAllFilters ? "Matching all filters" : "Matching any filter");
+			if (!locked)
+			{
+				Widgets.DrawHighlightIfMouseover(matchRect);
+				if (Widgets.ButtonInvisible(matchRect))
+					findDesc.MatchAllFilters = !findDesc.MatchAllFilters;
+			}
+
+
+			// Seraching Map selecion:
+			Rect mapTypeRect = headerRect.RightPart(.32f);
 			Widgets.Label(mapTypeRect, findDesc.GetMapOptionLabel());
 			if(!locked)
 			{

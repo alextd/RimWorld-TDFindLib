@@ -50,9 +50,10 @@ namespace TD_Find_Lib
 		public BaseListType baseType; //default is Selectable
 
 		// How to look
-		public QueryMapType mapType; //default is CurMap
+		public bool matchAllFilters = true;
 
 		// Where to look
+		public QueryMapType mapType; //default is CurMap
 		public List<Map> searchMaps = new();
 
 		public BasicQueryParameters Clone(bool includeMaps = true)
@@ -60,6 +61,7 @@ namespace TD_Find_Lib
 			BasicQueryParameters result = new();
 
 			result.baseType = baseType;
+			result.matchAllFilters = matchAllFilters;
 			result.mapType = mapType;
 
 			if(includeMaps)
@@ -123,6 +125,17 @@ namespace TD_Find_Lib
 			}
 		}
 
+		public bool MatchAllFilters
+		{
+			get => parameters.matchAllFilters;
+			set
+			{
+				parameters.matchAllFilters = value;
+
+				RemakeList();
+			}
+		}
+
 		public FilterHolder Children => children;
 
 
@@ -168,6 +181,7 @@ namespace TD_Find_Lib
 			Scribe_Values.Look(ref active, "active");
 			//todo: IExposable parameters?
 			Scribe_Values.Look(ref parameters.baseType, "baseType");
+			Scribe_Values.Look(ref parameters.matchAllFilters, "matchAllFilters", true);
 			Scribe_Values.Look(ref parameters.mapType, "mapType");
 
 			Scribe_Collections.Look(ref parameters.searchMaps, "searchMaps", LookMode.Reference);
@@ -510,12 +524,29 @@ namespace TD_Find_Lib
 
 
 			// Apply the actual filters, finally
-			foreach (ListFilter filter in Children.filters.FindAll(f => f.Enabled))
-			{
-				// Clears newFilteredThings, fills with newListedThings which pass filter.
-				filter.Apply(newListedThings, newFilteredThings);
 
-				// newFilteredThings is now the list of things ; swap them
+			var filters = Children.filters.FindAll(f => f.Enabled);
+			if (MatchAllFilters)
+			{
+				// ALL
+				foreach (ListFilter filter in filters)
+				{
+					// Clears newFilteredThings, fills with newListedThings which pass filter.
+					filter.Apply(newListedThings, newFilteredThings);
+
+					// newFilteredThings is now the list of things ; swap them
+					(newListedThings, newFilteredThings) = (newFilteredThings, newListedThings);
+				}
+			}
+			else
+			{
+				// ANY
+
+				newFilteredThings.Clear();
+				foreach (Thing thing in newListedThings)
+					if (filters.Any(f => f.AppliesTo(thing)))
+						newFilteredThings.Add(thing);
+
 				(newListedThings, newFilteredThings) = (newFilteredThings, newListedThings);
 			}
 

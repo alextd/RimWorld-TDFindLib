@@ -99,6 +99,7 @@ namespace TD_Find_Lib
 		public void Apply( /* const */ List<Thing> inList, List<Thing> outList)
 		{
 			outList.Clear();
+
 			foreach (Thing thing in inList)
 				if (AppliesTo(thing))
 					outList.Add(thing);
