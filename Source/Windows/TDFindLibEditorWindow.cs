@@ -173,6 +173,9 @@ namespace TD_Find_Lib
 		}
 
 		//Draw Filters
+		private Vector2 scrollPosition;
+		private float scrollHeight;
+
 		public void DrawFindDescription(Rect rect, Action<WidgetRow> extraIconsDrawer = null)
 		{
 			Listing_StandardIndent listing = new Listing_StandardIndent()
@@ -239,7 +242,7 @@ namespace TD_Find_Lib
 			}
 
 			//Draw Filters:
-			if(findDesc.Children.DrawFiltersInRect(listRect, locked))
+			if(findDesc.Children.DrawFiltersInRect(listRect, locked, ref scrollPosition, ref scrollHeight))
 				findDesc.RemakeList();
 
 			listing.End();

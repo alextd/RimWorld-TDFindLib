@@ -166,10 +166,7 @@ namespace TD_Find_Lib
 		}
 
 		//Draw filters completely, in a rect
-		private Vector2 scrollPositionFilt = Vector2.zero;
-		private float scrollHeight;
-
-		public bool DrawFiltersInRect(Rect listRect, bool locked)
+		public bool DrawFiltersInRect(Rect listRect, bool locked, ref Vector2 scrollPositionFilt, ref float scrollHeight)
 		{
 			Listing_StandardIndent listing = new Listing_StandardIndent()
 				{ maxOneColumn = true };
