@@ -271,7 +271,7 @@ namespace TD_Find_Lib
 					TrashThis();
 				else
 					Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
-						"TD.Delete0".Translate(Name), TrashThis));
+						"TD.Delete0".Translate(Name), TrashThis, true));
 			}
 
 			// Export Group
@@ -314,7 +314,7 @@ namespace TD_Find_Lib
 					Trash(i);
 				else
 					Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
-						"TD.Delete0".Translate(desc.name), () => Trash(i)));
+						"TD.Delete0".Translate(desc.name), () => Trash(i), true));
 			}
 
 			FilterStorageUtil.ButtonChooseExportFilter(row, desc, "Storage");
