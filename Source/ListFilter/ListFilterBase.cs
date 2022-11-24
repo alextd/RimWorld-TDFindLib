@@ -36,6 +36,7 @@ namespace TD_Find_Lib
 
 		private bool enabled = true; //simply turn off but keep in list
 		public bool Enabled => enabled && DisableReason == null;
+		public static readonly Color DisabledOverlayColor = Widgets.WindowBGFillColor * new Color(1,1,1,.5f);
 
 		private bool _include = true; //or exclude
 		public bool include
@@ -185,11 +186,19 @@ namespace TD_Find_Lib
 				DoFocus();
 				shouldFocus = false;
 			}
+
 			if (DisableReason is string reason)
 			{
-				Widgets.DrawBoxSolid(rowRect, new Color(0.5f, 0, 0, 0.25f));
+				Widgets.DrawBoxSolidWithOutline(rowRect, DisabledBecauseReasonOverlayColor, Color.red);
 
 				TooltipHandler.TipRegion(rowRect, reason);
+			}
+
+			if (!enabled)
+			{
+				Rect usedRect = rowRect;
+				usedRect.yMax = listing.CurHeight;
+				Widgets.DrawBoxSolid(usedRect, DisabledOverlayColor);
 			}
 
 			listing.Gap(listing.verticalSpacing);
@@ -207,6 +216,7 @@ namespace TD_Find_Lib
 		public virtual bool CurMapOnly => false;
 
 		public virtual string DisableReason => null;
+		public static readonly Color DisabledBecauseReasonOverlayColor = new Color(0.5f, 0, 0, 0.25f);
 
 		public static void DoFloatOptions(List<FloatMenuOption> options)
 		{
@@ -280,7 +290,7 @@ namespace TD_Find_Lib
 		// PostChosen is called when the user selects the option (after a call to PostProcess)
 
 		// A subclass with fields whose validity depends on the selection should override these
-		//  PostProcess: to load extra data about the selection
+		//  PostProcess: to load extra data about the selection - MUST handle null.
 		//   e.g. thoughts that have a range of stages, based on the selected def.
 		//   e.g. the hediff filter has a range of severity, which depends on the selected hediff, so the selectable range needs to be set here
 		//  PostChosen: to set a default value, that is valid for the selection
