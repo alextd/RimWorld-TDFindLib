@@ -5,63 +5,63 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Verse;
-using CloneArgs = TD_Find_Lib.FindDescription.CloneArgs;
+using CloneArgs = TD_Find_Lib.QuerySearch.CloneArgs;
 
 namespace TD_Find_Lib
 {
-	public interface IFilterStorageParent
+	public interface ISearchStorageParent
 	{
 		public void Write();
-		public List<FilterGroup> Children { get; }
-		public void Add(FilterGroup group);
+		public List<SearchGroup> Children { get; }
+		public void Add(SearchGroup group);
 		public void ReorderGroup(int from, int to);
 	}
 
 	// Trying to save a List<List<Deep>> doesn't work.
 	// Need List to be "exposable" on its own.
-	public class FilterGroup : List<FindDescription>, IExposable
+	public class SearchGroup : List<QuerySearch>, IExposable
 	{
 		public string name;
-		public IFilterStorageParent parent;
+		public ISearchStorageParent parent;
 
-		public FilterGroup(string name, IFilterStorageParent parent)
+		public SearchGroup(string name, ISearchStorageParent parent)
 		{
 			this.name = name;
 			this.parent = parent;
 		}
 
 
-		public FilterGroup Clone(CloneArgs cloneArgs, string newName = null, IFilterStorageParent newParent = null)
+		public SearchGroup Clone(CloneArgs cloneArgs, string newName = null, ISearchStorageParent newParent = null)
 		{
-			FilterGroup clone = new FilterGroup(newName ?? name, newParent);
-			foreach (FindDescription filter in this)
+			SearchGroup clone = new SearchGroup(newName ?? name, newParent);
+			foreach (QuerySearch query in this)
 			{
 				//obviously don't set newName in cloneArgs
-				clone.Add(filter.Clone(cloneArgs));
+				clone.Add(query.Clone(cloneArgs));
 			}
 			return clone;
 		}
 
-		public void ConfirmPaste(FindDescription newDesc, int i)
+		public void ConfirmPaste(QuerySearch newSearch, int i)
 		{
 			// TODO the weird case where you changed the name in the editor, to a name that already exists.
 			// Right now it'll have two with same name instead of overwriting that one.
 			Action acceptAction = delegate ()
 			{
-				this[i] = newDesc;
+				this[i] = newSearch;
 				parent.Write();
 			};
 			Action copyAction = delegate ()
 			{
-				newDesc.name = newDesc.name + " (Copy)";
-				Insert(i + 1, newDesc);
+				newSearch.name = newSearch.name + " (Copy)";
+				Insert(i + 1, newSearch);
 				parent.Write();
 			};
 			Verse.Find.WindowStack.Add(new Dialog_MessageBox(
-				$"Save changes to {newDesc.name}?",
+				$"Save changes to {newSearch.name}?",
 				"Confirm".Translate(), acceptAction,
 				"No".Translate(), null,
-				"Change Filter",
+				"Overwrite Search",
 				true, acceptAction,
 				delegate () { }// I dunno who wrote this class but this empty method is required so the window can close with esc because its logic is very different from its base class
 			)
@@ -71,33 +71,33 @@ namespace TD_Find_Lib
 			});
 		}
 
-		public void TryAdd(FindDescription desc)
+		public void TryAdd(QuerySearch search)
 		{
-			if (this.FindIndex(d => d.name == desc.name) is int index && index != -1)
-				ConfirmPaste(desc, index);
+			if (this.FindIndex(d => d.name == search.name) is int index && index != -1)
+				ConfirmPaste(search, index);
 			else
 			{
-				base.Add(desc);
+				base.Add(search);
 				parent.Write();
 			}
 		}
 
 		public void ExposeData()
 		{
-			Scribe_Values.Look(ref name, "name", Settings.defaultFiltersName);
+			Scribe_Values.Look(ref name, "name", Settings.defaultGroupName);
 
-			string label = "descs";
+			string label = "searches";
 
-			//Watered down Scribe_Collections, doing LookMode.Deep on List<FindDescription>
+			//Watered down Scribe_Collections, doing LookMode.Deep on List<QuerySearch>
 			if (Scribe.EnterNode(label))
 			{
 				try
 				{
 					if (Scribe.mode == LoadSaveMode.Saving)
 					{
-						foreach (FindDescription desc in this)
+						foreach (QuerySearch search in this)
 						{
-							FindDescription target = desc;
+							QuerySearch target = search;
 							Scribe_Deep.Look(ref target, "li");
 						}
 					}
@@ -107,7 +107,7 @@ namespace TD_Find_Lib
 						Clear();
 
 						foreach (XmlNode node in curXmlParent.ChildNodes)
-							Add(ScribeExtractor.SaveableFromNode<FindDescription>(node, new object[] { }));
+							Add(ScribeExtractor.SaveableFromNode<QuerySearch>(node, new object[] { }));
 					}
 				}
 				finally

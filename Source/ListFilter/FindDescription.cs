@@ -7,17 +7,17 @@ using RimWorld;
 
 namespace TD_Find_Lib
 {
-	// FindDescription is the class to do a TDFindLib Thing Query Search, 
+	// QuerySearch is the class to do a TDFindLib Thing Query Search, 
 	// There's a few parts:
-	// - The BaseListType narrows the basic type of thing you're searching
-	// - The filters (the bulk of the lib) are countless query options
+	// - The SearchListType narrows the basic type of thing you're searching
+	// - The ThingQueries (the bulk of the lib) are countless options
 	//    to select from every detail about a thing.
 	// - And then, which map/maps to run the search on.
 
 
-	// BaseListType:
+	// SearchListType:
 	// What basic type of thing are you searching.
-	public enum BaseListType
+	public enum SearchListType
 	{
 		Selectable,	// Known as "Map", requires processing on All things.
 
@@ -42,15 +42,15 @@ namespace TD_Find_Lib
 	// What map or maps you're searching on.
 	// For ChosenMaps, QueryParameters.searchMaps is set by the user
 	// For CurMap / AllMaps, QueryParameters.searchMaps is null, but QueryResult.resultMaps is set when a search is run
-	// TODO filter for colony/raid maps.
+	// TODO query for colony/raid maps.
 	public enum QueryMapType	{ CurMap, AllMaps, ChosenMaps}
 	public class BasicQueryParameters
 	{
 		// What basic list to search (TODO: list of types.)
-		public BaseListType baseType; //default is Selectable
+		public SearchListType listType; //default is Selectable
 
 		// How to look
-		public bool matchAllFilters = true;
+		public bool matchAllQueries = true;
 
 		// Where to look
 		public QueryMapType mapType; //default is CurMap
@@ -60,8 +60,8 @@ namespace TD_Find_Lib
 		{
 			BasicQueryParameters result = new();
 
-			result.baseType = baseType;
-			result.matchAllFilters = matchAllFilters;
+			result.listType = listType;
+			result.matchAllQueries = matchAllQueries;
 			result.mapType = mapType;
 
 			if(includeMaps)
@@ -83,71 +83,71 @@ namespace TD_Find_Lib
 		public bool godMode;
 	}
 
-	// The FindDescription is the root of a TDFindLib search
-	// - BaseListType which narrows what that things to look at
-	// - owner of a set of filters
+	// The QuerySearch is the root of a TDFindLib search
+	// - SearchListType which narrows what that things to look at
+	// - owner of a set of queries
 	// - What maps to search on
 	// - Performs the search
 	// - Holds the list of found things.
-	public class FindDescription : IExposable, IFilterHolder
+	public class QuerySearch : IExposable, IQueryHolder
 	{
-		public string name = "TD.NewFindFilters".Translate();
+		public string name = "??NAME??";
 
 		// Basic query settings:
 		private BasicQueryParameters parameters = new();
-		// What to filter for
-		public FilterHolder children;
+		// What to search for
+		public QueryHolder children;
 		// Resulting things
 		public QueryResult result = new();
 
 
-		// "Inactive" is for the saved library of filters to Clone from.
+		// "Inactive" is for the saved library of searches to Clone from.
 		// inactive won't actually fill their lists,
-		// which normally happens whenever filters are edited
+		// which normally happens whenever queries are edited
 		public bool active;
 
-		// If you clone a FindDesciption it starts unchanged.
+		// If you clone a QuerySearchiption it starts unchanged.
 		// Not used directly but good to know if a save is needed.
 		public bool changed;
 
 
-		// from IFilterHolder: FindDescription is the end of the chain of any nested filter's parent up to this root.
-		public FindDescription RootFindDesc => this;
+		// from IQueryHolder:
+		public QuerySearch RootQuerySearch => this;
 
-		public BaseListType BaseType
+		public SearchListType ListType
 		{
-			get => parameters.baseType;
+			get => parameters.listType;
 			set
 			{
-				parameters.baseType = value;
+				parameters.listType = value;
 
 				RemakeList();
 			}
 		}
 
-		public bool MatchAllFilters
+		public bool MatchAllQueries
 		{
-			get => parameters.matchAllFilters;
+			get => parameters.matchAllQueries;
 			set
 			{
-				parameters.matchAllFilters = value;
+				parameters.matchAllQueries = value;
 
 				RemakeList();
 			}
 		}
 
-		public FilterHolder Children => children;
+		public QueryHolder Children => children;
 
 
-		//A new FindDescription, inactive, current map
-		public FindDescription()
+		//A new QuerySearch, inactive, current map
+		public QuerySearch()
 		{
 			children = new(this);
 		}
 
-		//A new FindDescription, active, with this map
+		//A new QuerySearch, active, with this map
 		// (Or just calls base constructor when null)
-		public FindDescription(Map map = null) : this()
+		public QuerySearch(Map map = null) : this()
 		{
 			if (map != null)
 			{
@@ -180,8 +180,8 @@ namespace TD_Find_Lib
 			Scribe_Values.Look(ref name, "name");
 			Scribe_Values.Look(ref active, "active");
 			//todo: IExposable parameters?
-			Scribe_Values.Look(ref parameters.baseType, "baseType");
-			Scribe_Values.Look(ref parameters.matchAllFilters, "matchAllFilters", true);
+			Scribe_Values.Look(ref parameters.listType, "listType");
+			Scribe_Values.Look(ref parameters.matchAllQueries, "matchAllQueries", true);
 			Scribe_Values.Look(ref parameters.mapType, "mapType");
 
 			Scribe_Collections.Look(ref parameters.searchMaps, "searchMaps", LookMode.Reference);
@@ -194,7 +194,7 @@ namespace TD_Find_Lib
 		//Map shenanigans setters
 		public void SetSearchChosenMaps()
 		{
-			//Pretty much for inactive filters right?
+			//Pretty much for inactive queries right?
 			parameters.mapType = QueryMapType.ChosenMaps;
 			parameters.searchMaps.Clear();
 		}
@@ -284,7 +284,7 @@ namespace TD_Find_Lib
 
 		public bool AllMaps => parameters.mapType == QueryMapType.AllMaps;
 
-		// Certain filters only work on the current map, so the entire tree will only work on the current map
+		// Certain queries only work on the current map, so the entire tree will only work on the current map
 		public bool CurMapOnly() =>
 			parameters.mapType == QueryMapType.CurMap || Children.Any(f => f.CurMapOnly);
 
@@ -293,7 +293,7 @@ namespace TD_Find_Lib
 		{
 			StringBuilder sb = new(" <i>(");
 
-			// override requested map if a filter only works on current map
+			// override requested map if a query only works on current map
 			if (parameters.mapType == QueryMapType.AllMaps)
 				sb.Append("TD.AllMaps".Translate());
 			else if (result.resultMaps.Count > 0)
@@ -314,7 +314,7 @@ namespace TD_Find_Lib
 		{
 			StringBuilder sb = new("Searching: ");
 
-			// override requested map if a filter only works on current map
+			// override requested map if a query only works on current map
 			if (parameters.mapType == QueryMapType.AllMaps)
 				sb.Append("TD.AllMaps".Translate());
 			else if (parameters.mapType == QueryMapType.CurMap)
@@ -344,7 +344,7 @@ namespace TD_Find_Lib
 			public static CloneArgs edit = new CloneArgs() { type = CloneType.Edit };
 			public static CloneArgs use = new CloneArgs() { type = CloneType.Use };
 		}
-		public FindDescription Clone(CloneArgs args)
+		public QuerySearch Clone(CloneArgs args)
 		{
 			return args.type switch
 			{
@@ -360,20 +360,20 @@ namespace TD_Find_Lib
 			};
 		}
 
-		public FindDescription CloneInactive(string newName = null)
+		public QuerySearch CloneInactive(string newName = null)
 		{
-			FindDescription newDesc = new FindDescription()
+			QuerySearch newSearch = new QuerySearch()
 			{
 				name = newName ?? name,
 				active = false,
 				parameters = parameters.Clone(false)
 			};
 
-			newDesc.children = children.Clone(newDesc);
+			newSearch.children = children.Clone(newSearch);
 
-			return newDesc;
+			return newSearch;
 		}
-		public FindDescription CloneForUseSingle(Map newMap = null, string newName = null)
+		public QuerySearch CloneForUseSingle(Map newMap = null, string newName = null)
 		{
 			if (newMap != null)
 				return CloneForUse(new List<Map> { newMap }, newName);
@@ -381,9 +381,9 @@ namespace TD_Find_Lib
 				return CloneForUse(null, newName);
 		}
 
-		public FindDescription CloneForUse(List<Map> newMaps = null, string newName = null)
+		public QuerySearch CloneForUse(List<Map> newMaps = null, string newName = null)
 		{
-			FindDescription newDesc = new FindDescription()
+			QuerySearch newSearch = new QuerySearch()
 			{
 				name = newName ?? name,
 				active = true,
@@ -393,21 +393,21 @@ namespace TD_Find_Lib
 
 			// If you ask for a map, you're changing the setting.
 			if (newMaps != null)
-				newDesc.SetSearchMaps(newMaps, false);
+				newSearch.SetSearchMaps(newMaps, false);
 
 
-			// If you loaded from a filter that chose the map, but didn't choose, I guess we'll choose for you.
-			if (newDesc.parameters.mapType == QueryMapType.ChosenMaps && newDesc.parameters.searchMaps.Count == 0)
-				newDesc.SetSearchMap(Find.CurrentMap, false);
+			// If you loaded from a query that chose the map, but didn't choose, I guess we'll choose for you.
+			if (newSearch.parameters.mapType == QueryMapType.ChosenMaps && newSearch.parameters.searchMaps.Count == 0)
+				newSearch.SetSearchMap(Find.CurrentMap, false);
 
 
 
-			newDesc.children = children.Clone(newDesc);
+			newSearch.children = children.Clone(newSearch);
 
 
-			newDesc.RemakeList();
+			newSearch.RemakeList();
 
-			return newDesc;
+			return newSearch;
 		}
 
 		private Map boundMap;
@@ -454,7 +454,7 @@ namespace TD_Find_Lib
 
 			foreach (Map map in result.resultMaps)
 			{
-				List<Thing> things = new(Get(map, BaseType));
+				List<Thing> things = new(Get(map, ListType));
 
 				// SORT. TODO: more sensical than shortHash.
 				things.SortBy(t => t.def.shortHash, t => t.Stuff?.shortHash ?? 0, t => t.Position.x + t.Position.z * 1000);
@@ -470,26 +470,26 @@ namespace TD_Find_Lib
 		}
 
 		private List<Thing> newListedThings = new();
-		private List<Thing> newFilteredThings = new();
-		private List<Thing> Get(Map searchMap, BaseListType baseListType)
+		private List<Thing> newQueriedThings = new();
+		private List<Thing> Get(Map searchMap, SearchListType searchListType)
 		{ 
 			BindToMap(searchMap);
 
-			List<Thing> baseList = baseListType switch
+			List<Thing> baseList = searchListType switch
 			{
-				BaseListType.Selectable => searchMap.listerThings.AllThings,
-				BaseListType.Everyone => searchMap.listerThings.ThingsInGroup(ThingRequestGroup.Pawn),
-				BaseListType.Items => searchMap.listerThings.ThingsInGroup(ThingRequestGroup.HaulableAlways),
-				BaseListType.Buildings => searchMap.listerThings.ThingsInGroup(ThingRequestGroup.BuildingArtificial),
-				BaseListType.Plants => searchMap.listerThings.ThingsInGroup(ThingRequestGroup.HarvestablePlant),
-				BaseListType.Natural => searchMap.listerThings.AllThings,
-				BaseListType.ItemsAndJunk => searchMap.listerThings.ThingsInGroup(ThingRequestGroup.HaulableEver),
-				BaseListType.All => searchMap.listerThings.AllThings,
-				BaseListType.Inventory => searchMap.listerThings.ThingsInGroup(ThingRequestGroup.ThingHolder),
+				SearchListType.Selectable => searchMap.listerThings.AllThings,
+				SearchListType.Everyone => searchMap.listerThings.ThingsInGroup(ThingRequestGroup.Pawn),
+				SearchListType.Items => searchMap.listerThings.ThingsInGroup(ThingRequestGroup.HaulableAlways),
+				SearchListType.Buildings => searchMap.listerThings.ThingsInGroup(ThingRequestGroup.BuildingArtificial),
+				SearchListType.Plants => searchMap.listerThings.ThingsInGroup(ThingRequestGroup.HarvestablePlant),
+				SearchListType.Natural => searchMap.listerThings.AllThings,
+				SearchListType.ItemsAndJunk => searchMap.listerThings.ThingsInGroup(ThingRequestGroup.HaulableEver),
+				SearchListType.All => searchMap.listerThings.AllThings,
+				SearchListType.Inventory => searchMap.listerThings.ThingsInGroup(ThingRequestGroup.ThingHolder),
 
-				BaseListType.Haulables => searchMap.listerHaulables.ThingsPotentiallyNeedingHauling(),
-				BaseListType.Mergables => searchMap.listerMergeables.ThingsPotentiallyNeedingMerging(),
-				BaseListType.FilthInHomeArea => searchMap.listerFilthInHomeArea.FilthInHomeArea,
+				SearchListType.Haulables => searchMap.listerHaulables.ThingsPotentiallyNeedingHauling(),
+				SearchListType.Mergables => searchMap.listerMergeables.ThingsPotentiallyNeedingMerging(),
+				SearchListType.FilthInHomeArea => searchMap.listerFilthInHomeArea.FilthInHomeArea,
 				_ => null
 			};
 
@@ -500,18 +500,18 @@ namespace TD_Find_Lib
 				DebugSettings.godMode ||
 				ValidDef(t.def) && !t.Position.Fogged(searchMap);
 
-			//Filter a bit more:
-			switch (baseListType)
+			// Filter a bit more:
+			switch (searchListType)
 			{
-				case BaseListType.Selectable: //Known as "Map"
+				case SearchListType.Selectable: //Known as "Map"
 					newListedThings.AddRange(baseList.Where(t => t.def.selectable && Listable(t)));
 					break;
 
-				case BaseListType.Natural:
+				case SearchListType.Natural:
 					newListedThings.AddRange(baseList.Where(t => t.def.filthLeaving == ThingDefOf.Filth_RubbleRock && Listable(t)));
 					break;
 
-				case BaseListType.Inventory:
+				case SearchListType.Inventory:
 					foreach (Thing t in baseList.Where(Listable))
 						if (t is IThingHolder holder && t is not Corpse && t is not MinifiedThing)
 							ContentsUtility.AddAllKnownThingsInside(holder, newListedThings);
@@ -523,34 +523,34 @@ namespace TD_Find_Lib
 			}
 
 
-			// Apply the actual filters, finally
+			// Apply the actual queries, finally
 
-			var filters = Children.filters.FindAll(f => f.Enabled);
-			if (MatchAllFilters)
+			var queries = Children.queries.FindAll(f => f.Enabled);
+			if (MatchAllQueries)
 			{
 				// ALL
-				foreach (ListFilter filter in filters)
+				foreach (ThingQuery query in queries)
 				{
-					// Clears newFilteredThings, fills with newListedThings which pass filter.
-					filter.Apply(newListedThings, newFilteredThings);
+					// Clears newQueriedThings, fills with newListedThings which pass the query.
+					query.Apply(newListedThings, newQueriedThings);
 
-					// newFilteredThings is now the list of things ; swap them
-					(newListedThings, newFilteredThings) = (newFilteredThings, newListedThings);
+					// newQueriedThings is now the list of things ; swap them
+					(newListedThings, newQueriedThings) = (newQueriedThings, newListedThings);
 				}
 			}
 			else
 			{
 				// ANY
 
-				newFilteredThings.Clear();
+				newQueriedThings.Clear();
 				foreach (Thing thing in newListedThings)
-					if (filters.Any(f => f.AppliesTo(thing)))
-						newFilteredThings.Add(thing);
+					if (queries.Any(f => f.AppliesTo(thing)))
+						newQueriedThings.Add(thing);
 
-				(newListedThings, newFilteredThings) = (newFilteredThings, newListedThings);
+				(newListedThings, newQueriedThings) = (newQueriedThings, newListedThings);
 			}
 
-			newFilteredThings.Clear();
+			newQueriedThings.Clear();
 
 			return newListedThings;
 		}

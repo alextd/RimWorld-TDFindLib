@@ -9,74 +9,74 @@ using UnityEngine;
 
 namespace TD_Find_Lib
 {
-	public interface IFilterHolder
+	public interface IQueryHolder
 	{
-		public FilterHolder Children { get; }
-		public FindDescription RootFindDesc { get; }
+		public QueryHolder Children { get; }
+		public QuerySearch RootQuerySearch { get; }
 	}
-	public class FilterHolder//	 : IExposable //Not IExposable because that means ctor FilterHolder() should exist.
+	public class QueryHolder//	 : IExposable //Not IExposable because that means ctor QueryHolder() should exist.
 	{
-		private IFilterHolder parent;
-		public List<ListFilter> filters = new List<ListFilter>() { };
+		private IQueryHolder parent;
+		public List<ThingQuery> queries = new List<ThingQuery>() { };
 
-		public FilterHolder(IFilterHolder p)
+		public QueryHolder(IQueryHolder p)
 		{
 			parent = p;
 		}
 
 		public void ExposeData()
 		{
-			Scribe_Collections.Look(ref filters, "filters");
+			Scribe_Collections.Look(ref queries, "queries");
 			if(Scribe.mode == LoadSaveMode.LoadingVars)
-				foreach (var f in filters)
+				foreach (var f in queries)
 					f.parent = parent;
 		}
 
-		public FilterHolder Clone(IFilterHolder newParent)
+		public QueryHolder Clone(IQueryHolder newParent)
 		{
-			FilterHolder clone = new FilterHolder(newParent);
-			foreach (var f in filters)
+			QueryHolder clone = new QueryHolder(newParent);
+			foreach (var f in queries)
 				clone.Add(f.Clone(), remake: false);
 			return clone;
 		}
 
-		// Add filter and set its parent to this (well, the same parent IFilterHolder of this)
-		public void Add(ListFilter newFilter, int index = -1, bool remake = true, bool focus = false)
+		// Add query and set its parent to this (well, the same parent IQueryHolder of this)
+		public void Add(ThingQuery newQuery, int index = -1, bool remake = true, bool focus = false)
 		{
-			newFilter.parent = parent;
+			newQuery.parent = parent;
 			if(index == -1)
-				filters.Add(newFilter);
+				queries.Add(newQuery);
 			else
-				filters.Insert(index, newFilter);
+				queries.Insert(index, newQuery);
 
-			if (focus) newFilter.Focus();
-			if (remake) parent.RootFindDesc?.RemakeList();
+			if (focus) newQuery.Focus();
+			if (remake) parent.RootQuerySearch?.RemakeList();
 		}
 
 		public void Clear()
 		{
-			filters.Clear();
+			queries.Clear();
 		}
 
-		public void RemoveAll(HashSet<ListFilter> removedFilters)
+		public void RemoveAll(HashSet<ThingQuery> removedQueries)
 		{
-			filters.RemoveAll(f => removedFilters.Contains(f));
+			queries.RemoveAll(f => removedQueries.Contains(f));
 		}
 
-		public bool Any(Predicate<ListFilter> predicate)
+		public bool Any(Predicate<ThingQuery> predicate)
 		{
-			if (parent is ListFilter f)
+			if (parent is ThingQuery f)
 				if (predicate(f))
 					return true;
 
-			foreach (var filter in filters)
+			foreach (var query in queries)
 			{
-				if (filter is IFilterHolder childHolder)
+				if (query is IQueryHolder childHolder)
 				{
 					if (childHolder.Children.Any(predicate)) //handles calling on itself
 						return true;
 				}
-				else if (predicate(filter))
+				else if (predicate(query))
 					return true;
 			}
 
@@ -85,88 +85,88 @@ namespace TD_Find_Lib
 
 		public void Reorder(int from, int to, bool remake = true)
 		{
-			var draggerFilter = filters[from];
-			filters.RemoveAt(from);
-			Add(draggerFilter, from < to ? to - 1 : to, remake);
+			var draggerQuery = queries[from];
+			queries.RemoveAt(from);
+			Add(draggerQuery, from < to ? to - 1 : to, remake);
 		}
 
-		//Gather method that passes in both FindDescription and all ListFilters to selector
-		public IEnumerable<T> Gather<T>(Func<IFilterHolder, T?> selector) where T : struct
+		//Gather method that passes in both QuerySearch and all ThingQuerys to selector
+		public IEnumerable<T> Gather<T>(Func<IQueryHolder, T?> selector) where T : struct
 		{
 			if (selector(parent) is T result)
 				yield return result;
 
-			foreach (var filter in filters)
-				if (filter is IFilterHolder childHolder)
+			foreach (var query in queries)
+				if (query is IQueryHolder childHolder)
 					foreach (T r in childHolder.Children.Gather(selector))
 						yield return r;
 		}
 		//sadly 100% copied from above, subtract the "?" oh gee.
-		public IEnumerable<T> Gather<T>(Func<IFilterHolder, T> selector) where T : class
+		public IEnumerable<T> Gather<T>(Func<IQueryHolder, T> selector) where T : class
 		{
 			if (selector(parent) is T result)
 				yield return result;
 
-			foreach (var filter in filters)
-				if (filter is IFilterHolder childHolder)
+			foreach (var query in queries)
+				if (query is IQueryHolder childHolder)
 					foreach (T r in childHolder.Children.Gather(selector))
 						yield return r;
 		}
 
-		//Gather method that passes in both FindDescription and all ListFilters to selector
-		public void ForEach(Action<IFilterHolder> action)
+		//Gather method that passes in both QuerySearch and all ThingQuerys to selector
+		public void ForEach(Action<IQueryHolder> action)
 		{
 			action(parent);
 
-			foreach (var filter in filters)
-				if (filter is IFilterHolder childHolder)
+			foreach (var query in queries)
+				if (query is IQueryHolder childHolder)
 					childHolder.Children.ForEach(action); //handles calling on itself
 		}
 
-		//Gather method that passes in both FindDescription and all ListFilters to selector
-		public void ForEach(Action<ListFilter> action)
+		//Gather method that passes in both QuerySearch and all ThingQuerys to selector
+		public void ForEach(Action<ThingQuery> action)
 		{
-			if(parent is ListFilter f)
+			if(parent is ThingQuery f)
 				action(f);
-			foreach (var filter in filters)
+			foreach (var query in queries)
 			{
-				if (filter is IFilterHolder childHolder)
+				if (query is IQueryHolder childHolder)
 					childHolder.Children.ForEach(action); //handles calling on itself
-				else //just a filter then
-					action(filter);
+				else //just a query then
+					action(query);
 			}
 		}
 
 		public void MasterReorder(int from, int fromGroup, int to, int toGroup)
 		{
-			Log.Message($"FilterHolder.MasterReorder(int from={from}, int fromGroup={fromGroup}, int to={to}, int toGroup={toGroup})");
+			Log.Message($"QueryHolder.MasterReorder(int from={from}, int fromGroup={fromGroup}, int to={to}, int toGroup={toGroup})");
 
-			ListFilter draggedFilter = Gather(delegate (IFilterHolder holder)
+			ThingQuery draggedQuery = Gather(delegate (IQueryHolder holder)
 			{
 				if (holder.Children.reorderID == fromGroup)
-					return holder.Children.filters.ElementAt(from);
+					return holder.Children.queries.ElementAt(from);
 
 				return null;
 			}).First();
 
-			IFilterHolder newHolder = null;
-			ForEach(delegate (IFilterHolder holder)
+			IQueryHolder newHolder = null;
+			ForEach(delegate (IQueryHolder holder)
 			{
 				if (holder.Children.reorderID == toGroup)
 					// Hold up, don't drop inside yourself
-					if (draggedFilter != holder)
+					if (draggedQuery != holder)
 						newHolder = holder;	//todo: abort early?
 			});
 
 			if (newHolder != null)
 			{
-				draggedFilter.parent.Children.filters.Remove(draggedFilter);
-				newHolder.Children.Add(draggedFilter, to);
+				draggedQuery.parent.Children.queries.Remove(draggedQuery);
+				newHolder.Children.Add(draggedQuery, to);
 			}
 		}
 
-		//Draw filters completely, in a rect
-		public bool DrawFiltersInRect(Rect listRect, bool locked, ref Vector2 scrollPositionFilt, ref float scrollHeight)
+		//Draw queries completely, in a rect
+		public bool DrawQueriesInRect(Rect listRect, bool locked, ref Vector2 scrollPositionFilt, ref float scrollHeight)
 		{
 			Listing_StandardIndent listing = new Listing_StandardIndent()
 				{ maxOneColumn = true };
@@ -178,11 +178,11 @@ namespace TD_Find_Lib
 
 			listing.BeginScrollView(listRect, ref scrollPositionFilt, viewRect);
 
-			bool changed = DrawFiltersListing(listing, locked);
+			bool changed = DrawQueriesListing(listing, locked);
 
 			List<int> reorderIDs = new(Gather<int>(f => f.Children.reorderID));
 
-			ReorderableWidget.NewMultiGroup(reorderIDs, parent.RootFindDesc.Children.MasterReorder);
+			ReorderableWidget.NewMultiGroup(reorderIDs, parent.RootQuerySearch.Children.MasterReorder);
 
 			listing.EndScrollView(ref scrollHeight);
 
@@ -190,11 +190,11 @@ namespace TD_Find_Lib
 		}
 
 
-		// draw filters continuing a Listing_StandardIndent
+		// draw queries continuing a Listing_StandardIndent
 		public int reorderID;
 		private float reorderRectHeight;
 
-		public bool DrawFiltersListing(Listing_StandardIndent listing, bool locked, string indentAfterFirst = null)
+		public bool DrawQueriesListing(Listing_StandardIndent listing, bool locked, string indentAfterFirst = null)
 		{
 			Rect coveredRect = new Rect(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight);
 			if (Event.current.type == EventType.Repaint)
@@ -204,7 +204,7 @@ namespace TD_Find_Lib
 					ReorderableDirection.Vertical,
 					coveredRect, 1f,
 					extraDraggedItemOnGUI: (int index, Vector2 dragStartPos) =>
-						DrawMouseAttachedFilter(filters[index], coveredRect.width - 100));
+						DrawMouseAttachedQuery(queries[index], coveredRect.width - 100));
 
 				// Turn off The Multigroup system assuming that if you're closer to group A but in group B's rect, that you want to insert at end of B.
 				// That just doesn't apply here.
@@ -215,26 +215,26 @@ namespace TD_Find_Lib
 			}
 
 			bool changed = false;
-			HashSet<ListFilter> removedFilters = new();
+			HashSet<ThingQuery> removedQueries = new();
 			bool first = true;
-			foreach (ListFilter filter in filters)
+			foreach (ThingQuery query in queries)
 			{
 				Rect usedRect = listing.GetRect(0);
 
-				(bool ch, bool d) = filter.Listing(listing, locked);
+				(bool ch, bool d) = query.Listing(listing, locked);
 				changed |= ch;
 				if (d)
-					removedFilters.Add(filter);
+					removedQueries.Add(query);
 
 				//Reorder box with only one line tall ;
-				//TODO: make its yMax = filter.CurHeight,
-				//but then you can't drag AWAY from subfilters,
+				//TODO: make its yMax = query.CurHeight,
+				//but then you can't drag AWAY from subqueries,
 				//though it's correct where you drag TO
 				usedRect.height = Text.LineHeight;
 				ReorderableWidget.Reorderable(reorderID, usedRect);
 
-				// Highlight the filters that pass for selected objects (useful for "any" filters)
-				if (!(filter is IFilterHolder) && Find.UIRoot is UIRoot_Play && Find.Selector.SelectedObjects.Any(o => o is Thing t && filter.AppliesTo(t)))
+				// Highlight the queries that pass for selected objects (useful for "any" queries)
+				if (!(query is IQueryHolder) && Find.UIRoot is UIRoot_Play && Find.Selector.SelectedObjects.Any(o => o is Thing t && query.AppliesTo(t)))
 				{
 					usedRect.yMax = listing.CurHeight;
 					Widgets.DrawHighlight(usedRect);
@@ -252,7 +252,7 @@ namespace TD_Find_Lib
 
 			reorderRectHeight = listing.CurHeight - coveredRect.y;
 
-			RemoveAll(removedFilters);
+			RemoveAll(removedQueries);
 
 			if (!locked)
 				DrawAddRow(listing);
@@ -263,14 +263,14 @@ namespace TD_Find_Lib
 			return changed;
 		}
 
-		public static void DrawMouseAttachedFilter(ListFilter dragFilter, float width)
+		public static void DrawMouseAttachedQuery(ThingQuery dragQuery, float width)
 		{
 			Vector2 mousePositionOffset = Event.current.mousePosition + Vector2.one * 12;
 			Rect dragRect = new Rect(mousePositionOffset, new(width, Text.LineHeight));
 
 			//Same id 34003428 as GenUI.DrawMouseAttachment
 			Find.WindowStack.ImmediateWindow(34003428, dragRect, WindowLayer.Super,
-				() => dragFilter.DrawMain(dragRect.AtZero(), true),
+				() => dragQuery.DrawMain(dragRect.AtZero(), true),
 				doBackground: false, absorbInputAroundWindow: false, 0f);
 		}
 
@@ -286,27 +286,27 @@ namespace TD_Find_Lib
 			Widgets.DrawTextureFitted(butRect, TexButton.Plus, 1.0f);
 
 			Rect textRect = addRow; textRect.xMin += Text.LineHeight + WidgetRow.DefaultGap;
-			Widgets.Label(textRect, "TD.AddNewFilter...".Translate());
+			Widgets.Label(textRect, "TD.AddNewQuery...".Translate());
 
 			Widgets.DrawHighlightIfMouseover(addRow);
 
 			if (Widgets.ButtonInvisible(addRow))
 			{
-				DoFloatAllFilters();
+				DoFloatAllQueries();
 			}
 		}
 
-		public void DoFloatAllFilters()
+		public void DoFloatAllQueries()
 		{
 			List<FloatMenuOption> options = new List<FloatMenuOption>();
-			foreach (ListFilterSelectableDef def in ListFilterMaker.SelectableList)
+			foreach (ThingQuerySelectableDef def in ThingQueryMaker.SelectableList)
 			{
-				if (def is ListFilterDef fDef)
+				if (def is ThingQueryDef fDef)
 					options.Add(new FloatMenuOption(
 						fDef.LabelCap,
-						() => Add(ListFilterMaker.MakeFilter(fDef), focus: true)
+						() => Add(ThingQueryMaker.MakeQuery(fDef), focus: true)
 					));
-				if (def is ListFilterCategoryDef cDef)
+				if (def is ThingQueryCategoryDef cDef)
 					options.Add(new FloatMenuOption(
 						"+ " + cDef.LabelCap,
 						() => DoFloatAllCategory(cDef)
@@ -315,15 +315,15 @@ namespace TD_Find_Lib
 			Find.WindowStack.Add(new FloatMenu(options));
 		}
 
-		public void DoFloatAllCategory(ListFilterCategoryDef cDef)
+		public void DoFloatAllCategory(ThingQueryCategoryDef cDef)
 		{
 			List<FloatMenuOption> options = new List<FloatMenuOption>();
-			foreach (ListFilterDef def in cDef.SubFilters)
+			foreach (ThingQueryDef def in cDef.SubQueries)
 			{
-				// I don't think we need to worry about double-nested filters
+				// I don't think we need to worry about double-nested queries
 				options.Add(new FloatMenuOption(
 					def.LabelCap,
-					() => Add(ListFilterMaker.MakeFilter(def), focus: true)
+					() => Add(ThingQueryMaker.MakeQuery(def), focus: true)
 				));
 			}
 			Find.WindowStack.Add(new FloatMenu(options));

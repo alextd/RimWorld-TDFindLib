@@ -9,29 +9,30 @@ using UnityEngine;
 
 namespace TD_Find_Lib
 {
-	public class ListFilterDef : ListFilterSelectableDef
+	// Introducin Thing Query: Like a ThingFilter, but more!
+	public class ThingQueryDef : ThingQuerySelectableDef
 	{
-		public Type filterClass;
+		public Type queryClass;
 
 		public override IEnumerable<string> ConfigErrors()
 		{
-			if (filterClass == null)
-				yield return "ListFilterDef needs filterClass set";
+			if (queryClass == null)
+				yield return "ThingQueryDef needs queryClass set";
 		}
 	}
 
-	public abstract class ListFilter : IExposable
+	public abstract class ThingQuery : IExposable
 	{
-		public ListFilterDef def;
+		public ThingQueryDef def;
 
-		public IFilterHolder parent;
+		public IQueryHolder parent;
 
-		public FindDescription RootFindDesc => parent?.RootFindDesc;
+		public QuerySearch RootQuerySearch => parent?.RootQuerySearch;
 
 
 		protected int id; //For Widgets.draggingId purposes
 		private static int nextID = 1;
-		protected ListFilter() { id = nextID++; }
+		protected ThingQuery() { id = nextID++; }
 
 
 		private bool enabled = true; //simply turn off but keep in list
@@ -67,7 +68,7 @@ namespace TD_Find_Lib
 		// Okay, save/load. The basic gist here is:
 		// During ExposeData loading, ResolveName is called for globally named things (defs)
 		// But anything with a local reference (Zones) needs to resolve that ref on a map
-		// Filters loaded from storage need to be cloned to a map to be used
+		// Queries loaded from storage need to be cloned to a map to be used
 
 		public virtual void ExposeData()
 		{
@@ -81,14 +82,14 @@ namespace TD_Find_Lib
 			}
 		}
 
-		public virtual ListFilter Clone()
+		public virtual ThingQuery Clone()
 		{
-			ListFilter clone = ListFilterMaker.MakeFilter(def);
+			ThingQuery clone = ThingQueryMaker.MakeQuery(def);
 			clone.enabled = enabled;
 			clone.include = include;
 
 
-			//No - Will be set in FilterHolder.Add or FilterHolder's ExposeData on LoadingVars step
+			//No - Will be set in QueryHolder.Add or QueryHolder's ExposeData on LoadingVars step
 			//clone.parent = newHolder; 
 
 			return clone;
@@ -153,14 +154,14 @@ namespace TD_Find_Lib
 			if (!locked)
 			{
 				//Clear button
-				if (row.ButtonIcon(TexCommand.ClearPrioritizedWork, "TD.DeleteThisFilter".Translate()))
+				if (row.ButtonIcon(TexCommand.ClearPrioritizedWork, "TD.DeleteThisQuery".Translate()))
 				{
 					delete = true;
 					changed = true;
 				}
 
 				//Toggle button
-				if (row.ButtonIcon(enabled ? Widgets.CheckboxOnTex : Widgets.CheckboxOffTex, "TD.EnableThisFilter".Translate()))
+				if (row.ButtonIcon(enabled ? Widgets.CheckboxOnTex : Widgets.CheckboxOffTex, "TD.EnableThisQuery".Translate()))
 				{
 					enabled = !enabled;
 					changed = true;
@@ -168,7 +169,7 @@ namespace TD_Find_Lib
 
 				//Include/Exclude
 				if (row.ButtonText(include ? "TD.IncludeShort".Translate() : "TD.ExcludeShort".Translate(),
-					"TD.IncludeOrExcludeThingsMatchingThisFilter".Translate(),
+					"TD.IncludeOrExcludeThingsMatchingThisQuery".Translate(),
 					fixedWidth: IncExcWidth))
 				{
 					include = !include;
@@ -229,8 +230,8 @@ namespace TD_Find_Lib
 
 	public class FloatMenuOptionAndRefresh : FloatMenuOption
 	{
-		ListFilter owner;
-		public FloatMenuOptionAndRefresh(string label, Action action, ListFilter f) : base(label, action)
+		ThingQuery owner;
+		public FloatMenuOptionAndRefresh(string label, Action action, ThingQuery f) : base(label, action)
 		{
 			owner = f;
 		}
@@ -240,14 +241,14 @@ namespace TD_Find_Lib
 			bool result = base.DoGUI(rect, colonistOrdering, floatMenu);
 
 			if (result)
-				owner.RootFindDesc.RemakeList();
+				owner.RootQuerySearch.RemakeList();
 
 			return result;
 		}
 	}
 
 	//automated ExposeData + Clone 
-	public abstract class ListFilterWithOption<T> : ListFilter
+	public abstract class ThingQueryWithOption<T> : ThingQuery
 	{
 		// selection
 		protected T _sel;
@@ -279,7 +280,7 @@ namespace TD_Find_Lib
 		// which will call the property setter above
 		// If the default is null, and there's no PostSelected to do,
 		// then it's fine to skip defining a constructor
-		protected ListFilterWithOption()
+		protected ThingQueryWithOption()
 		{
 			if (SaveLoadByName)
 				selName = SaveLoadXmlConstants.IsNullAttributeName;
@@ -291,11 +292,12 @@ namespace TD_Find_Lib
 
 		// A subclass with fields whose validity depends on the selection should override these
 		//  PostProcess: to load extra data about the selection - MUST handle null.
+		//   e.g. Specific Thing query sets the abs max range based on the stackLimit
 		//   e.g. thoughts that have a range of stages, based on the selected def.
-		//   e.g. the hediff filter has a range of severity, which depends on the selected hediff, so the selectable range needs to be set here
+		//   e.g. the hediff query has a range of severity, which depends on the selected hediff, so the selectable range needs to be set here
 		//  PostChosen: to set a default value, that is valid for the selection
-		//   e.g. Specific Thing filter sets the 
-		//   e.g. NOT with the skill filter which has a range 0-20, but that's valid for all skills, so no need to set per def
+		//   e.g. Specific Thing query sets the default chosen range based on the stackLimit
+		//   e.g. NOT with the skill query which has a range 0-20, but that's valid for all skills, so no need to set per def
 		// Most sublcasses needing PostChosen will also override PostProcess, to set the valid range and the default
 		protected virtual void PostProcess() { }
 		protected virtual void PostChosen() { }
@@ -317,33 +319,33 @@ namespace TD_Find_Lib
 		}
 
 		//Okay, so, references.
-		//A simple filter e.g. string search is usable everywhere.
-		//In-game, as an alert, as a saved filter to load in, saved to file to load into another game, etc.
+		//A simple query e.g. string search is usable everywhere.
+		//In-game, as an alert, in a saved search to load in, saved to file to load into another game, etc.
 		//ExposeData and Clone can just copy that string, because a string is the same everywhere.
-		//But a filter that references in-game things can't be used universally.
-		//Filters can be saved outside a running world, so even things like defs might not exist when loaded with different mods.
-		//When such a filter is run in-game, it does of course set 'sel' and reference it like normal
-		//But when such a filter is saved, it cannot be bound to an instance or even an ILoadReferencable id
+		//But a query that references in-game things can't be used universally.
+		//Queries can be saved outside a running world, so even things like defs might not exist when loaded with different mods.
+		//When such a query is run in-game, it does of course set 'sel' and reference it like normal
+		//But when such a query is saved, it cannot be bound to an instance or even an ILoadReferencable id
 		//So ExposeData saves and loads 'string selName' instead of the 'T sel'
-		//When editing that filter when inactive, that's fine, sel isn't set but selName is - so selName should be readable.
-		//TODO: allow editing of selName: e.g. You can't add a "Stockpile Zone 1" filter without that filter existing in-game.
+		//When editing that query when inactive, that's fine, sel isn't set but selName is - so selName should be readable.
+		//TODO: allow editing of selName: e.g. You can't add a "Stockpile Zone 1" query without that zone existing in-game.
 
-		//ListFilters have 3 levels of saving, sort of like ExposeData's 3 passes.
+		//ThingQuerys have 3 levels of saving, sort of like ExposeData's 3 passes.
 		//Raw values can be saved/loaded by value easily in ExposeData.
 		//Then there's UsesResolveName, and UsesResolveRef, which both SaveLoadByName
-		//All SaveLoadByName filters are simply saved by a string name in ExposeData
+		//All SaveLoadByName queries are simply saved by a string name in ExposeData
 		// - So it can be loaded into another game
 		// - if that name cannot be resolved, the name is still kept instead of writing null
 		//For loading, there's two different times to load:
-		//Filters that UsesResolveName can be resolved after the game starts up (e.g. defs),
+		//Queries that UsesResolveName can be resolved after the game starts up (e.g. defs),
 		// - ResolveName is called from ExposeData, ResolvingCrossRefs
-		// - Filters that fail to resolve name are disabled until reset.
-		//Filters that UsesResolveRef must be resolved on a map (e.g. Zones, ILoadReferenceable)
-		// - Filters that are loaded and active also call ResolveRef in ExposeData, ResolvingCrossRefs
-		// - Filters that are loaded and inactive do not call ResolveRef and only have selName set.
-		// - Filters that are Cloned from a saved filter, which was inactive, will have ResolveRef called after the Clone.
-		// - Filters that are Cloned from an active filter, onto a new map, will have ResolveRef called after the Clone.
-		// - Search Queries that run on multiple maps will ResolveRef on each map and change the filter for it.
+		// - Queries that fail to resolve name are disabled until reset (at least, the DropDown subclasses)
+		//Queries that UsesResolveRef must be resolved on a map (e.g. Zones, ILoadReferenceable)
+		// - Queries that are loaded and inactive do not call ResolveRef and only have selName set.
+		// - Queries get their refs resolved when a search is performed - and QuerySearch calls BindToMap()
+		// - BindToMap will remember it's bound to that map and not bother to re-bind
+		// - A Search that runs on multiple maps will bind to each map and resolve query refs dynamically.
+		// - This of course will produce error messages if those can't be resolved on all maps
 
 		protected readonly static bool IsDef = typeof(Def).IsAssignableFrom(typeof(T));
 		protected readonly static bool IsRef = typeof(ILoadReferenceable).IsAssignableFrom(typeof(T));
@@ -362,7 +364,7 @@ namespace TD_Find_Lib
 			if (_extraOption > 0)
 			{
 				if (Scribe.mode == LoadSaveMode.LoadingVars)
-					extraOption = _extraOption;	// property setter to set other fields null
+					extraOption = _extraOption;	// property setter to set other fields null: TODO: they already are null, right?
 
 				// No need to worry about sel or refname, we're done!
 				return;
@@ -383,10 +385,12 @@ namespace TD_Find_Lib
 			}
 			else if (typeof(IExposable).IsAssignableFrom(typeof(T)))
 			{
-				//This might just be to handle ListFilterSelection
+				// TODO: I don't think any query uses this, 
+				// It used to store a Query selection in here and it needed this
+				// Oh well, might as well keep it around. Anything ILoadReferencable has already been handled and won't get here.
 				Scribe_Deep.Look(ref _sel, "sel");
 			}
-			// Any subclass that RangeUB this has to ExposeData itself because I don't think we can force this struct to ref a certain type.
+			// Any subclass that RangeUB this has to ExposeData itself because I don't think we can force _sel to ref a struct
 			else if (_sel is FloatRangeUB)
 			{
 				// Scribe_Values.Look(ref sel.range, "sel");
@@ -401,9 +405,10 @@ namespace TD_Find_Lib
 			if (Scribe.mode == LoadSaveMode.PostLoadInit)
 				PostProcess();
 		}
-		public override ListFilter Clone()
+
+		public override ThingQuery Clone()
 		{
-			ListFilterWithOption<T> clone = (ListFilterWithOption<T>)base.Clone();
+			ThingQueryWithOption<T> clone = (ThingQueryWithOption<T>)base.Clone();
 
 			clone.extraOption = extraOption;
 			if (extraOption > 0)
@@ -423,7 +428,7 @@ namespace TD_Find_Lib
 		// Subclasses where SaveLoadByName is true need to override ResolveName() or ResolveRef()
 		// (unless it's just a Def, already handled)
 		// return matching object based on refName (refName will not be "null")
-		// returning null produces a selection error and the filter will be disabled
+		// returning null produces a selection error and the query will be disabled
 		public override void DoResolveName()
 		{
 			if (!UsesResolveName || extraOption > 0) return;
@@ -439,7 +444,7 @@ namespace TD_Find_Lib
 				if (_sel == null)
 				{
 					selectionError = $"Missing {def.LabelCap}: {selName}?";
-					Verse.Log.Warning("TD.TriedToLoad0FilterNamed1ButCouldNotBeFound".Translate(def.LabelCap, selName));
+					Verse.Log.Warning("TD.TriedToLoad0QueryNamed1ButCouldNotBeFound".Translate(def.LabelCap, selName));
 				}
 				else selectionError = null;
 			}
@@ -461,7 +466,7 @@ namespace TD_Find_Lib
 				if (_sel == null)
 				{
 					selectionError = $"Missing {def.LabelCap}: {selName} on {map.Parent.LabelCap}?";
-					Messages.Message("TD.TriedToLoad0FilterNamed1On2ButCouldNotBeFound".Translate(def.LabelCap, selName, map.Parent.LabelCap), MessageTypeDefOf.RejectInput, false);
+					Messages.Message("TD.TriedToLoad0QueryNamed1On2ButCouldNotBeFound".Translate(def.LabelCap, selName, map.Parent.LabelCap), MessageTypeDefOf.RejectInput, false);
 				}
 				else selectionError = null;
 			}
@@ -487,7 +492,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public abstract class ListFilterDropDown<T> : ListFilterWithOption<T>
+	public abstract class ThingQueryDropDown<T> : ThingQueryWithOption<T>
 	{
 		private string GetLabel()
 		{
@@ -500,7 +505,7 @@ namespace TD_Find_Lib
 			if (sel != null)
 				return NameFor(sel);
 
-			if (UsesResolveRef && !RootFindDesc.active && selName != SaveLoadXmlConstants.IsNullAttributeName)
+			if (UsesResolveRef && !RootQuerySearch.active && selName != SaveLoadXmlConstants.IsNullAttributeName)
 				return selName;
 
 			return NullOption() ?? "??Null selection??";
@@ -624,9 +629,9 @@ namespace TD_Find_Lib
 		// Auto detection of subclasses that use Dropdown Categories:
 		private static readonly HashSet<Type> categoryUsers = null;
 		private bool UsesCategories => categoryUsers?.Contains(GetType()) ?? false;
-		static ListFilterDropDown()//<T>	//Remember there's a customDrawers for each <T> but functionally that doesn't change anything
+		static ThingQueryDropDown()//<T>	//Remember there's a customDrawers for each <T> but functionally that doesn't change anything
 		{
-			Type baseType = typeof(ListFilterDropDown<T>);
+			Type baseType = typeof(ThingQueryDropDown<T>);
 			foreach (Type subclass in baseType.AllSubclassesNonAbstract())
 			{
 				if (subclass.GetMethod(nameof(DrawCustom)).DeclaringType != baseType)
@@ -648,13 +653,13 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public abstract class ListFilterFloatRange : ListFilterWithOption<FloatRangeUB>
+	public abstract class ThingQueryFloatRange : ThingQueryWithOption<FloatRangeUB>
 	{
 		public virtual float Min => 0f;
 		public virtual float Max => 1f;
 		public virtual ToStringStyle Style => ToStringStyle.PercentZero;
 
-		public ListFilterFloatRange() => sel = new FloatRangeUB(Min, Max);
+		public ThingQueryFloatRange() => sel = new FloatRangeUB(Min, Max);
 
 
 		public override void ExposeData()

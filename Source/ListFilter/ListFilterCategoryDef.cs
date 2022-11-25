@@ -7,26 +7,26 @@ using Verse;
 
 namespace TD_Find_Lib
 {
-	//Both ListFilterDef and ListFilterCategoryDef extend ListFilterSelectableDef, so they show up in the main list alongside each other in order of the xml
-	public abstract class ListFilterSelectableDef : Def
+	//Both ThingQueryDef and ThingQueryCategoryDef extend ThingQuerySelectableDef, so they show up in the main list alongside each other in order of the xml
+	public abstract class ThingQuerySelectableDef : Def
 	{
 		public bool devOnly;
 	}
 
-	// There are too many filter subclasses to globally list them
+	// There are too many query subclasses to globally list them
 	// So group them in categories
-	// Then only the filters not nested under category will be globally listed,
-	// subfilters popup when the category is selected
-	public class ListFilterCategoryDef : ListFilterSelectableDef
+	// Then only the queries not nested under category will be globally listed,
+	// subqueries popup when the category is selected
+	public class ThingQueryCategoryDef : ThingQuerySelectableDef
 	{ 
-		private List<ListFilterDef> subFilters = null;
-		public IEnumerable<ListFilterDef> SubFilters =>
-			subFilters ?? Enumerable.Empty<ListFilterDef>();
+		private List<ThingQueryDef> subQueries = null;
+		public IEnumerable<ThingQueryDef> SubQueries =>
+			subQueries ?? Enumerable.Empty<ThingQueryDef>();
 
 		public override IEnumerable<string> ConfigErrors()
 		{
-			if (subFilters.NullOrEmpty())
-				yield return "ListFilterCategoryDef needs to set subFilters";
+			if (subQueries.NullOrEmpty())
+				yield return "ThingQueryCategoryDef needs to set subQueries";
 		}
 	}
 }

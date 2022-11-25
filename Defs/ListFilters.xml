@@ -1,494 +1,494 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Defs>
 
-	<!-- filters in order -->
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Name</defName>
+	<!-- queries in order -->
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Name</defName>
 		<label>search by name</label>
-		<filterClass>TD_Find_Lib.ListFilterName</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryName</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Def</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Def</defName>
 		<label>specific thing</label>
-		<filterClass>TD_Find_Lib.ListFilterThingDef</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryThingDef</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 	
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Category</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Category</defName>
 		<label>general category</label>
-		<filterClass>TD_Find_Lib.ListFilterCategory</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryCategory</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Stat</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Stat</defName>
 		<label>stat</label>
-		<filterClass>TD_Find_Lib.ListFilterStat</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryStat</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
 	
 	<!-- pawn properties -->
-	<TD_Find_Lib.ListFilterCategoryDef>
+	<TD_Find_Lib.ThingQueryCategoryDef>
 		<defName>Category_PawnProp</defName>
 		<label>personal details</label>
-		<subFilters>
-			<li>Filter_Skill</li>
-			<li>Filter_Trait</li>
-			<li>Filter_Thought</li>
-			<li>Filter_Need</li>
-			<li>Filter_Health</li>
-			<li>Filter_Capacity</li>
-			<li>Filter_Job</li>
-			<li>Filter_Inspiration</li>
-			<li>Filter_Guest</li>
-			<li>Filter_MentalState</li>
-			<li>Filter_Temp</li>
-			<li>Filter_ComfyTemp</li>
-			<li>Filter_Incapable</li>
-			<li>Filter_AreaRestriction</li>
-			<li>Filter_Drafted</li>
-			<li>Filter_Prisoner</li>
-			<li>Filter_Gender</li>
-			<li>Filter_ListFilterDevelopmentalStage</li>
-			<li>Filter_MissingBodyPart</li>
-			<!-- Seems like it should be here but it also includes "holder has" which is an item detail - shrug. <li>Filter_Inventory</li>-->
-		</subFilters>
-	</TD_Find_Lib.ListFilterCategoryDef>
+		<subQueries>
+			<li>Query_Skill</li>
+			<li>Query_Trait</li>
+			<li>Query_Thought</li>
+			<li>Query_Need</li>
+			<li>Query_Health</li>
+			<li>Query_Capacity</li>
+			<li>Query_Job</li>
+			<li>Query_Inspiration</li>
+			<li>Query_Guest</li>
+			<li>Query_MentalState</li>
+			<li>Query_Temp</li>
+			<li>Query_ComfyTemp</li>
+			<li>Query_Incapable</li>
+			<li>Query_AreaRestriction</li>
+			<li>Query_Drafted</li>
+			<li>Query_Prisoner</li>
+			<li>Query_Gender</li>
+			<li>Query_ThingQueryDevelopmentalStage</li>
+			<li>Query_MissingBodyPart</li>
+			<!-- Seems like it should be here but it also includes "holder has" which is an item detail - shrug. <li>Query_Inventory</li>-->
+		</subQueries>
+	</TD_Find_Lib.ThingQueryCategoryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Skill</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Skill</defName>
 		<label>skill</label>
-		<filterClass>TD_Find_Lib.ListFilterSkill</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQuerySkill</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Trait</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Trait</defName>
 		<label>trait</label>
-		<filterClass>TD_Find_Lib.ListFilterTrait</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryTrait</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Thought</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Thought</defName>
 		<label>thought</label>
-		<filterClass>TD_Find_Lib.ListFilterThought</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryThought</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Need</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Need</defName>
 		<label>need</label>
-		<filterClass>TD_Find_Lib.ListFilterNeed</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryNeed</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Health</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Health</defName>
 		<label>health</label>
-		<filterClass>TD_Find_Lib.ListFilterHealth</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryHealth</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Capacity</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Capacity</defName>
 		<label>capacity</label>
-		<filterClass>TD_Find_Lib.ListFilterCapacity</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryCapacity</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_MentalState</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_MentalState</defName>
 		<label>mental state</label>
-		<filterClass>TD_Find_Lib.ListFilterMentalState</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryMentalState</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_ComfyTemp</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_ComfyTemp</defName>
 		<label>comfort at temperature</label>
-		<filterClass>TD_Find_Lib.ListFilterComfyTemp</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryComfyTemp</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Incapable</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Incapable</defName>
 		<label>incapable</label>
-		<filterClass>TD_Find_Lib.ListFilterIncapable</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryIncapable</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_AreaRestriction</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_AreaRestriction</defName>
 		<label>area restriction</label>
-		<filterClass>TD_Find_Lib.ListFilterRestricted</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryRestricted</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Drafted</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Drafted</defName>
 		<label>drafted</label>
-		<filterClass>TD_Find_Lib.ListFilterDrafted</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryDrafted</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Job</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Job</defName>
 		<label>current action</label>
-		<filterClass>TD_Find_Lib.ListFilterJob</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryJob</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Inspiration</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Inspiration</defName>
 		<label>inspiration</label>
-		<filterClass>TD_Find_Lib.ListFilterInspiration</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryInspiration</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Guest</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Guest</defName>
 		<label>guest status</label>
-		<filterClass>TD_Find_Lib.ListFilterGuestStatus</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryGuestStatus</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Prisoner</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Prisoner</defName>
 		<label>prisoner</label>
-		<filterClass>TD_Find_Lib.ListFilterPrisoner</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryPrisoner</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_ListFilterDevelopmentalStage</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_ThingQueryDevelopmentalStage</defName>
 		<label>age</label>
-		<filterClass>TD_Find_Lib.ListFilterDevelopmentalStage</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryDevelopmentalStage</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Gender</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Gender</defName>
 		<label>gender</label>
-		<filterClass>TD_Find_Lib.ListFilterGender</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryGender</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_MissingBodyPart</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_MissingBodyPart</defName>
 		<label>missing Body Part</label>
-		<filterClass>TD_Find_Lib.ListFilterMissingBodyPart</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryMissingBodyPart</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
 
 	<!-- animal properties -->
-	<TD_Find_Lib.ListFilterCategoryDef>
+	<TD_Find_Lib.ThingQueryCategoryDef>
 		<defName>Category_AnimalProp</defName>
 		<label>animal details</label>
-		<subFilters>
-			<li>Filter_RaceProps</li>
-			<li>Filter_Meat</li>
-			<li>Filter_Leather</li>
-			<li>Filter_Egg</li>
-			<li>Filter_Milk</li>
-			<li>Filter_Wool</li>
-			<li>Filter_ProductProgress</li>
-		</subFilters>
-	</TD_Find_Lib.ListFilterCategoryDef>
+		<subQueries>
+			<li>Query_RaceProps</li>
+			<li>Query_Meat</li>
+			<li>Query_Leather</li>
+			<li>Query_Egg</li>
+			<li>Query_Milk</li>
+			<li>Query_Wool</li>
+			<li>Query_ProductProgress</li>
+		</subQueries>
+	</TD_Find_Lib.ThingQueryCategoryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_RaceProps</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_RaceProps</defName>
 		<label>race</label>
-		<filterClass>TD_Find_Lib.ListFilterRaceProps</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryRaceProps</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Meat</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Meat</defName>
 		<label>meat</label>
-		<filterClass>TD_Find_Lib.ListFilterMeat</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryMeat</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Leather</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Leather</defName>
 		<label>leather</label>
-		<filterClass>TD_Find_Lib.ListFilterLeather</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryLeather</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Egg</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Egg</defName>
 		<label>eggs per year</label>
-		<filterClass>TD_Find_Lib.ListFilterEgg</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryEgg</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Milk</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Milk</defName>
 		<label>milk per year</label>
-		<filterClass>TD_Find_Lib.ListFilterMilk</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryMilk</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Wool</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Wool</defName>
 		<label>wool per year</label>
-		<filterClass>TD_Find_Lib.ListFilterWool</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryWool</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_ProductProgress</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_ProductProgress</defName>
 		<label>progress</label>
-		<filterClass>TD_Find_Lib.ListFilterProductProgress</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryProductProgress</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
 	
-	<!--Item filters-->
-	<TD_Find_Lib.ListFilterCategoryDef>
+	<!--Item queries-->
+	<TD_Find_Lib.ThingQueryCategoryDef>
 		<defName>Category_ItemInfo</defName>
 		<label>item info</label>
-		<subFilters>
-			<li>Filter_ItemCategory</li>
-			<li>Filter_Quality</li>
-			<li>Filter_Stuff</li>
-			<li>Filter_SpecialFilter</li>
-			<li>Filter_Forbidden</li>
-		</subFilters>
-	</TD_Find_Lib.ListFilterCategoryDef>
+		<subQueries>
+			<li>Query_ItemCategory</li>
+			<li>Query_Quality</li>
+			<li>Query_Stuff</li>
+			<li>Query_SpecialFilter</li>
+			<li>Query_Forbidden</li>
+		</subQueries>
+	</TD_Find_Lib.ThingQueryCategoryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_ItemCategory</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_ItemCategory</defName>
 		<label>item category</label>
-		<filterClass>TD_Find_Lib.ListFilterItemCategory</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryItemCategory</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Quality</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Quality</defName>
 		<label>quality</label>
-		<filterClass>TD_Find_Lib.ListFilterQuality</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryQuality</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Stuff</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Stuff</defName>
 		<label>made From</label>
-		<filterClass>TD_Find_Lib.ListFilterStuff</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryStuff</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_SpecialFilter</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_SpecialFilter</defName>
 		<label>special filter</label>
-		<filterClass>TD_Find_Lib.ListFilterSpecialFilter</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQuerySpecialFilter</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Forbidden</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Forbidden</defName>
 		<label>forbidden</label>
-		<filterClass>TD_Find_Lib.ListFilterForbidden</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryForbidden</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
 
-	<!--Building filters-->
-	<TD_Find_Lib.ListFilterCategoryDef>
+	<!--Building queries-->
+	<TD_Find_Lib.ThingQueryCategoryDef>
 		<defName>Category_BuildingInfo</defName>
 		<label>building info</label>
-		<subFilters>
-			<li>Filter_BuildingCategory</li>
-			<li>Filter_Stuff</li>
-			<li>Filter_Quality</li>
-			<li>Filter_Mineable</li>
-			<li>Filter_Door</li>
-		</subFilters>
-	</TD_Find_Lib.ListFilterCategoryDef>
+		<subQueries>
+			<li>Query_BuildingCategory</li>
+			<li>Query_Stuff</li>
+			<li>Query_Quality</li>
+			<li>Query_Mineable</li>
+			<li>Query_Door</li>
+		</subQueries>
+	</TD_Find_Lib.ThingQueryCategoryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Mineable</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Mineable</defName>
 		<label>mineable</label>
-		<filterClass>TD_Find_Lib.ListFilterMineable</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryMineable</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_BuildingCategory</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_BuildingCategory</defName>
 		<label>Building category</label>
-		<filterClass>TD_Find_Lib.ListFilterBuildingCategory</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryBuildingCategory</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Door</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Door</defName>
 		<label>Door Status</label>
-		<filterClass>TD_Find_Lib.ListFilterDoorOpen</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryDoorOpen</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 	
 	
 	<!-- Plant stuff-->
-	<TD_Find_Lib.ListFilterCategoryDef>
+	<TD_Find_Lib.ThingQueryCategoryDef>
 		<defName>Category_Plants</defName>
 		<label>plants and food</label>
-		<subFilters>
-			<li>Filter_Harvest</li>
-			<li>Filter_Harvestable</li>
-			<li>Filter_Growth</li>
-			<li>Filter_GrowthRate</li>
-			<li>Filter_Freshness</li>
-			<li>Filter_TimeToRot</li>
-			<li>Filter_Crop</li>
-			<li>Filter_DiesLeafless</li>
-		</subFilters>
-	</TD_Find_Lib.ListFilterCategoryDef>
+		<subQueries>
+			<li>Query_Harvest</li>
+			<li>Query_Harvestable</li>
+			<li>Query_Growth</li>
+			<li>Query_GrowthRate</li>
+			<li>Query_Freshness</li>
+			<li>Query_TimeToRot</li>
+			<li>Query_Crop</li>
+			<li>Query_DiesLeafless</li>
+		</subQueries>
+	</TD_Find_Lib.ThingQueryCategoryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Crop</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Crop</defName>
 		<label>is a crop</label>
-		<filterClass>TD_Find_Lib.ListFilterPlantCrop</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryPlantCrop</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Harvest</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Harvest</defName>
 		<label>harvest product</label>
-		<filterClass>TD_Find_Lib.ListFilterPlantHarvest</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryPlantHarvest</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Harvestable</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Harvestable</defName>
 		<label>plant harvestable</label>
-		<filterClass>TD_Find_Lib.ListFilterPlantHarvestable</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryPlantHarvestable</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Growth</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Growth</defName>
 		<label>plant growth</label>
-		<filterClass>TD_Find_Lib.ListFilterGrowth</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryGrowth</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_GrowthRate</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_GrowthRate</defName>
 		<label>plant growth rate</label>
-		<filterClass>TD_Find_Lib.ListFilterGrowthRate</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryGrowthRate</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Freshness</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Freshness</defName>
 		<label>freshness</label>
-		<filterClass>TD_Find_Lib.ListFilterFreshness</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryFreshness</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_TimeToRot</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_TimeToRot</defName>
 		<label>rots within days</label>
-		<filterClass>TD_Find_Lib.ListFilterTimeToRot</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryTimeToRot</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_DiesLeafless</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_DiesLeafless</defName>
 		<label>dies to cold</label>
-		<filterClass>TD_Find_Lib.ListFilterPlantDies</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryPlantDies</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
 
-	<!-- location based filters -->
-	<TD_Find_Lib.ListFilterCategoryDef>
+	<!-- location based queries -->
+	<TD_Find_Lib.ThingQueryCategoryDef>
 		<defName>Category_Location</defName>
 		<label>location</label>
-		<subFilters>
-			<li>Filter_Area</li>
-			<li>Filter_Zone</li>
-			<li>Filter_Temp</li>
-			<li>Filter_Deterioration</li>
-			<li>Filter_Nearby</li>
-		</subFilters>
-	</TD_Find_Lib.ListFilterCategoryDef>
+		<subQueries>
+			<li>Query_Area</li>
+			<li>Query_Zone</li>
+			<li>Query_Temp</li>
+			<li>Query_Deterioration</li>
+			<li>Query_Nearby</li>
+		</subQueries>
+	</TD_Find_Lib.ThingQueryCategoryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Area</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Area</defName>
 		<label>area</label>
-		<filterClass>TD_Find_Lib.ListFilterArea</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryArea</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Zone</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Zone</defName>
 		<label>zone</label>
-		<filterClass>TD_Find_Lib.ListFilterZone</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryZone</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Temp</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Temp</defName>
 		<label>temperature</label>
-		<filterClass>TD_Find_Lib.ListFilterTemp</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryTemp</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Deterioration</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Deterioration</defName>
 		<label>deteriorating</label>
-		<filterClass>TD_Find_Lib.ListFilterDeterioration</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryDeterioration</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Nearby</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Nearby</defName>
 		<label>nearby</label>
-		<filterClass>TD_Find_Lib.ListFilterNearby</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryNearby</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
 
-	<!-- other filters-->
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_HP</defName>
+	<!-- other queries-->
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_HP</defName>
 		<label>health %</label>
-		<filterClass>TD_Find_Lib.ListFilterHP</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryHP</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 	
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Inventory</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Inventory</defName>
 		<label>inventory</label>
-		<filterClass>TD_Find_Lib.ListFilterInventory</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryInventory</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Designation</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Designation</defName>
 		<label>designated</label>
-		<filterClass>TD_Find_Lib.ListFilterDesignation</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryDesignation</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 	
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Faction</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Faction</defName>
 		<label>faction</label>
-		<filterClass>TD_Find_Lib.ListFilterFaction</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryFaction</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Mod</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Mod</defName>
 		<label>From a mod</label>
-		<filterClass>TD_Find_Lib.ListFilterModded</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryModded</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Onscreen</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Onscreen</defName>
 		<label>currently on screen</label>
-		<filterClass>TD_Find_Lib.ListFilterOnscreen</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQueryOnscreen</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Selectable</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Selectable</defName>
 		<label>selectable</label>
-		<filterClass>TD_Find_Lib.ListFilterSelectable</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+		<queryClass>TD_Find_Lib.ThingQuerySelectable</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Group</defName>
-		<label>filter group</label>
-		<filterClass>TD_Find_Lib.ListFilterGroup</filterClass>
-	</TD_Find_Lib.ListFilterDef>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_AndOrGroup</defName>
+		<label>filter grouping</label>
+		<queryClass>TD_Find_Lib.ThingQueryAndOrGroup</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
 
 	<!-- debug types -->
-	<TD_Find_Lib.ListFilterCategoryDef>
+	<TD_Find_Lib.ThingQueryCategoryDef>
 		<defName>Category_devmode</defName>
 		<label>Dev/Cheat options</label>
-		<subFilters>
-			<li>Filter_ClassType</li>
-			<li>Filter_DrawerType</li>
-			<li>Filter_Fogged</li>
-		</subFilters>
-	</TD_Find_Lib.ListFilterCategoryDef>
+		<subQueries>
+			<li>Query_ClassType</li>
+			<li>Query_DrawerType</li>
+			<li>Query_Fogged</li>
+		</subQueries>
+	</TD_Find_Lib.ThingQueryCategoryDef>
 
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_ClassType</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_ClassType</defName>
 		<label>C# Class Type</label>
-		<filterClass>TD_Find_Lib.ListFilterClassType</filterClass>
+		<queryClass>TD_Find_Lib.ThingQueryClassType</queryClass>
 		<devOnly>true</devOnly>
-	</TD_Find_Lib.ListFilterDef>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_DrawerType</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_DrawerType</defName>
 		<label>drawer Type</label>
-		<filterClass>TD_Find_Lib.ListFilterDrawerType</filterClass>
+		<queryClass>TD_Find_Lib.ThingQueryDrawerType</queryClass>
 		<devOnly>true</devOnly>
-	</TD_Find_Lib.ListFilterDef>
+	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ListFilterDef>
-		<defName>Filter_Fogged</defName>
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Fogged</defName>
 		<label>fogged (also you need to turn on godmode)</label>
-		<filterClass>TD_Find_Lib.ListFilterFogged</filterClass>
+		<queryClass>TD_Find_Lib.ThingQueryFogged</queryClass>
 		<devOnly>true</devOnly>
-	</TD_Find_Lib.ListFilterDef>
+	</TD_Find_Lib.ThingQueryDef>
 
 </Defs>

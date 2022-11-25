@@ -7,15 +7,13 @@
 	<TD.AllMaps>All maps</TD.AllMaps>
 	<TD.CurrentMap>Current map</TD.CurrentMap>
 	<TD.ChosenMaps>Chosen maps</TD.ChosenMaps>
-	<TD.SavedFindFilters>Saved Find Filters:</TD.SavedFindFilters>
-	<TD.NewFindFilters>(Name)</TD.NewFindFilters>
 	<TD.IncludeShort>Inc</TD.IncludeShort>
 	<TD.ExcludeShort>Exc</TD.ExcludeShort>
-	<TD.DeleteThisFilter>Delete this filter</TD.DeleteThisFilter>
-	<TD.EnableThisFilter>Enable this filter</TD.EnableThisFilter>
-	<TD.IncludeOrExcludeThingsMatchingThisFilter>Include or Exclude things matching this filter</TD.IncludeOrExcludeThingsMatchingThisFilter>
-	<TD.TriedToLoad0FilterNamed1ButCouldNotBeFound>TDFindLib tried to load "{0}" filter named "{1}" but none could be found</TD.TriedToLoad0FilterNamed1ButCouldNotBeFound>
-	<TD.TriedToLoad0FilterNamed1On2ButCouldNotBeFound>TDFindLib tried to load "{0}" filter named "{1}" on {2} but none could be found</TD.TriedToLoad0FilterNamed1On2ButCouldNotBeFound>
+	<TD.DeleteThisQuery>Delete this filter</TD.DeleteThisQuery>
+	<TD.EnableThisQuery>Enable this filter</TD.EnableThisQuery>
+	<TD.IncludeOrExcludeThingsMatchingThisQuery>Include or Exclude things matching this filter</TD.IncludeOrExcludeThingsMatchingThisQuery>
+	<TD.TriedToLoad0QueryNamed1ButCouldNotBeFound>TDFindLib tried to load "{0}" filter named "{1}" but none could be found</TD.TriedToLoad0QueryNamed1ButCouldNotBeFound>
+	<TD.TriedToLoad0QueryNamed1On2ButCouldNotBeFound>TDFindLib tried to load "{0}" filter named "{1}" on {2} but none could be found</TD.TriedToLoad0QueryNamed1On2ButCouldNotBeFound>
 	<TD.Spoils>Spoils</TD.Spoils>
 	<TD.Refrigerated>Refrigerated</TD.Refrigerated>
 	<TD.Frozen>Frozen</TD.Frozen>
@@ -29,7 +27,7 @@
 	<TD.Opened>Opened</TD.Opened>
 	<TD.BlockedOpen>Blocked Open</TD.BlockedOpen>
 	<TD.IncludeThingsThatMatch>Include things that match</TD.IncludeThingsThatMatch>
-	<TD.OfTheseFilters>of these filters:</TD.OfTheseFilters>
+	<TD.OfTheseQueries>of these filters:</TD.OfTheseQueries>
 	<TD.TheThingHoldingThis>The thing holding this</TD.TheThingHoldingThis>
 	<TD.AnythingThisIsHolding>Anything this is holding</TD.AnythingThisIsHolding>
 	<TD.Matches>matches</TD.Matches>
@@ -48,10 +46,9 @@
 	<TD.LockEditing>Lock Editing</TD.LockEditing>
 	<TD.Listing>Listing: </TD.Listing>
 	<TD.Name>Name:</TD.Name>
-	<TD.OnlyShowFilterOptionsForAvailableThings>Only show existing things as an option (shift invert)</TD.OnlyShowFilterOptionsForAvailableThings>
+	<TD.OnlyShowQueryOptionsForAvailableThings>Only show existing things as an option (shift invert)</TD.OnlyShowQueryOptionsForAvailableThings>
 	<TD.ForExampleDontShowTheOptionMadeFromPlasteelIfNothingIsMadeFromPlasteel>For exmaple, When selecting filter options, don't show the option 'Made from Plasteel' if nothing is made from plasteel.\n\nShift-click the option to reverse this setting for that click.</TD.ForExampleDontShowTheOptionMadeFromPlasteelIfNothingIsMadeFromPlasteel>
-	<TD.AddNewFilter...>Add new filter...</TD.AddNewFilter...>
-	<TD.OverwriteSavedFilter>Overwrite saved filter?</TD.OverwriteSavedFilter>
+	<TD.AddNewQuery...>Add new filter...</TD.AddNewQuery...>
 	<TD.AnyOption>Any</TD.AnyOption>
 	<TD.EitherOption>Either</TD.EitherOption>
 	<TD.AllOptions>All</TD.AllOptions>

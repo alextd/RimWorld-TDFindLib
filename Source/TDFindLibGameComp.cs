@@ -13,35 +13,35 @@ namespace TD_Find_Lib
 		public TDFindLibGameComp(Game g) : base() { }
 
 		//continuousRefresh
-		public List<RefreshFindDesc> findDescRefreshers = new();
+		public List<RefreshQuerySearch> searchRefreshers = new();
 
-		public bool RemoveRefresh(FindDescription desc) =>
-			findDescRefreshers.RemoveAll(r => r.desc == desc) > 0;
+		public bool RemoveRefresh(QuerySearch search) =>
+			searchRefreshers.RemoveAll(r => r.search == search) > 0;
 
-		public void RegisterRefresh(RefreshFindDesc refDesc)
+		public void RegisterRefresh(RefreshQuerySearch refSearch)
 		{
-			RemoveRefresh(refDesc.desc);
-			int insert = findDescRefreshers.FindLastIndex(r => r.tag == refDesc.tag);
+			RemoveRefresh(refSearch.search);
+			int insert = searchRefreshers.FindLastIndex(r => r.tag == refSearch.tag);
 			if(insert == -1)
-				findDescRefreshers.Add(refDesc);
+				searchRefreshers.Add(refSearch);
 			else
-				findDescRefreshers.Insert(insert + 1, refDesc);
+				searchRefreshers.Insert(insert + 1, refSearch);
 		}
 
-		public bool IsRefreshing(FindDescription desc) =>
-			findDescRefreshers.Any(r => r.desc == desc);
+		public bool IsRefreshing(QuerySearch search) =>
+			searchRefreshers.Any(r => r.search == search);
 
-		public T GetRefresher<T>(FindDescription desc) where T : RefreshFindDesc =>
-			findDescRefreshers.FirstOrDefault(r => r.desc == desc) as T;
+		public T GetRefresher<T>(QuerySearch search) where T : RefreshQuerySearch =>
+			searchRefreshers.FirstOrDefault(r => r.search == search) as T;
 
 
 		public override void GameComponentTick()
 		{
-			foreach (var rDesc in findDescRefreshers)
-				if (Find.TickManager.TicksGame % rDesc.period == 0)
+			foreach (var refreshSearch in searchRefreshers)
+				if (Find.TickManager.TicksGame % refreshSearch.period == 0)
 				{
-					Log.Message($"Refreshing {rDesc.desc.name}");
-					rDesc.desc.RemakeList();
+					Log.Message($"Refreshing {refreshSearch.search.name}");
+					refreshSearch.search.RemakeList();
 				}
 		}
 
@@ -50,26 +50,26 @@ namespace TD_Find_Lib
 		{
 			if (Scribe.mode == LoadSaveMode.Saving)
 			{
-				var savedR = findDescRefreshers.FindAll(r => r.permanent);
+				var savedR = searchRefreshers.FindAll(r => r.permanent);
 				Scribe_Collections.Look(ref savedR, "refreshers");
 			}
 			else
 			{
-				Scribe_Collections.Look(ref findDescRefreshers, "refreshers");
+				Scribe_Collections.Look(ref searchRefreshers, "refreshers");
 			}
 		}
 	}
 
-	public abstract class RefreshFindDesc : IExposable
+	public abstract class RefreshQuerySearch : IExposable
 	{
-		public FindDescription desc;
+		public QuerySearch search;
 		public string tag;
 		public int period;
 		public bool permanent;
 
-		public RefreshFindDesc(FindDescription desc, string tag, int period = 1, bool permanent = false)
+		public RefreshQuerySearch(QuerySearch search, string tag, int period = 1, bool permanent = false)
 		{
-			this.desc = desc;
+			this.search = search;
 			this.tag = tag;
 			this.period = period;
 			this.permanent = permanent;
@@ -77,12 +77,12 @@ namespace TD_Find_Lib
 
 		public void ExposeData()
 		{
-			Scribe_Deep.Look(ref desc, "desc");
+			Scribe_Deep.Look(ref search, "search");
 			Scribe_Deep.Look(ref tag, "tag");
 			Scribe_Values.Look(ref period, "period");
 			permanent = true;//ofcourse.
 		}
 
-		public abstract void OpenUI(FindDescription desc);
+		public abstract void OpenUI(QuerySearch search);
 	}
 }

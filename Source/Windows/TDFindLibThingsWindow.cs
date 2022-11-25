@@ -13,9 +13,9 @@ namespace TD_Find_Lib
 	{
 		private ThingListDrawer drawer;
 
-		public TDFindLibThingsWindow(FindDescription desc)
+		public TDFindLibThingsWindow(QuerySearch search)
 		{
-			drawer = new ThingListDrawer(desc);
+			drawer = new ThingListDrawer(search);
 			preventCameraMotion = false;
 			draggable = true;
 			resizeable = true;
@@ -45,11 +45,11 @@ namespace TD_Find_Lib
 
 	public class ThingListDrawer
 	{
-		public FindDescription findDesc;
+		public QuerySearch search;
 
-		public ThingListDrawer(FindDescription findDesc)
+		public ThingListDrawer(QuerySearch search)
 		{
-			this.findDesc = findDesc;
+			this.search = search;
 		}
 
 		public virtual void DrawIconButtons(WidgetRow row)
@@ -72,7 +72,7 @@ namespace TD_Find_Lib
 			DrawIconButtons(row);
 
 			//Godmode showing fogged
-			if (findDesc.result.godMode)
+			if (search.result.godMode)
 			{
 				row.Icon(Verse.TexButton.GodModeEnabled, "God mode is allowing you to see things in fogged areas, things you can't normally know, and various other weird things");
 			}
@@ -81,7 +81,7 @@ namespace TD_Find_Lib
 
 			//Count text
 			Text.Anchor = TextAnchor.UpperRight;
-			Widgets.Label(inRect, LabelCountThings(findDesc.result.allThings));
+			Widgets.Label(inRect, LabelCountThings(search.result.allThings));
 			Text.Anchor = default;
 
 			//Handle mouse selection
@@ -120,7 +120,7 @@ namespace TD_Find_Lib
 			Widgets.BeginScrollView(listRect, ref scrollPositionList, viewRect);
 			Rect thingRect = new Rect(viewRect.x, 0, viewRect.width, 32);
 
-			foreach (Thing thing in findDesc.result.allThings)
+			foreach (Thing thing in search.result.allThings)
 			{
 				//Be smart about drawing only what's visible.
 				if (thingRect.y + 32 >= scrollPositionList.y)
@@ -133,18 +133,18 @@ namespace TD_Find_Lib
 			}
 
 			if (Event.current.type == EventType.Layout)
-				scrollViewHeightList = findDesc.result.allThings.Count * 34f;
+				scrollViewHeightList = search.result.allThings.Count * 34f;
 
 			//Select all 
 			Map currentMap = Find.CurrentMap;
 			if (selectAll)
-				foreach (Thing t in findDesc.result.allThings)
+				foreach (Thing t in search.result.allThings)
 					if(t.Map == currentMap)
 						TrySelect.Select(t);
 
 			//Select all for double-click
 			if (selectAllDef != null)
-				foreach (Thing t in findDesc.result.allThings)
+				foreach (Thing t in search.result.allThings)
 					if (t.Map == currentMap && t.def == selectAllDef)
 						TrySelect.Select(t);
 
@@ -273,7 +273,6 @@ namespace TD_Find_Lib
 		}
 
 
-		//Draw Filters
 		public static string LabelCountThings(IEnumerable<Thing> things)
 		{
 			return "TD.LabelCountThings".Translate(things.Sum(t => t.stackCount));

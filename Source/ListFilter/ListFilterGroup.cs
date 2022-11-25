@@ -8,19 +8,19 @@ using RimWorld;
 
 namespace TD_Find_Lib
 {
-	public class ListFilterGroup : ListFilter, IFilterHolder
+	public class ThingQueryAndOrGroup : ThingQuery, IQueryHolder
 	{
 		public bool any = true; // or all
-		private FilterHolder children;
-		public FilterHolder Children => children;
+		private QueryHolder children;
+		public QueryHolder Children => children;
 
-		public ListFilterGroup()
+		public ThingQueryAndOrGroup()
 		{
-			children = new FilterHolder(this);
+			children = new QueryHolder(this);
 		}
 		public override bool ApplesDirectlyTo(Thing t) =>
-			any ? Children.filters.Any(f => f.Enabled && f.AppliesTo(t)) :
-			Children.filters.All(f => !f.Enabled || f.AppliesTo(t));
+			any ? Children.queries.Any(f => f.Enabled && f.AppliesTo(t)) :
+			Children.queries.All(f => !f.Enabled || f.AppliesTo(t));
 
 		public override void ExposeData()
 		{
@@ -29,9 +29,9 @@ namespace TD_Find_Lib
 
 			Children.ExposeData();
 		}
-		public override ListFilter Clone()
+		public override ThingQuery Clone()
 		{
-			ListFilterGroup clone = (ListFilterGroup)base.Clone();
+			ThingQueryAndOrGroup clone = (ThingQueryAndOrGroup)base.Clone();
 			clone.children = children.Clone(clone);
 			clone.any = any;
 
@@ -48,7 +48,7 @@ namespace TD_Find_Lib
 				any = !any;
 				changed = true;
 			}
-			row.Label("TD.OfTheseFilters".Translate());
+			row.Label("TD.OfTheseQueries".Translate());
 			return changed;
 		}
 
@@ -57,15 +57,15 @@ namespace TD_Find_Lib
 			listing.NestedIndent();
 			listing.Gap(listing.verticalSpacing);
 
-			//Draw filters
-			bool changed = Children.DrawFiltersListing(listing, locked, (any ? "OR" : "AND").Colorize(Color.green));
+			//Draw queries
+			bool changed = Children.DrawQueriesListing(listing, locked, (any ? "OR" : "AND").Colorize(Color.green));
 
 			listing.NestedOutdent();
 			return changed;
 		}
 	}
 
-	public class ListFilterInventory : ListFilterGroup
+	public class ThingQueryInventory : ThingQueryAndOrGroup
 	{
 		protected bool holdingThis;//or what I'm holding
 
@@ -101,9 +101,9 @@ namespace TD_Find_Lib
 			base.ExposeData();
 			Scribe_Values.Look(ref holdingThis, "holdingThis", true);
 		}
-		public override ListFilter Clone()
+		public override ThingQuery Clone()
 		{
-			ListFilterInventory clone = (ListFilterInventory)base.Clone();
+			ThingQueryInventory clone = (ThingQueryInventory)base.Clone();
 			clone.holdingThis = holdingThis;
 			return clone;
 		}
@@ -128,7 +128,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class ListFilterNearby: ListFilterGroup
+	public class ThingQueryNearby: ThingQueryAndOrGroup
 	{
 		IntRange range;
 
@@ -148,9 +148,9 @@ namespace TD_Find_Lib
 			base.ExposeData();
 			Scribe_Values.Look(ref range, "range");
 		}
-		public override ListFilter Clone()
+		public override ThingQuery Clone()
 		{
-			ListFilterNearby clone = (ListFilterNearby)base.Clone();
+			ThingQueryNearby clone = (ThingQueryNearby)base.Clone();
 			clone.range = range;
 			return clone;
 		}

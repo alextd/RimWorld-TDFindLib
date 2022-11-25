@@ -10,18 +10,18 @@ namespace TD_Find_Lib
 {
 	public class TDFindLibListWindow : Window
 	{
-		private IFilterStorageParent parent;
-		private List<FilterGroupDrawer> groupDrawers = new();
-		private RefreshFilterGroupDrawer refreshDrawer;
+		private ISearchStorageParent parent;
+		private List<SearchGroupDrawer> groupDrawers = new();
+		private RefreshSearchGroupDrawer refreshDrawer;
 
-		public TDFindLibListWindow(IFilterStorageParent parent)
+		public TDFindLibListWindow(ISearchStorageParent parent)
 		{
 			this.parent = parent;
 
 			SetupDrawers();
 
 			if (Current.Game != null)
-				refreshDrawer = new RefreshFilterGroupDrawer(Current.Game.GetComponent<TDFindLibGameComp>().findDescRefreshers);
+				refreshDrawer = new RefreshSearchGroupDrawer(Current.Game.GetComponent<TDFindLibGameComp>().searchRefreshers);
 
 			preventCameraMotion = false;
 			draggable = true;
@@ -34,8 +34,8 @@ namespace TD_Find_Lib
 		private void SetupDrawers()
 		{
 			groupDrawers.Clear();
-			foreach (FilterGroup group in parent.Children)
-				groupDrawers.Add(new FilterGroupDrawer(group, groupDrawers));
+			foreach (SearchGroup group in parent.Children)
+				groupDrawers.Add(new SearchGroupDrawer(group, groupDrawers));
 		}
 
 		public override void PostClose()
@@ -50,14 +50,14 @@ namespace TD_Find_Lib
 			SetupDrawers();
 		}
 
-		public void MasterReorderFilter(int from, int fromGroupID, int to, int toGroupID)
+		public void MasterReorderSearch(int from, int fromGroupID, int to, int toGroupID)
 		{
-			Log.Message($"Settings.MasterReorderFilter(int from={from}, int fromGroup={fromGroupID}, int to={to}, int toGroup={toGroupID})");
-			FilterGroup fromGroup = groupDrawers.First(dr => dr.reorderID == fromGroupID).list;
-			FilterGroup toGroup = groupDrawers.First(dr => dr.reorderID == toGroupID).list;
-			var desc = fromGroup[from];
+			Log.Message($"TDFindLibListWindow.MasterReorderSearch(int from={from}, int fromGroup={fromGroupID}, int to={to}, int toGroup={toGroupID})");
+			SearchGroup fromGroup = groupDrawers.First(dr => dr.reorderID == fromGroupID).list;
+			SearchGroup toGroup = groupDrawers.First(dr => dr.reorderID == toGroupID).list;
+			var search = fromGroup[from];
 			fromGroup.RemoveAt(from);
-			toGroup.Insert(to, desc);
+			toGroup.Insert(to, search);
 		}
 
 
@@ -71,7 +71,7 @@ namespace TD_Find_Lib
 			Text.Font = GameFont.Medium;
 			Text.Anchor = TextAnchor.UpperCenter;
 			Rect titleRect = fillRect.TopPartPixels(Text.LineHeight).AtZero();
-			Widgets.Label(titleRect, "TD Find Lib: Filter Library");
+			Widgets.Label(titleRect, "TD Find Lib: Search Library");
 			Text.Anchor = default;
 
 			fillRect.yMin = titleRect.yMax;
@@ -90,7 +90,7 @@ namespace TD_Find_Lib
 					ReorderableDirection.Vertical,
 					new Rect(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight), 1f,
 					extraDraggedItemOnGUI: (int index, Vector2 dragStartPos) =>
-						DrawMouseAttachedFilterGroup(parent.Children[index], listing.ColumnWidth));
+						DrawMouseAttachedSearchGroup(parent.Children[index], listing.ColumnWidth));
 
 				// Turn off The Multigroup system assuming that if you're closer to group A but in group B's rect, that you want to insert at end of B.
 				// That just doesn't apply here.
@@ -100,20 +100,20 @@ namespace TD_Find_Lib
 				ReorderableWidget.groups[reorderID] = group;
 			}
 
-			// Draw each Filter groups
+			// Draw each Search group
 			for (int i = 0; i < groupDrawers.Count; i++)
 			{
 				Rect headerRect = groupDrawers[i].DrawHeader(listing);
 				ReorderableWidget.Reorderable(reorderID, headerRect);
 				reorderRectHeight = listing.CurHeight; // - startHeight; but the start is 0
 
-				groupDrawers[i].DrawFindDescList(listing);
+				groupDrawers[i].DrawQuerySearchList(listing);
 				listing.Gap();
 			}
 
 			List<int> reorderIDs = new(groupDrawers.Select(d => d.reorderID));
 
-			ReorderableWidget.NewMultiGroup(reorderIDs, MasterReorderFilter);
+			ReorderableWidget.NewMultiGroup(reorderIDs, MasterReorderSearch);
 
 
 			// Add new group
@@ -131,13 +131,13 @@ namespace TD_Find_Lib
 				{
 					Find.WindowStack.Add(new Dialog_Name("New Group", n =>
 					{
-						var group = new FilterGroup(n, parent);
+						var group = new SearchGroup(n, parent);
 						parent.Add(group);
 
-						var drawer = new FilterGroupDrawer(group, groupDrawers);
+						var drawer = new SearchGroupDrawer(group, groupDrawers);
 						groupDrawers.Add(drawer);
 
-						drawer.PopUpCreateFindDesc();
+						drawer.PopUpCreateQuerySearch();
 					},
 					"Name for New Group",
 					n => parent.Children.Any(f => f.name == n)));
@@ -145,11 +145,11 @@ namespace TD_Find_Lib
 
 
 				// Import button
-				FilterStorageUtil.ButtonChooseImportFilterGroup(newGroupRow, group =>
+				SearchStorage.ButtonChooseImportSearchGroup(newGroupRow, group =>
 				{
 					parent.Add(group);
 
-					var drawer = new FilterGroupDrawer(group, groupDrawers);
+					var drawer = new SearchGroupDrawer(group, groupDrawers);
 					if (groupDrawers.Any(d => d.Name == group.name))
 						drawer.PopUpRename();
 					else
@@ -167,20 +167,20 @@ namespace TD_Find_Lib
 			}
 
 
-			// Active filters, possibly from mods
+			// Active searches, possibly from mods
 			if (refreshDrawer?.Count > 0)
 			{
 				listing.Gap(4);
 
 				listing.GapLine();
-				refreshDrawer?.DrawFindDescList(listing);
+				refreshDrawer?.DrawQuerySearchList(listing);
 			}
 
 			listing.EndScrollView(ref scrollViewHeight);
 		}
 
 
-		public static void DrawMouseAttachedFilterGroup(FilterGroup group, float width)
+		public static void DrawMouseAttachedSearchGroup(SearchGroup group, float width)
 		{
 			Vector2 mousePositionOffset = Event.current.mousePosition + Vector2.one * 12;
 			Rect dragRect = new Rect(mousePositionOffset, new(width, Text.LineHeight));
@@ -192,23 +192,23 @@ namespace TD_Find_Lib
 		}
 	}
 
-	abstract public class FilterListDrawer<TList, TItem> where TList : IList<TItem>
+	abstract public class SearchListDrawer<TList, TItem> where TList : IList<TItem>
 	{
 		public TList list;
 
-		public FilterListDrawer(TList list)
+		public SearchListDrawer(TList list)
 		{
 			this.list = list;
 		}
 		public abstract string Name { get; }
-		public abstract FindDescription DescAt(int i);
+		public abstract QuerySearch SearchAt(int i);
 		public abstract int Count { get; }
 
-		public virtual void ReorderFilter(int from, int to)
+		public virtual void ReorderSearch(int from, int to)
 		{
-			var desc = list[from];
+			var search = list[from];
 			list.RemoveAt(from);
-			list.Insert(from < to ? to - 1 : to, desc);
+			list.Insert(from < to ? to - 1 : to, search);
 		}
 
 		public virtual void DrawExtraHeader(Rect headerRect) { }
@@ -235,17 +235,17 @@ namespace TD_Find_Lib
 			return headerRect;
 		}
 
-		public void DrawFindDescList(Listing_StandardIndent listing)
+		public void DrawQuerySearchList(Listing_StandardIndent listing)
 		{
 			// Reorder rect
 			if (Event.current.type == EventType.Repaint)
 			{
 				reorderID = ReorderableWidget.NewGroup(
-					ReorderFilter,
+					ReorderSearch,
 					ReorderableDirection.Vertical,
 					new Rect(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight), 1f,
 					extraDraggedItemOnGUI: (int index, Vector2 dragStartPos) =>
-						DrawMouseAttachedFindDesc(DescAt(index), listing.ColumnWidth));
+						DrawMouseAttachedQuerySearch(SearchAt(index), listing.ColumnWidth));
 
 				// Turn off The Multigroup system assuming that if you're closer to group A but in group B's rect, that you want to insert at end of B.
 				// That just doesn't apply here.
@@ -256,13 +256,13 @@ namespace TD_Find_Lib
 			}
 
 
-			// List of FindDescs
+			// List of QuerySearches
 			float startHeight = listing.CurHeight;
 			for (int i = 0; i < Count; i++)
 			{
 				DrawPreRow(listing, i);
 				TItem item = list[i];
-				FindDescription desc = DescAt(i);
+				QuerySearch search = SearchAt(i);
 				Rect rowRect = listing.GetRect(RowHeight);
 
 				WidgetRow row = new WidgetRow(rowRect.x, rowRect.y, UIDirection.RightThenDown, rowRect.width);
@@ -272,7 +272,7 @@ namespace TD_Find_Lib
 
 				// Name
 				row.Gap(6);
-				row.Label(desc.name + desc.GetMapNameSuffix());
+				row.Label(search.name + search.GetMapNameSuffix());
 
 				DrawExtraRowRect(rowRect, item, i);
 
@@ -284,28 +284,28 @@ namespace TD_Find_Lib
 		}
 
 
-		public static void DrawMouseAttachedFindDesc(FindDescription desc, float width)
+		public static void DrawMouseAttachedQuerySearch(QuerySearch search, float width)
 		{
 			Vector2 mousePositionOffset = Event.current.mousePosition + Vector2.one * 12;
 			Rect dragRect = new Rect(mousePositionOffset, new(width, Text.LineHeight));
 
 			//Same id 34003428 as GenUI.DrawMouseAttachment
 			Find.WindowStack.ImmediateWindow(34003428, dragRect, WindowLayer.Super,
-				() => Widgets.Label(new Rect(0, 0, width, Text.LineHeight), desc.name),
+				() => Widgets.Label(new Rect(0, 0, width, Text.LineHeight), search.name),
 				doBackground: false, absorbInputAroundWindow: false, 0f);
 		}
 	}
 
-	public class FilterGroupDrawer : FilterListDrawer<FilterGroup, FindDescription>
+	public class SearchGroupDrawer : SearchListDrawer<SearchGroup, QuerySearch>
 	{
-		public List<FilterGroupDrawer> siblings;
-		public FilterGroupDrawer(FilterGroup l, List<FilterGroupDrawer> siblings) : base(l)
+		public List<SearchGroupDrawer> siblings;
+		public SearchGroupDrawer(SearchGroup l, List<SearchGroupDrawer> siblings) : base(l)
 		{
 			this.siblings = siblings;
 		}
 
 		public override string Name => list.name;
-		public override FindDescription DescAt(int i) => list[i];
+		public override QuerySearch SearchAt(int i) => list[i];
 		public override int Count => list.Count;
 
 
@@ -322,13 +322,13 @@ namespace TD_Find_Lib
 			list.parent.Write();
 		}
 
-		public void PopUpCreateFindDesc()
+		public void PopUpCreateQuerySearch()
 		{
 			Find.WindowStack.Add(new Dialog_Name("New Search", n =>
 			{
-				var desc = new FindDescription() { name = n };
-				list.TryAdd(desc);
-				Find.WindowStack.Add(new TDFindLibEditorWindow(desc, f => list.parent.Write())) ;
+				var search = new QuerySearch() { name = n };
+				list.TryAdd(search);
+				Find.WindowStack.Add(new TDFindLibEditorWindow(search, f => list.parent.Write())) ;
 			},
 			"Name for New Search"));
 		}
@@ -355,37 +355,37 @@ namespace TD_Find_Lib
 			}
 
 			// Export Group
-			FilterStorageUtil.ButtonChooseExportFilterGroup(headerRow, list, "Storage");
+			SearchStorage.ButtonChooseExportSearchGroup(headerRow, list, "Storage");
 
 
-			// Import single filter
-			FilterStorageUtil.ButtonChooseImportFilter(headerRow, list.Add, "Storage");
+			// Import single search
+			SearchStorage.ButtonChooseImportSearch(headerRow, list.Add, "Storage");
 
 
 			// Paste Group and merge
-			FilterStorageUtil.ButtonChooseImportFilterGroup(headerRow, list.AddRange, "Storage");
+			SearchStorage.ButtonChooseImportSearchGroup(headerRow, list.AddRange, "Storage");
 
 
 			// Rename 
 			if (headerRow.ButtonIcon(TexButton.Rename))
 				PopUpRename();
 
-			// Add new filter button
+			// Add new search button
 			if (headerRow.ButtonIcon(FindTex.GreyPlus))
-				PopUpCreateFindDesc();
+				PopUpCreateQuerySearch();
 		}
 
-		public override void DrawWidgetButtons(WidgetRow row, FindDescription desc, int i)
+		public override void DrawWidgetButtons(WidgetRow row, QuerySearch search, int i)
 		{
-			if (row.ButtonIcon(FindTex.Edit, "Edit this filter"))
+			if (row.ButtonIcon(FindTex.Edit, "Edit this search"))
 			{
-				Find.WindowStack.Add(new TDFindLibEditorWindow(desc.CloneInactive(), nd => list.ConfirmPaste(nd, i)));
+				Find.WindowStack.Add(new TDFindLibEditorWindow(search.CloneInactive(), nd => list.ConfirmPaste(nd, i)));
 			}
 
 
 			if (row.ButtonIcon(TexButton.Rename))
 			{
-				Find.WindowStack.Add(new Dialog_Name(desc.name, newName => desc.name = newName, rejector: newName => list.Any(fd => fd.name == newName)));
+				Find.WindowStack.Add(new Dialog_Name(search.name, newName => search.name = newName, rejector: newName => list.Any(fd => fd.name == newName)));
 			}
 
 			if (row.ButtonIcon(FindTex.Trash))
@@ -394,19 +394,19 @@ namespace TD_Find_Lib
 					Trash(i);
 				else
 					Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
-						"TD.Delete0".Translate(desc.name), () => Trash(i), true));
+						"TD.Delete0".Translate(search.name), () => Trash(i), true));
 			}
 
-			FilterStorageUtil.ButtonChooseExportFilter(row, desc, "Storage");
+			SearchStorage.ButtonChooseExportSearch(row, search, "Storage");
 		}
 	}
 
-	public class RefreshFilterGroupDrawer : FilterListDrawer<List<RefreshFindDesc>, RefreshFindDesc>
+	public class RefreshSearchGroupDrawer : SearchListDrawer<List<RefreshQuerySearch>, RefreshQuerySearch>
 	{
-		public RefreshFilterGroupDrawer(List<RefreshFindDesc> l) : base(l) { }
+		public RefreshSearchGroupDrawer(List<RefreshQuerySearch> l) : base(l) { }
 
-		public override string Name => "Active Filters";
-		public override FindDescription DescAt(int i) => list[i].desc;
+		public override string Name => "Active Searches";
+		public override QuerySearch SearchAt(int i) => list[i].search;
 		public override int Count => list.Count;
 
 
@@ -425,16 +425,16 @@ namespace TD_Find_Lib
 		}
 
 
-		public override void DrawWidgetButtons(WidgetRow row, RefreshFindDesc refDesc, int i)
+		public override void DrawWidgetButtons(WidgetRow row, RefreshQuerySearch refSearch, int i)
 		{
-			if (row.ButtonIcon(FindTex.Edit, "View this filter"))
+			if (row.ButtonIcon(FindTex.Edit, "View this search"))
 			{
-				Find.WindowStack.Add(new TDFindLibViewerWindow(refDesc.desc));
+				Find.WindowStack.Add(new TDFindLibViewerWindow(refSearch.search));
 			}
 
-			if (row.ButtonIcon(TexButton.AutoHomeArea, "Open the mod controlling this filter"))
+			if (row.ButtonIcon(TexButton.AutoHomeArea, "Open the mod controlling this search"))
 			{
-				refDesc.OpenUI(refDesc.desc);
+				refSearch.OpenUI(refSearch.search);
 			}
 
 			if (list[i].permanent)
@@ -443,28 +443,28 @@ namespace TD_Find_Lib
 			}
 			else
 			{
-				if (row.ButtonIcon(FindTex.Trash, "Stop this filter from running (I trust you know what you're doing)"))
+				if (row.ButtonIcon(FindTex.Trash, "Stop this search from running (I trust you know what you're doing)"))
 				{
 					if (Event.current.shift)
 						list.RemoveAt(i);
 					else
 						Find.WindowStack.Add(Dialog_MessageBox.CreateConfirmation(
-							"TD.StopRefresh0".Translate(refDesc.desc.name), () => list.RemoveAt(i)));
+							"TD.StopRefresh0".Translate(refSearch.search.name), () => list.RemoveAt(i)));
 				}
 			}
 		}
 
-		public override void DrawExtraRowRect(Rect rowRect, RefreshFindDesc refDesc, int i)
+		public override void DrawExtraRowRect(Rect rowRect, RefreshQuerySearch refSearch, int i)
 		{
 			Rect textRect = rowRect.RightPart(.3f);
 			Text.Anchor = TextAnchor.UpperRight;
-			Widgets.Label(textRect, $"Every {refDesc.period} ticks");
+			Widgets.Label(textRect, $"Every {refSearch.period} ticks");
 			if (Widgets.ButtonInvisible(textRect))
 			{
-				Find.WindowStack.Add(new Dialog_Name($"{refDesc.period}", s =>
+				Find.WindowStack.Add(new Dialog_Name($"{refSearch.period}", s =>
 				{
 					if (int.TryParse(s, out int n))
-						refDesc.period = n;
+						refSearch.period = n;
 				}
 				, "Set refresh period in ticks"));
 			}

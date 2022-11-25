@@ -8,42 +8,42 @@ using RimWorld;
 
 namespace TD_Find_Lib
 {
-	public class Settings : ModSettings, IFilterReceiver, IFilterProvider, IFilterStorageParent
+	public class Settings : ModSettings, ISearchReceiver, ISearchProvider, ISearchStorageParent
 	{
 		private bool onlyAvailable = true;
 		public bool OnlyAvailable => onlyAvailable != Event.current.shift && Find.CurrentMap != null;
 
-		public static string defaultFiltersName = "Saved Filters";
+		public static string defaultGroupName = "Saved Searches";
 
-		//Don't touch my filters
-		internal List<FilterGroup> groupedFilters;
+		//Don't touch my searches
+		internal List<SearchGroup> groupedSearches;
 		public Settings()
 		{
 			SanityCheck();
-			FilterTransfer.Register(this);
+			SearchTransfer.Register(this);
 		}
 
-		//IFilterStorageParent stuff
+		//ISearchStorageParent stuff
 		//public void Write(); //in parent class
-		public List<FilterGroup> Children => groupedFilters;
-		public void Add(FilterGroup group)
+		public List<SearchGroup> Children => groupedSearches;
+		public void Add(SearchGroup group)
 		{
 			Children.Add(group);
 			group.parent = this;
 		}
 		public void ReorderGroup(int from, int to)
 		{
-			var group = groupedFilters[from];
-			groupedFilters.RemoveAt(from);
-			groupedFilters.Insert(from < to ? to - 1 : to, group);
+			var group = groupedSearches[from];
+			groupedSearches.RemoveAt(from);
+			groupedSearches.Insert(from < to ? to - 1 : to, group);
 		}
 
 		internal void SanityCheck()
 		{
-			if (groupedFilters == null || groupedFilters.Count == 0)
+			if (groupedSearches == null || groupedSearches.Count == 0)
 			{
-				groupedFilters = new();
-				Add(new FilterGroup(defaultFiltersName, null));
+				groupedSearches = new();
+				Add(new SearchGroup(defaultGroupName, null));
 			}
 		}
 
@@ -56,7 +56,7 @@ namespace TD_Find_Lib
 			listing.Header("Settings:");
 
 			listing.CheckboxLabeled(
-			"TD.OnlyShowFilterOptionsForAvailableThings".Translate(),
+			"TD.OnlyShowQueryOptionsForAvailableThings".Translate(),
 			ref onlyAvailable,
 			"TD.ForExampleDontShowTheOptionMadeFromPlasteelIfNothingIsMadeFromPlasteel".Translate());
 
@@ -79,59 +79,59 @@ namespace TD_Find_Lib
 		{
 			Scribe_Values.Look(ref onlyAvailable, "onlyAvailable", true);
 
-			Scribe_Collections.Look(ref groupedFilters, "groupedFilters", LookMode.Undefined, "??Group Name??", this);
+			Scribe_Collections.Look(ref groupedSearches, "groupedSearches", LookMode.Deep, "??Group Name??", this);
 			
 			SanityCheck();
 		}
 
 
-		// FilterTransfer business
+		// SearchTransfer business
 		public string Source => "Storage";
 		public string ReceiveName => "Save";
 		public string ProvideName => "Load";
 
 
-		// IFilterReceiver things
-		public FindDescription.CloneArgs CloneArgs => default; //save
+		// ISearchReceiver things
+		public QuerySearch.CloneArgs CloneArgs => default; //save
 		public bool CanReceive() => true;
 
-		public void Receive(FindDescription desc)
+		public void Receive(QuerySearch search)
 		{
 			//Save to groups
-			if (groupedFilters.Count == 1)
+			if (groupedSearches.Count == 1)
 			{
 				// Only one group? skip this submenu
-				SaveToGroup(desc, groupedFilters[0]);
+				SaveToGroup(search, groupedSearches[0]);
 			}
 			else
 			{
-				//TODO: generalize this in FilterStorage if we think many Receivers are going to want to specify which group to receive?
+				//TODO: generalize this in SearchStorage if we think many Receivers are going to want to specify which group to receive?
 				List<FloatMenuOption> submenuOptions = new();
 
-				foreach (FilterGroup group in groupedFilters)
+				foreach (SearchGroup group in groupedSearches)
 				{
-					submenuOptions.Add(new FloatMenuOption("+ " + group.name, () => SaveToGroup(desc, group)));
+					submenuOptions.Add(new FloatMenuOption("+ " + group.name, () => SaveToGroup(search, group)));
 				}
 
 				Find.WindowStack.Add(new FloatMenu(submenuOptions));
 			}
 		}
 
-		public static void SaveToGroup(FindDescription desc, FilterGroup group)
+		public static void SaveToGroup(QuerySearch search, SearchGroup group)
 		{
-			Find.WindowStack.Add(new Dialog_Name(desc.name, n => { desc.name = n; group.TryAdd(desc); }, $"Save to {group.name}"));
+			Find.WindowStack.Add(new Dialog_Name(search.name, n => { search.name = n; group.TryAdd(search); }, $"Save to {group.name}"));
 		}
 
 
-		// IFilterProvider things
-		public IFilterProvider.Method ProvideMethod()
+		// ISearchProvider things
+		public ISearchProvider.Method ProvideMethod()
 		{
-			return groupedFilters.Count > 1 ? IFilterProvider.Method.Grouping :
-				(groupedFilters[0].Count == 0 ? IFilterProvider.Method.None : IFilterProvider.Method.Selection);
+			return groupedSearches.Count > 1 ? ISearchProvider.Method.Grouping :
+				(groupedSearches[0].Count == 0 ? ISearchProvider.Method.None : ISearchProvider.Method.Selection);
 		}
 
-		public FindDescription ProvideSingle() => null;
-		public FilterGroup ProvideSelection() => groupedFilters[0];
-		public List<FilterGroup> ProvideGrouping() => groupedFilters;
+		public QuerySearch ProvideSingle() => null;
+		public SearchGroup ProvideSelection() => groupedSearches[0];
+		public List<SearchGroup> ProvideGrouping() => groupedSearches;
 	}
 }

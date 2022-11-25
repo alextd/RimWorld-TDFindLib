@@ -9,9 +9,9 @@ using UnityEngine;
 
 namespace TD_Find_Lib
 {
-	public class ListFilterName : ListFilterWithOption<string>
+	public class ThingQueryName : ThingQueryWithOption<string>
 	{
-		public ListFilterName() => sel = "";
+		public ThingQueryName() => sel = "";
 
 		public override bool ApplesDirectlyTo(Thing thing) =>
 			//thing.Label.Contains(sel, CaseInsensitiveComparer.DefaultInvariant);	//Contains doesn't accept comparer with strings. okay.
@@ -35,10 +35,10 @@ namespace TD_Find_Lib
 			}
 
 			if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Tab
-				&& GUI.GetNameOfFocusedControl() == $"LIST_FILTER_NAME_INPUT{id}")
+				&& GUI.GetNameOfFocusedControl() == $"THING_QUERY_NAME_INPUT{id}")
 					Event.current.Use();
 
-			GUI.SetNextControlName($"LIST_FILTER_NAME_INPUT{id}");
+			GUI.SetNextControlName($"THING_QUERY_NAME_INPUT{id}");
 			string newStr = Widgets.TextField(rect.LeftPart(0.9f), sel);
 			if (newStr != sel)
 			{
@@ -56,11 +56,11 @@ namespace TD_Find_Lib
 
 		protected override void DoFocus()
 		{
-			GUI.FocusControl($"LIST_FILTER_NAME_INPUT{id}");
+			GUI.FocusControl($"THING_QUERY_NAME_INPUT{id}");
 		}
 		public override bool OnCancelKeyPressed()
 		{
-			if (GUI.GetNameOfFocusedControl() == $"LIST_FILTER_NAME_INPUT{id}")
+			if (GUI.GetNameOfFocusedControl() == $"THING_QUERY_NAME_INPUT{id}")
 			{
 				GUI.FocusControl("");
 				return true;
@@ -71,7 +71,7 @@ namespace TD_Find_Lib
 	}
 
 	public enum ForbiddenType { Forbidden, Allowed, Forbiddable }
-	public class ListFilterForbidden : ListFilterDropDown<ForbiddenType>
+	public class ThingQueryForbidden : ThingQueryDropDown<ForbiddenType>
 	{
 		public override bool ApplesDirectlyTo(Thing thing)
 		{
@@ -87,7 +87,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class ListFilterDesignation : ListFilterDropDown<DesignationDef>
+	public class ThingQueryDesignation : ThingQueryDropDown<DesignationDef>
 	{
 		public override bool ApplesDirectlyTo(Thing thing) =>
 			sel != null ?
@@ -107,7 +107,7 @@ namespace TD_Find_Lib
 		public override string NameFor(DesignationDef o) => o.defName; // no labels on Designation def
 	}
 
-	public class ListFilterFreshness : ListFilterDropDown<RotStage>
+	public class ThingQueryFreshness : ThingQueryDropDown<RotStage>
 	{
 		public override bool ApplesDirectlyTo(Thing thing)
 		{
@@ -128,14 +128,14 @@ namespace TD_Find_Lib
 			"TD.Frozen".Translate();
 	}
 
-	public class ListFilterTimeToRot : ListFilter
+	public class ThingQueryTimeToRot : ThingQuery
 	{
 		public const int MinReasonable = 0;
 		public const int MaxReasonable = GenDate.TicksPerDay * 20;
 
 		IntRangeUB ticksRange;
 		
-		public ListFilterTimeToRot()
+		public ThingQueryTimeToRot()
 		{
 			ticksRange = new IntRangeUB(MinReasonable, MaxReasonable);
 			ticksRange.max = MaxReasonable / 2;
@@ -146,9 +146,9 @@ namespace TD_Find_Lib
 			base.ExposeData();
 			Scribe_Values.Look(ref ticksRange.range, "ticksRange");
 		}
-		public override ListFilter Clone()
+		public override ThingQuery Clone()
 		{
-			ListFilterTimeToRot clone = (ListFilterTimeToRot)base.Clone();
+			ThingQueryTimeToRot clone = (ThingQueryTimeToRot)base.Clone();
 			clone.ticksRange = ticksRange;
 			return clone;
 		}
@@ -163,20 +163,20 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class ListFilterGrowth : ListFilterFloatRange
+	public class ThingQueryGrowth : ThingQueryFloatRange
 	{
 		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing is Plant p && sel.Includes(p.Growth);
 	}
 
-	public class ListFilterGrowthRate : ListFilterFloatRange
+	public class ThingQueryGrowthRate : ThingQueryFloatRange
 	{
 		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing is Plant p && sel.Includes(p.GrowthRate);
 
 		public override float Max => maxGrowthRate;
 		public static float maxGrowthRate;
-		static ListFilterGrowthRate()
+		static ThingQueryGrowthRate()
 		{
 			float bestFertility = 0f;
 			foreach (BuildableDef def in DefDatabase<BuildableDef>.AllDefs)
@@ -190,9 +190,9 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class ListFilterPlantHarvest : ListFilterDropDown<ThingDef>
+	public class ThingQueryPlantHarvest : ThingQueryDropDown<ThingDef>
 	{
-		public ListFilterPlantHarvest() => extraOption = 1;
+		public ThingQueryPlantHarvest() => extraOption = 1;
 
 		public override bool ApplesDirectlyTo(Thing thing)
 		{
@@ -211,7 +211,7 @@ namespace TD_Find_Lib
 		}
 
 		public static List<ThingDef> allHarvests;
-		static ListFilterPlantHarvest()
+		static ThingQueryPlantHarvest()
 		{
 			HashSet<ThingDef> singleDefs = new();
 			foreach (ThingDef def in DefDatabase<ThingDef>.AllDefs)
@@ -244,37 +244,37 @@ namespace TD_Find_Lib
 	}
 
 
-	public class ListFilterPlantHarvestable : ListFilter
+	public class ThingQueryPlantHarvestable : ThingQuery
 	{
 		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing is Plant plant && plant.HarvestableNow;
 	}
 
-	public class ListFilterPlantCrop : ListFilter
+	public class ThingQueryPlantCrop : ThingQuery
 	{
 		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing is Plant plant && plant.IsCrop;
 	}
 
-	public class ListFilterPlantDies : ListFilter
+	public class ThingQueryPlantDies : ThingQuery
 	{
 		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing is Plant plant && (plant.def.plant?.dieIfLeafless ?? false);
 	}
 
-	public class ListFilterFaction : ListFilterDropDown<FactionRelationKind>
+	public class ThingQueryFaction : ThingQueryDropDown<FactionRelationKind>
 	{
 		public bool host; // compare host faction instead of thing's faction
-		public ListFilterFaction() => extraOption = 1;
+		public ThingQueryFaction() => extraOption = 1;
 
 		public override void ExposeData()
 		{
 			base.ExposeData();
 			Scribe_Values.Look(ref host, "host");
 		}
-		public override ListFilter Clone()
+		public override ThingQuery Clone()
 		{
-			ListFilterFaction clone = (ListFilterFaction)base.Clone();
+			ThingQueryFaction clone = (ThingQueryFaction)base.Clone();
 			clone.host = host;
 			return clone;
 		}
@@ -337,7 +337,7 @@ namespace TD_Find_Lib
 		Plant,
 		Other
 	}
-	class ListFilterCategory : ListFilterDropDown<ListCategory>
+	class ThingQueryCategory : ThingQueryDropDown<ListCategory>
 	{
 		public override bool ApplesDirectlyTo(Thing thing)
 		{
@@ -356,9 +356,9 @@ namespace TD_Find_Lib
 	}
 
 	// This includes most things but not minifiable buildings.
-	public class ListFilterItemCategory : ListFilterDropDown<ThingCategoryDef>
+	public class ThingQueryItemCategory : ThingQueryDropDown<ThingCategoryDef>
 	{
-		public ListFilterItemCategory() => sel = ThingCategoryDefOf.Root;
+		public ThingQueryItemCategory() => sel = ThingCategoryDefOf.Root;
 
 		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing.def.IsWithinCategory(sel);
@@ -384,16 +384,16 @@ namespace TD_Find_Lib
 			string.Concat(Enumerable.Repeat("- ", def.Parents.Count())) + base.NameFor(def);
 	}
 
-	public class ListFilterSpecialFilter : ListFilterDropDown<SpecialThingFilterDef>
+	public class ThingQuerySpecialFilter : ThingQueryDropDown<SpecialThingFilterDef>
 	{
-		public ListFilterSpecialFilter() => sel = SpecialThingFilterDefOf.AllowFresh;
+		public ThingQuerySpecialFilter() => sel = SpecialThingFilterDefOf.AllowFresh;
 
 		public override bool ApplesDirectlyTo(Thing thing) =>
 			sel.Worker.Matches(thing);
 	}
 
 	public enum MineableType { Resource, Rock, All }
-	public class ListFilterMineable : ListFilterDropDown<MineableType>
+	public class ThingQueryMineable : ThingQueryDropDown<MineableType>
 	{
 		public override bool ApplesDirectlyTo(Thing thing)
 		{
@@ -407,7 +407,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class ListFilterHP : ListFilterFloatRange
+	public class ThingQueryHP : ThingQueryFloatRange
 	{
 		public override bool ApplesDirectlyTo(Thing thing)
 		{
@@ -421,9 +421,9 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class ListFilterQuality : ListFilterWithOption<QualityRange>
+	public class ThingQueryQuality : ThingQueryWithOption<QualityRange>
 	{
-		public ListFilterQuality() => sel = QualityRange.All;
+		public ThingQueryQuality() => sel = QualityRange.All;
 
 		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing.TryGetQuality(out QualityCategory qc) &&
@@ -444,7 +444,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class ListFilterStuff : ListFilterDropDown<ThingDef>
+	public class ThingQueryStuff : ThingQueryDropDown<ThingDef>
 	{
 		public override bool ApplesDirectlyTo(Thing thing)
 		{
@@ -469,7 +469,7 @@ namespace TD_Find_Lib
 			DefDatabase<StuffCategoryDef>.AllDefsListForReading[ex - 2]?.LabelCap;
 	}
 
-	public class ListFilterMissingBodyPart : ListFilterDropDown<BodyPartDef>
+	public class ThingQueryMissingBodyPart : ThingQueryDropDown<BodyPartDef>
 	{
 		public override bool ApplesDirectlyTo(Thing thing)
 		{
@@ -505,9 +505,9 @@ namespace TD_Find_Lib
 
 
 	public enum BaseAreas { Home, BuildRoof, NoRoof, SnowClear };
-	public class ListFilterArea : ListFilterDropDown<Area>
+	public class ThingQueryArea : ThingQueryDropDown<Area>
 	{
-		public ListFilterArea()
+		public ThingQueryArea()
 		{
 			extraOption = 1;
 		}
@@ -556,7 +556,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class ListFilterZone : ListFilterDropDown<Zone>
+	public class ThingQueryZone : ThingQueryDropDown<Zone>
 	{
 		protected override Zone ResolveRef(Map map) =>
 			map.zoneManager.AllZones.FirstOrDefault(z => z.label == selName);
@@ -579,14 +579,14 @@ namespace TD_Find_Lib
 		public override string NameForExtra(int ex) => ex == 1 ? "TD.AnyStockpile".Translate() : "TD.AnyGrowingZone".Translate();
 	}
 
-	public class ListFilterDeterioration : ListFilter
+	public class ThingQueryDeterioration : ThingQuery
 	{
 		public override bool ApplesDirectlyTo(Thing thing) =>
 			SteadyEnvironmentEffects.FinalDeteriorationRate(thing) >= 0.001f;
 	}
 
-	public enum DoorOpenFilter { Open, Close, HoldOpen, BlockedOpenMomentary }
-	public class ListFilterDoorOpen : ListFilterDropDown<DoorOpenFilter>
+	public enum DoorOpenQuery { Open, Close, HoldOpen, BlockedOpenMomentary }
+	public class ThingQueryDoorOpen : ThingQueryDropDown<DoorOpenQuery>
 	{
 		public override bool ApplesDirectlyTo(Thing thing)
 		{
@@ -594,31 +594,31 @@ namespace TD_Find_Lib
 			if (door == null) return false;
 			switch (sel)
 			{
-				case DoorOpenFilter.Open: return door.Open;
-				case DoorOpenFilter.Close: return !door.Open;
-				case DoorOpenFilter.HoldOpen: return door.HoldOpen;
-				case DoorOpenFilter.BlockedOpenMomentary: return door.BlockedOpenMomentary;
+				case DoorOpenQuery.Open: return door.Open;
+				case DoorOpenQuery.Close: return !door.Open;
+				case DoorOpenQuery.HoldOpen: return door.HoldOpen;
+				case DoorOpenQuery.BlockedOpenMomentary: return door.BlockedOpenMomentary;
 			}
 			return false;//???
 		}
-		public override string NameFor(DoorOpenFilter o)
+		public override string NameFor(DoorOpenQuery o)
 		{
 			switch (o)
 			{
-				case DoorOpenFilter.Open: return "TD.Opened".Translate();
-				case DoorOpenFilter.Close: return "VentClosed".Translate();
-				case DoorOpenFilter.HoldOpen: return "CommandToggleDoorHoldOpen".Translate().CapitalizeFirst();
-				case DoorOpenFilter.BlockedOpenMomentary: return "TD.BlockedOpen".Translate();
+				case DoorOpenQuery.Open: return "TD.Opened".Translate();
+				case DoorOpenQuery.Close: return "VentClosed".Translate();
+				case DoorOpenQuery.HoldOpen: return "CommandToggleDoorHoldOpen".Translate().CapitalizeFirst();
+				case DoorOpenQuery.BlockedOpenMomentary: return "TD.BlockedOpen".Translate();
 			}
 			return "???";
 		}
 	}
 
-	public class ListFilterThingDef : ListFilterDropDown<ThingDef>
+	public class ThingQueryThingDef : ThingQueryDropDown<ThingDef>
 	{
 		public IntRangeUB stackRange;//unknown until sel set
 
-		public ListFilterThingDef()
+		public ThingQueryThingDef()
 		{
 			sel = ThingDefOf.WoodLog;
 		}
@@ -638,9 +638,9 @@ namespace TD_Find_Lib
 			if(Scribe.mode != LoadSaveMode.Saving || sel.stackLimit > 1)
 				Scribe_Values.Look(ref stackRange.range, "stackRange");
 		}
-		public override ListFilter Clone()
+		public override ThingQuery Clone()
 		{
-			ListFilterThingDef clone = (ListFilterThingDef)base.Clone();
+			ThingQueryThingDef clone = (ThingQueryThingDef)base.Clone();
 			clone.stackRange = stackRange;
 			return clone;
 		}
@@ -657,7 +657,7 @@ namespace TD_Find_Lib
 			(Mod.settings.OnlyAvailable ?
 				base.Options().Intersect(ContentsUtility.AvailableInGame(t => t.def)) :
 				base.Options())
-			.Where(def => FindDescription.ValidDef(def));
+			.Where(def => QuerySearch.ValidDef(def));
 
 		public override string CategoryFor(ThingDef def)
 		{
@@ -707,9 +707,9 @@ namespace TD_Find_Lib
 	}
 
 
-	public class ListFilterModded : ListFilterDropDown<ModContentPack>
+	public class ThingQueryModded : ThingQueryDropDown<ModContentPack>
 	{
-		public ListFilterModded()
+		public ThingQueryModded()
 		{
 			sel = LoadedModManager.RunningMods.First(mod => mod.IsCoreMod);
 		}
@@ -732,7 +732,7 @@ namespace TD_Find_Lib
 	}
 
 
-	public class ListFilterOnScreen : ListFilter
+	public class ThingQueryOnScreen : ThingQuery
 	{
 		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing.OccupiedRect().Overlaps(Find.CameraDriver.CurrentViewRect);
@@ -741,18 +741,18 @@ namespace TD_Find_Lib
 	}
 
 
-	public class ListFilterSelectable : ListFilter
+	public class ThingQuerySelectable : ThingQuery
 	{
 		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing.def.selectable;
 	}
 
 
-	public class ListFilterStat : ListFilterDropDown<StatDef>
+	public class ThingQueryStat : ThingQueryDropDown<StatDef>
 	{
 		FloatRange valueRange;
 
-		public ListFilterStat()
+		public ThingQueryStat()
 		{
 			sel = StatDefOf.GeneralLaborSpeed;
 		}
@@ -768,9 +768,9 @@ namespace TD_Find_Lib
 			base.ExposeData();
 			Scribe_Values.Look(ref valueRange, "valueRange");
 		}
-		public override ListFilter Clone()
+		public override ThingQuery Clone()
 		{
-			ListFilterStat clone = (ListFilterStat)base.Clone();
+			ThingQueryStat clone = (ThingQueryStat)base.Clone();
 			clone.valueRange = valueRange;
 			return clone;
 		}
@@ -869,9 +869,9 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class ListFilterBuildingCategory : ListFilterDropDown<DesignationCategoryDef>
+	public class ThingQueryBuildingCategory : ThingQueryDropDown<DesignationCategoryDef>
 	{
-		public ListFilterBuildingCategory() => sel = DesignationCategoryDefOf.Production;
+		public ThingQueryBuildingCategory() => sel = DesignationCategoryDefOf.Production;
 
 		public override bool ApplesDirectlyTo(Thing thing) =>
 			sel == thing.def.designationCategory;

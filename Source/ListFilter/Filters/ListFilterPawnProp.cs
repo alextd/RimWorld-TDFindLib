@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace TD_Find_Lib
 {
-	public class ListFilterSkill : ListFilterDropDown<SkillDef>
+	public class ThingQuerySkill : ThingQueryDropDown<SkillDef>
 	{
 		IntRangeUB skillRange = new IntRangeUB(SkillRecord.MinLevel, SkillRecord.MaxLevel);
 		int passion = 4;
@@ -19,7 +19,7 @@ namespace TD_Find_Lib
 		{ "PassionNone", "PassionMinor", "PassionMajor", "TD.EitherOption", "TD.AnyOption" };//notranslate
 		public static string GetPassionText(int x) => passionText[x].Translate().ToString().Split(' ')[0];
 
-		public ListFilterSkill()
+		public ThingQuerySkill()
 		{
 			sel = SkillDefOf.Animals;
 		}
@@ -30,9 +30,9 @@ namespace TD_Find_Lib
 			Scribe_Values.Look(ref skillRange.range, "skillRange");
 			Scribe_Values.Look(ref passion, "passion");
 		}
-		public override ListFilter Clone()
+		public override ThingQuery Clone()
 		{
-			ListFilterSkill clone = (ListFilterSkill)base.Clone();
+			ThingQuerySkill clone = (ThingQuerySkill)base.Clone();
 			clone.skillRange = skillRange;
 			clone.passion = passion;
 			return clone;
@@ -69,11 +69,11 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class ListFilterTrait : ListFilterDropDown<TraitDef>
+	public class ThingQueryTrait : ThingQueryDropDown<TraitDef>
 	{
 		int traitDegree;
 
-		public ListFilterTrait()
+		public ThingQueryTrait()
 		{
 			sel = TraitDefOf.Beauty;  //Todo: beauty shows even if it's not on map
 		}
@@ -92,9 +92,9 @@ namespace TD_Find_Lib
 			base.ExposeData();
 			Scribe_Values.Look(ref traitDegree, "traitDegree");
 		}
-		public override ListFilter Clone()
+		public override ThingQuery Clone()
 		{
-			ListFilterTrait clone = (ListFilterTrait)base.Clone();
+			ThingQueryTrait clone = (ThingQueryTrait)base.Clone();
 			clone.traitDegree = traitDegree;
 			return clone;
 		}
@@ -133,7 +133,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class ListFilterThought: ListFilterDropDown<ThoughtDef>
+	public class ThingQueryThought: ThingQueryDropDown<ThoughtDef>
 	{
 		IntRange stageRange;	//Indexes of orderedStages
 		List<int> orderedStages = new();
@@ -143,7 +143,7 @@ namespace TD_Find_Lib
 		// The selection is done with the ordered index
 		// But of course this has to be translated from and to the actual stage index
 
-		public ListFilterThought()
+		public ThingQueryThought()
 		{
 			sel = ThoughtDefOf.AteWithoutTable;
 		}
@@ -189,9 +189,9 @@ namespace TD_Find_Lib
 
 			Scribe_Values.Look(ref stageRange, "stageRange");
 		}
-		public override ListFilter Clone()
+		public override ThingQuery Clone()
 		{
-			ListFilterThought clone = (ListFilterThought)base.Clone();
+			ThingQueryThought clone = (ThingQueryThought)base.Clone();
 			clone.stageRange = stageRange;
 			clone.PostProcess();
 			return clone;
@@ -313,20 +313,20 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class ListFilterNeed : ListFilterDropDown<NeedDef>
+	public class ThingQueryNeed : ThingQueryDropDown<NeedDef>
 	{
 		FloatRangeUB needRange = new FloatRangeUB(0, 1, 0, 0.5f);
 
-		public ListFilterNeed() => sel = NeedDefOf.Food;
+		public ThingQueryNeed() => sel = NeedDefOf.Food;
 
 		public override void ExposeData()
 		{
 			base.ExposeData();
 			Scribe_Values.Look(ref needRange.range, "needRange");
 		}
-		public override ListFilter Clone()
+		public override ThingQuery Clone()
 		{
-			ListFilterNeed clone = (ListFilterNeed)base.Clone();
+			ThingQueryNeed clone = (ThingQueryNeed)base.Clone();
 			clone.needRange = needRange;
 			return clone;
 		}
@@ -342,12 +342,12 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class ListFilterHealth : ListFilterDropDown<HediffDef>
+	public class ThingQueryHealth : ThingQueryDropDown<HediffDef>
 	{
 		FloatRangeUB severityRange;//unknown until sel set
 		bool usesSeverity;
 
-		public ListFilterHealth()
+		public ThingQueryHealth()
 		{
 			sel = null;
 		}
@@ -370,9 +370,9 @@ namespace TD_Find_Lib
 
 			Scribe_Values.Look(ref severityRange.range, "severityRange");
 		}
-		public override ListFilter Clone()
+		public override ThingQuery Clone()
 		{
-			ListFilterHealth clone = (ListFilterHealth)base.Clone();
+			ThingQueryHealth clone = (ThingQueryHealth)base.Clone();
 			clone.severityRange = severityRange;
 			clone.usesSeverity = usesSeverity;
 			return clone;
@@ -423,7 +423,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class ListFilterIncapable : ListFilterDropDown<WorkTags>
+	public class ThingQueryIncapable : ThingQueryDropDown<WorkTags>
 	{
 		public override string NameFor(WorkTags tags) =>
 			tags.LabelTranslated().CapitalizeFirst();
@@ -443,9 +443,9 @@ namespace TD_Find_Lib
 		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
 	}
 
-	public class ListFilterTemp : ListFilterFloatRange
+	public class ThingQueryTemp : ThingQueryFloatRange
 	{
-		public ListFilterTemp() => _sel.range = new FloatRange(10, 30);
+		public ThingQueryTemp() => _sel.range = new FloatRange(10, 30);
 
 		public override float Min => -100f;
 		public override float Max => 100f;
@@ -456,7 +456,7 @@ namespace TD_Find_Lib
 	}
 
 	public enum ComfyTemp { Cold, Cool, Okay, Warm, Hot }
-	public class ListFilterComfyTemp : ListFilterDropDown<ComfyTemp>
+	public class ThingQueryComfyTemp : ThingQueryDropDown<ComfyTemp>
 	{
 		public override bool ApplesDirectlyTo(Thing thing)
 		{
@@ -489,7 +489,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class ListFilterRestricted : ListFilterDropDown<Area>
+	public class ThingQueryRestricted : ThingQueryDropDown<Area>
 	{
 		protected override Area ResolveRef(Map map) =>
 			map.areaManager.GetLabeled(selName);
@@ -508,7 +508,7 @@ namespace TD_Find_Lib
 		public override string NameForExtra(int ex) => "Home".Translate();
 	}
 
-	public class ListFilterMentalState : ListFilterDropDown<MentalStateDef>
+	public class ThingQueryMentalState : ThingQueryDropDown<MentalStateDef>
 	{
 		public override bool ApplesDirectlyTo(Thing thing)
 		{
@@ -534,9 +534,9 @@ namespace TD_Find_Lib
 		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
 	}
 
-	public class ListFilterPrisoner : ListFilterDropDown<PrisonerInteractionModeDef>
+	public class ThingQueryPrisoner : ThingQueryDropDown<PrisonerInteractionModeDef>
 	{
-		public ListFilterPrisoner()
+		public ThingQueryPrisoner()
 		{
 			sel = PrisonerInteractionModeDefOf.NoInteraction;
 		}
@@ -561,8 +561,8 @@ namespace TD_Find_Lib
 			ex == 1 ? "TD.IsPrisoner".Translate() : "TD.InCell".Translate();
 	}
 
-	public enum DraftFilter { Drafted, Undrafted, Controllable }
-	public class ListFilterDrafted : ListFilterDropDown<DraftFilter>
+	public enum DraftQuery { Drafted, Undrafted, Controllable }
+	public class ThingQueryDrafted : ThingQueryDropDown<DraftQuery>
 	{
 		public override bool ApplesDirectlyTo(Thing thing)
 		{
@@ -571,15 +571,15 @@ namespace TD_Find_Lib
 
 			switch (sel)
 			{
-				case DraftFilter.Drafted: return pawn.Drafted;
-				case DraftFilter.Undrafted: return pawn.drafter != null && !pawn.Drafted;
-				case DraftFilter.Controllable: return pawn.drafter != null;
+				case DraftQuery.Drafted: return pawn.Drafted;
+				case DraftQuery.Undrafted: return pawn.drafter != null && !pawn.Drafted;
+				case DraftQuery.Controllable: return pawn.drafter != null;
 			}
 			return false;
 		}
 	}
 
-	public class ListFilterJob : ListFilterDropDown<JobDef>
+	public class ThingQueryJob : ThingQueryDropDown<JobDef>
 	{
 		public override bool ApplesDirectlyTo(Thing thing)
 		{
@@ -601,14 +601,14 @@ namespace TD_Find_Lib
 		public override bool Ordered => true;
 	}
 
-	public class ListFilterGuestStatus : ListFilterDropDown<GuestStatus>
+	public class ThingQueryGuestStatus : ThingQueryDropDown<GuestStatus>
 	{
 		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing is Pawn pawn && pawn.GuestStatus is GuestStatus status && status == sel;
 	}
 
-	public enum RacePropsFilter { Predator, Prey, Herd, Pack, Wildness, Petness, Trainability, Intelligence }
-	public class ListFilterRaceProps : ListFilterDropDown<RacePropsFilter>
+	public enum RacePropsQuery { Predator, Prey, Herd, Pack, Wildness, Petness, Trainability, Intelligence }
+	public class ThingQueryRaceProps : ThingQueryDropDown<RacePropsQuery>
 	{
 		Intelligence intelligence;
 		FloatRangeUB valueRange = new FloatRange(0, 1);
@@ -618,10 +618,10 @@ namespace TD_Find_Lib
 		{
 			switch (sel)
 			{
-				case RacePropsFilter.Intelligence: intelligence = Intelligence.Humanlike; return;
-				case RacePropsFilter.Wildness:
-				case RacePropsFilter.Petness: valueRange.range = new FloatRange(0.25f, 0.75f); return;
-				case RacePropsFilter.Trainability: trainability = TrainabilityDefOf.Advanced; return;
+				case RacePropsQuery.Intelligence: intelligence = Intelligence.Humanlike; return;
+				case RacePropsQuery.Wildness:
+				case RacePropsQuery.Petness: valueRange.range = new FloatRange(0.25f, 0.75f); return;
+				case RacePropsQuery.Trainability: trainability = TrainabilityDefOf.Advanced; return;
 			}
 		}
 
@@ -632,9 +632,9 @@ namespace TD_Find_Lib
 			Scribe_Values.Look(ref valueRange.range, "valueRange");
 			Scribe_Defs.Look(ref trainability, "trainability");
 		}
-		public override ListFilter Clone()
+		public override ThingQuery Clone()
 		{
-			ListFilterRaceProps clone = (ListFilterRaceProps)base.Clone();
+			ThingQueryRaceProps clone = (ThingQueryRaceProps)base.Clone();
 			clone.intelligence = intelligence;
 			clone.valueRange = valueRange;
 			clone.trainability = trainability;
@@ -651,20 +651,20 @@ namespace TD_Find_Lib
 
 			switch (sel)
 			{
-				case RacePropsFilter.Intelligence: return props.intelligence == intelligence;
-				case RacePropsFilter.Herd: 
+				case RacePropsQuery.Intelligence: return props.intelligence == intelligence;
+				case RacePropsQuery.Herd: 
 					return props.herdAnimal;
-				case RacePropsFilter.Pack: 
+				case RacePropsQuery.Pack: 
 					return props.packAnimal;
-				case RacePropsFilter.Predator: 
+				case RacePropsQuery.Predator: 
 					return props.predator;
-				case RacePropsFilter.Prey: 
+				case RacePropsQuery.Prey: 
 					return props.canBePredatorPrey;
-				case RacePropsFilter.Wildness: 
+				case RacePropsQuery.Wildness: 
 					return valueRange.Includes(props.wildness);
-				case RacePropsFilter.Petness: 
+				case RacePropsQuery.Petness: 
 					return valueRange.Includes(props.petness);
-				case RacePropsFilter.Trainability:
+				case RacePropsQuery.Trainability:
 					return props.trainability == trainability;
 			}
 			return false;
@@ -675,7 +675,7 @@ namespace TD_Find_Lib
 			List<FloatMenuOption> options = new List<FloatMenuOption>();
 			switch (sel)
 			{
-				case RacePropsFilter.Intelligence:
+				case RacePropsQuery.Intelligence:
 					if (row.ButtonTextNoGap(intelligence.TranslateEnum()))
 					{
 						foreach (Intelligence intel in Enum.GetValues(typeof(Intelligence)))
@@ -686,11 +686,11 @@ namespace TD_Find_Lib
 					}
 					break;
 
-				case RacePropsFilter.Wildness:
-				case RacePropsFilter.Petness:
+				case RacePropsQuery.Wildness:
+				case RacePropsQuery.Petness:
 					return TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref valueRange, valueStyle: ToStringStyle.PercentZero);
 
-				case RacePropsFilter.Trainability:
+				case RacePropsQuery.Trainability:
 					if (row.ButtonTextNoGap(trainability.LabelCap))
 					{
 						foreach (TrainabilityDef def in DefDatabase<TrainabilityDef>.AllDefs)
@@ -705,17 +705,17 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class ListFilterGender : ListFilterDropDown<Gender>
+	public class ThingQueryGender : ThingQueryDropDown<Gender>
 	{
-		public ListFilterGender() => sel = Gender.Male;
+		public ThingQueryGender() => sel = Gender.Male;
 
 		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing is Pawn pawn && pawn.gender == sel;
 	}
 
-	public class ListFilterDevelopmentalStage : ListFilterDropDown<DevelopmentalStage>
+	public class ThingQueryDevelopmentalStage : ThingQueryDropDown<DevelopmentalStage>
 	{
-		public ListFilterDevelopmentalStage() => sel = DevelopmentalStage.Adult;
+		public ThingQueryDevelopmentalStage() => sel = DevelopmentalStage.Adult;
 
 		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing is Pawn pawn && pawn.DevelopmentalStage == sel;
@@ -726,11 +726,11 @@ namespace TD_Find_Lib
 	// -------------------------
 
 
-	abstract public class ListFilterProduct : ListFilterDropDown<ThingDef>
+	abstract public class ThingQueryProduct : ThingQueryDropDown<ThingDef>
 	{
 		protected IntRangeUB countRange;
 
-		public ListFilterProduct()
+		public ThingQueryProduct()
 		{
 			extraOption = 1;
 			countRange = new IntRangeUB(0, Max);	//Not PostChosen as this depends on subclass, not selection
@@ -741,9 +741,9 @@ namespace TD_Find_Lib
 			base.ExposeData();
 			Scribe_Values.Look(ref countRange.range, "countRange");
 		}
-		public override ListFilter Clone()
+		public override ThingQuery Clone()
 		{
-			ListFilterProduct clone = (ListFilterProduct)base.Clone();
+			ThingQueryProduct clone = (ThingQueryProduct)base.Clone();
 			clone.countRange = countRange;
 			return clone;
 		}
@@ -799,7 +799,7 @@ namespace TD_Find_Lib
 		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
 	}
 
-	public class ListFilterMeat : ListFilterProduct
+	public class ThingQueryMeat : ThingQueryProduct
 	{
 		public override ThingDef DefFor(Pawn pawn) => pawn.RaceProps.meatDef;
 		public override int CountFor(Pawn pawn) => Mathf.RoundToInt(pawn.GetStatValue(StatDefOf.MeatAmount));
@@ -811,7 +811,7 @@ namespace TD_Find_Lib
 		public override int Max => mostMeat;
 	}
 
-	public class ListFilterLeather : ListFilterProduct
+	public class ThingQueryLeather : ThingQueryProduct
 	{
 		public override ThingDef DefFor(Pawn pawn) => pawn.RaceProps.leatherDef;
 		public override int CountFor(Pawn pawn) => Mathf.RoundToInt(pawn.GetStatValue(StatDefOf.LeatherAmount));
@@ -823,7 +823,7 @@ namespace TD_Find_Lib
 		public override int Max => mostLeather;
 	}
 
-	public class ListFilterEgg : ListFilterProduct //Per Year
+	public class ThingQueryEgg : ThingQueryProduct //Per Year
 	{
 		public override ThingDef DefFor(Pawn pawn)
 		{
@@ -846,7 +846,7 @@ namespace TD_Find_Lib
 	}
 
 
-	public class ListFilterMilk : ListFilterProduct //Per Year
+	public class ThingQueryMilk : ThingQueryProduct //Per Year
 	{
 		public override ThingDef DefFor(Pawn pawn)
 		{
@@ -868,7 +868,7 @@ namespace TD_Find_Lib
 		public override int Max => mostMilk;
 	}
 
-	public class ListFilterWool : ListFilterProduct //Per Year
+	public class ThingQueryWool : ThingQueryProduct //Per Year
 	{
 		public override ThingDef DefFor(Pawn pawn) => pawn.def.GetCompProperties<CompProperties_Shearable>()?.woolDef;
 		public override int CountFor(Pawn pawn) => Mathf.RoundToInt(AnimalProductionUtility.WoolPerYear(pawn.def));
@@ -882,7 +882,7 @@ namespace TD_Find_Lib
 	
 	//Enum values matching existing translation keys
 	public enum ProgressType { Milkable, Shearable, MilkFullness, WoolGrowth, EggProgress, EggHatch}
-	public class ListFilterProductProgress : ListFilterDropDown<ProgressType>
+	public class ThingQueryProductProgress : ThingQueryDropDown<ProgressType>
 	{
 		protected FloatRangeUB progressRange = new FloatRangeUB(0, 1);
 
@@ -891,9 +891,9 @@ namespace TD_Find_Lib
 			base.ExposeData();
 			Scribe_Values.Look(ref progressRange.range, "progressRange");
 		}
-		public override ListFilter Clone()
+		public override ThingQuery Clone()
 		{
-			ListFilterProductProgress clone = (ListFilterProductProgress)base.Clone();
+			ThingQueryProductProgress clone = (ThingQueryProductProgress)base.Clone();
 			clone.progressRange = progressRange;
 			return clone;
 		}
@@ -953,7 +953,7 @@ namespace TD_Find_Lib
 	}
 
 
-	public class ListFilterInspiration : ListFilterDropDown<InspirationDef>
+	public class ThingQueryInspiration : ThingQueryDropDown<InspirationDef>
 	{
 		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing is Pawn p && 
@@ -968,12 +968,12 @@ namespace TD_Find_Lib
 	}
 
 
-	public class ListFilterCapacity : ListFilterDropDown<PawnCapacityDef>
+	public class ThingQueryCapacity : ThingQueryDropDown<PawnCapacityDef>
 	{
 		public const float MaxReasonable = 4;
 		FloatRangeUB capacityRange = new FloatRangeUB(0, MaxReasonable, 1, 1);
 
-		public ListFilterCapacity()
+		public ThingQueryCapacity()
 		{
 			sel = PawnCapacityDefOf.Manipulation;
 		}
@@ -983,9 +983,9 @@ namespace TD_Find_Lib
 			base.ExposeData();
 			Scribe_Values.Look(ref capacityRange.range, "capacityRange");
 		}
-		public override ListFilter Clone()
+		public override ThingQuery Clone()
 		{
-			ListFilterCapacity clone = (ListFilterCapacity)base.Clone();
+			ThingQueryCapacity clone = (ThingQueryCapacity)base.Clone();
 			clone.capacityRange = capacityRange;
 			return clone;
 		}

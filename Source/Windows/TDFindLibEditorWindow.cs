@@ -10,12 +10,12 @@ namespace TD_Find_Lib
 {
 	public class TDFindLibEditorWindow : Window
 	{
-		public readonly FindDescriptionDrawer drawer;
-		private Action<FindDescription> onCloseIfChanged;
+		public readonly QuerySearchDrawer drawer;
+		private Action<QuerySearch> onCloseIfChanged;
 
-		public TDFindLibEditorWindow(FindDescription desc, Action<FindDescription> onCloseIfChanged = null)
+		public TDFindLibEditorWindow(QuerySearch search, Action<QuerySearch> onCloseIfChanged = null)
 		{
-			drawer = new FindDescriptionDrawer(desc, "Editing") { showNameAfterTitle = true };
+			drawer = new QuerySearchDrawer(search, "Editing") { showNameAfterTitle = true };
 			onlyOneOfTypeAllowed = false;
 			preventCameraMotion = false;
 			draggable = true;
@@ -28,14 +28,14 @@ namespace TD_Find_Lib
 
 		public override void OnCancelKeyPressed()
 		{
-			if (!drawer.findDesc.OnCancelKeyPressed())
+			if (!drawer.search.OnCancelKeyPressed())
 				base.OnCancelKeyPressed();
 		}
 
 		public override void PostClose()
 		{
-			if (drawer.findDesc.changed)
-				onCloseIfChanged?.Invoke(drawer.findDesc);
+			if (drawer.search.changed)
+				onCloseIfChanged?.Invoke(drawer.search);
 		}
 
 
@@ -66,29 +66,29 @@ namespace TD_Find_Lib
 
 		public override void DoWindowContents(Rect fillRect)
 		{
-			drawer.DrawFindDescription(fillRect, Find.CurrentMap == null ? null :
+			drawer.DrawQuerySearch(fillRect, Find.CurrentMap == null ? null :
 				row =>
 				{
-					FilterStorageUtil.ButtonChooseExportFilter(row, drawer.findDesc, "Storage");
-					if (row.ButtonIcon(FindTex.List, "List things matching this filter"))
+					SearchStorage.ButtonChooseExportSearch(row, drawer.search, "Storage");
+					if (row.ButtonIcon(FindTex.List, "List things matching this search"))
 					{
-						Find.WindowStack.Add(new TDFindLibThingsWindow(drawer.findDesc.CloneForUseSingle()));
+						Find.WindowStack.Add(new TDFindLibThingsWindow(drawer.search.CloneForUseSingle()));
 					}
 				});
 		}
 	}
 	public class TDFindLibViewerWindow : TDFindLibEditorWindow
 	{
-		public TDFindLibViewerWindow(FindDescription desc):base(desc)
+		public TDFindLibViewerWindow(QuerySearch search):base(search)
 		{
 			drawer.permalocked = true;
 			drawer.title = "Viewing";
 		}
 	}
 
-	public class FindDescriptionDrawer
+	public class QuerySearchDrawer
 	{ 
-		public FindDescription findDesc;
+		public QuerySearch search;
 		private bool _locked;
 		public bool locked
 		{
@@ -101,26 +101,26 @@ namespace TD_Find_Lib
 		public bool showNameAfterTitle;
 		public string title;
 
-		public FindDescriptionDrawer(FindDescription findDesc, string title)
+		public QuerySearchDrawer(QuerySearch search, string title)
 		{
-			this.findDesc = findDesc;
+			this.search = search;
 			this.title = title;
 		}
 
 		protected virtual void DrawHeader(Rect headerRect)
 		{
-			// Listing BaseType
+			// List Type
 			Rect typeRect = headerRect.LeftPart(.32f);
 
-			Widgets.Label(typeRect, "TD.Listing".Translate() + findDesc.BaseType.TranslateEnum());
+			Widgets.Label(typeRect, "TD.Listing".Translate() + search.ListType.TranslateEnum());
 			if (!locked)
 			{
 				Widgets.DrawHighlightIfMouseover(typeRect);
 				if (Widgets.ButtonInvisible(typeRect))
 				{
 					List<FloatMenuOption> types = new List<FloatMenuOption>();
-					foreach (BaseListType type in DebugSettings.godMode ? Enum.GetValues(typeof(BaseListType)) : BaseListNormalTypes.normalTypes)
-						types.Add(new FloatMenuOption(type.TranslateEnum(), () => findDesc.BaseType = type));
+					foreach (SearchListType type in DebugSettings.godMode ? Enum.GetValues(typeof(SearchListType)) : SearchListNormalTypes.normalTypes)
+						types.Add(new FloatMenuOption(type.TranslateEnum(), () => search.ListType = type));
 
 					Find.WindowStack.Add(new FloatMenu(types));
 				}
@@ -130,18 +130,18 @@ namespace TD_Find_Lib
 			// Matching All or Any
 			Rect matchRect = typeRect.CenteredOnXIn(headerRect);
 
-			Widgets.Label(matchRect, findDesc.MatchAllFilters ? "Matching all filters" : "Matching any filter");
+			Widgets.Label(matchRect, search.MatchAllQueries ? "Matching all filters" : "Matching any filter");
 			if (!locked)
 			{
 				Widgets.DrawHighlightIfMouseover(matchRect);
 				if (Widgets.ButtonInvisible(matchRect))
-					findDesc.MatchAllFilters = !findDesc.MatchAllFilters;
+					search.MatchAllQueries = !search.MatchAllQueries;
 			}
 
 
-			// Seraching Map selecion:
+			// Searching Map selection:
 			Rect mapTypeRect = headerRect.RightPart(.32f);
-			Widgets.Label(mapTypeRect, findDesc.GetMapOptionLabel());
+			Widgets.Label(mapTypeRect, search.GetMapOptionLabel());
 			if(!locked)
 			{
 				Widgets.DrawHighlightIfMouseover(mapTypeRect);
@@ -150,12 +150,12 @@ namespace TD_Find_Lib
 					List<FloatMenuOption> mapOptions = new List<FloatMenuOption>();
 
 					//Current Map
-					mapOptions.Add(new FloatMenuOption("Search current map only", () => findDesc.SetSearchCurrentMap()));
+					mapOptions.Add(new FloatMenuOption("Search current map only", () => search.SetSearchCurrentMap()));
 
 					//All maps
-					mapOptions.Add(new FloatMenuOption("Search all maps", () => findDesc.SetSearchAllMaps()));
+					mapOptions.Add(new FloatMenuOption("Search all maps", () => search.SetSearchAllMaps()));
 
-					if (findDesc.active)
+					if (search.active)
 					{
 						//Toggle each map
 						foreach (Map map in Find.Maps)
@@ -165,19 +165,19 @@ namespace TD_Find_Lib
 								() =>
 								{
 									if (Event.current.shift)
-										findDesc.SetSearchMap(map);
+										search.SetSearchMap(map);
 									else
-										findDesc.ToggleSearchMap(map);
+										search.ToggleSearchMap(map);
 								},
-								findDesc.ChosenMaps == null ? Widgets.CheckboxPartialTex
-								: findDesc.ChosenMaps.Contains(map) ? Widgets.CheckboxOnTex
+								search.ChosenMaps == null ? Widgets.CheckboxPartialTex
+								: search.ChosenMaps.Contains(map) ? Widgets.CheckboxOnTex
 								: Widgets.CheckboxOffTex,
 								Color.white));
 						}
 					}
 					else
 					{
-						mapOptions.Add(new FloatMenuOption("Search chosen maps (once loaded)", () => findDesc.SetSearchChosenMaps()));
+						mapOptions.Add(new FloatMenuOption("Search chosen maps (once loaded)", () => search.SetSearchChosenMaps()));
 					}
 
 					Find.WindowStack.Add(new FloatMenu(mapOptions));
@@ -185,11 +185,13 @@ namespace TD_Find_Lib
 			}
 		}
 
-		//Draw Filters
+
+
+		//Draw Search
 		private Vector2 scrollPosition;
 		private float scrollHeight;
 
-		public void DrawFindDescription(Rect rect, Action<WidgetRow> extraIconsDrawer = null)
+		public void DrawQuerySearch(Rect rect, Action<WidgetRow> extraIconsDrawer = null)
 		{
 			Listing_StandardIndent listing = new Listing_StandardIndent()
 			{ maxOneColumn = true };
@@ -197,12 +199,12 @@ namespace TD_Find_Lib
 			listing.Begin(rect);
 
 
-			//Filter Name
+			//Search Name
 			Text.Font = GameFont.Medium;
 			Rect nameRect = listing.GetRect(Text.LineHeight);
 			string titleLabel = title;
 			if (showNameAfterTitle)
-				titleLabel += ": " + findDesc.name;
+				titleLabel += ": " + search.name;
 			Widgets.Label(nameRect, titleLabel);
 
 
@@ -212,19 +214,19 @@ namespace TD_Find_Lib
 			if (locked)
 				buttonRow.IncrementPosition(WidgetRow.IconSize); //not Gap because that checks for 0 and doesn't actually gap
 			else if (buttonRow.ButtonIcon(FindTex.Cancel, "ClearAll".Translate()))
-				findDesc.Reset();
+				search.Reset();
 
 			if (!permalocked && buttonRow.ButtonIcon(locked ? FindTex.LockOn : FindTex.LockOff, "TD.LockEditing".Translate()))
 				locked = !locked;
 
 			if (!locked && showNameAfterTitle && buttonRow.ButtonIcon(TexButton.Rename))
 				Find.WindowStack.Add(new Dialog_Name(
-					findDesc.name, 
-					newName => { findDesc.name = newName; findDesc.changed = true; },
-					$"Rename {findDesc.name}"));
+					search.name, 
+					newName => { search.name = newName; search.changed = true; },
+					$"Rename {search.name}"));
 
 			if (DebugSettings.godMode)
-				buttonRow.Label(findDesc.active ? "ACTIVE!" : "INACTIVE");
+				buttonRow.Label(search.active ? "ACTIVE!" : "INACTIVE");
 
 			// Extra custom buttons!
 			extraIconsDrawer?.Invoke(buttonRow);
@@ -239,10 +241,10 @@ namespace TD_Find_Lib
 			listing.GapLine();
 
 
-			//Draw Filters!!!
+			//Draw Queries!!!
 			Rect listRect = listing.GetRemainingRect();
 
-			//Lock out input to filters.
+			//Lock out input to queries.
 			if (locked &&
 				Event.current.type != EventType.Repaint &&
 				Event.current.type != EventType.Layout &&
@@ -254,18 +256,18 @@ namespace TD_Find_Lib
 				Event.current.Use();
 			}
 
-			//Draw Filters:
-			if(findDesc.Children.DrawFiltersInRect(listRect, locked, ref scrollPosition, ref scrollHeight))
-				findDesc.RemakeList();
+			//Draw Queries:
+			if(search.Children.DrawQueriesInRect(listRect, locked, ref scrollPosition, ref scrollHeight))
+				search.RemakeList();
 
 			listing.End();
 		}
 	}
 
-	public static class BaseListNormalTypes
+	public static class SearchListNormalTypes
 	{
-		public static readonly BaseListType[] normalTypes =
-			{ BaseListType.Selectable, BaseListType.Everyone, BaseListType.Items, BaseListType.Buildings, BaseListType.Plants,
-			BaseListType.Natural, BaseListType.ItemsAndJunk, BaseListType.All, BaseListType.Inventory};
+		public static readonly SearchListType[] normalTypes =
+			{ SearchListType.Selectable, SearchListType.Everyone, SearchListType.Items, SearchListType.Buildings, SearchListType.Plants,
+			SearchListType.Natural, SearchListType.ItemsAndJunk, SearchListType.All, SearchListType.Inventory};
 	}
 }

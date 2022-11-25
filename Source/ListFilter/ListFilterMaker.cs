@@ -10,85 +10,85 @@ namespace TD_Find_Lib
 {
 	[DefOf]
 	[StaticConstructorOnStartup]
-	public static class ListFilterMaker
+	public static class ThingQueryMaker
 	{
-		public static ListFilterDef Filter_Area;
-		public static ListFilterDef Filter_AreaRestriction;
-		public static ListFilterDef Filter_Capacity;
-		public static ListFilterDef Filter_ClassType;
-		public static ListFilterDef Filter_Crop;
-		public static ListFilterDef Filter_Def;
-		public static ListFilterDef Filter_Designation;
-		public static ListFilterDef Filter_Deterioration;
-		public static ListFilterDef Filter_DiesLeafless;
-		public static ListFilterDef Filter_Door;
-		public static ListFilterDef Filter_Drafted;
-		public static ListFilterDef Filter_DrawerType;
-		public static ListFilterDef Filter_Egg;
-		public static ListFilterDef Filter_Faction;
-		public static ListFilterDef Filter_Fogged;
-		public static ListFilterDef Filter_Forbidden;
-		public static ListFilterDef Filter_Freshness;
-		public static ListFilterDef Filter_Gender;
-		public static ListFilterDef Filter_Group;
-		public static ListFilterDef Filter_Growth;
-		public static ListFilterDef Filter_Guest;
-		public static ListFilterDef Filter_HP;
-		public static ListFilterDef Filter_Harvestable;
-		public static ListFilterDef Filter_Health;
-		public static ListFilterDef Filter_Incapable;
-		public static ListFilterDef Filter_Inspiration;
-		public static ListFilterDef Filter_Inventory;
-		public static ListFilterDef Filter_ItemCategory;
-		public static ListFilterDef Filter_Job;
-		public static ListFilterDef Filter_Leather;
-		public static ListFilterDef Filter_ListFilterDevelopmentalStage;
-		public static ListFilterDef Filter_Meat;
-		public static ListFilterDef Filter_MentalState;
-		public static ListFilterDef Filter_Milk;
-		public static ListFilterDef Filter_Mineable;
-		public static ListFilterDef Filter_MissingBodyPart;
-		public static ListFilterDef Filter_Mod;
-		public static ListFilterDef Filter_Name;
-		public static ListFilterDef Filter_Nearby;
-		public static ListFilterDef Filter_Need;
-		public static ListFilterDef Filter_Onscreen;
-		public static ListFilterDef Filter_Prisoner;
-		public static ListFilterDef Filter_ProductProgress;
-		public static ListFilterDef Filter_Quality;
-		public static ListFilterDef Filter_RaceProps;
-		public static ListFilterDef Filter_Skill;
-		public static ListFilterDef Filter_SpecialFilter;
-		public static ListFilterDef Filter_Stat;
-		public static ListFilterDef Filter_Stuff;
-		public static ListFilterDef Filter_Temp;
-		public static ListFilterDef Filter_Thought;
-		public static ListFilterDef Filter_TimeToRot;
-		public static ListFilterDef Filter_Trait;
-		public static ListFilterDef Filter_Wool;
-		public static ListFilterDef Filter_Zone;
+		public static ThingQueryDef Query_Area;
+		public static ThingQueryDef Query_AreaRestriction;
+		public static ThingQueryDef Query_Capacity;
+		public static ThingQueryDef Query_ClassType;
+		public static ThingQueryDef Query_Crop;
+		public static ThingQueryDef Query_Def;
+		public static ThingQueryDef Query_Designation;
+		public static ThingQueryDef Query_Deterioration;
+		public static ThingQueryDef Query_DiesLeafless;
+		public static ThingQueryDef Query_Door;
+		public static ThingQueryDef Query_Drafted;
+		public static ThingQueryDef Query_DrawerType;
+		public static ThingQueryDef Query_Egg;
+		public static ThingQueryDef Query_Faction;
+		public static ThingQueryDef Query_Fogged;
+		public static ThingQueryDef Query_Forbidden;
+		public static ThingQueryDef Query_Freshness;
+		public static ThingQueryDef Query_Gender;
+		public static ThingQueryDef Query_AndOrGroup;
+		public static ThingQueryDef Query_Growth;
+		public static ThingQueryDef Query_Guest;
+		public static ThingQueryDef Query_HP;
+		public static ThingQueryDef Query_Harvestable;
+		public static ThingQueryDef Query_Health;
+		public static ThingQueryDef Query_Incapable;
+		public static ThingQueryDef Query_Inspiration;
+		public static ThingQueryDef Query_Inventory;
+		public static ThingQueryDef Query_ItemCategory;
+		public static ThingQueryDef Query_Job;
+		public static ThingQueryDef Query_Leather;
+		public static ThingQueryDef Query_ThingQueryDevelopmentalStage;
+		public static ThingQueryDef Query_Meat;
+		public static ThingQueryDef Query_MentalState;
+		public static ThingQueryDef Query_Milk;
+		public static ThingQueryDef Query_Mineable;
+		public static ThingQueryDef Query_MissingBodyPart;
+		public static ThingQueryDef Query_Mod;
+		public static ThingQueryDef Query_Name;
+		public static ThingQueryDef Query_Nearby;
+		public static ThingQueryDef Query_Need;
+		public static ThingQueryDef Query_Onscreen;
+		public static ThingQueryDef Query_Prisoner;
+		public static ThingQueryDef Query_ProductProgress;
+		public static ThingQueryDef Query_Quality;
+		public static ThingQueryDef Query_RaceProps;
+		public static ThingQueryDef Query_Skill;
+		public static ThingQueryDef Query_SpecialFilter;
+		public static ThingQueryDef Query_Stat;
+		public static ThingQueryDef Query_Stuff;
+		public static ThingQueryDef Query_Temp;
+		public static ThingQueryDef Query_Thought;
+		public static ThingQueryDef Query_TimeToRot;
+		public static ThingQueryDef Query_Trait;
+		public static ThingQueryDef Query_Wool;
+		public static ThingQueryDef Query_Zone;
 
-		// The result is to be added to a IFilterHolder with Add()
-		// (Either a FindDescription or a ListFilterGroup)
-		public static ListFilter MakeFilter(ListFilterDef def)
+		// The result is to be added to a IQueryHolder with Add()
+		// (Either a QuerySearch or a ThingQueryGrouping)
+		public static ThingQuery MakeQuery(ThingQueryDef def)
 		{
-			ListFilter filter = (ListFilter)Activator.CreateInstance(def.filterClass);
-			filter.def = def;
-			return filter;
+			ThingQuery query = (ThingQuery)Activator.CreateInstance(def.queryClass);
+			query.def = def;
+			return query;
 		}
 
-		// Categories and Filters that aren't grouped under a Category
-		private static readonly List<ListFilterSelectableDef> rootFilters;
+		// Categories, and Queries that aren't grouped under a Category
+		private static readonly List<ThingQuerySelectableDef> rootSelectableQueries;
 
-		static ListFilterMaker()
+		static ThingQueryMaker()
 		{
-			rootFilters = DefDatabase<ListFilterSelectableDef>.AllDefs.ToList();
-			foreach (var listDef in DefDatabase<ListFilterCategoryDef>.AllDefs)
-				foreach (var subDef in listDef.SubFilters)
-					rootFilters.Remove(subDef);
+			rootSelectableQueries = DefDatabase<ThingQuerySelectableDef>.AllDefs.ToList();
+			foreach (var listDef in DefDatabase<ThingQueryCategoryDef>.AllDefs)
+				foreach (var subDef in listDef.SubQueries)
+					rootSelectableQueries.Remove(subDef);
 		}
 
-		public static IEnumerable<ListFilterSelectableDef> SelectableList =>
-			rootFilters.Where(d => (DebugSettings.godMode || !d.devOnly));
+		public static IEnumerable<ThingQuerySelectableDef> SelectableList =>
+			rootSelectableQueries.Where(d => (DebugSettings.godMode || !d.devOnly));
 	}
 }

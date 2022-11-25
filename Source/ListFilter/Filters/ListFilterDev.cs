@@ -7,9 +7,9 @@ using RimWorld;
 
 namespace TD_Find_Lib
 {
-	public class ListFilterClassType : ListFilterDropDown<Type>
+	public class ThingQueryClassType : ThingQueryDropDown<Type>
 	{
-		public ListFilterClassType() => sel = typeof(Thing);
+		public ThingQueryClassType() => sel = typeof(Thing);
 
 		public override bool ApplesDirectlyTo(Thing thing) =>
 			sel.IsAssignableFrom(thing.GetType());
@@ -21,13 +21,13 @@ namespace TD_Find_Lib
 				types;
 	}
 
-	public class ListFilterDrawerType : ListFilterDropDown<DrawerType>
+	public class ThingQueryDrawerType : ThingQueryDropDown<DrawerType>
 	{
 		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing.def.drawerType == sel;
 	}
 
-	public class ListFilterFogged : ListFilter
+	public class ThingQueryFogged : ThingQuery
 	{
 		public override bool ApplesDirectlyTo(Thing thing) =>
 			thing.PositionHeld.Fogged(thing.MapHeld);

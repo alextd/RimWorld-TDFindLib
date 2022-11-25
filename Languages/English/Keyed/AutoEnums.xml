@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <LanguageData>
 
-	<TD.BaseListType.Selectable>Map</TD.BaseListType.Selectable>
-	<TD.BaseListType.All>All</TD.BaseListType.All>
-	<TD.BaseListType.Items>Items</TD.BaseListType.Items>
-	<TD.BaseListType.ItemsAndJunk>Items and Junk</TD.BaseListType.ItemsAndJunk>
-	<TD.BaseListType.Everyone>Everyone</TD.BaseListType.Everyone>
-	<TD.BaseListType.Buildings>Buildings</TD.BaseListType.Buildings>
-	<TD.BaseListType.Natural>Natural</TD.BaseListType.Natural>
-	<TD.BaseListType.Plants>Plants</TD.BaseListType.Plants>
-	<TD.BaseListType.Inventory>Inventory</TD.BaseListType.Inventory>
-	<TD.BaseListType.Haulables>Haulables</TD.BaseListType.Haulables>
-	<TD.BaseListType.Mergables>Mergables</TD.BaseListType.Mergables>
-	<TD.BaseListType.FilthInHomeArea>Filth In Home Area</TD.BaseListType.FilthInHomeArea>
+	<TD.SearchListType.Selectable>Map</TD.SearchListType.Selectable>
+	<TD.SearchListType.All>All</TD.SearchListType.All>
+	<TD.SearchListType.Items>Items</TD.SearchListType.Items>
+	<TD.SearchListType.ItemsAndJunk>Items and Junk</TD.SearchListType.ItemsAndJunk>
+	<TD.SearchListType.Everyone>Everyone</TD.SearchListType.Everyone>
+	<TD.SearchListType.Buildings>Buildings</TD.SearchListType.Buildings>
+	<TD.SearchListType.Natural>Natural</TD.SearchListType.Natural>
+	<TD.SearchListType.Plants>Plants</TD.SearchListType.Plants>
+	<TD.SearchListType.Inventory>Inventory</TD.SearchListType.Inventory>
+	<TD.SearchListType.Haulables>Haulables</TD.SearchListType.Haulables>
+	<TD.SearchListType.Mergables>Mergables</TD.SearchListType.Mergables>
+	<TD.SearchListType.FilthInHomeArea>Filth In Home Area</TD.SearchListType.FilthInHomeArea>
 
 	<TD.ForbiddenType.Forbidden>Forbidden</TD.ForbiddenType.Forbidden>
 	<TD.ForbiddenType.Allowed>Allowed</TD.ForbiddenType.Allowed>
@@ -30,18 +30,18 @@
 	<TD.MineableType.Rock>Rock</TD.MineableType.Rock>
 	<TD.MineableType.All>All</TD.MineableType.All>
 
-	<TD.DraftFilter.Drafted>Drafted</TD.DraftFilter.Drafted>
-	<TD.DraftFilter.Undrafted>Undrafted</TD.DraftFilter.Undrafted>
-	<TD.DraftFilter.Controllable>Controllable</TD.DraftFilter.Controllable>
+	<TD.DraftQuery.Drafted>Drafted</TD.DraftQuery.Drafted>
+	<TD.DraftQuery.Undrafted>Undrafted</TD.DraftQuery.Undrafted>
+	<TD.DraftQuery.Controllable>Controllable</TD.DraftQuery.Controllable>
 
-	<TD.RacePropsFilter.Predator>Predator</TD.RacePropsFilter.Predator>
-	<TD.RacePropsFilter.Prey>Prey</TD.RacePropsFilter.Prey>
-	<TD.RacePropsFilter.Herd>Herd</TD.RacePropsFilter.Herd>
-	<TD.RacePropsFilter.Pack>Pack</TD.RacePropsFilter.Pack>
-	<TD.RacePropsFilter.Wildness>Wildness</TD.RacePropsFilter.Wildness>
-	<TD.RacePropsFilter.Petness>Petness</TD.RacePropsFilter.Petness>
-	<TD.RacePropsFilter.Trainability>Trainability</TD.RacePropsFilter.Trainability>
-	<TD.RacePropsFilter.Intelligence>Intelligence</TD.RacePropsFilter.Intelligence>
+	<TD.RacePropsQuery.Predator>Predator</TD.RacePropsQuery.Predator>
+	<TD.RacePropsQuery.Prey>Prey</TD.RacePropsQuery.Prey>
+	<TD.RacePropsQuery.Herd>Herd</TD.RacePropsQuery.Herd>
+	<TD.RacePropsQuery.Pack>Pack</TD.RacePropsQuery.Pack>
+	<TD.RacePropsQuery.Wildness>Wildness</TD.RacePropsQuery.Wildness>
+	<TD.RacePropsQuery.Petness>Petness</TD.RacePropsQuery.Petness>
+	<TD.RacePropsQuery.Trainability>Trainability</TD.RacePropsQuery.Trainability>
+	<TD.RacePropsQuery.Intelligence>Intelligence</TD.RacePropsQuery.Intelligence>
 
 	<TD.ProgressType.Milkable>Milk ready</TD.ProgressType.Milkable>
 	<TD.ProgressType.Shearable>Wool ready</TD.ProgressType.Shearable>
