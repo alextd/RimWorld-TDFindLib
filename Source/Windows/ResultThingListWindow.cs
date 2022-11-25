@@ -9,11 +9,11 @@ using UnityEngine;
 
 namespace TD_Find_Lib
 {
-	public class TDFindLibThingsWindow : Window
+	public class ResultThingListWindow : Window
 	{
 		private ThingListDrawer drawer;
 
-		public TDFindLibThingsWindow(QuerySearch search)
+		public ResultThingListWindow(QuerySearch search)
 		{
 			drawer = new ThingListDrawer(search);
 			preventCameraMotion = false;

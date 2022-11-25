@@ -8,12 +8,12 @@ using RimWorld;
 
 namespace TD_Find_Lib
 {
-	public class TDFindLibEditorWindow : Window
+	public class SearchEditorWindow : Window
 	{
 		public readonly QuerySearchDrawer drawer;
 		private Action<QuerySearch> onCloseIfChanged;
 
-		public TDFindLibEditorWindow(QuerySearch search, Action<QuerySearch> onCloseIfChanged = null)
+		public SearchEditorWindow(QuerySearch search, Action<QuerySearch> onCloseIfChanged = null)
 		{
 			drawer = new QuerySearchDrawer(search, "Editing") { showNameAfterTitle = true };
 			onlyOneOfTypeAllowed = false;
@@ -72,12 +72,12 @@ namespace TD_Find_Lib
 					SearchStorage.ButtonChooseExportSearch(row, drawer.search, "Storage");
 					if (row.ButtonIcon(FindTex.List, "List things matching this search"))
 					{
-						Find.WindowStack.Add(new TDFindLibThingsWindow(drawer.search.CloneForUseSingle()));
+						Find.WindowStack.Add(new ResultThingListWindow(drawer.search.CloneForUseSingle()));
 					}
 				});
 		}
 	}
-	public class TDFindLibViewerWindow : TDFindLibEditorWindow
+	public class TDFindLibViewerWindow : SearchEditorWindow
 	{
 		public TDFindLibViewerWindow(QuerySearch search):base(search)
 		{

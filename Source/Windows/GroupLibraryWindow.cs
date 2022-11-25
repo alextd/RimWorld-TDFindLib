@@ -8,13 +8,13 @@ using RimWorld;
 
 namespace TD_Find_Lib
 {
-	public class TDFindLibListWindow : Window
+	public class GroupLibraryWindow : Window
 	{
 		private ISearchStorageParent parent;
 		private List<SearchGroupDrawer> groupDrawers = new();
 		private RefreshSearchGroupDrawer refreshDrawer;
 
-		public TDFindLibListWindow(ISearchStorageParent parent)
+		public GroupLibraryWindow(ISearchStorageParent parent)
 		{
 			this.parent = parent;
 
@@ -328,7 +328,7 @@ namespace TD_Find_Lib
 			{
 				var search = new QuerySearch() { name = n };
 				list.TryAdd(search);
-				Find.WindowStack.Add(new TDFindLibEditorWindow(search, f => list.parent.Write())) ;
+				Find.WindowStack.Add(new SearchEditorWindow(search, f => list.parent.Write())) ;
 			},
 			"Name for New Search"));
 		}
@@ -379,7 +379,7 @@ namespace TD_Find_Lib
 		{
 			if (row.ButtonIcon(FindTex.Edit, "Edit this search"))
 			{
-				Find.WindowStack.Add(new TDFindLibEditorWindow(search.CloneInactive(), nd => list.ConfirmPaste(nd, i)));
+				Find.WindowStack.Add(new SearchEditorWindow(search.CloneInactive(), nd => list.ConfirmPaste(nd, i)));
 			}
 
 

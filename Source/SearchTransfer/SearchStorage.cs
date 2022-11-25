@@ -13,7 +13,7 @@ namespace TD_Find_Lib
 		public static void ButtonOpenSettings(WidgetRow row)
 		{
 			if (row.ButtonIcon(FindTex.Book, "Open the library of searches"))
-				Find.WindowStack.Add(new TDFindLibListWindow(Mod.settings));
+				Find.WindowStack.Add(new GroupLibraryWindow(Mod.settings));
 		}
 
 
