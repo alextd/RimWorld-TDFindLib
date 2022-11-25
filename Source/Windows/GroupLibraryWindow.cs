@@ -92,12 +92,7 @@ namespace TD_Find_Lib
 					extraDraggedItemOnGUI: (int index, Vector2 dragStartPos) =>
 						DrawMouseAttachedSearchGroup(parent.Children[index], listing.ColumnWidth));
 
-				// Turn off The Multigroup system assuming that if you're closer to group A but in group B's rect, that you want to insert at end of B.
-				// That just doesn't apply here.
-				// (it uses absRect to check mouseover group B and that overrides if you're in an okay place to drop in group A)
-				var group = ReorderableWidget.groups[reorderID];  //immutable struct O_o
-				group.absRect = new Rect();
-				ReorderableWidget.groups[reorderID] = group;
+				ReorderFixes.ClearAbsRect(reorderID);
 			}
 
 			// Draw each Search group
@@ -238,22 +233,18 @@ namespace TD_Find_Lib
 
 		public void DrawQuerySearchList(Listing_StandardIndent listing)
 		{
-			// Reorder rect
+			// Reorder Search rect
 			if (Event.current.type == EventType.Repaint)
 			{
+				Rect reorderRect = new Rect(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight);
 				reorderID = ReorderableWidget.NewGroup(
 					ReorderSearch,
 					ReorderableDirection.Vertical,
-					new Rect(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight), 1f,
+					reorderRect, 1f,
 					extraDraggedItemOnGUI: (int index, Vector2 dragStartPos) =>
 						DrawMouseAttachedQuerySearch(SearchAt(index), listing.ColumnWidth));
 
-				// Turn off The Multigroup system assuming that if you're closer to group A but in group B's rect, that you want to insert at end of B.
-				// That just doesn't apply here.
-				// (it uses absRect to check mouseover group B and that overrides if you're in an okay place to drop in group A)
-				var group = ReorderableWidget.groups[reorderID];  //immutable struct O_o
-				group.absRect = new Rect();
-				ReorderableWidget.groups[reorderID] = group;
+				ReorderFixes.FixAbsRect(reorderID, reorderRect);
 			}
 
 
@@ -278,6 +269,11 @@ namespace TD_Find_Lib
 				DrawExtraRowRect(rowRect, item, i);
 
 				ReorderableWidget.Reorderable(reorderID, rowRect);
+			}
+			if (Count == 0 && ReorderableWidget.Dragging)
+			{
+				Rect rowRect = listing.GetRect(RowHeight);
+				Widgets.DrawBox(rowRect);
 			}
 			reorderRectHeight = listing.CurHeight - startHeight;
 
