@@ -16,7 +16,7 @@ namespace TD_Find_Lib
 		public static string defaultGroupName = "Saved Searches";
 
 		//Don't touch my searches
-		internal List<SearchGroup> groupedSearches;
+		internal List<SearchGroup> searchGroups;
 		public Settings()
 		{
 			SanityCheck();
@@ -25,7 +25,7 @@ namespace TD_Find_Lib
 
 		//ISearchStorageParent stuff
 		//public void Write(); //in parent class
-		public List<SearchGroup> Children => groupedSearches;
+		public List<SearchGroup> Children => searchGroups;
 		public void Add(SearchGroup group)
 		{
 			Children.Add(group);
@@ -33,16 +33,16 @@ namespace TD_Find_Lib
 		}
 		public void ReorderGroup(int from, int to)
 		{
-			var group = groupedSearches[from];
-			groupedSearches.RemoveAt(from);
-			groupedSearches.Insert(from < to ? to - 1 : to, group);
+			var group = searchGroups[from];
+			searchGroups.RemoveAt(from);
+			searchGroups.Insert(from < to ? to - 1 : to, group);
 		}
 
 		internal void SanityCheck()
 		{
-			if (groupedSearches == null || groupedSearches.Count == 0)
+			if (searchGroups == null || searchGroups.Count == 0)
 			{
-				groupedSearches = new();
+				searchGroups = new();
 				Add(new SearchGroup(defaultGroupName, null));
 			}
 		}
@@ -79,7 +79,7 @@ namespace TD_Find_Lib
 		{
 			Scribe_Values.Look(ref onlyAvailable, "onlyAvailable", true);
 
-			Scribe_Collections.Look(ref groupedSearches, "groupedSearches", LookMode.Deep, "??Group Name??", this);
+			Scribe_Collections.Look(ref searchGroups, "searchGroups", LookMode.Deep, "??Group Name??", this);
 			
 			SanityCheck();
 		}
@@ -98,17 +98,17 @@ namespace TD_Find_Lib
 		public void Receive(QuerySearch search)
 		{
 			//Save to groups
-			if (groupedSearches.Count == 1)
+			if (searchGroups.Count == 1)
 			{
 				// Only one group? skip this submenu
-				SaveToGroup(search, groupedSearches[0]);
+				SaveToGroup(search, searchGroups[0]);
 			}
 			else
 			{
 				//TODO: generalize this in SearchStorage if we think many Receivers are going to want to specify which group to receive?
 				List<FloatMenuOption> submenuOptions = new();
 
-				foreach (SearchGroup group in groupedSearches)
+				foreach (SearchGroup group in searchGroups)
 				{
 					submenuOptions.Add(new FloatMenuOption("+ " + group.name, () => SaveToGroup(search, group)));
 				}
@@ -126,12 +126,12 @@ namespace TD_Find_Lib
 		// ISearchProvider things
 		public ISearchProvider.Method ProvideMethod()
 		{
-			return groupedSearches.Count > 1 ? ISearchProvider.Method.Grouping :
-				(groupedSearches[0].Count == 0 ? ISearchProvider.Method.None : ISearchProvider.Method.Selection);
+			return searchGroups.Count > 1 ? ISearchProvider.Method.Grouping :
+				(searchGroups[0].Count == 0 ? ISearchProvider.Method.None : ISearchProvider.Method.Selection);
 		}
 
 		public QuerySearch ProvideSingle() => null;
-		public SearchGroup ProvideSelection() => groupedSearches[0];
-		public List<SearchGroup> ProvideGrouping() => groupedSearches;
+		public SearchGroup ProvideSelection() => searchGroups[0];
+		public List<SearchGroup> ProvideGrouping() => searchGroups;
 	}
 }
