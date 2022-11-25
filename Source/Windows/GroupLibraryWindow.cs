@@ -103,11 +103,12 @@ namespace TD_Find_Lib
 			// Draw each Search group
 			for (int i = 0; i < groupDrawers.Count; i++)
 			{
-				Rect headerRect = groupDrawers[i].DrawHeader(listing);
+				var drawer = groupDrawers[i];
+				Rect headerRect = drawer.DrawHeader(listing);
 				ReorderableWidget.Reorderable(reorderID, headerRect);
 				reorderRectHeight = listing.CurHeight; // - startHeight; but the start is 0
 
-				groupDrawers[i].DrawQuerySearchList(listing);
+				drawer.DrawQuerySearchList(listing);
 				listing.Gap();
 			}
 
