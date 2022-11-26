@@ -283,13 +283,16 @@ namespace TD_Find_Lib
 		public QueryMapType MapType => parameters.mapType;
 
 		public List<Map> ChosenMaps =>
-			parameters.mapType == QueryMapType.ChosenMaps ? parameters.searchMaps : null;
-
-		public bool AllMaps => parameters.mapType == QueryMapType.AllMaps;
+			parameters.mapType == QueryMapType.ChosenMaps && !ForceCurMap() ? parameters.searchMaps : null;
 
 		// Certain queries only work on the current map, so the entire tree will only work on the current map
-		public bool CurMapOnly() =>
-			parameters.mapType == QueryMapType.CurMap || Children.Any(f => f.CurMapOnly);
+		public bool AllMaps() =>
+			parameters.mapType == QueryMapType.AllMaps && !ForceCurMap();
+
+		public bool CurMap() => 
+			parameters.mapType == QueryMapType.CurMap || ForceCurMap();
+
+		public bool ForceCurMap() => Children.Any(f => f.CurMapOnly);
 
 
 		public string GetMapNameSuffix()
@@ -297,7 +300,7 @@ namespace TD_Find_Lib
 			StringBuilder sb = new(" <i>(");
 
 			// override requested map if a query only works on current map
-			if (parameters.mapType == QueryMapType.AllMaps)
+			if (AllMaps())
 				sb.Append("TD.AllMaps".Translate());
 			else if (result.resultMaps.Count > 0)
 				sb.Append(string.Join(", ", result.resultMaps.Select(m => m.Parent.LabelCap)));
@@ -318,9 +321,9 @@ namespace TD_Find_Lib
 			StringBuilder sb = new("Searching: ");
 
 			// override requested map if a query only works on current map
-			if (parameters.mapType == QueryMapType.AllMaps)
+			if (AllMaps())
 				sb.Append("TD.AllMaps".Translate());
-			else if (parameters.mapType == QueryMapType.CurMap)
+			else if (CurMap())
 				sb.Append("TD.CurrentMap".Translate());
 			else if (parameters.searchMaps.Count == 1)
 				sb.Append(parameters.searchMaps[0].Parent.LabelCap);
@@ -443,9 +446,9 @@ namespace TD_Find_Lib
 
 			// Set up the maps:
 			result.resultMaps.Clear();
-			if (CurMapOnly())
+			if (CurMap())
 				result.resultMaps.Add(Find.CurrentMap);
-			else if (AllMaps)
+			else if (AllMaps())
 				result.resultMaps.AddRange(Find.Maps);
 			else
 				result.resultMaps.AddRange(parameters.searchMaps);

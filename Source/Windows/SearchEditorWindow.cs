@@ -142,7 +142,9 @@ namespace TD_Find_Lib
 			// Searching Map selection:
 			Rect mapTypeRect = headerRect.RightPart(.32f);
 			Widgets.Label(mapTypeRect, search.GetMapOptionLabel());
-			if(!locked)
+
+			bool forceCurMap = search.ForceCurMap();
+			if (!locked && !forceCurMap)
 			{
 				Widgets.DrawHighlightIfMouseover(mapTypeRect);
 				if(Widgets.ButtonInvisible(mapTypeRect))
@@ -182,6 +184,10 @@ namespace TD_Find_Lib
 
 					Find.WindowStack.Add(new FloatMenu(mapOptions));
 				}
+			}
+			if(forceCurMap)
+			{
+				TooltipHandler.TipRegion(mapTypeRect, "A filter is forcing this search to run on the current map only");
 			}
 		}
 
