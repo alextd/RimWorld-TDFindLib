@@ -85,14 +85,13 @@ namespace TD_Find_Lib
 			// Reorder group rect
 			if (Event.current.type == EventType.Repaint)
 			{
+				Rect reorderRect = new Rect(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight);
 				reorderID = ReorderableWidget.NewGroup(
 					Reorder,
 					ReorderableDirection.Vertical,
-					new Rect(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight), 1f,
+					reorderRect, 1f,
 					extraDraggedItemOnGUI: (int index, Vector2 dragStartPos) =>
 						DrawMouseAttachedSearchGroup(parent.Children[index], listing.ColumnWidth));
-
-				ReorderFixes.ClearAbsRect(reorderID);
 			}
 
 			// Draw each Search group
@@ -233,23 +232,22 @@ namespace TD_Find_Lib
 
 		public void DrawQuerySearchList(Listing_StandardIndent listing)
 		{
+			float startHeight = listing.CurHeight;
+
 			// Reorder Search rect
 			if (Event.current.type == EventType.Repaint)
 			{
-				Rect reorderRect = new Rect(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight);
+				Rect reorderRect = new Rect(0f, startHeight, listing.ColumnWidth, reorderRectHeight);
 				reorderID = ReorderableWidget.NewGroup(
 					ReorderSearch,
 					ReorderableDirection.Vertical,
 					reorderRect, 1f,
 					extraDraggedItemOnGUI: (int index, Vector2 dragStartPos) =>
 						DrawMouseAttachedQuerySearch(SearchAt(index), listing.ColumnWidth));
-
-				ReorderFixes.FixAbsRect(reorderID, reorderRect);
 			}
 
 
 			// List of QuerySearches
-			float startHeight = listing.CurHeight;
 			for (int i = 0; i < Count; i++)
 			{
 				DrawPreRow(listing, i);

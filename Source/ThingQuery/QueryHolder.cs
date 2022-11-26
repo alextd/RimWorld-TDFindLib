@@ -196,17 +196,17 @@ namespace TD_Find_Lib
 
 		public bool DrawQueriesListing(Listing_StandardIndent listing, bool locked, string indentAfterFirst = null)
 		{
-			Rect coveredRect = new Rect(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight);
+			float startHeight = listing.CurHeight;
+
 			if (Event.current.type == EventType.Repaint)
 			{
+				Rect reorderRect = new Rect(0f, startHeight, listing.ColumnWidth, reorderRectHeight);
 				reorderID = ReorderableWidget.NewGroup(
 					(int from, int to) => Reorder(from, to, true),
 					ReorderableDirection.Vertical,
-					coveredRect, 1f,
+					reorderRect, 1f,
 					extraDraggedItemOnGUI: (int index, Vector2 dragStartPos) =>
-						DrawMouseAttachedQuery(queries[index], coveredRect.width - 100));
-
-				ReorderFixes.ClearAbsRect(reorderID);
+						DrawMouseAttachedQuery(queries[index], reorderRect.width - 100));
 			}
 
 			bool changed = false;
@@ -245,12 +245,12 @@ namespace TD_Find_Lib
 			if (first && indentAfterFirst != null)
 					listing.NestedIndent(indentAfterFirst);
 
-			reorderRectHeight = listing.CurHeight - coveredRect.y;
-
 			RemoveAll(removedQueries);
 
 			if (!locked)
 				DrawAddRow(listing);
+
+			reorderRectHeight = listing.CurHeight - startHeight;
 
 			if (indentAfterFirst != null)
 				listing.NestedOutdent();
