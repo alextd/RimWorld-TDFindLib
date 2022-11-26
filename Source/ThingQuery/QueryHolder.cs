@@ -83,11 +83,19 @@ namespace TD_Find_Lib
 			return false;
 		}
 
-		public void Reorder(int from, int to, bool remake = true)
+		public void DoReorderQuery(int from, int to, bool remake = true)
 		{
-			var draggerQuery = queries[from];
-			queries.RemoveAt(from);
-			Add(draggerQuery, from < to ? to - 1 : to, remake);
+			var draggedQuery = queries[from];
+			if (Event.current.control)
+			{
+				var newQuery = draggedQuery.Clone();
+				Add(newQuery, to, remake);
+			}
+			else
+			{
+				queries.RemoveAt(from);
+				Add(draggedQuery, from < to ? to - 1 : to, remake);
+			}
 		}
 
 		//Gather method that passes in both QuerySearch and all ThingQuerys to selector
@@ -160,8 +168,15 @@ namespace TD_Find_Lib
 
 			if (newHolder != null)
 			{
-				draggedQuery.parent.Children.queries.Remove(draggedQuery);
-				newHolder.Children.Add(draggedQuery, to);
+				if (Event.current.control)
+				{
+					newHolder.Children.Add(draggedQuery.Clone(), to);
+				}
+				else
+				{
+					draggedQuery.parent.Children.queries.Remove(draggedQuery);
+					newHolder.Children.Add(draggedQuery, to);
+				}
 			}
 		}
 
@@ -202,7 +217,7 @@ namespace TD_Find_Lib
 			{
 				Rect reorderRect = new Rect(0f, startHeight, listing.ColumnWidth, reorderRectHeight);
 				reorderID = ReorderableWidget.NewGroup(
-					(int from, int to) => Reorder(from, to, true),
+					(int from, int to) => DoReorderQuery(from, to, true),
 					ReorderableDirection.Vertical,
 					reorderRect, 1f,
 					extraDraggedItemOnGUI: (int index, Vector2 dragStartPos) =>

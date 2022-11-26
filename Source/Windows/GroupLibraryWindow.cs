@@ -44,7 +44,7 @@ namespace TD_Find_Lib
 		}
 
 
-		public void Reorder(int from, int to)
+		public void DoReorderGroup(int from, int to)
 		{
 			parent.ReorderGroup(from, to);
 			SetupDrawers();
@@ -56,8 +56,17 @@ namespace TD_Find_Lib
 			SearchGroup fromGroup = groupDrawers.First(dr => dr.reorderID == fromGroupID).list;
 			SearchGroup toGroup = groupDrawers.First(dr => dr.reorderID == toGroupID).list;
 			var search = fromGroup[from];
-			fromGroup.RemoveAt(from);
-			toGroup.Insert(to, search);
+			if (Event.current.control)
+			{
+				var newSearch = search.CloneInactive();
+				newSearch.name += " (Copy)";
+				toGroup.Insert(to, newSearch);
+			}
+			else
+			{
+				fromGroup.RemoveAt(from);
+				toGroup.Insert(to, search);
+			}
 		}
 
 
@@ -87,7 +96,7 @@ namespace TD_Find_Lib
 			{
 				Rect reorderRect = new Rect(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight);
 				reorderID = ReorderableWidget.NewGroup(
-					Reorder,
+					DoReorderGroup,
 					ReorderableDirection.Vertical,
 					reorderRect, 1f,
 					extraDraggedItemOnGUI: (int index, Vector2 dragStartPos) =>
@@ -199,7 +208,7 @@ namespace TD_Find_Lib
 		public abstract QuerySearch SearchAt(int i);
 		public abstract int Count { get; }
 
-		public virtual void ReorderSearch(int from, int to)
+		public virtual void DoReorderSearch(int from, int to)
 		{
 			var search = list[from];
 			list.RemoveAt(from);
@@ -239,7 +248,7 @@ namespace TD_Find_Lib
 			{
 				Rect reorderRect = new Rect(0f, startHeight, listing.ColumnWidth, reorderRectHeight);
 				reorderID = ReorderableWidget.NewGroup(
-					ReorderSearch,
+					DoReorderSearch,
 					ReorderableDirection.Vertical,
 					reorderRect, 1f,
 					extraDraggedItemOnGUI: (int index, Vector2 dragStartPos) =>
@@ -303,6 +312,18 @@ namespace TD_Find_Lib
 		public override QuerySearch SearchAt(int i) => list[i];
 		public override int Count => list.Count;
 
+
+		public override void DoReorderSearch(int from, int to)
+		{
+			if (Event.current.control)
+			{
+				QuerySearch newSearch = list[from].CloneInactive();
+				newSearch.name += " (Copy)";
+				list.Insert(to, newSearch);
+			}
+			else
+				base.DoReorderSearch(from, to);
+		}
 
 		public void TrashThis()
 		{

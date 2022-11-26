@@ -34,8 +34,15 @@ namespace TD_Find_Lib
 		public void ReorderGroup(int from, int to)
 		{
 			var group = searchGroups[from];
-			searchGroups.RemoveAt(from);
-			searchGroups.Insert(from < to ? to - 1 : to, group);
+			if (Event.current.control)
+			{
+				searchGroups.Insert(to, group.Clone(QuerySearch.CloneArgs.save, group.name + " (Copy)", this));
+			}
+			else
+			{
+				searchGroups.RemoveAt(from);
+				searchGroups.Insert(from < to ? to - 1 : to, group);
+			}
 		}
 
 		internal void SanityCheck()
