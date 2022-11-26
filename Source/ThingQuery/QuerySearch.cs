@@ -69,6 +69,14 @@ namespace TD_Find_Lib
 			
 			return result;
 		}
+		public void ExposeData()
+		{
+			Scribe_Values.Look(ref listType, "listType");
+			Scribe_Values.Look(ref matchAllQueries, "matchAllQueries", true);
+			Scribe_Values.Look(ref mapType, "mapType");
+
+			Scribe_Collections.Look(ref searchMaps, "searchMaps", LookMode.Reference);
+		}
 	}
 
 	// What was found, and from where.
@@ -179,12 +187,7 @@ namespace TD_Find_Lib
 		{
 			Scribe_Values.Look(ref name, "name");
 			Scribe_Values.Look(ref active, "active");
-			//todo: IExposable parameters?
-			Scribe_Values.Look(ref parameters.listType, "listType");
-			Scribe_Values.Look(ref parameters.matchAllQueries, "matchAllQueries", true);
-			Scribe_Values.Look(ref parameters.mapType, "mapType");
-
-			Scribe_Collections.Look(ref parameters.searchMaps, "searchMaps", LookMode.Reference);
+			parameters.ExposeData();
 
 			Children.ExposeData();
 		}
