@@ -19,8 +19,8 @@ namespace TD_Find_Lib
 			children = new QueryHolder(this);
 		}
 		public override bool ApplesDirectlyTo(Thing t) =>
-			any ? Children.queries.Any(f => f.Enabled && f.AppliesTo(t)) :
-			Children.queries.All(f => !f.Enabled || f.AppliesTo(t));
+			any ? Children.queries.Any(f => f.Enabled && f.ApplesDirectlyTo(t)) :
+			Children.queries.All(f => !f.Enabled || f.ApplesDirectlyTo(t));
 
 		public override void ExposeData()
 		{
