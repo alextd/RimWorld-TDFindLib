@@ -476,7 +476,7 @@ namespace TD_Find_Lib
 		}
 
 		private List<Thing> newListedThings = new();
-		private List<Thing> newQueriedThings = new();
+		private List<Thing> newFilteredThings = new();
 		private List<Thing> Get(Map searchMap, SearchListType searchListType)
 		{ 
 			BindToMap(searchMap);
@@ -538,25 +538,25 @@ namespace TD_Find_Lib
 				foreach (ThingQuery query in queries)
 				{
 					// Clears newQueriedThings, fills with newListedThings which pass the query.
-					query.Apply(newListedThings, newQueriedThings);
+					query.Apply(newListedThings, newFilteredThings);
 
 					// newQueriedThings is now the list of things ; swap them
-					(newListedThings, newQueriedThings) = (newQueriedThings, newListedThings);
+					(newListedThings, newFilteredThings) = (newFilteredThings, newListedThings);
 				}
 			}
 			else
 			{
 				// ANY
 
-				newQueriedThings.Clear();
+				newFilteredThings.Clear();
 				foreach (Thing thing in newListedThings)
 					if (queries.Any(f => f.AppliesTo(thing)))
-						newQueriedThings.Add(thing);
+						newFilteredThings.Add(thing);
 
-				(newListedThings, newQueriedThings) = (newQueriedThings, newListedThings);
+				(newListedThings, newFilteredThings) = (newFilteredThings, newListedThings);
 			}
 
-			newQueriedThings.Clear();
+			newFilteredThings.Clear();
 
 			return newListedThings;
 		}
