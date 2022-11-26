@@ -417,6 +417,7 @@ namespace TD_Find_Lib
 		}
 
 		private Map boundMap;
+		public void UnbindMap() => boundMap = null;
 		private void BindToMap(Map map)
 		{
 			if (boundMap == map) return;
@@ -532,6 +533,7 @@ namespace TD_Find_Lib
 			// Apply the actual queries, finally
 
 			var queries = Children.queries.FindAll(f => f.Enabled);
+			Log.Message($"From {Children.queries.Count} queries, using {queries.Count}");
 			if (MatchAllQueries)
 			{
 				// ALL

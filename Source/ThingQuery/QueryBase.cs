@@ -36,7 +36,7 @@ namespace TD_Find_Lib
 
 
 		private bool enabled = true; //simply turn off but keep in list
-		public bool Enabled => enabled && DisableReason == null;
+		public bool Enabled => enabled && DisableReasonCurMap == null;
 		public static readonly Color DisabledOverlayColor = Widgets.WindowBGFillColor * new Color(1,1,1,.5f);
 
 		private bool _include = true; //or exclude
@@ -65,10 +65,14 @@ namespace TD_Find_Lib
 		}
 
 
+
 		// Okay, save/load. The basic gist here is:
 		// During ExposeData loading, ResolveName is called for globally named things (defs)
 		// But anything with a local reference (Zones) needs to resolve that ref on a map
 		// Queries loaded from storage need to be cloned to a map to be used
+
+		public virtual bool UsesResolveName => false;
+		public virtual bool UsesResolveRef => false;
 
 		public virtual void ExposeData()
 		{
@@ -217,6 +221,7 @@ namespace TD_Find_Lib
 		public virtual bool CurMapOnly => false;
 
 		public virtual string DisableReason => null;
+		public virtual string DisableReasonCurMap => null;
 		public static readonly Color DisabledBecauseReasonOverlayColor = new Color(0.5f, 0, 0, 0.25f);
 
 		public static void DoFloatOptions(List<FloatMenuOption> options)
@@ -231,9 +236,9 @@ namespace TD_Find_Lib
 	public class FloatMenuOptionAndRefresh : FloatMenuOption
 	{
 		ThingQuery owner;
-		public FloatMenuOptionAndRefresh(string label, Action action, ThingQuery f) : base(label, action)
+		public FloatMenuOptionAndRefresh(string label, Action action, ThingQuery query) : base(label, action)
 		{
-			owner = f;
+			owner = query;
 		}
 
 		public override bool DoGUI(Rect rect, bool colonistOrdering, FloatMenu floatMenu)
@@ -257,8 +262,17 @@ namespace TD_Find_Lib
 
 		// A subclass with extra fields needs to override ExposeData and Clone to copy them
 
-		public string selectionError; // Probably set on load when selection is invalid (missing mod?)
+		// Selection error is probably set on load when selection is invalid (missing mod?)
+		// Or it's set when binding to a map and it can't resolve a ref 
+		// There's a second selectionErrorCurMap for the current bind only
+		// Whereas selectionError is kept around, for an allmaps search that fails only on one map - other maps still use the filter, but the error is remembered for UI
+		public string selectionError;
+		public string selectionErrorCurMap;
+		public bool refErrorReported; // Only report it once - not once each map for a refreshing allmaps search. 
+		// (It will not reset when you change the map selection though, only when you set the query selection again)
+
 		public override string DisableReason => selectionError;
+		public override string DisableReasonCurMap => selectionErrorCurMap;
 
 		// would like this to be T const * sel;
 		public ref T selByRef => ref _sel;
@@ -269,8 +283,10 @@ namespace TD_Find_Lib
 			{
 				_sel = value;
 				_extraOption = 0;
-				selectionError = null;
+				selectionError = selectionErrorCurMap = null;
+				refErrorReported = false;
 				if (SaveLoadByName) selName = MakeSaveName();
+				if (UsesResolveRef) RootQuerySearch.UnbindMap();
 				PostProcess();
 				PostChosen();
 			}
@@ -313,7 +329,8 @@ namespace TD_Find_Lib
 			{
 				_extraOption = value;
 				_sel = default;
-				selectionError = null;
+				selectionError = selectionErrorCurMap = null;
+				refErrorReported = false;
 				selName = null;
 			}
 		}
@@ -351,8 +368,8 @@ namespace TD_Find_Lib
 		protected readonly static bool IsRef = typeof(ILoadReferenceable).IsAssignableFrom(typeof(T));
 		protected readonly static bool IsEnum = typeof(T).IsEnum;
 
-		public virtual bool UsesResolveName => IsDef;
-		public virtual bool UsesResolveRef => IsRef;
+		public override bool UsesResolveName => IsDef;
+		public override bool UsesResolveRef => IsRef;
 		private bool SaveLoadByName => UsesResolveName || UsesResolveRef;
 		protected virtual string MakeSaveName() => sel?.ToString() ?? SaveLoadXmlConstants.IsNullAttributeName;
 
@@ -421,6 +438,8 @@ namespace TD_Find_Lib
 				clone._sel = _sel;  //todo handle if sel needs to be deep-copied. Perhaps sel should be T const * sel...
 
 			clone.selectionError = selectionError;
+			clone.selectionErrorCurMap = selectionErrorCurMap;
+			//selectionErrorReported back to false for clone
 
 			return clone;
 		}
@@ -441,9 +460,10 @@ namespace TD_Find_Lib
 			{
 				_sel = ResolveName();
 
-				if (_sel == null)
+				if(_sel == null)
 				{
 					selectionError = $"Missing {def.LabelCap}: {selName}?";
+					selectionErrorCurMap = selectionError; // Sort of redundant to use "curmap" here but it does apply to whatever the current map is because it always applies
 					Verse.Log.Warning("TD.TriedToLoad0QueryNamed1ButCouldNotBeFound".Translate(def.LabelCap, selName));
 				}
 				else selectionError = null;
@@ -465,10 +485,16 @@ namespace TD_Find_Lib
 
 				if (_sel == null)
 				{
-					selectionError = $"Missing {def.LabelCap}: {selName} on {map.Parent.LabelCap}?";
-					Messages.Message("TD.TriedToLoad0QueryNamed1On2ButCouldNotBeFound".Translate(def.LabelCap, selName, map.Parent.LabelCap), MessageTypeDefOf.RejectInput, false);
+					selectionErrorCurMap = $"Missing {def.LabelCap}: {selName} on {map.Parent.LabelCap}?";
+					if (!refErrorReported)
+					{
+						selectionError = selectionErrorCurMap;
+						// Report the first one, even if there's many. User will have to deal with them one-by-one.
+						Messages.Message("TD.TriedToLoad0QueryNamed1On2ButCouldNotBeFound".Translate(def.LabelCap, selName, map.Parent.LabelCap), MessageTypeDefOf.RejectInput, false);
+						refErrorReported = true;
+					}
 				}
-				else selectionError = null;
+				else selectionErrorCurMap = null;
 			}
 		}
 
@@ -494,9 +520,9 @@ namespace TD_Find_Lib
 
 	public abstract class ThingQueryDropDown<T> : ThingQueryWithOption<T>
 	{
-		private string GetLabel()
+		private string GetSelLabel()
 		{
-			if (selectionError != null)
+			if (selectionError != null) // Not selectionErrorCurMap - globally remembered error.
 				return selName;
 
 			if (extraOption > 0)
@@ -568,7 +594,7 @@ namespace TD_Find_Lib
 				// Label, Selection option button on left, custom on the remaining rect
 				WidgetRow row = new WidgetRow(rect.x, rect.y);
 				row.Label(Label);
-				changeSelection = row.ButtonText(GetLabel());
+				changeSelection = row.ButtonText(GetSelLabel());
 
 				Rect customRect = rect;
 				customRect.xMin = row.FinalX;
@@ -578,7 +604,7 @@ namespace TD_Find_Lib
 			{
 				//Just the label on left, and selected option button on right
 				base.DrawMain(rect, locked);
-				string label = GetLabel();
+				string label = GetSelLabel();
 				Rect buttRect = rect.RightPart(0.4f);
 				buttRect.xMin -= Mathf.Max(buttRect.width, Text.CalcSize(label).x) - buttRect.width;
 				changeSelection = Widgets.ButtonText(buttRect, label);
