@@ -16,7 +16,7 @@ namespace TD_Find_Lib
 	// There are too many query subclasses to globally list them
 	// So group them in categories
 	// Then only the queries not nested under category will be globally listed,
-	// subqueries popup when the category is selected
+	// subqueries pop up when the category is selected
 	public class ThingQueryCategoryDef : ThingQuerySelectableDef
 	{ 
 		private List<ThingQueryDef> subQueries = null;
