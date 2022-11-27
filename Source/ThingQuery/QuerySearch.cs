@@ -17,48 +17,49 @@ namespace TD_Find_Lib
 
 	// SearchListType:
 	// What basic type of thing are you searching.
+	[Flags]
 	public enum SearchListType
 	{
-		Selectable,	// Known as "Map", requires processing on All things.
+		Selectable = 1,	// Known as "Map", requires processing on All things.
 
 		// Direct references to listerThings lists
-		Everyone,
-		Items,
-		Buildings,
-		Plants,
+		Everyone = 2,
+		Items = 4,
+		Buildings = 8,
+		Plants = 0x10,
 
-		Natural,	// Extra processing required
-		ItemsAndJunk, // "Haulable" things, because "Items" above doesn't include e.g. chunks
-		All,  // Very long including every blade of grass
-		Inventory,	// Actually fast since there aren't many ThingHolders on a map
+		Natural = 0x20,	// Extra processing required
+		Junk = 0x40, // "Haulable" things that are not "Items"
+		All = 0x80,  // Very long including every blade of grass
+		Inventory = 0x100,	// Actually fast since there aren't many ThingHolders on a map
 
 		//devmode options
-		Haulables,
-		Mergables,
-		FilthInHomeArea
+		Haulables = 0x200,
+		Mergables = 0x400,
+		FilthInHomeArea = 0x800
 	}
 
-	// QueryMapType:
+	// SearchMapType:
 	// What map or maps you're searching on.
-	// For ChosenMaps, QueryParameters.searchMaps is set by the user
-	// For CurMap / AllMaps, QueryParameters.searchMaps is null, but QueryResult.resultMaps is set when a search is run
-	// TODO query for colony/raid maps.
-	public enum QueryMapType	{ CurMap, AllMaps, ChosenMaps}
-	public class BasicQueryParameters
+	// For ChosenMaps, SearchParameters.searchMaps is set by the user
+	// For CurMap / AllMaps, SearchParameters.searchMaps is null, but SearchResult.resultMaps is set when a search is run
+	// TODO search filter on colony/raid maps.
+	public enum SearchMapType	{ CurMap, AllMaps, ChosenMaps}
+	public class SearchParameters
 	{
 		// What basic list to search (TODO: list of types.)
-		public SearchListType listType; //default is Selectable
+		public SearchListType listType = SearchListType.Selectable;
 
 		// How to look
 		public bool matchAllQueries = true;
 
 		// Where to look
-		public QueryMapType mapType; //default is CurMap
+		public SearchMapType mapType; //default is CurMap
 		public List<Map> searchMaps = new();
 
-		public BasicQueryParameters Clone(bool includeMaps = true)
+		public SearchParameters Clone(bool includeMaps = true)
 		{
-			BasicQueryParameters result = new();
+			SearchParameters result = new();
 
 			result.listType = listType;
 			result.matchAllQueries = matchAllQueries;
@@ -80,7 +81,7 @@ namespace TD_Find_Lib
 	}
 
 	// What was found, and from where.
-	public class QueryResult
+	public class SearchResult
 	{
 		public List<Map> resultMaps = new();
 
@@ -102,11 +103,11 @@ namespace TD_Find_Lib
 		public string name = "??NAME??";
 
 		// Basic query settings:
-		private BasicQueryParameters parameters = new();
+		private SearchParameters parameters = new();
 		// What to search for
 		public QueryHolder children;
 		// Resulting things
-		public QueryResult result = new();
+		public SearchResult result = new();
 
 
 		// "Inactive" is for the saved library of searches to Clone from.
@@ -114,25 +115,80 @@ namespace TD_Find_Lib
 		// which normally happens whenever queries are edited
 		public bool active;
 
-		// If you clone a QuerySearchiption it starts unchanged.
+		// If you clone a QuerySearch it starts unchanged.
 		// Not used directly but good to know if a save is needed.
 		public bool changed;
 
 
 		// from IQueryHolder:
 		public QuerySearch RootQuerySearch => this;
+		public QueryHolder Children => children;
 
-		public SearchListType ListType
+
+
+		// Parameter accessors:
+		public SearchListType ListType => parameters.listType;
+
+		public void SetListType(SearchListType newType, bool remake = true)
 		{
-			get => parameters.listType;
-			set
-			{
-				parameters.listType = value;
+			parameters.listType = newType;
 
-				RemakeList();
-			}
+			FixListType();
+
+			if (remake)	RemakeList();
 		}
 
+		public void AddListType(SearchListType newType, bool remake = true)
+		{
+			parameters.listType |= newType;
+
+			//Set off "all" if selected another type
+			if ((newType & (SearchListType.Everyone | SearchListType.Items | SearchListType.Buildings
+					| SearchListType.Plants | SearchListType.Natural | SearchListType.Junk)) != 0)
+			{
+				parameters.listType &= ~(SearchListType.Selectable | SearchListType.All);
+			}
+
+			FixListType();
+
+			if (remake) RemakeList();
+		}
+
+		public void RemoveListType(SearchListType oldType, bool remake = true)
+		{
+			parameters.listType &= ~oldType;
+
+			FixListType();
+
+			if (remake) RemakeList();
+		}
+
+		public void ToggleListType(SearchListType toggleType, bool remake = true)
+		{
+			//sorry ^= but there's more processing to do
+			if (parameters.listType.HasFlag(toggleType))
+				RemoveListType(toggleType);
+			else
+				AddListType(toggleType);
+		}
+		// Make sure the list type doesn't have duplicate ListerThing types
+		private void FixListType()
+		{
+			if ((parameters.listType & (SearchListType.Selectable | SearchListType.All)) != 0)
+			{
+				parameters.listType &= ~(SearchListType.Everyone | SearchListType.Items | SearchListType.Buildings
+					| SearchListType.Plants | SearchListType.Natural | SearchListType.Junk);
+			}
+			if ((parameters.listType & SearchListType.All) != 0)
+			{
+				parameters.listType &= ~(SearchListType.Selectable);
+			}
+			if (parameters.listType == 0)
+				parameters.listType = SearchListType.Selectable;
+		}
+
+
+		// All Or Any Query
 		public bool MatchAllQueries
 		{
 			get => parameters.matchAllQueries;
@@ -144,16 +200,116 @@ namespace TD_Find_Lib
 			}
 		}
 
-		public QueryHolder Children => children;
 
 
-		//A new QuerySearch, inactive, current map
+		// Map shenanigans
+		public void SetSearchChosenMaps()
+		{
+			//Pretty much for inactive queries right?
+			parameters.mapType = SearchMapType.ChosenMaps;
+			parameters.searchMaps.Clear();
+		}
+
+		public void SetSearchMap(Map newMap, bool remake = true)
+		{
+			parameters.mapType = SearchMapType.ChosenMaps;
+			parameters.searchMaps.Clear();
+			parameters.searchMaps.Add(newMap);
+
+			if (remake) RemakeList();
+		}
+
+		public void SetSearchMaps(IEnumerable<Map> newMaps, bool remake = true)
+		{
+			parameters.mapType = SearchMapType.ChosenMaps;
+			parameters.searchMaps.Clear();
+			parameters.searchMaps.AddRange(newMaps);
+
+			if (remake) RemakeList();
+		}
+
+		public void AddSearchMap(Map newMap, bool remake = true)
+		{
+			parameters.mapType = SearchMapType.ChosenMaps;
+			parameters.searchMaps.Add(newMap);
+
+			if (remake) RemakeList();
+		}
+
+		public void RemoveSearchMap(Map oldMap, bool remake = true)
+		{
+			if (parameters.mapType != SearchMapType.ChosenMaps) return; //Huh?
+
+			parameters.searchMaps.Remove(oldMap);
+
+			if (remake) RemakeList();
+		}
+
+		public void ToggleSearchMap(Map toggleMap, bool remake = true)
+		{
+			if (parameters.mapType != SearchMapType.ChosenMaps)
+			{
+				SetSearchMap(toggleMap, remake);
+				return;
+			}
+
+			if (parameters.searchMaps.Contains(toggleMap))
+			{
+				if (parameters.searchMaps.Count == 1)
+					Messages.Message("Hey man we have to search somewhere", MessageTypeDefOf.RejectInput, false);
+				else
+					parameters.searchMaps.Remove(toggleMap);
+			}
+			else
+				parameters.searchMaps.Add(toggleMap);
+
+			if (remake) RemakeList();
+		}
+
+		public void SetSearchCurrentMap(bool remake = true)
+		{
+			if (parameters.mapType == SearchMapType.CurMap) return;
+
+			parameters.mapType = SearchMapType.CurMap;
+			parameters.searchMaps.Clear();
+
+			if (remake) RemakeList();
+		}
+
+		public void SetSearchAllMaps(bool remake = true)
+		{
+			if (parameters.mapType == SearchMapType.AllMaps) return;
+
+			parameters.mapType = SearchMapType.AllMaps;
+			parameters.searchMaps.Clear();
+
+			if (remake) RemakeList();
+		}
+
+		// Get maps shenanigans
+		public SearchMapType MapType => parameters.mapType;
+
+		public List<Map> ChosenMaps =>
+			parameters.mapType == SearchMapType.ChosenMaps && !ForceCurMap() ? parameters.searchMaps : null;
+
+		// Certain queries only work on the current map, so the entire tree will only work on the current map
+		public bool AllMaps() =>
+			parameters.mapType == SearchMapType.AllMaps && !ForceCurMap();
+
+		public bool CurMap() =>
+			parameters.mapType == SearchMapType.CurMap || ForceCurMap();
+
+		public bool ForceCurMap() => Children.Any(f => f.CurMapOnly);
+
+
+
+		// A new QuerySearch, inactive, "current map"
 		public QuerySearch()
 		{
 			children = new(this);
 		}
 
-		//A new QuerySearch, active, with this map
+		// A new QuerySearch, active, with this map
 		// (Or just calls base constructor when null)
 		public QuerySearch(Map map = null) : this()
 		{
@@ -193,113 +349,10 @@ namespace TD_Find_Lib
 		}
 
 
-
-		//Map shenanigans setters
-		public void SetSearchChosenMaps()
-		{
-			//Pretty much for inactive queries right?
-			parameters.mapType = QueryMapType.ChosenMaps;
-			parameters.searchMaps.Clear();
-		}
-
-		public void SetSearchMap(Map newMap, bool remake = true)
-		{
-			parameters.mapType = QueryMapType.ChosenMaps;
-			parameters.searchMaps.Clear();
-			parameters.searchMaps.Add(newMap);
-
-			if (remake) RemakeList();
-		}
-
-		public void SetSearchMaps(IEnumerable<Map> newMaps, bool remake = true)
-		{
-			parameters.mapType = QueryMapType.ChosenMaps;
-			parameters.searchMaps.Clear();
-			parameters.searchMaps.AddRange(newMaps);
-
-			if (remake) RemakeList();
-		}
-
-		public void AddSearchMap(Map newMap, bool remake = true)
-		{
-			parameters.mapType = QueryMapType.ChosenMaps;
-			parameters.searchMaps.Add(newMap);
-
-			if (remake) RemakeList();
-		}
-
-		public void RemoveSearchMap(Map oldMap, bool remake = true)
-		{
-			if (parameters.mapType != QueryMapType.ChosenMaps) return; //Huh?
-
-			parameters.searchMaps.Remove(oldMap);
-
-			if (remake) RemakeList();
-		}
-
-		public void ToggleSearchMap(Map toggleMap, bool remake = true)
-		{
-			if (parameters.mapType != QueryMapType.ChosenMaps)
-			{
-				SetSearchMap(toggleMap, remake);
-				return;
-			}
-
-			if (parameters.searchMaps.Contains(toggleMap))
-			{
-				if (parameters.searchMaps.Count == 1)
-					Messages.Message("Hey man we have to search somewhere", MessageTypeDefOf.RejectInput, false);
-				else
-					parameters.searchMaps.Remove(toggleMap);
-			}
-			else
-				parameters.searchMaps.Add(toggleMap);
-
-			if (remake) RemakeList();
-		}
-
-		public void SetSearchCurrentMap(bool remake = true)
-		{
-			if (parameters.mapType == QueryMapType.CurMap) return;
-
-			parameters.mapType = QueryMapType.CurMap;
-			parameters.searchMaps.Clear();
-
-			if (remake) RemakeList();
-		}
-
-		public void SetSearchAllMaps(bool remake = true)
-		{
-			if (parameters.mapType == QueryMapType.AllMaps) return;
-
-			parameters.mapType = QueryMapType.AllMaps;
-			parameters.searchMaps.Clear();
-
-			if (remake) RemakeList();
-		}
-
-
-		// Get maps shenanigans
-		public QueryMapType MapType => parameters.mapType;
-
-		public List<Map> ChosenMaps =>
-			parameters.mapType == QueryMapType.ChosenMaps && !ForceCurMap() ? parameters.searchMaps : null;
-
-		// Certain queries only work on the current map, so the entire tree will only work on the current map
-		public bool AllMaps() =>
-			parameters.mapType == QueryMapType.AllMaps && !ForceCurMap();
-
-		public bool CurMap() => 
-			parameters.mapType == QueryMapType.CurMap || ForceCurMap();
-
-		public bool ForceCurMap() => Children.Any(f => f.CurMapOnly);
-
-
 		public string GetMapNameSuffix()
 		{
 			StringBuilder sb = new(" <i>(");
 
-			// override requested map if a query only works on current map
 			if (AllMaps())
 				sb.Append("TD.AllMaps".Translate());
 			else if (result.resultMaps.Count > 0)
@@ -320,7 +373,6 @@ namespace TD_Find_Lib
 		{
 			StringBuilder sb = new("Searching: ");
 
-			// override requested map if a query only works on current map
 			if (AllMaps())
 				sb.Append("TD.AllMaps".Translate());
 			else if (CurMap())
@@ -402,8 +454,8 @@ namespace TD_Find_Lib
 				newSearch.SetSearchMaps(newMaps, false);
 
 
-			// If you loaded from a query that chose the map, but didn't choose, I guess we'll choose for you.
-			if (newSearch.parameters.mapType == QueryMapType.ChosenMaps && newSearch.parameters.searchMaps.Count == 0)
+			// If you loaded from a search that chose the map, but didn't choose, I guess we'll choose for you.
+			if (newSearch.parameters.mapType == SearchMapType.ChosenMaps && newSearch.parameters.searchMaps.Count == 0)
 				newSearch.SetSearchMap(Find.CurrentMap, false);
 
 
@@ -461,7 +513,7 @@ namespace TD_Find_Lib
 
 			foreach (Map map in result.resultMaps)
 			{
-				List<Thing> things = new(Get(map, ListType));
+				List<Thing> things = new(Get(map, parameters.listType));
 
 				// SORT. TODO: more sensical than shortHash.
 				things.SortBy(t => t.def.shortHash, t => t.Stuff?.shortHash ?? 0, t => t.Position.x + t.Position.z * 1000);
@@ -482,58 +534,68 @@ namespace TD_Find_Lib
 		{ 
 			BindToMap(searchMap);
 
-			List<Thing> baseList = searchListType switch
-			{
-				SearchListType.Selectable => searchMap.listerThings.AllThings,
-				SearchListType.Everyone => searchMap.listerThings.ThingsInGroup(ThingRequestGroup.Pawn),
-				SearchListType.Items => searchMap.listerThings.ThingsInGroup(ThingRequestGroup.HaulableAlways),
-				SearchListType.Buildings => searchMap.listerThings.ThingsInGroup(ThingRequestGroup.BuildingArtificial),
-				SearchListType.Plants => searchMap.listerThings.ThingsInGroup(ThingRequestGroup.HarvestablePlant),
-				SearchListType.Natural => searchMap.listerThings.AllThings,
-				SearchListType.ItemsAndJunk => searchMap.listerThings.ThingsInGroup(ThingRequestGroup.HaulableEver),
-				SearchListType.All => searchMap.listerThings.AllThings,
-				SearchListType.Inventory => searchMap.listerThings.ThingsInGroup(ThingRequestGroup.ThingHolder),
-
-				SearchListType.Haulables => searchMap.listerHaulables.ThingsPotentiallyNeedingHauling(),
-				SearchListType.Mergables => searchMap.listerMergeables.ThingsPotentiallyNeedingMerging(),
-				SearchListType.FilthInHomeArea => searchMap.listerFilthInHomeArea.FilthInHomeArea,
-				_ => null
-			};
 
 			// newListedThings is what we're gonna return
 			newListedThings.Clear();
 
-			bool Listable(Thing t) =>
-				DebugSettings.godMode ||
-				ValidDef(t.def) && !t.Position.Fogged(searchMap);
 
-			// Filter a bit more:
-			switch (searchListType)
+			// Check visibility, and for particularly extensive searches, validity.
+			Func<Thing, bool> visible = DebugSettings.godMode ? null : t => !t.Position.Fogged(searchMap);
+			Func<Thing, bool> valid = DebugSettings.godMode ? null : t => ValidDef(t.def) && !t.Position.Fogged(searchMap);
+
+
+			// First if we're listing from AllThings, only do that
+			if (searchListType.HasFlag(SearchListType.All))
 			{
-				case SearchListType.Selectable: //Known as "Map"
-					newListedThings.AddRange(baseList.Where(t => t.def.selectable && Listable(t)));
-					break;
+				newListedThings.AddRange(searchMap.listerThings.AllThings.MaybeWhere(valid));
+			}
+			else if (searchListType.HasFlag(SearchListType.Selectable))
+			{
+				newListedThings.AddRange(searchMap.listerThings.AllThings.Where(t => t.def.selectable).MaybeWhere(valid));
+			}
+			else
+			{
+				// Add in individual categories
+				if (searchListType.HasFlag(SearchListType.Everyone))
+					newListedThings.AddRange(searchMap.listerThings.ThingsInGroup(ThingRequestGroup.Pawn).MaybeWhere(visible));
+				if (searchListType.HasFlag(SearchListType.Buildings))
+					newListedThings.AddRange(searchMap.listerThings.ThingsInGroup(ThingRequestGroup.BuildingArtificial).Where(t => t.def.filthLeaving != ThingDefOf.Filth_RubbleRock).MaybeWhere(visible));
+				if (searchListType.HasFlag(SearchListType.Plants))
+					newListedThings.AddRange(searchMap.listerThings.ThingsInGroup(ThingRequestGroup.Plant).Where(t => t.def.selectable).MaybeWhere(visible));
 
-				case SearchListType.Natural:
-					newListedThings.AddRange(baseList.Where(t => t.def.filthLeaving == ThingDefOf.Filth_RubbleRock && Listable(t)));
-					break;
 
-				case SearchListType.Inventory:
-					foreach (Thing t in baseList.Where(Listable))
+				// Add in Items/Junk, which overlap as "HaulableEver"
+				if (searchListType.HasFlag(SearchListType.Items | SearchListType.Junk)) //To be read "Items AND Junk" sorry
+					newListedThings.AddRange(searchMap.listerThings.ThingsInGroup(ThingRequestGroup.HaulableEver).MaybeWhere(visible));
+				else if (searchListType.HasFlag(SearchListType.Items))
+					newListedThings.AddRange(searchMap.listerThings.ThingsInGroup(ThingRequestGroup.HaulableAlways).MaybeWhere(visible));
+				else if (searchListType.HasFlag(SearchListType.Junk))
+					newListedThings.AddRange(searchMap.listerThings.ThingsInGroup(ThingRequestGroup.HaulableEver).Where(t => !t.def.alwaysHaulable).MaybeWhere(visible));
+				
+
+				//A few other weird types
+				if (searchListType.HasFlag(SearchListType.Natural))
+					newListedThings.AddRange(searchMap.listerThings.AllThings.Where(t => t.def.filthLeaving == ThingDefOf.Filth_RubbleRock).MaybeWhere(visible));
+
+				if (searchListType.HasFlag(SearchListType.Inventory))
+				{
+					foreach (Thing t in searchMap.listerThings.ThingsInGroup(ThingRequestGroup.ThingHolder).MaybeWhere(visible))
 						if (t is IThingHolder holder && t is not Corpse && t is not MinifiedThing)
 							ContentsUtility.AddAllKnownThingsInside(holder, newListedThings);
-					break;
+				}
 
-				default:
-					newListedThings.AddRange(baseList.Where(Listable));
-					break;
+				//Silly devmode options
+				if (searchListType.HasFlag(SearchListType.Haulables))
+					newListedThings.AddRange(searchMap.listerHaulables.ThingsPotentiallyNeedingHauling().MaybeWhere(visible));
+				if (searchListType.HasFlag(SearchListType.Mergables))
+					newListedThings.AddRange(searchMap.listerMergeables.ThingsPotentiallyNeedingMerging().MaybeWhere(visible));
+				if (searchListType.HasFlag(SearchListType.FilthInHomeArea))
+					newListedThings.AddRange(searchMap.listerFilthInHomeArea.FilthInHomeArea.MaybeWhere(visible));
 			}
-
 
 			// Apply the actual queries, finally
 
 			var queries = Children.queries.FindAll(f => f.Enabled);
-			Log.Message($"From {Children.queries.Count} queries, using {queries.Count}");
 			if (MatchAllQueries)
 			{
 				// ALL

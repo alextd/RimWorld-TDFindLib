@@ -4,7 +4,7 @@
 	<TD.SearchListType.Selectable>Map</TD.SearchListType.Selectable>
 	<TD.SearchListType.All>All</TD.SearchListType.All>
 	<TD.SearchListType.Items>Items</TD.SearchListType.Items>
-	<TD.SearchListType.ItemsAndJunk>Items and Junk</TD.SearchListType.ItemsAndJunk>
+	<TD.SearchListType.Junk>Junk</TD.SearchListType.Junk>
 	<TD.SearchListType.Everyone>Everyone</TD.SearchListType.Everyone>
 	<TD.SearchListType.Buildings>Buildings</TD.SearchListType.Buildings>
 	<TD.SearchListType.Natural>Natural</TD.SearchListType.Natural>

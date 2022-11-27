@@ -111,8 +111,8 @@ namespace TD_Find_Lib
 		{
 			// List Type
 			Rect typeRect = headerRect.LeftPart(.32f);
-
 			Widgets.Label(typeRect, "TD.Listing".Translate() + search.ListType.TranslateEnum());
+
 			if (!locked)
 			{
 				Widgets.DrawHighlightIfMouseover(typeRect);
@@ -120,7 +120,25 @@ namespace TD_Find_Lib
 				{
 					List<FloatMenuOption> types = new List<FloatMenuOption>();
 					foreach (SearchListType type in DebugSettings.godMode ? Enum.GetValues(typeof(SearchListType)) : SearchListNormalTypes.normalTypes)
-						types.Add(new FloatMenuOption(type.TranslateEnum(), () => search.ListType = type));
+					{
+						if (Event.current.control)
+						{
+							types.Add(new FloatMenuOption(
+								type.TranslateEnum(),
+								() => {
+									if (Event.current.shift)
+										search.SetListType(type);
+									else
+										search.ToggleListType(type);
+								},
+								search.ListType.HasFlag(type) ? Widgets.CheckboxOnTex : Widgets.CheckboxOffTex,
+								Color.white));
+						}
+						else
+						{
+							types.Add(new FloatMenuOption(type.TranslateEnum(), () => search.SetListType(type)));
+						}
+					}
 
 					Find.WindowStack.Add(new FloatMenu(types));
 				}
@@ -274,6 +292,6 @@ namespace TD_Find_Lib
 	{
 		public static readonly SearchListType[] normalTypes =
 			{ SearchListType.Selectable, SearchListType.Everyone, SearchListType.Items, SearchListType.Buildings, SearchListType.Plants,
-			SearchListType.Natural, SearchListType.ItemsAndJunk, SearchListType.All, SearchListType.Inventory};
+			SearchListType.Natural, SearchListType.Junk, SearchListType.All, SearchListType.Inventory};
 	}
 }
