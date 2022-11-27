@@ -16,6 +16,7 @@ namespace TD_Find_Lib
 		public ThingQueryAndOrGroup()
 		{
 			children = new QueryHolder(this);
+			children.matchAllQueries = false; //default match any in sub-group. Otherwise it's just more ANDing...
 		}
 		public override bool AppliesDirectlyTo(Thing t) =>
 			children.AppliesTo(t);
