@@ -17,7 +17,7 @@ namespace TD_Find_Lib
 			//thing.Label.Contains(sel, CaseInsensitiveComparer.DefaultInvariant);	//Contains doesn't accept comparer with strings. okay.
 			sel == "" || thing.Label.IndexOf(sel, StringComparison.OrdinalIgnoreCase) >= 0;
 
-		public const string namedLabel = "Named: ";
+		public static string namedLabel = "TD.Named".Translate();
 		public static float? namedLabelWidth;
 		public static float NamedLabelWidth =>
 			namedLabelWidth.HasValue ? namedLabelWidth.Value :
@@ -316,7 +316,7 @@ namespace TD_Find_Lib
 
 			Rect hostRect = rect.LeftPart(0.6f);
 			hostRect.xMin = hostRect.xMax - 60;
-			if (Widgets.ButtonText(hostRect, host ? "Host Is" : "Is"))
+			if (Widgets.ButtonText(hostRect, host ? "TD.HostIs".Translate() : "TD.FactionIs".Translate()))
 			{
 				host = !host;
 				changed = true;
@@ -662,17 +662,17 @@ namespace TD_Find_Lib
 		public override string CategoryFor(ThingDef def)
 		{
 			if (typeof(Blueprint_Install).IsAssignableFrom(def.thingClass))
-				return "(Installing)";
+				return "TD.InstallingCategory".Translate();
 
 			if (def.IsBlueprint)
-				return "(Blueprint)";
+				return "TD.BlueprintCategory".Translate();
 
 			if (def.IsFrame)
-				return "(Frame)";
+				return "TD.FrameCategory".Translate();
 
 			if (def.FirstThingCategory?.LabelCap.ToString() is string label)
 			{
-				if (label == "Misc")
+				if (label == "TD.MiscCategory".Translate())
 					return $"{label} ({def.FirstThingCategory.parent.LabelCap})";
 				return label;
 			}
@@ -680,18 +680,18 @@ namespace TD_Find_Lib
 			//catchall for unminifiable buildings.
 			if (def.designationCategory?.LabelCap.ToString() is string label2)
 			{
-				if (label2 == "Misc")
+				if (label2 == "TD.MiscCategory".Translate())
 					return $"{label2} ({ThingCategoryDefOf.Buildings.LabelCap})";
 				return label2;
 			}
 
 			if (typeof(Pawn).IsAssignableFrom(def.thingClass))
-				return "Living";
+				return "TD.LivingCategory".Translate();
 
 			if (typeof(Mineable).IsAssignableFrom(def.thingClass))
-				return "Mineable";
+				return "TD.MineableCategory".Translate();
 
-			return "(Other)";
+			return "TD.OtherCategory".Translate();
 		}
 
 

@@ -79,8 +79,8 @@ namespace TD_Find_Lib
 
 		public string Source => null;	//always used
 
-		public string ReceiveName => "Copy to clipboard";
-		public string ProvideName => "Paste from clipboard";
+		public string ReceiveName => "TD.CopyToClipboard".Translate();
+		public string ProvideName => "TD.PasteFromClipboard".Translate();
 
 
 		public QuerySearch.CloneArgs CloneArgs => default; //save

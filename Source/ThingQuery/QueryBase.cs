@@ -58,7 +58,7 @@ namespace TD_Find_Lib
 				{
 					_label = def.LabelCap;
 					if (!include)
-						_label = "NOT".Colorize(Color.red) + " " + _label;
+						_label = "TD.NOT".Translate().Colorize(Color.red) + " " + _label;
 				}
 				return _label;
 			}

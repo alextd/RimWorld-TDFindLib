@@ -53,20 +53,20 @@ namespace TD_Find_Lib
 			};
 			Action copyAction = delegate ()
 			{
-				newSearch.name = newSearch.name + " (Copy)";
+				newSearch.name = newSearch.name + "TD.CopyNameSuffix".Translate();
 				Insert(i + 1, newSearch);
 				parent.Write();
 			};
 			Verse.Find.WindowStack.Add(new Dialog_MessageBox(
-				$"Save changes to {newSearch.name}?",
+				"TD.SaveChangesTo0".Translate(newSearch.name),
 				"Confirm".Translate(), acceptAction,
 				"No".Translate(), null,
-				"Overwrite Search",
+				"TD.OverwriteSearch".Translate(),
 				true, acceptAction,
 				delegate () { }// I dunno who wrote this class but this empty method is required so the window can close with esc because its logic is very different from its base class
 			)
 			{
-				buttonCText = "Save as Copy",
+				buttonCText = "TD.SaveAsCopy".Translate(),
 				buttonCAction = copyAction,
 			});
 		}
@@ -86,7 +86,7 @@ namespace TD_Find_Lib
 		{
 			Scribe_Values.Look(ref name, "name", Settings.defaultGroupName);
 
-			string label = "searches";
+			string label = "TD.Searches".Translate();
 
 			//Watered down Scribe_Collections, doing LookMode.Deep on List<QuerySearch>
 			if (Scribe.EnterNode(label))

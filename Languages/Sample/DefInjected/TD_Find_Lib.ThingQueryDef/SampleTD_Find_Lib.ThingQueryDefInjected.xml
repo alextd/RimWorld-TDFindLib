@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<LanguageData>
+	
+	<Query_Name.label>search by name</Query_Name.label>
+	<Query_Def.label>specific thing</Query_Def.label>
+	<Query_Category.label>general category</Query_Category.label>
+	<Query_Stat.label>stat</Query_Stat.label>
+	<Query_Skill.label>skill</Query_Skill.label>
+	<Query_Trait.label>trait</Query_Trait.label>
+	<Query_Thought.label>thought</Query_Thought.label>
+	<Query_Need.label>need</Query_Need.label>
+	<Query_Health.label>health</Query_Health.label>
+	<Query_Capacity.label>capacity</Query_Capacity.label>
+	<Query_MentalState.label>mental state</Query_MentalState.label>
+	<Query_ComfyTemp.label>comfort at temperature</Query_ComfyTemp.label>
+	<Query_Incapable.label>incapable</Query_Incapable.label>
+	<Query_AreaRestriction.label>area restriction</Query_AreaRestriction.label>
+	<Query_Drafted.label>drafted</Query_Drafted.label>
+	<Query_Job.label>current action</Query_Job.label>
+	<Query_Inspiration.label>inspiration</Query_Inspiration.label>
+	<Query_Guest.label>guest status</Query_Guest.label>
+	<Query_Prisoner.label>prisoner</Query_Prisoner.label>
+	<Query_ThingQueryDevelopmentalStage.label>age</Query_ThingQueryDevelopmentalStage.label>
+	<Query_Gender.label>gender</Query_Gender.label>
+	<Query_MissingBodyPart.label>missing Body Part</Query_MissingBodyPart.label>
+	<Query_RaceProps.label>race</Query_RaceProps.label>
+	<Query_Meat.label>meat</Query_Meat.label>
+	<Query_Leather.label>leather</Query_Leather.label>
+	<Query_Egg.label>eggs per year</Query_Egg.label>
+	<Query_Milk.label>milk per year</Query_Milk.label>
+	<Query_Wool.label>wool per year</Query_Wool.label>
+	<Query_ProductProgress.label>progress</Query_ProductProgress.label>
+	<Query_ItemCategory.label>item category</Query_ItemCategory.label>
+	<Query_Quality.label>quality</Query_Quality.label>
+	<Query_Stuff.label>made From</Query_Stuff.label>
+	<Query_SpecialFilter.label>special filter</Query_SpecialFilter.label>
+	<Query_Forbidden.label>forbidden</Query_Forbidden.label>
+	<Query_Mineable.label>mineable</Query_Mineable.label>
+	<Query_BuildingCategory.label>Building category</Query_BuildingCategory.label>
+	<Query_Door.label>Door Status</Query_Door.label>
+	<Query_Crop.label>is a crop</Query_Crop.label>
+	<Query_Harvest.label>harvest product</Query_Harvest.label>
+	<Query_Harvestable.label>harvestable now</Query_Harvestable.label>
+	<Query_Growth.label>plant growth</Query_Growth.label>
+	<Query_GrowthRate.label>plant growth rate</Query_GrowthRate.label>
+	<Query_Freshness.label>freshness</Query_Freshness.label>
+	<Query_TimeToRot.label>rots within days</Query_TimeToRot.label>
+	<Query_DiesLeafless.label>dies to cold</Query_DiesLeafless.label>
+	<Query_Area.label>area</Query_Area.label>
+	<Query_Zone.label>zone</Query_Zone.label>
+	<Query_Temp.label>temperature</Query_Temp.label>
+	<Query_Deterioration.label>deteriorating</Query_Deterioration.label>
+	<Query_Nearby.label>nearby</Query_Nearby.label>
+	<Query_HP.label>health %</Query_HP.label>
+	<Query_Inventory.label>inventory</Query_Inventory.label>
+	<Query_Designation.label>designated</Query_Designation.label>
+	<Query_Faction.label>faction</Query_Faction.label>
+	<Query_Mod.label>From a mod</Query_Mod.label>
+	<Query_Onscreen.label>currently on screen</Query_Onscreen.label>
+	<Query_AndOrGroup.label>filter grouping</Query_AndOrGroup.label>
+	<Query_Selectable.label>selectable</Query_Selectable.label>
+	<Query_ClassType.label>C# Class Type</Query_ClassType.label>
+	<Query_DrawerType.label>drawer Type</Query_DrawerType.label>
+	<Query_Fogged.label>fogged (also you need to turn on godmode)</Query_Fogged.label>
+	
+</LanguageData>

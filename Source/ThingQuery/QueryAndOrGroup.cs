@@ -63,7 +63,7 @@ namespace TD_Find_Lib
 			listing.Gap(listing.verticalSpacing);
 
 			//Draw queries
-			bool changed = Children.DrawQueriesListing(listing, locked, (children.matchAllQueries ? "AND" : "OR").Colorize(Color.green));
+			bool changed = Children.DrawQueriesListing(listing, locked, (children.matchAllQueries ? "TD.AND".Translate() : "TD.OR".Translate()).Colorize(Color.green));
 
 			listing.NestedOutdent();
 			return changed;

@@ -255,7 +255,7 @@ namespace TD_Find_Lib
 			if (parameters.searchMaps.Contains(toggleMap))
 			{
 				if (parameters.searchMaps.Count == 1)
-					Messages.Message("Hey man we have to search somewhere", MessageTypeDefOf.RejectInput, false);
+					Messages.Message("TD.HeyManWeHaveToSearchSomewhere".Translate(), MessageTypeDefOf.RejectInput, false);
 				else
 					parameters.searchMaps.Remove(toggleMap);
 			}
@@ -370,7 +370,7 @@ namespace TD_Find_Lib
 
 		public string GetMapOptionLabel()
 		{
-			StringBuilder sb = new("Searching: ");
+			StringBuilder sb = new("TD.Searching".Translate());
 
 			if (AllMaps())
 				sb.Append("TD.AllMaps".Translate());

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <LanguageData>
-	
+
 	<TD.TDFindLib>TD Find Lib</TD.TDFindLib>
 	<TD.Delete0>Delete {0}?</TD.Delete0>
 	<TD.StopRefresh0>Stop refreshing {0}?</TD.StopRefresh0>
@@ -47,16 +47,75 @@
 	<TD.Listing>Listing: </TD.Listing>
 	<TD.Name>Name:</TD.Name>
 	<TD.OnlyShowQueryOptionsForAvailableThings>Only show existing things as an option (shift invert)</TD.OnlyShowQueryOptionsForAvailableThings>
-	<TD.ForExampleDontShowTheOptionMadeFromPlasteelIfNothingIsMadeFromPlasteel>For exmaple, When selecting filter options, don't show the option 'Made from Plasteel' if nothing is made from plasteel.\n\nShift-click the option to reverse this setting for that click.</TD.ForExampleDontShowTheOptionMadeFromPlasteelIfNothingIsMadeFromPlasteel>
+	<TD.ForExampleDontShowTheOptionMadeFromPlasteelIfNothingIsMadeFromPlasteel>For example, When selecting filter options, don't show the option 'Made from Plasteel' if nothing is made from plasteel.\n\nShift-click the option to reverse this setting for that click.</TD.ForExampleDontShowTheOptionMadeFromPlasteelIfNothingIsMadeFromPlasteel>
 	<TD.AddNewQuery...>Add new filter...</TD.AddNewQuery...>
 	<TD.AnyOption>Any</TD.AnyOption>
 	<TD.EitherOption>Either</TD.EitherOption>
 	<TD.AllOptions>All</TD.AllOptions>
-
 	<TD.AnyValue>Any</TD.AnyValue>
-	
 	<TD.LabelCountThings>{0} thing(s)</TD.LabelCountThings>
 	<TD.SelectAllGameAllowsUpTo>Select All ( game allows up to {0} )</TD.SelectAllGameAllowsUpTo>
 	<TD.Refresh>Refresh</TD.Refresh>
 	<TD.ContinuousRefreshAboutEverySecond>Continuous Refresh (about every second)</TD.ContinuousRefreshAboutEverySecond>
+	<TD.SavedSearches>Saved Searches</TD.SavedSearches>
+	<TD.CopyNameSuffix> (Copy)</TD.CopyNameSuffix>
+	<TD.Settings>Settings:</TD.Settings>
+	<TD.ViewQuerySearchLibrary>Open the Saved Search Library</TD.ViewQuerySearchLibrary>
+	<TD.View>View</TD.View>
+	<TD.Storage>Storage</TD.Storage>
+	<TD.SaveSearches>Save</TD.SaveSearches>
+	<TD.LoadSearches>Load</TD.LoadSearches>
+	<TD.SaveTo0>Save to {0}</TD.SaveTo0>
+	<TD.TDFindLibrary>TD Find Library</TD.TDFindLibrary>
+	<TD.SaveChangesTo0>Save changes to {0}?</TD.SaveChangesTo0>
+	<TD.OverwriteSearch>Overwrite Search</TD.OverwriteSearch>
+	<TD.SaveAsCopy>Save as Copy</TD.SaveAsCopy>
+	<TD.Searches>searches</TD.Searches>
+	<TD.OpenTheLibraryOfSearches>Open the library of searches</TD.OpenTheLibraryOfSearches>
+	<TD.ImportSearchFrom>Import search from...</TD.ImportSearchFrom>
+	<TD.ExportSearchTo>Export search to...</TD.ExportSearchTo>
+	<TD.ImportGroupFrom>Import group from...</TD.ImportGroupFrom>
+	<TD.ExportGroupTo>Export group to...</TD.ExportGroupTo>
+	<TD.CopyToClipboard>Copy to clipboard</TD.CopyToClipboard>
+	<TD.PasteFromClipboard>Paste from clipboard</TD.PasteFromClipboard>
+	<TD.AND>AND</TD.AND>
+	<TD.OR>OR</TD.OR>
+	<TD.NOT>NOT</TD.NOT>
+	<TD.HeyManWeHaveToSearchSomewhere>Hey man we have to search somewhere</TD.HeyManWeHaveToSearchSomewhere>
+	<TD.Searching>Searching: </TD.Searching>
+	<TD.Named>Named: </TD.Named>
+	<TD.HostIs>Host Is</TD.HostIs>
+	<TD.FactionIs>Is</TD.FactionIs>
+	<TD.InstallingCategory>(Installing)</TD.InstallingCategory>
+	<TD.BlueprintCategory>(Blueprint)</TD.BlueprintCategory>
+	<TD.FrameCategory>(Frame)</TD.FrameCategory>
+	<TD.MiscCategory>Misc</TD.MiscCategory>
+	<TD.LivingCategory>Living</TD.LivingCategory>
+	<TD.MineableCategory>Mineable</TD.MineableCategory>
+	<TD.OtherCategory>(Other)</TD.OtherCategory>
+	<TD.TDFindLibSearchLibrary>TD Find Lib: Search Library</TD.TDFindLibSearchLibrary>
+	<TD.NewGroup>New Group</TD.NewGroup>
+	<TD.NameForNewGroup>Name for New Group</TD.NameForNewGroup>
+	<TD.AddNewGroup>Add New Group</TD.AddNewGroup>
+	<TD.NewSearch>New Search</TD.NewSearch>
+	<TD.NameForNewSearch>Name for New Search</TD.NameForNewSearch>
+	<TD.EditThisSearch>Edit this search</TD.EditThisSearch>
+	<TD.ActiveSearches>Active Searches</TD.ActiveSearches>
+	<TD.ViewThisSearch>View this search</TD.ViewThisSearch>
+	<TD.OpenTheModControllingThisSearch>Open the mod controlling this search</TD.OpenTheModControllingThisSearch>
+	<TD.StopThisSearchFromRunningITrustYouKnowWhatYoureDoing>Stop this search from running (I trust you know what you're doing)</TD.StopThisSearchFromRunningITrustYouKnowWhatYoureDoing>
+	<TD.Every0Ticks>Every {0} ticks</TD.Every0Ticks>
+	<TD.SetRefreshPeriodInTicks>Set refresh period in ticks</TD.SetRefreshPeriodInTicks>
+	<TD.GodModeIsAllowingYouToSeeThingsInFoggedAreasThingsYouCantNormallyKnowAndVariousOtherWeirdThings>God mode is allowing you to see things in fogged areas, things you can't normally know, and various other weird things</TD.GodModeIsAllowingYouToSeeThingsInFoggedAreasThingsYouCantNormallyKnowAndVariousOtherWeirdThings>
+	<TD.Editing>Editing</TD.Editing>
+	<TD.ListThingsMatchingThisSearch>List things matching this search</TD.ListThingsMatchingThisSearch>
+	<TD.Viewing>Viewing</TD.Viewing>
+	<TD.MatchingAllFilters>Matching all filters</TD.MatchingAllFilters>
+	<TD.MatchingAnyFilter>Matching any filter</TD.MatchingAnyFilter>
+	<TD.SearchCurrentMapOnly>Search current map only</TD.SearchCurrentMapOnly>
+	<TD.SearchAllMaps>Search all maps</TD.SearchAllMaps>
+	<TD.SearchChosenMapsOnceLoaded>Search chosen maps (once loaded)</TD.SearchChosenMapsOnceLoaded>
+	<TD.AFilterIsForcingThisSearchToRunOnTheCurrentMapOnly>A filter is forcing this search to run on the current map only</TD.AFilterIsForcingThisSearchToRunOnTheCurrentMapOnly>
+	<TD.Rename0>Rename {0}</TD.Rename0>
+
 </LanguageData>

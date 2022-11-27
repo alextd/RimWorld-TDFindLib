@@ -15,7 +15,7 @@ namespace TD_Find_Lib
 
 		public SearchEditorWindow(QuerySearch search, Action<QuerySearch> onCloseIfChanged = null)
 		{
-			drawer = new QuerySearchDrawer(search, "Editing") { showNameAfterTitle = true };
+			drawer = new QuerySearchDrawer(search, "TD.Editing".Translate()) { showNameAfterTitle = true };
 			onlyOneOfTypeAllowed = false;
 			preventCameraMotion = false;
 			draggable = true;
@@ -69,8 +69,8 @@ namespace TD_Find_Lib
 			drawer.DrawQuerySearch(fillRect, Find.CurrentMap == null ? null :
 				row =>
 				{
-					SearchStorage.ButtonChooseExportSearch(row, drawer.search, "Storage");
-					if (row.ButtonIcon(FindTex.List, "List things matching this search"))
+					SearchStorage.ButtonChooseExportSearch(row, drawer.search, "TD.Storage".Translate());
+					if (row.ButtonIcon(FindTex.List, "TD.ListThingsMatchingThisSearch".Translate()))
 					{
 						Find.WindowStack.Add(new ResultThingListWindow(drawer.search.CloneForUseSingle()));
 					}
@@ -82,7 +82,7 @@ namespace TD_Find_Lib
 		public TDFindLibViewerWindow(QuerySearch search):base(search)
 		{
 			drawer.permalocked = true;
-			drawer.title = "Viewing";
+			drawer.title = "TD.Viewing".Translate();
 		}
 	}
 
@@ -151,7 +151,7 @@ namespace TD_Find_Lib
 			// Matching All or Any
 			Rect matchRect = typeRect.CenteredOnXIn(headerRect);
 
-			Widgets.Label(matchRect, search.MatchAllQueries ? "Matching all filters" : "Matching any filter");
+			Widgets.Label(matchRect, search.MatchAllQueries ? "TD.MatchingAllFilters".Translate() : "TD.MatchingAnyFilter".Translate());
 			if (!locked)
 			{
 				Widgets.DrawHighlightIfMouseover(matchRect);
@@ -173,10 +173,10 @@ namespace TD_Find_Lib
 					List<FloatMenuOption> mapOptions = new List<FloatMenuOption>();
 
 					//Current Map
-					mapOptions.Add(new FloatMenuOption("Search current map only", () => search.SetSearchCurrentMap()));
+					mapOptions.Add(new FloatMenuOption("TD.SearchCurrentMapOnly".Translate(), () => search.SetSearchCurrentMap()));
 
 					//All maps
-					mapOptions.Add(new FloatMenuOption("Search all maps", () => search.SetSearchAllMaps()));
+					mapOptions.Add(new FloatMenuOption("TD.SearchAllMaps".Translate(), () => search.SetSearchAllMaps()));
 
 					if (search.active)
 					{
@@ -200,7 +200,7 @@ namespace TD_Find_Lib
 					}
 					else
 					{
-						mapOptions.Add(new FloatMenuOption("Search chosen maps (once loaded)", () => search.SetSearchChosenMaps()));
+						mapOptions.Add(new FloatMenuOption("TD.SearchChosenMapsOnceLoaded".Translate(), () => search.SetSearchChosenMaps()));
 					}
 
 					Find.WindowStack.Add(new FloatMenu(mapOptions));
@@ -208,7 +208,7 @@ namespace TD_Find_Lib
 			}
 			if(forceCurMap)
 			{
-				TooltipHandler.TipRegion(mapTypeRect, "A filter is forcing this search to run on the current map only");
+				TooltipHandler.TipRegion(mapTypeRect, "TD.AFilterIsForcingThisSearchToRunOnTheCurrentMapOnly".Translate());
 			}
 		}
 
@@ -250,7 +250,7 @@ namespace TD_Find_Lib
 				Find.WindowStack.Add(new Dialog_Name(
 					search.name, 
 					newName => { search.name = newName; search.changed = true; },
-					$"Rename {search.name}"));
+					"TD.Rename0".Translate(search.name)));
 
 			if (DebugSettings.godMode)
 				buttonRow.Label(search.active ? "ACTIVE!" : "INACTIVE");

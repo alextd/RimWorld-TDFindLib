@@ -13,7 +13,7 @@ namespace TD_Find_Lib
 		private bool onlyAvailable = true;
 		public bool OnlyAvailable => onlyAvailable != Event.current.shift && Find.CurrentMap != null;
 
-		public static string defaultGroupName = "Saved Searches";
+		public static string defaultGroupName = "TD.SavedSearches".Translate();
 
 		//Don't touch my searches
 		internal List<SearchGroup> searchGroups;
@@ -36,7 +36,7 @@ namespace TD_Find_Lib
 			var group = searchGroups[from];
 			if (Event.current.control)
 			{
-				searchGroups.Insert(to, group.Clone(QuerySearch.CloneArgs.save, group.name + " (Copy)", this));
+				searchGroups.Insert(to, group.Clone(QuerySearch.CloneArgs.save, group.name + "TD.CopyNameSuffix".Translate(), this));
 			}
 			else
 			{
@@ -60,7 +60,7 @@ namespace TD_Find_Lib
 			listing.Begin(inRect);
 
 			//Global Options
-			listing.Header("Settings:");
+			listing.Header("TD.Settings".Translate());
 
 			listing.CheckboxLabeled(
 			"TD.OnlyShowQueryOptionsForAvailableThings".Translate(),
@@ -69,7 +69,7 @@ namespace TD_Find_Lib
 
 			listing.Gap();
 
-			if(listing.ButtonTextLabeled("View all Find definitions", "View"))
+			if(listing.ButtonTextLabeled("TD.ViewQuerySearchLibrary".Translate(), "TD.View".Translate()))
 			{
 				//Ah gee this triggers settings.Write but that's no real problem
 				Find.WindowStack.WindowOfType<Dialog_ModSettings>().Close();
@@ -93,9 +93,9 @@ namespace TD_Find_Lib
 
 
 		// SearchTransfer business
-		public string Source => "Storage";
-		public string ReceiveName => "Save";
-		public string ProvideName => "Load";
+		public string Source => "TD.Storage".Translate();
+		public string ReceiveName => "TD.SaveSearches".Translate();
+		public string ProvideName => "TD.LoadSearches".Translate();
 
 
 		// ISearchReceiver things
@@ -126,7 +126,7 @@ namespace TD_Find_Lib
 
 		public static void SaveToGroup(QuerySearch search, SearchGroup group)
 		{
-			Find.WindowStack.Add(new Dialog_Name(search.name, n => { search.name = n; group.TryAdd(search); }, $"Save to {group.name}"));
+			Find.WindowStack.Add(new Dialog_Name(search.name, n => { search.name = n; group.TryAdd(search); }, "TD.SaveTo0".Translate(group.name)));
 		}
 
 

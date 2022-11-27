@@ -59,7 +59,7 @@ namespace TD_Find_Lib
 			if (Event.current.control)
 			{
 				var newSearch = search.CloneInactive();
-				newSearch.name += " (Copy)";
+				newSearch.name += "TD.CopyNameSuffix".Translate();
 				toGroup.Insert(to, newSearch);
 			}
 			else
@@ -80,7 +80,7 @@ namespace TD_Find_Lib
 			Text.Font = GameFont.Medium;
 			Text.Anchor = TextAnchor.UpperCenter;
 			Rect titleRect = fillRect.TopPartPixels(Text.LineHeight).AtZero();
-			Widgets.Label(titleRect, "TD Find Lib: Search Library");
+			Widgets.Label(titleRect, "TD.TDFindLibSearchLibrary".Translate());
 			Text.Anchor = default;
 
 			fillRect.yMin = titleRect.yMax;
@@ -133,7 +133,7 @@ namespace TD_Find_Lib
 				//Add button
 				if (newGroupRow.ButtonIcon(FindTex.GreyPlus))
 				{
-					Find.WindowStack.Add(new Dialog_Name("New Group", n =>
+					Find.WindowStack.Add(new Dialog_Name("TD.NewGroup".Translate(), n =>
 					{
 						var group = new SearchGroup(n, parent);
 						parent.Add(group);
@@ -143,7 +143,7 @@ namespace TD_Find_Lib
 
 						drawer.PopUpCreateQuerySearch();
 					},
-					"Name for New Group",
+					"TD.NameForNewGroup".Translate(),
 					n => parent.Children.Any(f => f.name == n)));
 				}
 
@@ -161,12 +161,12 @@ namespace TD_Find_Lib
 
 					groupDrawers.Add(drawer);
 				},
-				"Storage");
+				"TD.Storage".Translate());
 
 
 				//Label
 				newGroupRow.Gap(4);
-				newGroupRow.Label("Add New Group", height: Text.LineHeight);
+				newGroupRow.Label("TD.AddNewGroup".Translate(), height: Text.LineHeight);
 				Text.Font = GameFont.Small;
 			}
 
@@ -318,7 +318,7 @@ namespace TD_Find_Lib
 			if (Event.current.control)
 			{
 				QuerySearch newSearch = list[from].CloneInactive();
-				newSearch.name += " (Copy)";
+				newSearch.name += "TD.CopyNameSuffix".Translate();
 				list.Insert(to, newSearch);
 			}
 			else
@@ -340,13 +340,13 @@ namespace TD_Find_Lib
 
 		public void PopUpCreateQuerySearch()
 		{
-			Find.WindowStack.Add(new Dialog_Name("New Search", n =>
+			Find.WindowStack.Add(new Dialog_Name("TD.NewSearch".Translate(), n =>
 			{
 				var search = new QuerySearch() { name = n };
 				list.TryAdd(search);
 				Find.WindowStack.Add(new SearchEditorWindow(search, f => list.parent.Write())) ;
 			},
-			"Name for New Search"));
+			"TD.NameForNewSearch".Translate()));
 		}
 
 		public void PopUpRename()
@@ -371,15 +371,15 @@ namespace TD_Find_Lib
 			}
 
 			// Export Group
-			SearchStorage.ButtonChooseExportSearchGroup(headerRow, list, "Storage");
+			SearchStorage.ButtonChooseExportSearchGroup(headerRow, list, "TD.Storage".Translate());
 
 
 			// Import single search
-			SearchStorage.ButtonChooseImportSearch(headerRow, list.Add, "Storage");
+			SearchStorage.ButtonChooseImportSearch(headerRow, list.Add, "TD.Storage".Translate());
 
 
 			// Paste Group and merge
-			SearchStorage.ButtonChooseImportSearchGroup(headerRow, list.AddRange, "Storage");
+			SearchStorage.ButtonChooseImportSearchGroup(headerRow, list.AddRange, "TD.Storage".Translate());
 
 
 			// Rename 
@@ -393,7 +393,7 @@ namespace TD_Find_Lib
 
 		public override void DrawWidgetButtons(WidgetRow row, QuerySearch search, int i)
 		{
-			if (row.ButtonIcon(FindTex.Edit, "Edit this search"))
+			if (row.ButtonIcon(FindTex.Edit, "TD.EditThisSearch".Translate()))
 			{
 				Find.WindowStack.Add(new SearchEditorWindow(search.CloneInactive(), nd => list.ConfirmPaste(nd, i)));
 			}
@@ -413,7 +413,7 @@ namespace TD_Find_Lib
 						"TD.Delete0".Translate(search.name), () => Trash(i), true));
 			}
 
-			SearchStorage.ButtonChooseExportSearch(row, search, "Storage");
+			SearchStorage.ButtonChooseExportSearch(row, search, "TD.Storage".Translate());
 		}
 	}
 
@@ -421,7 +421,7 @@ namespace TD_Find_Lib
 	{
 		public RefreshSearchGroupDrawer(List<RefreshQuerySearch> l) : base(l) { }
 
-		public override string Name => "Active Searches";
+		public override string Name => "TD.ActiveSearches".Translate();
 		public override QuerySearch SearchAt(int i) => list[i].search;
 		public override int Count => list.Count;
 
@@ -443,12 +443,12 @@ namespace TD_Find_Lib
 
 		public override void DrawWidgetButtons(WidgetRow row, RefreshQuerySearch refSearch, int i)
 		{
-			if (row.ButtonIcon(FindTex.Edit, "View this search"))
+			if (row.ButtonIcon(FindTex.Edit, "TD.ViewThisSearch".Translate()))
 			{
 				Find.WindowStack.Add(new TDFindLibViewerWindow(refSearch.search));
 			}
 
-			if (row.ButtonIcon(TexButton.AutoHomeArea, "Open the mod controlling this search"))
+			if (row.ButtonIcon(TexButton.AutoHomeArea, "TD.OpenTheModControllingThisSearch".Translate()))
 			{
 				refSearch.OpenUI(refSearch.search);
 			}
@@ -459,7 +459,7 @@ namespace TD_Find_Lib
 			}
 			else
 			{
-				if (row.ButtonIcon(FindTex.Trash, "Stop this search from running (I trust you know what you're doing)"))
+				if (row.ButtonIcon(FindTex.Trash, "TD.StopThisSearchFromRunningITrustYouKnowWhatYoureDoing".Translate()))
 				{
 					if (Event.current.shift)
 						list.RemoveAt(i);
@@ -474,7 +474,7 @@ namespace TD_Find_Lib
 		{
 			Rect textRect = rowRect.RightPart(.3f);
 			Text.Anchor = TextAnchor.UpperRight;
-			Widgets.Label(textRect, $"Every {refSearch.period} ticks");
+			Widgets.Label(textRect, "TD.Every0Ticks".Translate(refSearch.period));
 			if (Widgets.ButtonInvisible(textRect))
 			{
 				Find.WindowStack.Add(new Dialog_Name($"{refSearch.period}", s =>
@@ -482,7 +482,7 @@ namespace TD_Find_Lib
 					if (int.TryParse(s, out int n))
 						refSearch.period = n;
 				}
-				, "Set refresh period in ticks"));
+				, "TD.SetRefreshPeriodInTicks".Translate()));
 			}
 			Text.Anchor = default;
 		}

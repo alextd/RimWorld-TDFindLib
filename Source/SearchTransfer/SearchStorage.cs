@@ -12,7 +12,7 @@ namespace TD_Find_Lib
 	{
 		public static void ButtonOpenSettings(WidgetRow row)
 		{
-			if (row.ButtonIcon(FindTex.Book, "Open the library of searches"))
+			if (row.ButtonIcon(FindTex.Book, "TD.OpenTheLibraryOfSearches".Translate()))
 				Find.WindowStack.Add(new GroupLibraryWindow(Mod.settings));
 		}
 
@@ -21,7 +21,7 @@ namespace TD_Find_Lib
 		public static void ButtonChooseImportSearch(WidgetRow row, Action<QuerySearch> handler, string source = null, CloneArgs cloneArgs = default)
 		{
 			var options = ImportSearchOptions(handler, source, cloneArgs);
-			if (options.Count > 0 && row.ButtonIcon(FindTex.Import, "Import search from..."))
+			if (options.Count > 0 && row.ButtonIcon(FindTex.Import, "TD.ImportSearchFrom".Translate()))
 				Find.WindowStack.Add(new FloatMenu(options));
 		}
 		public static List<FloatMenuOption> ImportSearchOptions(Action<QuerySearch> handler, string source = null, CloneArgs cloneArgs = default)
@@ -81,7 +81,7 @@ namespace TD_Find_Lib
 
 		public static void ButtonChooseExportSearch(WidgetRow row, QuerySearch search, string source = null)
 		{
-			if (row.ButtonIcon(FindTex.Export, "Export search to..."))
+			if (row.ButtonIcon(FindTex.Export, "TD.ExportSearchTo".Translate()))
 				ChooseExportSearch(search, source);
 		}
 
@@ -108,7 +108,7 @@ namespace TD_Find_Lib
 		public static void ButtonChooseImportSearchGroup(WidgetRow row, Action<SearchGroup> handler, string source = null)
 		{
 			var options = ImportSearchGroupOptions(handler, source);
-			if (options.Count > 0 && row.ButtonIcon(FindTex.ImportGroup, "Import group from..."))
+			if (options.Count > 0 && row.ButtonIcon(FindTex.ImportGroup, "TD.ImportGroupFrom".Translate()))
 				Find.WindowStack.Add(new FloatMenu(options));
 		}
 		public static List<FloatMenuOption> ImportSearchGroupOptions(Action<SearchGroup> handler, string source, CloneArgs cloneArgs = default)
@@ -157,7 +157,7 @@ namespace TD_Find_Lib
 
 		public static void ButtonChooseExportSearchGroup(WidgetRow row, SearchGroup search, string source = null)
 		{
-			if (row.ButtonIcon(FindTex.ExportGroup, "Export group to..."))
+			if (row.ButtonIcon(FindTex.ExportGroup, "TD.ExportGroupTo".Translate()))
 				ChooseExportSearchGroup(search, source);
 		}
 

@@ -74,7 +74,7 @@ namespace TD_Find_Lib
 			//Godmode showing fogged
 			if (search.result.godMode)
 			{
-				row.Icon(Verse.TexButton.GodModeEnabled, "God mode is allowing you to see things in fogged areas, things you can't normally know, and various other weird things");
+				row.Icon(Verse.TexButton.GodModeEnabled, "TD.GodModeIsAllowingYouToSeeThingsInFoggedAreasThingsYouCantNormallyKnowAndVariousOtherWeirdThings".Translate());
 			}
 
 
