@@ -11,7 +11,7 @@ namespace TD_Find_Lib
 	{
 		public ThingQueryClassType() => sel = typeof(Thing);
 
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			sel.IsAssignableFrom(thing.GetType());
 
 		public static List<Type> types = typeof(Thing).AllSubclassesNonAbstract().OrderBy(t => t.ToString()).ToList();
@@ -23,13 +23,13 @@ namespace TD_Find_Lib
 
 	public class ThingQueryDrawerType : ThingQueryDropDown<DrawerType>
 	{
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			thing.def.drawerType == sel;
 	}
 
 	public class ThingQueryFogged : ThingQuery
 	{
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			thing.PositionHeld.Fogged(thing.MapHeld);
 	}
 }

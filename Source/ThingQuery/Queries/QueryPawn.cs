@@ -40,7 +40,7 @@ namespace TD_Find_Lib
 
 		public override string NullOption() => "TD.AnyOption".Translate();
 
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Pawn_SkillTracker skills = (thing as Pawn)?.skills;
 			if (skills == null) return false;
@@ -99,7 +99,7 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
@@ -197,7 +197,7 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
@@ -331,7 +331,7 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			thing is Pawn pawn &&
 			(!pawn.RaceProps.Animal || pawn.Faction != null || DebugSettings.godMode) &&
 				pawn.needs?.TryGetNeed(sel) is Need need && needRange.Includes(need.CurLevelPercentage);
@@ -378,7 +378,7 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
@@ -428,7 +428,7 @@ namespace TD_Find_Lib
 		public override string NameFor(WorkTags tags) =>
 			tags.LabelTranslated().CapitalizeFirst();
 
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
@@ -451,14 +451,14 @@ namespace TD_Find_Lib
 		public override float Max => 100f;
 		public override ToStringStyle Style => ToStringStyle.Temperature;
 
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			sel.Includes(thing.AmbientTemperature);
 	}
 
 	public enum ComfyTemp { Cold, Cool, Okay, Warm, Hot }
 	public class ThingQueryComfyTemp : ThingQueryDropDown<ComfyTemp>
 	{
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
@@ -494,7 +494,7 @@ namespace TD_Find_Lib
 		protected override Area ResolveRef(Map map) =>
 			map.areaManager.GetLabeled(selName);
 
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Area selectedArea = extraOption == 1 ? thing.MapHeld.areaManager.Home : sel;
 			return thing is Pawn pawn && pawn.playerSettings is Pawn_PlayerSettings set && set.AreaRestriction == selectedArea;
@@ -510,7 +510,7 @@ namespace TD_Find_Lib
 
 	public class ThingQueryMentalState : ThingQueryDropDown<MentalStateDef>
 	{
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
@@ -541,7 +541,7 @@ namespace TD_Find_Lib
 			sel = PrisonerInteractionModeDefOf.NoInteraction;
 		}
 
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			if (extraOption == 2)
 				return thing.GetRoom()?.IsPrisonCell ?? false;
@@ -564,7 +564,7 @@ namespace TD_Find_Lib
 	public enum DraftQuery { Drafted, Undrafted, Controllable }
 	public class ThingQueryDrafted : ThingQueryDropDown<DraftQuery>
 	{
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
@@ -581,7 +581,7 @@ namespace TD_Find_Lib
 
 	public class ThingQueryJob : ThingQueryDropDown<JobDef>
 	{
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
@@ -603,7 +603,7 @@ namespace TD_Find_Lib
 
 	public class ThingQueryGuestStatus : ThingQueryDropDown<GuestStatus>
 	{
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			thing is Pawn pawn && pawn.GuestStatus is GuestStatus status && status == sel;
 	}
 
@@ -641,7 +641,7 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
@@ -709,7 +709,7 @@ namespace TD_Find_Lib
 	{
 		public ThingQueryGender() => sel = Gender.Male;
 
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			thing is Pawn pawn && pawn.gender == sel;
 	}
 
@@ -717,7 +717,7 @@ namespace TD_Find_Lib
 	{
 		public ThingQueryDevelopmentalStage() => sel = DevelopmentalStage.Adult;
 
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			thing is Pawn pawn && pawn.DevelopmentalStage == sel;
 	}
 
@@ -751,7 +751,7 @@ namespace TD_Find_Lib
 		public abstract ThingDef DefFor(Pawn pawn);
 		public abstract int CountFor(Pawn pawn);
 
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
@@ -911,7 +911,7 @@ namespace TD_Find_Lib
 				_ => 0,
 			});
 
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			if (!thing.def.HasComp(sel switch
 			{
@@ -955,7 +955,7 @@ namespace TD_Find_Lib
 
 	public class ThingQueryInspiration : ThingQueryDropDown<InspirationDef>
 	{
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			thing is Pawn p && 
 			(extraOption == 1 ?
 				p.InspirationDef != null :
@@ -995,7 +995,7 @@ namespace TD_Find_Lib
 		private bool Includes(Pawn pawn, PawnCapacityDef def) =>
 			capacityRange.Includes(pawn.health.capacities.GetLevel(def));
 
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			if (thing is Pawn pawn)
 			{

@@ -18,6 +18,7 @@ namespace TD_Find_Lib
 	{
 		private IQueryHolder parent;
 		public List<ThingQuery> queries = new List<ThingQuery>() { };
+		public bool matchAllQueries = true;	// or ANY
 
 		public QueryHolder(IQueryHolder p)
 		{
@@ -27,6 +28,8 @@ namespace TD_Find_Lib
 		public void ExposeData()
 		{
 			Scribe_Collections.Look(ref queries, "queries");
+			Scribe_Values.Look(ref matchAllQueries, "matchAllQueries");
+
 			if(Scribe.mode == LoadSaveMode.LoadingVars)
 				foreach (var f in queries)
 					f.parent = parent;
@@ -35,10 +38,21 @@ namespace TD_Find_Lib
 		public QueryHolder Clone(IQueryHolder newParent)
 		{
 			QueryHolder clone = new QueryHolder(newParent);
+
 			foreach (var f in queries)
 				clone.Add(f.Clone(), remake: false);
+
+			clone.matchAllQueries = matchAllQueries;
+
 			return clone;
 		}
+
+
+		public void DoResolveRef(Map map)
+		{
+			queries.ForEach(f => f.DoResolveRef(map));
+		}
+
 
 		// Add query and set its parent to this (well, the same parent IQueryHolder of this)
 		public void Add(ThingQuery newQuery, int index = -1, bool remake = true, bool focus = false)
@@ -337,6 +351,51 @@ namespace TD_Find_Lib
 				));
 			}
 			Find.WindowStack.Add(new FloatMenu(options));
+		}
+
+
+
+		// APPLY THE QUERIES!
+		public bool AppliesDirectlyTo(Thing t) =>
+			matchAllQueries ? queries.All(f => !f.Enabled || f.AppliesDirectlyTo(t)) :
+				queries.Any(f => f.Enabled && f.AppliesDirectlyTo(t));
+
+		// Apply to things, and include minified buildings and pawns inside corpses
+		public bool AppliesTo(Thing t) =>
+			matchAllQueries ? queries.All(f => !f.Enabled || f.AppliesTo(t)) :
+				queries.Any(f => f.Enabled && f.AppliesTo(t));
+
+
+		// Apply to a list of things
+		private List<Thing> newFilteredThings = new();
+		public void Filter(ref List<Thing> newListedThings)
+		{
+			var usedQueries = queries.FindAll(f => f.Enabled);
+			if (matchAllQueries)
+			{
+				// ALL
+				foreach (ThingQuery query in usedQueries)
+				{
+					// Clears newQueriedThings, fills with newListedThings which pass the query.
+					query.Apply(newListedThings, newFilteredThings);
+
+					// newQueriedThings is now the list of things ; swap them
+					(newListedThings, newFilteredThings) = (newFilteredThings, newListedThings);
+				}
+			}
+			else
+			{
+				// ANY
+
+				newFilteredThings.Clear();
+				foreach (Thing thing in newListedThings)
+					if (usedQueries.Any(f => f.AppliesTo(thing)))
+						newFilteredThings.Add(thing);
+
+				(newListedThings, newFilteredThings) = (newFilteredThings, newListedThings);
+			}
+
+			newFilteredThings.Clear();
 		}
 	}
 }

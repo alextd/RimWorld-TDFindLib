@@ -50,9 +50,6 @@ namespace TD_Find_Lib
 		// What basic list to search (TODO: list of types.)
 		public SearchListType listType = SearchListType.Selectable;
 
-		// How to look
-		public bool matchAllQueries = true;
-
 		// Where to look
 		public SearchMapType mapType; //default is CurMap
 		public List<Map> searchMaps = new();
@@ -62,7 +59,6 @@ namespace TD_Find_Lib
 			SearchParameters result = new();
 
 			result.listType = listType;
-			result.matchAllQueries = matchAllQueries;
 			result.mapType = mapType;
 
 			if(includeMaps)
@@ -73,7 +69,6 @@ namespace TD_Find_Lib
 		public void ExposeData()
 		{
 			Scribe_Values.Look(ref listType, "listType");
-			Scribe_Values.Look(ref matchAllQueries, "matchAllQueries", true);
 			Scribe_Values.Look(ref mapType, "mapType");
 
 			Scribe_Collections.Look(ref searchMaps, "searchMaps", LookMode.Reference);
@@ -105,7 +100,7 @@ namespace TD_Find_Lib
 		// Basic query settings:
 		private SearchParameters parameters = new();
 		// What to search for
-		public QueryHolder children;
+		protected QueryHolder children;
 		// Resulting things
 		public SearchResult result = new();
 
@@ -191,10 +186,10 @@ namespace TD_Find_Lib
 		// All Or Any Query
 		public bool MatchAllQueries
 		{
-			get => parameters.matchAllQueries;
+			get => children.matchAllQueries;
 			set
 			{
-				parameters.matchAllQueries = value;
+				children.matchAllQueries = value;
 
 				RemakeList();
 			}
@@ -299,7 +294,7 @@ namespace TD_Find_Lib
 		public bool CurMap() =>
 			parameters.mapType == SearchMapType.CurMap || ForceCurMap();
 
-		public bool ForceCurMap() => Children.Any(f => f.CurMapOnly);
+		public bool ForceCurMap() => children.Any(f => f.CurMapOnly);
 
 
 
@@ -345,7 +340,7 @@ namespace TD_Find_Lib
 			Scribe_Values.Look(ref active, "active");
 			parameters.ExposeData();
 
-			Children.ExposeData();
+			children.ExposeData();
 		}
 
 
@@ -482,7 +477,7 @@ namespace TD_Find_Lib
 
 		public void DoResolveRef(Map map)
 		{
-			Children.ForEach(f => f.DoResolveRef(map));
+			children.DoResolveRef(map);
 		}
 
 
@@ -529,7 +524,6 @@ namespace TD_Find_Lib
 		}
 
 		private List<Thing> newListedThings = new();
-		private List<Thing> newFilteredThings = new();
 		private List<Thing> Get(Map searchMap, SearchListType searchListType)
 		{ 
 			BindToMap(searchMap);
@@ -594,33 +588,7 @@ namespace TD_Find_Lib
 			}
 
 			// Apply the actual queries, finally
-
-			var queries = Children.queries.FindAll(f => f.Enabled);
-			if (MatchAllQueries)
-			{
-				// ALL
-				foreach (ThingQuery query in queries)
-				{
-					// Clears newQueriedThings, fills with newListedThings which pass the query.
-					query.Apply(newListedThings, newFilteredThings);
-
-					// newQueriedThings is now the list of things ; swap them
-					(newListedThings, newFilteredThings) = (newFilteredThings, newListedThings);
-				}
-			}
-			else
-			{
-				// ANY
-
-				newFilteredThings.Clear();
-				foreach (Thing thing in newListedThings)
-					if (queries.Any(f => f.AppliesTo(thing)))
-						newFilteredThings.Add(thing);
-
-				(newListedThings, newFilteredThings) = (newFilteredThings, newListedThings);
-			}
-
-			newFilteredThings.Clear();
+			children.Filter(ref newListedThings);
 
 			return newListedThings;
 		}

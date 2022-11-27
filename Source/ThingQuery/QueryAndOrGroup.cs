@@ -10,22 +10,19 @@ namespace TD_Find_Lib
 {
 	public class ThingQueryAndOrGroup : ThingQuery, IQueryHolder
 	{
-		public bool any = true; // or all
-		private QueryHolder children;
+		protected QueryHolder children;
 		public QueryHolder Children => children;
 
 		public ThingQueryAndOrGroup()
 		{
 			children = new QueryHolder(this);
 		}
-		public override bool ApplesDirectlyTo(Thing t) =>
-			any ? Children.queries.Any(f => f.Enabled && f.ApplesDirectlyTo(t)) :
-			Children.queries.All(f => !f.Enabled || f.ApplesDirectlyTo(t));
+		public override bool AppliesDirectlyTo(Thing t) =>
+			children.AppliesDirectlyTo(t);
 
 		public override void ExposeData()
 		{
 			base.ExposeData();
-			Scribe_Values.Look(ref any, "any", true);
 
 			Children.ExposeData();
 		}
@@ -33,22 +30,29 @@ namespace TD_Find_Lib
 		{
 			ThingQueryAndOrGroup clone = (ThingQueryAndOrGroup)base.Clone();
 			clone.children = children.Clone(clone);
-			clone.any = any;
 
 			return clone;
 		}
 
+
+		protected bool ButtonToggleAny(WidgetRow row)
+		{
+			if (row.ButtonTextNoGap(children.matchAllQueries ? "TD.AllOptions".Translate() : "TD.AnyOption".Translate()))
+			{
+				children.matchAllQueries = !children.matchAllQueries;
+				return true;
+			}
+			return false;
+		}
+
 		public override bool DrawMain(Rect rect, bool locked)
 		{
-			bool changed = false;
 			WidgetRow row = new WidgetRow(rect.x, rect.y);
+
 			row.Label("TD.IncludeThingsThatMatch".Translate());
-			if (row.ButtonTextNoGap(any ? "TD.AnyOption".Translate() : "TD.AllOptions".Translate()))
-			{
-				any = !any;
-				changed = true;
-			}
+			bool changed = ButtonToggleAny(row);
 			row.Label("TD.OfTheseQueries".Translate());
+
 			return changed;
 		}
 
@@ -58,7 +62,7 @@ namespace TD_Find_Lib
 			listing.Gap(listing.verticalSpacing);
 
 			//Draw queries
-			bool changed = Children.DrawQueriesListing(listing, locked, (any ? "OR" : "AND").Colorize(Color.green));
+			bool changed = Children.DrawQueriesListing(listing, locked, (children.matchAllQueries ? "AND" : "OR").Colorize(Color.green));
 
 			listing.NestedOutdent();
 			return changed;
@@ -70,14 +74,14 @@ namespace TD_Find_Lib
 		protected bool holdingThis;//or what I'm holding
 
 		List<Thing> _containedThings = new();
-		public override bool ApplesDirectlyTo(Thing t)
+		public override bool AppliesDirectlyTo(Thing t)
 		{
 			if (holdingThis)
 			{
 				IThingHolder parent = t.ParentHolder;
 				while (parent.IsValidHolder())
 				{
-					if (parent is Thing parentThing && base.ApplesDirectlyTo(parentThing))
+					if (parent is Thing parentThing && base.AppliesDirectlyTo(parentThing))
 						return true;
 					parent = parent.ParentHolder;
 				}
@@ -90,7 +94,7 @@ namespace TD_Find_Lib
 					ContentsUtility.AllKnownThingsInside(holder, _containedThings);
 
 					foreach (Thing containedThing in _containedThings)
-						if (base.ApplesDirectlyTo(containedThing))
+						if (base.AppliesDirectlyTo(containedThing))
 							return true;
 				}
 			}
@@ -118,11 +122,7 @@ namespace TD_Find_Lib
 				holdingThis = !holdingThis;
 			}
 			row.Label("TD.Matches".Translate());
-			if (row.ButtonTextNoGap(any ? "TD.AnyOption".Translate() : "TD.AllOptions".Translate()))
-			{
-				changed = true;
-				any = !any;
-			}
+			changed |= ButtonToggleAny(row);
 			row.Label("TD.Of".Translate());
 			return changed;
 		}
@@ -132,14 +132,14 @@ namespace TD_Find_Lib
 	{
 		IntRange range;
 
-		public override bool ApplesDirectlyTo(Thing t)
+		public override bool AppliesDirectlyTo(Thing t)
 		{
 			IntVec3 pos = t.PositionHeld;
 			Map map = t.MapHeld;
 
 			CellRect cells = new CellRect(pos.x - range.max, pos.z - range.max, range.max * 2 + 1, range.max * 2 + 1);
 			foreach (IntVec3 p in cells)
-				if (map.thingGrid.ThingsAt(p).Any(child => base.ApplesDirectlyTo(child)))
+				if (map.thingGrid.ThingsAt(p).Any(child => base.AppliesDirectlyTo(child)))
 					return true;
 			return false;
 		}
@@ -157,15 +157,10 @@ namespace TD_Find_Lib
 
 		public override bool DrawMain(Rect rect, bool locked)
 		{
-			bool changed = false;
 			WidgetRow row = new WidgetRow(rect.x, rect.y);
 
 			row.Label("TD.AnythingXStepsNearbyMatches".Translate());
-			if (row.ButtonText(any ? "TD.AnyOption".Translate() : "TD.AllOptions".Translate()))
-			{
-				any = !any;
-				changed = true;
-			}
+			bool changed = ButtonToggleAny(row);
 
 			changed |= TDWidgets.IntRange(rect.RightHalfClamped(row.FinalX), id, ref range, max: 10);
 			range.min = 0; // sorry we're not looking in a ring but we do want the slider UI

@@ -13,7 +13,7 @@ namespace TD_Find_Lib
 	{
 		public ThingQueryName() => sel = "";
 
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			//thing.Label.Contains(sel, CaseInsensitiveComparer.DefaultInvariant);	//Contains doesn't accept comparer with strings. okay.
 			sel == "" || thing.Label.IndexOf(sel, StringComparison.OrdinalIgnoreCase) >= 0;
 
@@ -73,7 +73,7 @@ namespace TD_Find_Lib
 	public enum ForbiddenType { Forbidden, Allowed, Forbiddable }
 	public class ThingQueryForbidden : ThingQueryDropDown<ForbiddenType>
 	{
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			bool forbiddable = thing.def.HasComp(typeof(CompForbiddable)) && thing.Spawned;
 			if (!forbiddable) return false;
@@ -89,7 +89,7 @@ namespace TD_Find_Lib
 
 	public class ThingQueryDesignation : ThingQueryDropDown<DesignationDef>
 	{
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			sel != null ?
 			(sel.targetType == TargetType.Thing ? thing.MapHeld.designationManager.DesignationOn(thing, sel) != null :
 			thing.MapHeld.designationManager.DesignationAt(thing.PositionHeld, sel) != null) :
@@ -109,7 +109,7 @@ namespace TD_Find_Lib
 
 	public class ThingQueryFreshness : ThingQueryDropDown<RotStage>
 	{
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			CompRottable rot = thing.TryGetComp<CompRottable>();
 			return
@@ -153,7 +153,7 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			thing.TryGetComp<CompRottable>()?.TicksUntilRotAtCurrentTemp is int t && ticksRange.Includes(t);
 
 		public override bool DrawMain(Rect rect, bool locked)
@@ -165,13 +165,13 @@ namespace TD_Find_Lib
 
 	public class ThingQueryGrowth : ThingQueryFloatRange
 	{
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			thing is Plant p && sel.Includes(p.Growth);
 	}
 
 	public class ThingQueryGrowthRate : ThingQueryFloatRange
 	{
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			thing is Plant p && sel.Includes(p.GrowthRate);
 
 		public override float Max => maxGrowthRate;
@@ -194,7 +194,7 @@ namespace TD_Find_Lib
 	{
 		public ThingQueryPlantHarvest() => extraOption = 1;
 
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Plant plant = thing as Plant;
 			if (plant == null)
@@ -246,19 +246,19 @@ namespace TD_Find_Lib
 
 	public class ThingQueryPlantHarvestable : ThingQuery
 	{
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			thing is Plant plant && plant.HarvestableNow;
 	}
 
 	public class ThingQueryPlantCrop : ThingQuery
 	{
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			thing is Plant plant && plant.IsCrop;
 	}
 
 	public class ThingQueryPlantDies : ThingQuery
 	{
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			thing is Plant plant && (plant.def.plant?.dieIfLeafless ?? false);
 	}
 
@@ -279,7 +279,7 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Faction fac = thing.Faction;
 			if (host)
@@ -339,7 +339,7 @@ namespace TD_Find_Lib
 	}
 	class ThingQueryCategory : ThingQueryDropDown<ListCategory>
 	{
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			switch (sel)
 			{
@@ -360,7 +360,7 @@ namespace TD_Find_Lib
 	{
 		public ThingQueryItemCategory() => sel = ThingCategoryDefOf.Root;
 
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			thing.def.IsWithinCategory(sel);
 
 		public override IEnumerable<ThingCategoryDef> Options() =>
@@ -388,14 +388,14 @@ namespace TD_Find_Lib
 	{
 		public ThingQuerySpecialFilter() => sel = SpecialThingFilterDefOf.AllowFresh;
 
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			sel.Worker.Matches(thing);
 	}
 
 	public enum MineableType { Resource, Rock, All }
 	public class ThingQueryMineable : ThingQueryDropDown<MineableType>
 	{
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			switch (sel)
 			{
@@ -409,7 +409,7 @@ namespace TD_Find_Lib
 
 	public class ThingQueryHP : ThingQueryFloatRange
 	{
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			if (thing is Pawn pawn)
 				return sel.Includes(pawn.health.summaryHealth.SummaryHealthPercent);
@@ -425,7 +425,7 @@ namespace TD_Find_Lib
 	{
 		public ThingQueryQuality() => sel = QualityRange.All;
 
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			thing.TryGetQuality(out QualityCategory qc) &&
 			sel.Includes(qc);
 
@@ -446,7 +446,7 @@ namespace TD_Find_Lib
 
 	public class ThingQueryStuff : ThingQueryDropDown<ThingDef>
 	{
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			ThingDef stuff = thing is IConstructible c ? c.EntityToBuildStuff() : thing.Stuff;
 			return
@@ -471,7 +471,7 @@ namespace TD_Find_Lib
 
 	public class ThingQueryMissingBodyPart : ThingQueryDropDown<BodyPartDef>
 	{
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
@@ -515,7 +515,7 @@ namespace TD_Find_Lib
 		protected override Area ResolveRef(Map map) =>
 			map.areaManager.GetLabeled(selName);
 
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Map map = thing.MapHeld;
 			IntVec3 pos = thing.PositionHeld;
@@ -561,7 +561,7 @@ namespace TD_Find_Lib
 		protected override Zone ResolveRef(Map map) =>
 			map.zoneManager.AllZones.FirstOrDefault(z => z.label == selName);
 
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			IntVec3 pos = thing.PositionHeld;
 			Zone zoneAtPos = thing.MapHeld.zoneManager.ZoneAt(pos);
@@ -581,14 +581,14 @@ namespace TD_Find_Lib
 
 	public class ThingQueryDeterioration : ThingQuery
 	{
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			SteadyEnvironmentEffects.FinalDeteriorationRate(thing) >= 0.001f;
 	}
 
 	public enum DoorOpenQuery { Open, Close, HoldOpen, BlockedOpenMomentary }
 	public class ThingQueryDoorOpen : ThingQueryDropDown<DoorOpenQuery>
 	{
-		public override bool ApplesDirectlyTo(Thing thing)
+		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Building_Door door = thing as Building_Door;
 			if (door == null) return false;
@@ -646,7 +646,7 @@ namespace TD_Find_Lib
 		}
 
 
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			sel == thing.def &&
 			(sel.stackLimit <= 1 || stackRange.Includes(thing.stackCount));
 
@@ -722,7 +722,7 @@ namespace TD_Find_Lib
 			LoadedModManager.RunningMods.FirstOrDefault(mod => mod.PackageIdPlayerFacing == selName);
 
 
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			sel == thing.ContentSource;
 
 		public override IEnumerable<ModContentPack> Options() =>
@@ -734,7 +734,7 @@ namespace TD_Find_Lib
 
 	public class ThingQueryOnScreen : ThingQuery
 	{
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			thing.OccupiedRect().Overlaps(Find.CameraDriver.CurrentViewRect);
 
 		public override bool CurMapOnly => true;
@@ -743,7 +743,7 @@ namespace TD_Find_Lib
 
 	public class ThingQuerySelectable : ThingQuery
 	{
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			thing.def.selectable;
 	}
 
@@ -775,7 +775,7 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		public override bool ApplesDirectlyTo(Thing t) =>
+		public override bool AppliesDirectlyTo(Thing t) =>
 			sel.Worker.ShouldShowFor(StatRequest.For(t)) &&
 			valueRange.Includes(t.GetStatValue(sel, cacheStaleAfterTicks: 1));
 
@@ -873,7 +873,7 @@ namespace TD_Find_Lib
 	{
 		public ThingQueryBuildingCategory() => sel = DesignationCategoryDefOf.Production;
 
-		public override bool ApplesDirectlyTo(Thing thing) =>
+		public override bool AppliesDirectlyTo(Thing thing) =>
 			sel == thing.def.designationCategory;
 
 		public override IEnumerable<DesignationCategoryDef> Options() =>

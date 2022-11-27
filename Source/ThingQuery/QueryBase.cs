@@ -115,14 +115,14 @@ namespace TD_Find_Lib
 		// but position/status of outer thing. So it just checks both -- but then something like 'no stuff' always applies. Oh well
 		public bool AppliesTo(Thing thing)
 		{
-			bool applies = ApplesDirectlyTo(thing);
+			bool applies = AppliesDirectlyTo(thing);
 			if (!applies && thing.GetInnerThing() is Thing innerThing && innerThing != thing)
-				applies = ApplesDirectlyTo(innerThing);
+				applies = AppliesDirectlyTo(innerThing);
 
 			return applies == include;
 		}
 
-		public abstract bool ApplesDirectlyTo(Thing thing);
+		public abstract bool AppliesDirectlyTo(Thing thing);
 
 
 		private bool shouldFocus;
