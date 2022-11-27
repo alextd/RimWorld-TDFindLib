@@ -71,6 +71,10 @@ namespace TD_Find_Lib
 			Scribe_Values.Look(ref listType, "listType");
 			Scribe_Values.Look(ref mapType, "mapType");
 
+			//Sanity check
+			if (listType == 0)
+				listType = SearchListType.Selectable;
+
 			Scribe_Collections.Look(ref searchMaps, "searchMaps", LookMode.Reference);
 		}
 	}
