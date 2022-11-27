@@ -28,7 +28,7 @@ namespace TD_Find_Lib
 		public void ExposeData()
 		{
 			Scribe_Collections.Look(ref queries, "queries");
-			Scribe_Values.Look(ref matchAllQueries, "matchAllQueries", true);
+			Scribe_Values.Look(ref matchAllQueries, "matchAllQueries", forceSave: true);	//Force save because the default is different in different contexts
 
 			if(Scribe.mode == LoadSaveMode.LoadingVars)
 				foreach (var f in queries)
