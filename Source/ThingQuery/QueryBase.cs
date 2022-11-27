@@ -43,7 +43,7 @@ namespace TD_Find_Lib
 		public bool include
 		{
 			get => _include;
-			private set
+			set
 			{
 				_include = value;
 				_label = null;
@@ -58,7 +58,7 @@ namespace TD_Find_Lib
 				{
 					_label = def.LabelCap;
 					if (!include)
-						_label = "NOT".Colorize(Color.red);
+						_label = "NOT".Colorize(Color.red) + " " + _label;
 				}
 				return _label;
 			}
