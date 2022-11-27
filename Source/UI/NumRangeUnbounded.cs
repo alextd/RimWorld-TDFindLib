@@ -58,7 +58,7 @@ namespace TD_Find_Lib
 		public bool Includes(int val) =>
 			range.Includes(val)
 			|| (val < absRange.min && range.min == absRange.min)
-			|| (val < absRange.max && range.max == absRange.max);
+			|| (val > absRange.max && range.max == absRange.max);
 	}
 
 
@@ -109,6 +109,6 @@ namespace TD_Find_Lib
 		public bool Includes(float val) =>
 			range.Includes(val)
 			|| (val < absRange.min && range.min == absRange.min)
-			|| (val < absRange.max && range.max == absRange.max);
+			|| (val > absRange.max && range.max == absRange.max);
 	}
 }
