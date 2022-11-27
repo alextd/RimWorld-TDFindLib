@@ -446,12 +446,6 @@
 	</TD_Find_Lib.ThingQueryDef>
 
 	<TD_Find_Lib.ThingQueryDef>
-		<defName>Query_Selectable</defName>
-		<label>selectable</label>
-		<queryClass>TD_Find_Lib.ThingQuerySelectable</queryClass>
-	</TD_Find_Lib.ThingQueryDef>
-
-	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_AndOrGroup</defName>
 		<label>filter grouping</label>
 		<queryClass>TD_Find_Lib.ThingQueryAndOrGroup</queryClass>
@@ -463,12 +457,21 @@
 		<defName>Category_devmode</defName>
 		<label>Dev/Cheat options</label>
 		<subQueries>
+			<li>Query_Selectable</li>
 			<li>Query_ClassType</li>
 			<li>Query_DrawerType</li>
 			<li>Query_Fogged</li>
 		</subQueries>
+		<devOnly>true</devOnly>
 	</TD_Find_Lib.ThingQueryCategoryDef>
 
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Selectable</defName>
+		<label>selectable</label>
+		<queryClass>TD_Find_Lib.ThingQuerySelectable</queryClass>
+		<devOnly>true</devOnly>
+	</TD_Find_Lib.ThingQueryDef>
 
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_ClassType</defName>
