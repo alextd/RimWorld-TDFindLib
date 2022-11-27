@@ -329,7 +329,7 @@
 
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Harvestable</defName>
-		<label>plant harvestable</label>
+		<label>harvestable now</label>
 		<queryClass>TD_Find_Lib.ThingQueryPlantHarvestable</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 
