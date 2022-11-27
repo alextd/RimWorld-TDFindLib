@@ -286,7 +286,7 @@ namespace TD_Find_Lib
 				selectionError = selectionErrorCurMap = null;
 				refErrorReported = false;
 				if (SaveLoadByName) selName = MakeSaveName();
-				if (UsesResolveRef) RootQuerySearch.UnbindMap();
+				if (UsesResolveRef) RootQuerySearch?.UnbindMap();
 				PostProcess();
 				PostChosen();
 			}
