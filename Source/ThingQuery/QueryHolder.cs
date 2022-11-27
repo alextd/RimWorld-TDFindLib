@@ -356,11 +356,6 @@ namespace TD_Find_Lib
 
 
 		// APPLY THE QUERIES!
-		public bool AppliesDirectlyTo(Thing t) =>
-			matchAllQueries ? queries.All(f => !f.Enabled || f.AppliesDirectlyTo(t)) :
-				queries.Any(f => f.Enabled && f.AppliesDirectlyTo(t));
-
-		// Apply to things, and include minified buildings and pawns inside corpses
 		public bool AppliesTo(Thing t) =>
 			matchAllQueries ? queries.All(f => !f.Enabled || f.AppliesTo(t)) :
 				queries.Any(f => f.Enabled && f.AppliesTo(t));
@@ -386,7 +381,6 @@ namespace TD_Find_Lib
 			else
 			{
 				// ANY
-
 				newFilteredThings.Clear();
 				foreach (Thing thing in newListedThings)
 					if (usedQueries.Any(f => f.AppliesTo(thing)))

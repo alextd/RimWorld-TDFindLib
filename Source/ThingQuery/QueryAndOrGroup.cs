@@ -18,7 +18,7 @@ namespace TD_Find_Lib
 			children = new QueryHolder(this);
 		}
 		public override bool AppliesDirectlyTo(Thing t) =>
-			children.AppliesDirectlyTo(t);
+			children.AppliesTo(t);
 
 		public override void ExposeData()
 		{
