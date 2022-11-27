@@ -121,6 +121,9 @@ namespace TD_Find_Lib
 					List<FloatMenuOption> types = new List<FloatMenuOption>();
 					foreach (SearchListType type in DebugSettings.godMode ? Enum.GetValues(typeof(SearchListType)) : SearchListNormalTypes.normalTypes)
 					{
+						if (!DebugSettings.godMode && type >= SearchListType.Haulables)
+							continue;
+
 						if (Event.current.control)
 						{
 							types.Add(new FloatMenuOption(
