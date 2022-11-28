@@ -102,7 +102,7 @@ namespace TD_Find_Lib
 		public string name = "??NAME??";
 
 		// Basic query settings:
-		private SearchParameters parameters = new();
+		public SearchParameters parameters = new();
 		// Resulting things
 		public SearchResult result = new();
 
