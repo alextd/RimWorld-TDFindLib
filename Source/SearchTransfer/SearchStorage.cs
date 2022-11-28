@@ -19,6 +19,11 @@ namespace TD_Find_Lib
 
 		public static void ButtonOpenLibrary(Rect rect)
 		{
+			if (rect.width > rect.height)
+				rect.width = rect.height;
+			else
+				rect.height = rect.width;
+
 			if (Widgets.ButtonImage(rect, FindTex.Book))
 				OpenLibrary();
 
