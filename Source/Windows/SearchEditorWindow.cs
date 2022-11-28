@@ -39,23 +39,7 @@ namespace TD_Find_Lib
 		}
 
 
-		public virtual Vector2 RequestedSize => new Vector2(600, 600);
-		public override Vector2 InitialSize
-		{
-			get
-			{
-				Vector2 size = RequestedSize;
-				if (size.y > (float)(UI.screenHeight - 35))
-				{
-					size.y = UI.screenHeight - 35;
-				}
-				if (size.x > (float)UI.screenWidth)
-				{
-					size.x = UI.screenWidth;
-				}
-				return size;
-			}
-		}
+		public override Vector2 InitialSize => new Vector2(600, 600);
 
 		public override void SetInitialSizeAndPosition()
 		{

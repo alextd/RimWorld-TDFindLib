@@ -217,7 +217,7 @@ namespace TD_Find_Lib
 
 		public virtual void DrawExtraHeader(Rect headerRect) { }
 		public virtual void DrawPreRow(Listing_StandardIndent listing, int i) { }
-		public virtual void DrawWidgetButtons(WidgetRow row, TItem item, int i) { }
+		public virtual void DrawRowButtons(WidgetRow row, TItem item, int i) { }
 		public virtual void DrawExtraRowRect(Rect rowRect, TItem item, int i) { }
 		public virtual void DrawPostList(Listing_StandardIndent listing) { }
 		//Drawing
@@ -267,7 +267,7 @@ namespace TD_Find_Lib
 				WidgetRow row = new WidgetRow(rowRect.x, rowRect.y, UIDirection.RightThenDown, rowRect.width);
 
 				// Buttons
-				DrawWidgetButtons(row, item, i);
+				DrawRowButtons(row, item, i);
 
 				// Name
 				row.Gap(6);
@@ -344,7 +344,7 @@ namespace TD_Find_Lib
 			{
 				var search = new QuerySearch() { name = n };
 				list.TryAdd(search);
-				Find.WindowStack.Add(new SearchEditorWindow(search, f => list.parent.Write())) ;
+				Find.WindowStack.Add(new SearchEditorWindow(search, f => list.parent.Write()));
 			},
 			"TD.NameForNewSearch".Translate()));
 		}
@@ -391,7 +391,7 @@ namespace TD_Find_Lib
 				PopUpCreateQuerySearch();
 		}
 
-		public override void DrawWidgetButtons(WidgetRow row, QuerySearch search, int i)
+		public override void DrawRowButtons(WidgetRow row, QuerySearch search, int i)
 		{
 			if (row.ButtonIcon(FindTex.Edit, "TD.EditThisSearch".Translate()))
 			{
@@ -441,7 +441,7 @@ namespace TD_Find_Lib
 		}
 
 
-		public override void DrawWidgetButtons(WidgetRow row, RefreshQuerySearch refSearch, int i)
+		public override void DrawRowButtons(WidgetRow row, RefreshQuerySearch refSearch, int i)
 		{
 			if (row.ButtonIcon(FindTex.Edit, "TD.ViewThisSearch".Translate()))
 			{
