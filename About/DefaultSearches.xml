@@ -81,6 +81,46 @@
       <matchAllQueries>True</matchAllQueries>
     </li>
     <li>
+      <name>Tame Targets</name>
+      <listType>Everyone</listType>
+      <mapType>AllMaps</mapType>
+      <searchMaps />
+      <queries>
+        <li Class="TD_Find_Lib.ThingQueryFaction">
+          <def>Query_Faction</def>
+          <include>False</include>
+          <ex>1</ex>
+        </li>
+        <li Class="TD_Find_Lib.ThingQueryAndOrGroup">
+          <def>Query_AndOrGroup</def>
+          <queries>
+            <li Class="TD_Find_Lib.ThingQueryRaceProps">
+              <def>Query_RaceProps</def>
+              <sel>Pack</sel>
+              <valueRange>0~1</valueRange>
+            </li>
+            <li Class="TD_Find_Lib.ThingQueryEgg">
+              <def>Query_Egg</def>
+              <ex>1</ex>
+              <countRange>0~60</countRange>
+            </li>
+            <li Class="TD_Find_Lib.ThingQueryMilk">
+              <def>Query_Milk</def>
+              <ex>1</ex>
+              <countRange>0~840</countRange>
+            </li>
+            <li Class="TD_Find_Lib.ThingQueryWool">
+              <def>Query_Wool</def>
+              <ex>1</ex>
+              <countRange>0~600</countRange>
+            </li>
+          </queries>
+          <matchAllQueries>False</matchAllQueries>
+        </li>
+      </queries>
+      <matchAllQueries>True</matchAllQueries>
+    </li>
+    <li>
       <name>Forbidden Animal Corpse</name>
       <listType>Selectable</listType>
       <mapType>AllMaps</mapType>
