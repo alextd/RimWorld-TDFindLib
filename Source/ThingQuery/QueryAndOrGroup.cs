@@ -13,6 +13,10 @@ namespace TD_Find_Lib
 		protected QueryHolder children;
 		public QueryHolder Children => children;
 
+		public void Root_NotifyUpdated() { }
+		public void Root_NotifyRefUpdated() { }
+		public bool Root_Active => false;
+
 		public ThingQueryAndOrGroup()
 		{
 			children = new QueryHolder(this);

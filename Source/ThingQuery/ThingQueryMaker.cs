@@ -69,7 +69,7 @@ namespace TD_Find_Lib
 		public static ThingQueryDef Query_Zone;
 
 		// The result is to be added to a IQueryHolder with Add()
-		// (Either a QuerySearch or a ThingQueryGrouping)
+		// (Probably a QuerySearch or a ThingQueryGrouping)
 		public static ThingQuery MakeQuery(ThingQueryDef def)
 		{
 			ThingQuery query = (ThingQuery)Activator.CreateInstance(def.queryClass);

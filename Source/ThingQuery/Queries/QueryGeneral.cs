@@ -657,7 +657,7 @@ namespace TD_Find_Lib
 			(Mod.settings.OnlyAvailable ?
 				base.Options().Intersect(ContentsUtility.AvailableInGame(t => t.def)) :
 				base.Options())
-			.Where(def => QuerySearch.ValidDef(def));
+			.Where(def => ValidDef(def));
 
 		public override string CategoryFor(ThingDef def)
 		{

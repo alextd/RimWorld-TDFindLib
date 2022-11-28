@@ -120,8 +120,11 @@ namespace TD_Find_Lib
 
 
 		// from IQueryHolder:
-		public QuerySearch RootQuerySearch => this;
+		public IQueryHolder RootHolder => this;
 		public QueryHolder Children => children;
+		public void Root_NotifyUpdated() => RemakeList();
+		public void Root_NotifyRefUpdated() => UnbindMap();
+		public bool Root_Active => active;
 
 
 
@@ -539,7 +542,7 @@ namespace TD_Find_Lib
 
 			// Check visibility, and for particularly extensive searches, validity.
 			Func<Thing, bool> visible = DebugSettings.godMode ? null : t => !t.Position.Fogged(searchMap);
-			Func<Thing, bool> valid = DebugSettings.godMode ? null : t => ValidDef(t.def) && !t.Position.Fogged(searchMap);
+			Func<Thing, bool> valid = DebugSettings.godMode ? null : t => ThingQuery.ValidDef(t.def) && !t.Position.Fogged(searchMap);
 
 
 			// First if we're listing from AllThings, only do that
@@ -596,11 +599,5 @@ namespace TD_Find_Lib
 
 			return newListedThings;
 		}
-
-		//Probably a good filter
-		public static bool ValidDef(ThingDef def) =>
-			!typeof(Mote).IsAssignableFrom(def.thingClass) &&
-			!typeof(Projectile).IsAssignableFrom(def.thingClass) &&
-			def.drawerType != DrawerType.None;	//non-drawers are weird abstract things.
 	}
 }

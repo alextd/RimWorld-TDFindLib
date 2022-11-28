@@ -12,7 +12,10 @@ namespace TD_Find_Lib
 	public interface IQueryHolder
 	{
 		public QueryHolder Children { get; }
-		public QuerySearch RootQuerySearch { get; }
+		public IQueryHolder RootHolder { get; }	//Either return this or a parent
+		public void Root_NotifyUpdated();
+		public void Root_NotifyRefUpdated();
+		public bool Root_Active { get; }
 	}
 	public class QueryHolder//	 : IExposable //Not IExposable because that means ctor QueryHolder() should exist.
 	{
@@ -64,7 +67,7 @@ namespace TD_Find_Lib
 				queries.Insert(index, newQuery);
 
 			if (focus) newQuery.Focus();
-			if (remake) parent.RootQuerySearch?.RemakeList();
+			if (remake) parent.RootHolder?.Root_NotifyUpdated();
 		}
 
 		public void Clear()
@@ -211,7 +214,7 @@ namespace TD_Find_Lib
 
 			List<int> reorderIDs = new(Gather<int>(f => f.Children.reorderID));
 
-			ReorderableWidget.NewMultiGroup(reorderIDs, parent.RootQuerySearch.Children.MasterReorder);
+			ReorderableWidget.NewMultiGroup(reorderIDs, parent.RootHolder.Children.MasterReorder);
 
 			listing.EndScrollView(ref scrollHeight);
 

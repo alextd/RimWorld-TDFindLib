@@ -27,7 +27,7 @@ namespace TD_Find_Lib
 
 		public IQueryHolder parent;
 
-		public QuerySearch RootQuerySearch => parent?.RootQuerySearch;
+		public IQueryHolder RootHolder => parent?.RootHolder;
 
 
 		protected int id; //For Widgets.draggingId purposes
@@ -231,6 +231,12 @@ namespace TD_Find_Lib
 			else
 				Find.WindowStack.Add(new FloatMenu(options));
 		}
+
+		//Probably a good filter
+		public static bool ValidDef(ThingDef def) =>
+			!typeof(Mote).IsAssignableFrom(def.thingClass) &&
+			!typeof(Projectile).IsAssignableFrom(def.thingClass) &&
+			def.drawerType != DrawerType.None;  //non-drawers are weird abstract things.
 	}
 
 	public class FloatMenuOptionAndRefresh : FloatMenuOption
@@ -246,7 +252,7 @@ namespace TD_Find_Lib
 			bool result = base.DoGUI(rect, colonistOrdering, floatMenu);
 
 			if (result)
-				owner.RootQuerySearch.RemakeList();
+				owner.RootHolder.Root_NotifyUpdated();
 
 			return result;
 		}
@@ -286,7 +292,7 @@ namespace TD_Find_Lib
 				selectionError = selectionErrorCurMap = null;
 				refErrorReported = false;
 				if (SaveLoadByName) selName = MakeSaveName();
-				if (UsesResolveRef) RootQuerySearch?.UnbindMap();
+				if (UsesResolveRef) RootHolder?.Root_NotifyRefUpdated();
 				PostProcess();
 				PostChosen();
 			}
@@ -359,7 +365,7 @@ namespace TD_Find_Lib
 		// - Queries that fail to resolve name are disabled until reset (at least, the DropDown subclasses)
 		//Queries that UsesResolveRef must be resolved on a map (e.g. Zones, ILoadReferenceable)
 		// - Queries that are loaded and inactive do not call ResolveRef and only have selName set.
-		// - Queries get their refs resolved when a search is performed - and QuerySearch calls BindToMap()
+		// - Queries need their refs resolved when a search is performed - e.g. when QuerySearch calls BindToMap()
 		// - BindToMap will remember it's bound to that map and not bother to re-bind
 		// - A Search that runs on multiple maps will bind to each map and resolve query refs dynamically.
 		// - This of course will produce error messages if those can't be resolved on all maps
@@ -531,7 +537,7 @@ namespace TD_Find_Lib
 			if (sel != null)
 				return NameFor(sel);
 
-			if (UsesResolveRef && !RootQuerySearch.active && selName != SaveLoadXmlConstants.IsNullAttributeName)
+			if (UsesResolveRef && !RootHolder.Root_Active && selName != SaveLoadXmlConstants.IsNullAttributeName)
 				return selName;
 
 			return NullOption() ?? "??Null selection??";
