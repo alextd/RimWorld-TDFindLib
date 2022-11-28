@@ -16,6 +16,12 @@ namespace TD_Find_Lib
 		public static List<ISearchProvider> providers = new();
 		//providers work overtime, providing none/single/list/group-of-lists
 
+
+		// I would love to auto-create and register all subclasses of ISearchReceiver,
+		// but any class could implement it and we can't be sure it's okay to just create a new one (e.g. Settings)
+		// Plus, many receivers are invalidated when a game ends.
+		// It's not the easiest thing to hook into "on game end"
+		// So it's easier to keep a static receiver that checks if a game exists in CanReceive()
 		public static void Register(object obj)
 		{
 			if (obj is ISearchReceiver receiver)
