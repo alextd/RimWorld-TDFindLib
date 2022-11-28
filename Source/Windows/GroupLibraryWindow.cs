@@ -161,7 +161,7 @@ namespace TD_Find_Lib
 
 					groupDrawers.Add(drawer);
 				},
-				"TD.Storage".Translate());
+				Settings.StorageTransferTag);
 
 
 				//Label
@@ -344,7 +344,7 @@ namespace TD_Find_Lib
 			{
 				var search = new QuerySearch() { name = n };
 				list.TryAdd(search);
-				Find.WindowStack.Add(new SearchEditorWindow(search, f => list.parent.Write()));
+				Find.WindowStack.Add(new SearchEditorWindow(search, Settings.StorageTransferTag, f => list.parent.Write()));
 			},
 			"TD.NameForNewSearch".Translate()));
 		}
@@ -371,15 +371,15 @@ namespace TD_Find_Lib
 			}
 
 			// Export Group
-			SearchStorage.ButtonChooseExportSearchGroup(headerRow, list, "TD.Storage".Translate());
+			SearchStorage.ButtonChooseExportSearchGroup(headerRow, list, Settings.StorageTransferTag);
 
 
 			// Import single search
-			SearchStorage.ButtonChooseImportSearch(headerRow, list.Add, "TD.Storage".Translate());
+			SearchStorage.ButtonChooseImportSearch(headerRow, list.Add, Settings.StorageTransferTag);
 
 
 			// Paste Group and merge
-			SearchStorage.ButtonChooseImportSearchGroup(headerRow, list.AddRange, "TD.Storage".Translate());
+			SearchStorage.ButtonChooseImportSearchGroup(headerRow, list.AddRange, Settings.StorageTransferTag);
 
 
 			// Rename 
@@ -395,7 +395,7 @@ namespace TD_Find_Lib
 		{
 			if (row.ButtonIcon(FindTex.Edit, "TD.EditThisSearch".Translate()))
 			{
-				Find.WindowStack.Add(new SearchEditorWindow(search.CloneInactive(), nd => list.ConfirmPaste(nd, i)));
+				Find.WindowStack.Add(new SearchEditorWindow(search.CloneInactive(), Settings.StorageTransferTag, nd => list.ConfirmPaste(nd, i)));
 			}
 
 
@@ -413,7 +413,7 @@ namespace TD_Find_Lib
 						"TD.Delete0".Translate(search.name), () => Trash(i), true));
 			}
 
-			SearchStorage.ButtonChooseExportSearch(row, search, "TD.Storage".Translate());
+			SearchStorage.ButtonChooseExportSearch(row, search, Settings.StorageTransferTag);
 		}
 	}
 
@@ -445,7 +445,7 @@ namespace TD_Find_Lib
 		{
 			if (row.ButtonIcon(FindTex.Edit, "TD.ViewThisSearch".Translate()))
 			{
-				Find.WindowStack.Add(new TDFindLibViewerWindow(refSearch.search));
+				Find.WindowStack.Add(new TDFindLibViewerWindow(refSearch.search, Settings.StorageTransferTag));
 			}
 
 			if (row.ButtonIcon(TexButton.AutoHomeArea, "TD.OpenTheModControllingThisSearch".Translate()))

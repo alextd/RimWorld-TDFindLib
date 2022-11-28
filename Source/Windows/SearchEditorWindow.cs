@@ -12,9 +12,12 @@ namespace TD_Find_Lib
 	{
 		public readonly QuerySearchDrawer drawer;
 		private Action<QuerySearch> onCloseIfChanged;
+		private string transferTag;
 
-		public SearchEditorWindow(QuerySearch search, Action<QuerySearch> onCloseIfChanged = null)
+		public SearchEditorWindow(QuerySearch search, string transferTag, Action<QuerySearch> onCloseIfChanged = null)
 		{
+			this.transferTag = transferTag;
+
 			drawer = new QuerySearchDrawer(search, "TD.Editing".Translate()) { showNameAfterTitle = true };
 			onlyOneOfTypeAllowed = false;
 			preventCameraMotion = false;
@@ -53,7 +56,7 @@ namespace TD_Find_Lib
 			drawer.DrawQuerySearch(fillRect, Find.CurrentMap == null ? null :
 				row =>
 				{
-					SearchStorage.ButtonChooseExportSearch(row, drawer.search, "TD.Storage".Translate());
+					SearchStorage.ButtonChooseExportSearch(row, drawer.search, transferTag);
 					if (row.ButtonIcon(FindTex.List, "TD.ListThingsMatchingThisSearch".Translate()))
 					{
 						Find.WindowStack.Add(new ResultThingListWindow(drawer.search.CloneForUseSingle()));
@@ -63,7 +66,7 @@ namespace TD_Find_Lib
 	}
 	public class TDFindLibViewerWindow : SearchEditorWindow
 	{
-		public TDFindLibViewerWindow(QuerySearch search):base(search)
+		public TDFindLibViewerWindow(QuerySearch search, string tag):base(search, tag)
 		{
 			drawer.permalocked = true;
 			drawer.title = "TD.Viewing".Translate();

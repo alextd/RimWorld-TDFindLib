@@ -96,7 +96,8 @@ namespace TD_Find_Lib
 
 
 		// SearchTransfer business
-		public string Source => "TD.Storage".Translate();
+		public static string StorageTransferTag = "Storage";
+		public string Source => StorageTransferTag;
 		public string ReceiveName => "TD.SaveSearches".Translate();
 		public string ProvideName => "TD.LoadSearches".Translate();
 
