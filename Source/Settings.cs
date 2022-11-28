@@ -8,7 +8,7 @@ using RimWorld;
 
 namespace TD_Find_Lib
 {
-	public class Settings : ModSettings, ISearchReceiver, ISearchProvider, ISearchStorageParent
+	public class Settings : ModSettings, ISearchReceiver, ISearchGroupReceiver, ISearchProvider, ISearchStorageParent
 	{
 		private bool onlyAvailable = true;
 		public bool OnlyAvailable => onlyAvailable != Event.current.shift && Find.CurrentMap != null;
@@ -82,14 +82,17 @@ namespace TD_Find_Lib
 		}
 
 
+		public bool firstUse = true;
 		public override void ExposeData()
 		{
 			Scribe_Values.Look(ref onlyAvailable, "onlyAvailable", true);
+			Scribe_Values.Look(ref firstUse, "firstUse", false);
 
 			Scribe_Collections.Look(ref searchGroups, "searchGroups", LookMode.Deep, "??Group Name??", this);
 			
 			SanityCheck();
 		}
+
 
 
 		// SearchTransfer business
@@ -123,6 +126,8 @@ namespace TD_Find_Lib
 				Find.WindowStack.Add(new FloatMenu(submenuOptions));
 			}
 		}
+
+		public void Receive(SearchGroup group) => Add(group);
 
 		public static void SaveToGroup(QuerySearch search, SearchGroup group)
 		{
