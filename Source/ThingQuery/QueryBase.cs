@@ -479,7 +479,8 @@ namespace TD_Find_Lib
 		{
 			if (!UsesResolveRef || extraOption > 0) return;
 
-			if (map == null) return; //Not gonna go well
+			if (map == null)
+				RefError(null);
 
 			if (selName == SaveLoadXmlConstants.IsNullAttributeName)
 			{
@@ -490,17 +491,24 @@ namespace TD_Find_Lib
 				_sel = ResolveRef(map);
 
 				if (_sel == null)
-				{
-					selectionErrorCurMap = $"Missing {def.LabelCap}: {selName} on {map.Parent.LabelCap}?";
-					if (!refErrorReported)
-					{
-						selectionError = selectionErrorCurMap;
-						// Report the first one, even if there's many. User will have to deal with them one-by-one.
-						Messages.Message("TD.TriedToLoad0QueryNamed1On2ButCouldNotBeFound".Translate(def.LabelCap, selName, map.Parent.LabelCap), MessageTypeDefOf.RejectInput, false);
-						refErrorReported = true;
-					}
-				}
-				else selectionErrorCurMap = null;
+					RefError(map);
+				else
+					selectionErrorCurMap = null;
+			}
+		}
+
+		private void RefError(Map map)
+		{
+			selectionErrorCurMap = map == null ? $"Filter {def.LabelCap}: {selName} needs a map - was given null map?"
+				: $"Missing {def.LabelCap}: {selName} on {map.Parent.LabelCap}?";
+			if (!refErrorReported)
+			{
+				selectionError = selectionErrorCurMap;
+				// Report the first one, even if there's many. User will have to deal with them one-by-one.
+				Messages.Message(map == null ? $"TDFindLib tried to load {def.LabelCap} filter but no map was given to find {selName}" :
+					"TD.TriedToLoad0QueryNamed1On2ButCouldNotBeFound".Translate(def.LabelCap, selName, map?.Parent.LabelCap ?? "No Map"),
+					MessageTypeDefOf.RejectInput, false);
+				refErrorReported = true;
 			}
 		}
 

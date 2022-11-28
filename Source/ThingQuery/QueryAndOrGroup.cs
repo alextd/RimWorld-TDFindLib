@@ -10,8 +10,8 @@ namespace TD_Find_Lib
 {
 	public class ThingQueryAndOrGroup : ThingQuery, IQueryHolder
 	{
-		protected QueryHolder children;
-		public QueryHolder Children => children;
+		protected HeldQueries children;
+		public HeldQueries Children => children;
 
 		public void Root_NotifyUpdated() { }
 		public void Root_NotifyRefUpdated() { }
@@ -19,7 +19,7 @@ namespace TD_Find_Lib
 
 		public ThingQueryAndOrGroup()
 		{
-			children = new QueryHolder(this);
+			children = new HeldQueries(this);
 			children.matchAllQueries = false; //default match any in sub-group. Otherwise it's just more ANDing...
 		}
 		public override bool AppliesDirectlyTo(Thing t) =>

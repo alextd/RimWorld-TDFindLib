@@ -97,14 +97,12 @@ namespace TD_Find_Lib
 	// - What maps to search on
 	// - Performs the search
 	// - Holds the list of found things.
-	public class QuerySearch : IExposable, IQueryHolder
+	public class QuerySearch : QueryHolder
 	{
 		public string name = "??NAME??";
 
 		// Basic query settings:
 		private SearchParameters parameters = new();
-		// What to search for
-		protected QueryHolder children;
 		// Resulting things
 		public SearchResult result = new();
 
@@ -114,17 +112,10 @@ namespace TD_Find_Lib
 		// which normally happens whenever queries are edited
 		public bool active;
 
-		// If you clone a QuerySearch it starts unchanged.
-		// Not used directly but good to know if a save is needed.
-		public bool changed;
 
-
-		// from IQueryHolder:
-		public IQueryHolder RootHolder => this;
-		public QueryHolder Children => children;
-		public void Root_NotifyUpdated() => RemakeList();
-		public void Root_NotifyRefUpdated() => UnbindMap();
-		public bool Root_Active => active;
+		// QueryHolder overrides
+		public override void Root_NotifyUpdated() => RemakeList();
+		public override bool Root_Active => active;
 
 
 
@@ -306,10 +297,7 @@ namespace TD_Find_Lib
 
 
 		// A new QuerySearch, inactive, "current map"
-		public QuerySearch()
-		{
-			children = new(this);
-		}
+		public QuerySearch() : base() {}
 
 		// A new QuerySearch, active, with this map
 		// (Or just calls base constructor when null)
@@ -323,31 +311,22 @@ namespace TD_Find_Lib
 		}
 
 
-		public void Reset()
+		public override void Reset()
 		{
-			changed = true;
+			base.Reset();
 
 			parameters = new();
-			children.Clear();
 			result = new();
 		}
 
 
-		// This is a roundabout way to hijack the esc-keypress from a window before it closes the window.
-		// Any window displaying this has to override OnCancelKeyPressed and call this
-		public bool OnCancelKeyPressed()
-		{
-			return children.Any(f => f.OnCancelKeyPressed());
-		}
-
-
-		public void ExposeData()
+		public override void ExposeData()
 		{
 			Scribe_Values.Look(ref name, "name");
 			Scribe_Values.Look(ref active, "active");
 			parameters.ExposeData();
 
-			children.ExposeData();
+			base.ExposeData();
 		}
 
 
@@ -470,23 +449,6 @@ namespace TD_Find_Lib
 			return newSearch;
 		}
 
-		private Map boundMap;
-		public void UnbindMap() => boundMap = null;
-		private void BindToMap(Map map)
-		{
-			if (boundMap == map) return;
-
-			boundMap = map;
-
-			DoResolveRef(boundMap);
-		}
-
-
-		public void DoResolveRef(Map map)
-		{
-			children.DoResolveRef(map);
-		}
-
 
 
 		// Here we are finally
@@ -533,9 +495,6 @@ namespace TD_Find_Lib
 		private List<Thing> newListedThings = new();
 		private List<Thing> Get(Map searchMap, SearchListType searchListType)
 		{ 
-			BindToMap(searchMap);
-
-
 			// newListedThings is what we're gonna return
 			newListedThings.Clear();
 
@@ -595,7 +554,7 @@ namespace TD_Find_Lib
 			}
 
 			// Apply the actual queries, finally
-			children.Filter(ref newListedThings);
+			Filter(ref newListedThings, searchMap);
 
 			return newListedThings;
 		}

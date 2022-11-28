@@ -11,19 +11,108 @@ namespace TD_Find_Lib
 {
 	public interface IQueryHolder
 	{
-		public QueryHolder Children { get; }
+		public HeldQueries Children { get; }
 		public IQueryHolder RootHolder { get; }	//Either return this or a parent
 		public void Root_NotifyUpdated();
 		public void Root_NotifyRefUpdated();
 		public bool Root_Active { get; }
 	}
-	public class QueryHolder//	 : IExposable //Not IExposable because that means ctor QueryHolder() should exist.
+
+	// QueryHolder is actually one of the latest untested additions.
+	// Everything went through QuerySearch which search on all things in a map
+	//  Then I thought "Hey, maybe I should open this up to any list of things"
+	// So that's QueryHolder, it simply holds and applies queries to given things.
+	public class QueryHolder : IQueryHolder, IExposable
+	{
+		// What to search for
+		protected HeldQueries children;
+
+		// If you clone a QueryHolder it starts unchanged.
+		// Not used directly but good to know if a save is needed.
+		public bool changed;
+
+
+		// from IQueryHolder:
+		public virtual IQueryHolder RootHolder => this;
+		public HeldQueries Children => children;
+		public virtual void Root_NotifyUpdated() { }
+		public virtual void Root_NotifyRefUpdated() => UnbindMap();
+		public virtual bool Root_Active => false;
+
+		public QueryHolder()
+		{
+			children = new(this);
+		}
+
+		public virtual void ExposeData()
+		{
+			children.ExposeData();
+		}
+
+
+		public virtual void Reset()
+		{
+			changed = true;
+
+			children.Clear();
+			UnbindMap();
+		}
+
+		public QueryHolder Clone()
+		{
+			QueryHolder newHolder = new();
+
+			newHolder.children = children.Clone(newHolder);
+
+			return newHolder;
+		}
+
+
+		private Map boundMap;
+		public void UnbindMap() => boundMap = null;
+		protected void BindToMap(Map map)
+		{
+			if (boundMap == map) return;
+
+			boundMap = map;
+
+			children.DoResolveRef(boundMap);
+		}
+
+		// Check if the thing passes the queries.
+		// A Map are needed for certain filters like zones and areas.
+		public bool AppliesTo(Thing thing, Map map = null)
+		{
+			if(map != null)
+				BindToMap(map);
+
+			return children.AppliesTo(thing);
+		}
+		public void Filter(ref List<Thing> newListedThings, Map map = null)
+		{
+			if (map != null)
+				BindToMap(map);
+
+			children.Filter(ref newListedThings);
+		}
+
+
+		// This is a roundabout way to hijack the esc-keypress from a window before it closes the window.
+		// Any window displaying this has to override OnCancelKeyPressed and call this
+		public bool OnCancelKeyPressed()
+		{
+			return children.Any(f => f.OnCancelKeyPressed());
+		}
+	}
+
+
+	public class HeldQueries // : IExposable //Not IExposable because that means ctor QueryHolder() should exist.
 	{
 		private IQueryHolder parent;
 		public List<ThingQuery> queries = new List<ThingQuery>() { };
 		public bool matchAllQueries = true;	// or ANY
 
-		public QueryHolder(IQueryHolder p)
+		public HeldQueries(IQueryHolder p)
 		{
 			parent = p;
 		}
@@ -38,9 +127,9 @@ namespace TD_Find_Lib
 					f.parent = parent;
 		}
 
-		public QueryHolder Clone(IQueryHolder newParent)
+		public HeldQueries Clone(IQueryHolder newParent)
 		{
-			QueryHolder clone = new QueryHolder(newParent);
+			HeldQueries clone = new HeldQueries(newParent);
 
 			foreach (var f in queries)
 				clone.Add(f.Clone(), remake: false);
