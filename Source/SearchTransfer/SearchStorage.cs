@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using UnityEngine;
 using Verse;
 using RimWorld;
 using CloneArgs = TD_Find_Lib.QuerySearch.CloneArgs;
@@ -10,10 +11,23 @@ namespace TD_Find_Lib
 {
 	public static class SearchStorage
 	{
-		public static void ButtonOpenSettings(WidgetRow row)
+		public static void ButtonOpenLibrary(WidgetRow row)
 		{
 			if (row.ButtonIcon(FindTex.Book, "TD.OpenTheLibraryOfSearches".Translate()))
-				Find.WindowStack.Add(new GroupLibraryWindow(Mod.settings));
+				OpenLibrary();
+		}
+
+		public static void ButtonOpenLibrary(Rect rect)
+		{
+			if (Widgets.ButtonImage(rect, FindTex.Book))
+				OpenLibrary();
+
+			TooltipHandler.TipRegion(rect, "TD.OpenTheLibraryOfSearches".Translate());
+		}
+
+		public static void OpenLibrary()
+		{
+			Find.WindowStack.Add(new GroupLibraryWindow(Mod.settings));
 		}
 
 
