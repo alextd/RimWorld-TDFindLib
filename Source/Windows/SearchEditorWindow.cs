@@ -238,20 +238,25 @@ namespace TD_Find_Lib
 			//Buttons
 			WidgetRow buttonRow = new WidgetRow(nameRect.xMax - 20, nameRect.yMin, UIDirection.LeftThenDown);
 
+
+			// Reset button
 			if (locked)
 				buttonRow.IncrementPosition(WidgetRow.IconSize); //not Gap because that checks for 0 and doesn't actually gap
 			else if (buttonRow.ButtonIcon(FindTex.Cancel, "ClearAll".Translate()))
 				search.Reset();
 
+			// Locked BUtotn
 			if (!permalocked && buttonRow.ButtonIcon(locked ? FindTex.LockOn : FindTex.LockOff, "TD.LockEditing".Translate()))
 				locked = !locked;
 
+			// Rename button
 			if (!locked && showNameAfterTitle && buttonRow.ButtonIcon(TexButton.Rename))
 				Find.WindowStack.Add(new Dialog_Name(
 					search.name, 
 					newName => { search.name = newName; search.changed = true; },
 					"TD.Rename0".Translate(search.name)));
 
+			// Show ACTIVE when godmode?
 			if (DebugSettings.godMode)
 				buttonRow.Label(search.active ? "ACTIVE!" : "INACTIVE");
 
@@ -259,7 +264,7 @@ namespace TD_Find_Lib
 			extraIconsDrawer?.Invoke(buttonRow);
 
 
-			//Listing Type
+			// Listing Type
 			Text.Font = GameFont.Small;
 
 			Rect headerRect = listing.GetRect(Text.LineHeight);

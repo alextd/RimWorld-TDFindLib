@@ -36,7 +36,7 @@ namespace TD_Find_Lib
 		public virtual IQueryHolder RootHolder => this;
 		public HeldQueries Children => children;
 		public virtual void Root_NotifyUpdated() { }
-		public virtual void Root_NotifyRefUpdated() => UnbindMap();
+		public virtual void Root_NotifyRefUpdated() => RebindMap();
 		public virtual bool Root_Active => false;
 
 		public QueryHolder()
@@ -70,7 +70,14 @@ namespace TD_Find_Lib
 
 		private Map boundMap;
 		public void UnbindMap() => boundMap = null;
-		protected void BindToMap(Map map)
+
+		public void RebindMap()
+		{
+			if (boundMap == null) return;
+
+			children.DoResolveRef(boundMap);
+		}
+		public void BindToMap(Map map)
 		{
 			if (boundMap == map) return;
 

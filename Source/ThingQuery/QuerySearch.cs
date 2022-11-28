@@ -114,7 +114,11 @@ namespace TD_Find_Lib
 
 
 		// QueryHolder overrides
-		public override void Root_NotifyUpdated() => RemakeList();
+		public override void Root_NotifyUpdated()
+		{
+			RebindMap();
+			RemakeList();
+		}
 		public override bool Root_Active => active;
 
 
@@ -128,7 +132,7 @@ namespace TD_Find_Lib
 
 			FixListType();
 
-			if (remake)	RemakeList();
+			if (remake) RemakeList();
 		}
 
 		public void AddListType(SearchListType newType, bool remake = true)
