@@ -8,4 +8,12 @@
 	<packageId>Uuugggg.TDFindLib</packageId>
 	<description>A code library for user-customizable deep-filter searching of all things on the map.</description>
 	<url>https://steamcommunity.com/id/Uuugggg/myworkshopfiles/?appid=294100</url>
+	<modDependencies>
+		<li>
+			<packageId>Uuugggg.TDSBugFixes</packageId>
+			<displayName>TDS Bug Fixes</displayName>
+			<steamWorkshopUrl>steam://url/CommunityFilePage/2895035527</steamWorkshopUrl>
+			<downloadUrl>https://github.com/alextd/RimWorld-TDS-Bugfixes/releases/latest</downloadUrl>
+		</li>
+	</modDependencies>
 </ModMetaData>
