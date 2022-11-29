@@ -101,10 +101,10 @@ namespace TD_Find_Lib
 		public static void ButtonChooseExportSearch(WidgetRow row, QuerySearch search, string source = null)
 		{
 			if (row.ButtonIcon(FindTex.Export, "TD.ExportSearchTo".Translate()))
-				ChooseExportSearch(search, source);
+				Find.WindowStack.Add(new FloatMenu(ExportSearchOptions(search, source)));
 		}
 
-		public static void ChooseExportSearch(QuerySearch search, string source = null)
+		public static List<FloatMenuOption> ExportSearchOptions(QuerySearch search, string source = null)
 		{
 			List<FloatMenuOption> exportOptions = new();
 
@@ -116,7 +116,7 @@ namespace TD_Find_Lib
 				exportOptions.Add(new FloatMenuOption(receiver.ReceiveName, () => receiver.Receive(search.Clone(receiver.CloneArgs))));
 			}
 
-			Find.WindowStack.Add(new FloatMenu(exportOptions));
+			return exportOptions;
 		}
 
 
@@ -177,10 +177,11 @@ namespace TD_Find_Lib
 		public static void ButtonChooseExportSearchGroup(WidgetRow row, SearchGroup search, string source = null)
 		{
 			if (row.ButtonIcon(FindTex.ExportGroup, "TD.ExportGroupTo".Translate()))
-				ChooseExportSearchGroup(search, source);
+				Find.WindowStack.Add(new FloatMenu(ExportSearchGroupOptions(search, source)));
+			;
 		}
 
-		public static void ChooseExportSearchGroup(SearchGroup group, string source = null)
+		public static List<FloatMenuOption> ExportSearchGroupOptions(SearchGroup group, string source = null)
 		{
 			List<FloatMenuOption> exportOptions = new();
 
@@ -192,7 +193,7 @@ namespace TD_Find_Lib
 				exportOptions.Add(new FloatMenuOption(receiver.ReceiveName, () => receiver.Receive(group.Clone(receiver.CloneArgs))));
 			}
 
-			Find.WindowStack.Add(new FloatMenu(exportOptions));
+			return exportOptions;
 		}
 	}
 }
