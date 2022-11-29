@@ -62,8 +62,8 @@
 	<TD.Settings>Settings:</TD.Settings>
 	<TD.ViewQuerySearchLibrary>Open the Saved Search Library</TD.ViewQuerySearchLibrary>
 	<TD.View>View</TD.View>
-	<TD.SaveSearches>Save</TD.SaveSearches>
-	<TD.LoadSearches>Load</TD.LoadSearches>
+	<TD.SaveSearches>Save To Library</TD.SaveSearches>
+	<TD.LoadSearches>Load From Library</TD.LoadSearches>
 	<TD.SaveTo0>Save to {0}</TD.SaveTo0>
 	<TD.TDFindLibrary>TD Find Library</TD.TDFindLibrary>
 	<TD.SaveChangesTo0>Save changes to {0}?</TD.SaveChangesTo0>
