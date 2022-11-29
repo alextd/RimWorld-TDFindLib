@@ -196,17 +196,16 @@ namespace TD_Find_Lib
 		}
 	}
 
-	abstract public class SearchListDrawer<TList, TItem> where TList : IList<TItem>
+	abstract public class SearchGroupDrawerBase<TList, TItem> where TList : SearchGroupBase<TItem> where TItem : IQuerySearch
 	{
 		public TList list;
 
-		public SearchListDrawer(TList list)
+		public SearchGroupDrawerBase(TList list)
 		{
 			this.list = list;
 		}
 		public abstract string Name { get; }
-		public abstract QuerySearch SearchAt(int i);
-		public abstract int Count { get; }
+		public int Count => list.Count;
 
 		public virtual void DoReorderSearch(int from, int to)
 		{
@@ -252,7 +251,7 @@ namespace TD_Find_Lib
 					ReorderableDirection.Vertical,
 					reorderRect, 1f,
 					extraDraggedItemOnGUI: (int index, Vector2 dragStartPos) =>
-						DrawMouseAttachedQuerySearch(SearchAt(index), listing.ColumnWidth));
+						DrawMouseAttachedQuerySearch(list[index].Search, listing.ColumnWidth));
 			}
 
 
@@ -261,7 +260,7 @@ namespace TD_Find_Lib
 			{
 				DrawPreRow(listing, i);
 				TItem item = list[i];
-				QuerySearch search = SearchAt(i);
+				QuerySearch search = item.Search;
 				Rect rowRect = listing.GetRect(RowHeight);
 
 				WidgetRow row = new WidgetRow(rowRect.x, rowRect.y, UIDirection.RightThenDown, rowRect.width);
@@ -300,7 +299,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class SearchGroupDrawer : SearchListDrawer<SearchGroup, QuerySearch>
+	public class SearchGroupDrawer : SearchGroupDrawerBase<SearchGroup, QuerySearch>
 	{
 		public List<SearchGroupDrawer> siblings;
 		public SearchGroupDrawer(SearchGroup l, List<SearchGroupDrawer> siblings) : base(l)
@@ -309,8 +308,6 @@ namespace TD_Find_Lib
 		}
 
 		public override string Name => list.name;
-		public override QuerySearch SearchAt(int i) => list[i];
-		public override int Count => list.Count;
 
 
 		public override void DoReorderSearch(int from, int to)
@@ -418,13 +415,11 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class RefreshSearchGroupDrawer : SearchListDrawer<RefreshGroup, RefreshQuerySearch>
+	public class RefreshSearchGroupDrawer : SearchGroupDrawerBase<RefreshGroup, RefreshQuerySearch>
 	{
 		public RefreshSearchGroupDrawer(RefreshGroup l) : base(l) { }
 
 		public override string Name => "TD.ActiveSearches".Translate();
-		public override QuerySearch SearchAt(int i) => list[i].search;
-		public override int Count => list.Count;
 
 
 		private string currentTag;
