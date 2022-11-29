@@ -105,9 +105,6 @@ namespace TD_Find_Lib
 	{
 		public QuerySearch Search => this;
 
-
-		public string name = "??NAME??";
-
 		// Basic query settings:
 		public SearchParameters parameters = new();
 		// Resulting things

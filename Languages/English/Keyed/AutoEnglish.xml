@@ -12,8 +12,8 @@
 	<TD.DeleteThisQuery>Delete this filter</TD.DeleteThisQuery>
 	<TD.EnableThisQuery>Enable this filter</TD.EnableThisQuery>
 	<TD.IncludeOrExcludeThingsMatchingThisQuery>Include or Exclude things matching this filter</TD.IncludeOrExcludeThingsMatchingThisQuery>
-	<TD.TriedToLoad0QueryNamed1ButCouldNotBeFound>TDFindLib tried to load "{0}" filter named "{1}" but none could be found</TD.TriedToLoad0QueryNamed1ButCouldNotBeFound>
-	<TD.TriedToLoad0QueryNamed1On2ButCouldNotBeFound>TDFindLib tried to load "{0}" filter named "{1}" on {2} but none could be found</TD.TriedToLoad0QueryNamed1On2ButCouldNotBeFound>
+	<TD.SearchTriedToLoad>Search "{0}" tried to load "{1}" filter named "{2}" but none could be found</TD.SearchTriedToLoad>
+	<TD.SearchTriedToLoadOnMap>Search "{0}" tried to load "{1}" filter named "{2}" on {3} but none could be found</TD.SearchTriedToLoadOnMap>
 	<TD.Spoils>Spoils</TD.Spoils>
 	<TD.Refrigerated>Refrigerated</TD.Refrigerated>
 	<TD.Frozen>Frozen</TD.Frozen>

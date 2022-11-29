@@ -470,7 +470,7 @@ namespace TD_Find_Lib
 				{
 					selectionError = $"Missing {def.LabelCap}: {selName}?";
 					selectionErrorCurMap = selectionError; // Sort of redundant to use "curmap" here but it does apply to whatever the current map is because it always applies
-					Verse.Log.Warning("TD.TriedToLoad0QueryNamed1ButCouldNotBeFound".Translate(def.LabelCap, selName));
+					Verse.Log.Warning("TD.SearchTriedToLoad".Translate(RootHolder.Name, def.LabelCap, selName));
 				}
 				else
 					selectionError = null;
@@ -515,8 +515,8 @@ namespace TD_Find_Lib
 			if (!refErrorReported)
 			{
 				// Report the first one, even if there's many. User will have to deal with them one-by-one.
-				Messages.Message(map == null ? $"TDFindLib tried to load {def.LabelCap} filter but no map was given to find {selName}" :
-					"TD.TriedToLoad0QueryNamed1On2ButCouldNotBeFound".Translate(def.LabelCap, selName, map?.Parent.LabelCap ?? "No Map"),
+				Messages.Message(map == null ? $"Search {RootHolder.Name} tried to load {def.LabelCap} filter but no map was given to find {selName}" :
+					"TD.SearchTriedToLoadOnMap".Translate(RootHolder.Name, def.LabelCap, selName, map?.Parent.LabelCap ?? "No Map"),
 					MessageTypeDefOf.RejectInput, false);
 
 				refErrorMap = map;

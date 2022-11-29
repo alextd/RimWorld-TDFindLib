@@ -16,6 +16,7 @@ namespace TD_Find_Lib
 		public void Root_NotifyUpdated() { }
 		public void Root_NotifyRefUpdated() { }
 		public bool Root_Active => false;
+		public string Name => "??QueryAndOrGroup??";	//Should not be used.
 
 		public ThingQueryAndOrGroup()
 		{

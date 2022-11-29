@@ -11,6 +11,7 @@ namespace TD_Find_Lib
 {
 	public interface IQueryHolder
 	{
+		public string Name { get; }
 		public HeldQueries Children { get; }
 		public IQueryHolder RootHolder { get; }	//Either return this or a parent
 		public void Root_NotifyUpdated();
@@ -24,6 +25,9 @@ namespace TD_Find_Lib
 	// So that's QueryHolder, it simply holds and applies queries to given things.
 	public class QueryHolder : IQueryHolder, IExposable
 	{
+		public string name = "Query Holder";
+		public String Name => name;
+
 		// What to search for
 		protected HeldQueries children;
 
