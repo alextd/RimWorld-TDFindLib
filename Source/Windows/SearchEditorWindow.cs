@@ -35,6 +35,17 @@ namespace TD_Find_Lib
 				base.OnCancelKeyPressed();
 		}
 
+		public override void PostOpen()
+		{
+			base.PostOpen();
+
+			if (Find.WindowStack.Windows.FirstOrDefault(w => w != this && w is SearchEditorWindow sw && sw.drawer.search == drawer.search) is Window duplicate)
+			{
+				Close();
+				Find.WindowStack.Notify_ClickedInsideWindow(duplicate);
+			}
+		}
+
 		public override void PostClose()
 		{
 			if (drawer.search.changed)
