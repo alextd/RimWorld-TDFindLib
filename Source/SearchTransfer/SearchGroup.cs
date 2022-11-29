@@ -11,7 +11,7 @@ namespace TD_Find_Lib
 {
 	public interface ISearchStorageParent
 	{
-		public void Write();
+		public void NotifyChanged();
 		public List<SearchGroup> Children { get; }
 		public void Add(SearchGroup group);
 		public void ReorderGroup(int from, int to);
@@ -19,7 +19,7 @@ namespace TD_Find_Lib
 
 	// Trying to save a List<List<Deep>> doesn't work.
 	// Need List to be "exposable" on its own.
-	public class SearchGroup : List<QuerySearch>, IExposable
+	public class SearchGroup : SearchGroupBase<QuerySearch>
 	{
 		public string name;
 		public ISearchStorageParent parent;
@@ -33,7 +33,7 @@ namespace TD_Find_Lib
 
 		public SearchGroup Clone(CloneArgs cloneArgs, string newName = null, ISearchStorageParent newParent = null)
 		{
-			SearchGroup clone = new SearchGroup(newName ?? name, newParent);
+			SearchGroup clone = new(newName ?? name, newParent);
 			foreach (QuerySearch query in this)
 			{
 				//obviously don't set newName in cloneArgs
@@ -42,51 +42,78 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		public void ConfirmPaste(QuerySearch newSearch, int i)
+		public override void Replace(QuerySearch newSearch, int i)
+		{
+			base.Replace(newSearch, i);
+			parent.NotifyChanged();
+		}
+
+		public override void Copy(QuerySearch newSearch, int i)
+		{
+			base.Copy(newSearch, i);
+			parent.NotifyChanged();
+		}
+
+		public override void DoAdd(QuerySearch newSearch)
+		{
+			base.DoAdd(newSearch);
+			parent.NotifyChanged();
+		}
+
+
+		public override void ExposeData()
+		{
+			Scribe_Values.Look(ref name, "name", Settings.defaultGroupName);
+
+			base.ExposeData();
+		}
+	}
+
+	public abstract class SearchGroupBase<T> : List<T>, IExposable where T : IQuerySearch
+	{
+		public virtual void Replace(T newSearch, int i)
+		{
+			this[i] = newSearch;
+		}
+		public virtual void Copy(T newSearch, int i)
+		{
+			newSearch.Search.name += "TD.CopyNameSuffix".Translate();
+			Insert(i + 1, newSearch);
+		}
+		public virtual void DoAdd(T newSearch)
+		{
+			base.Add(newSearch);
+		}
+
+		public void ConfirmPaste(T newSearch, int i)
 		{
 			// TODO the weird case where you changed the name in the editor, to a name that already exists.
 			// Right now it'll have two with same name instead of overwriting that one.
-			Action acceptAction = delegate ()
-			{
-				this[i] = newSearch;
-				parent.Write();
-			};
-			Action copyAction = delegate ()
-			{
-				newSearch.name = newSearch.name + "TD.CopyNameSuffix".Translate();
-				Insert(i + 1, newSearch);
-				parent.Write();
-			};
 			Verse.Find.WindowStack.Add(new Dialog_MessageBox(
-				"TD.SaveChangesTo0".Translate(newSearch.name),
-				"Confirm".Translate(), acceptAction,
+				"TD.SaveChangesTo0".Translate(newSearch.Search.name),
+				"Confirm".Translate(), () => Replace(newSearch, i),
 				"No".Translate(), null,
 				"TD.OverwriteSearch".Translate(),
-				true, acceptAction,
+				true, () => Replace(newSearch, i),
 				delegate () { }// I dunno who wrote this class but this empty method is required so the window can close with esc because its logic is very different from its base class
 			)
 			{
 				buttonCText = "TD.SaveAsCopy".Translate(),
-				buttonCAction = copyAction,
+				buttonCAction = () => Copy(newSearch, i),
 			});
 		}
 
-		public void TryAdd(QuerySearch search)
+		public void TryAdd(T search)
 		{
-			if (this.FindIndex(d => d.name == search.name) is int index && index != -1)
+			if (this.FindIndex(d => d.Search.name == search.Search.name) is int index && index != -1)
 				ConfirmPaste(search, index);
 			else
-			{
-				base.Add(search);
-				parent.Write();
-			}
+				DoAdd(search);
 		}
 
-		public void ExposeData()
+		public virtual void ExposeData()
 		{
-			Scribe_Values.Look(ref name, "name", Settings.defaultGroupName);
-
-			string label = "TD.Searches".Translate();
+			string label = "searches";//notranslate
 
 			//Watered down Scribe_Collections, doing LookMode.Deep on List<QuerySearch>
 			if (Scribe.EnterNode(label))
@@ -95,9 +122,9 @@ namespace TD_Find_Lib
 				{
 					if (Scribe.mode == LoadSaveMode.Saving)
 					{
-						foreach (QuerySearch search in this)
+						foreach (T search in this)
 						{
-							QuerySearch target = search;
+							T target = search;	//It's what vanilla code does /shrug
 							Scribe_Deep.Look(ref target, "li");
 						}
 					}
@@ -107,7 +134,7 @@ namespace TD_Find_Lib
 						Clear();
 
 						foreach (XmlNode node in curXmlParent.ChildNodes)
-							Add(ScribeExtractor.SaveableFromNode<QuerySearch>(node, new object[] { }));
+							base.Add(ScribeExtractor.SaveableFromNode<T>(node, new object[] { }));
 					}
 				}
 				finally
@@ -117,5 +144,4 @@ namespace TD_Find_Lib
 			}
 		}
 	}
-
 }

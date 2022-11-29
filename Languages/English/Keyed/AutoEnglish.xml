@@ -69,7 +69,6 @@
 	<TD.SaveChangesTo0>Save changes to {0}?</TD.SaveChangesTo0>
 	<TD.OverwriteSearch>Overwrite Search</TD.OverwriteSearch>
 	<TD.SaveAsCopy>Save as Copy</TD.SaveAsCopy>
-	<TD.Searches>searches</TD.Searches>
 	<TD.OpenTheLibraryOfSearches>Open the library of searches</TD.OpenTheLibraryOfSearches>
 	<TD.ImportSearchFrom>Import search from...</TD.ImportSearchFrom>
 	<TD.ExportSearchTo>Export search to...</TD.ExportSearchTo>

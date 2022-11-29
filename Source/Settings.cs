@@ -24,7 +24,7 @@ namespace TD_Find_Lib
 		}
 
 		//ISearchStorageParent stuff
-		//public void Write(); //in parent class
+		public void NotifyChanged() => Write(); //Write() in parent class
 		public List<SearchGroup> Children => searchGroups;
 		public void Add(SearchGroup group)
 		{
@@ -144,7 +144,7 @@ namespace TD_Find_Lib
 		}
 
 		public QuerySearch ProvideSingle() => null;
-		public SearchGroup ProvideSelection() => searchGroups[0];
-		public List<SearchGroup> ProvideGrouping() => searchGroups;
+		public SearchGroup ProvideGroup() => searchGroups[0];
+		public List<SearchGroup> ProvideLibrary() => searchGroups;
 	}
 }

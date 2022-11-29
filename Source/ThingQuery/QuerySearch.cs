@@ -97,8 +97,15 @@ namespace TD_Find_Lib
 	// - What maps to search on
 	// - Performs the search
 	// - Holds the list of found things.
-	public class QuerySearch : QueryHolder
+	public interface IQuerySearch : IExposable
 	{
+		public QuerySearch Search { get; }
+	}
+	public class QuerySearch : QueryHolder, IQuerySearch
+	{
+		public QuerySearch Search => this;
+
+
 		public string name = "??NAME??";
 
 		// Basic query settings:

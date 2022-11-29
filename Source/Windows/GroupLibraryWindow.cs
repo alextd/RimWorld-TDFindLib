@@ -40,7 +40,7 @@ namespace TD_Find_Lib
 
 		public override void PostClose()
 		{
-			parent.Write();
+			parent.NotifyChanged();
 		}
 
 
@@ -157,7 +157,7 @@ namespace TD_Find_Lib
 					if (groupDrawers.Any(d => d.Name == group.name))
 						drawer.PopUpRename();
 					else
-						parent.Write();
+						parent.NotifyChanged();
 
 					groupDrawers.Add(drawer);
 				},
@@ -329,13 +329,13 @@ namespace TD_Find_Lib
 		{
 			siblings.Remove(this);
 			list.parent.Children.Remove(list);
-			list.parent.Write();
+			list.parent.NotifyChanged();
 		}
 
 		public void Trash(int i)
 		{
 			list.RemoveAt(i);
-			list.parent.Write();
+			list.parent.NotifyChanged();
 		}
 
 		public void PopUpCreateQuerySearch()
@@ -344,14 +344,15 @@ namespace TD_Find_Lib
 			{
 				var search = new QuerySearch() { name = n };
 				list.TryAdd(search);
-				Find.WindowStack.Add(new SearchEditorWindow(search, Settings.StorageTransferTag, f => list.parent.Write()));
+				Find.WindowStack.Add(new SearchEditorWindow(search, Settings.StorageTransferTag, f => list.parent.NotifyChanged()));
 			},
-			"TD.NameForNewSearch".Translate()));
+			"TD.NameForNewSearch".Translate(),
+			name => list.Any(s => s.name == name)));
 		}
 
 		public void PopUpRename()
 		{
-			Find.WindowStack.Add(new Dialog_Name(Name, name => { list.name = name; list.parent.Write(); }, rejector: name => list.parent.Children.Any(g => g.name == name)));
+			Find.WindowStack.Add(new Dialog_Name(Name, name => { list.name = name; list.parent.NotifyChanged(); }, rejector: name => list.parent.Children.Any(g => g.name == name)));
 		}
 
 
@@ -401,7 +402,7 @@ namespace TD_Find_Lib
 
 			if (row.ButtonIcon(TexButton.Rename))
 			{
-				Find.WindowStack.Add(new Dialog_Name(search.name, newName => search.name = newName, rejector: newName => list.Any(fd => fd.name == newName)));
+				Find.WindowStack.Add(new Dialog_Name(search.name, newName => search.name = newName, rejector: newName => list.Any(s => s.name == newName)));
 			}
 
 			if (row.ButtonIcon(FindTex.Trash))

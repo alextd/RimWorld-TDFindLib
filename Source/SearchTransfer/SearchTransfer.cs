@@ -51,8 +51,8 @@ namespace TD_Find_Lib
 		public Method ProvideMethod();
 
 		public QuerySearch ProvideSingle();
-		public SearchGroup ProvideSelection();
-		public List<SearchGroup> ProvideGrouping();
+		public SearchGroup ProvideGroup();
+		public List<SearchGroup> ProvideLibrary();
 	}
 
 	public interface ISearchReceiver
@@ -117,12 +117,12 @@ namespace TD_Find_Lib
 			return ScribeXmlFromString.LoadFromString<QuerySearch>(clipboard);
 		}
 
-		public SearchGroup ProvideSelection()
+		public SearchGroup ProvideGroup()
 		{
 			string clipboard = GUIUtility.systemCopyBuffer;
 			return ScribeXmlFromString.LoadFromString<SearchGroup>(clipboard, null, null);
 		}
 
-		public List<SearchGroup> ProvideGrouping() => null;
+		public List<SearchGroup> ProvideLibrary() => null;
 	}
 }

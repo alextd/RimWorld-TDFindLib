@@ -64,7 +64,7 @@ namespace TD_Find_Lib
 					case ISearchProvider.Method.Selection:
 						importOptions.Add(new FloatMenuOption(provider.ProvideName, () =>
 						{
-							ImportFromListSubmenu(provider.ProvideSelection(), handler, cloneArgs);
+							ImportFromListSubmenu(provider.ProvideGroup(), handler, cloneArgs);
 						}));
 						continue;
 					case ISearchProvider.Method.Grouping:
@@ -72,7 +72,7 @@ namespace TD_Find_Lib
 						{
 							List<FloatMenuOption> submenuOptions = new();
 
-							foreach (SearchGroup group in provider.ProvideGrouping())
+							foreach (SearchGroup group in provider.ProvideLibrary())
 							{
 								submenuOptions.Add(new FloatMenuOption("+ " + group.name, () => ImportFromListSubmenu(group, handler, cloneArgs)));
 							}
@@ -87,7 +87,7 @@ namespace TD_Find_Lib
 			return importOptions;
 		}
 
-		public static void ImportFromListSubmenu(List<QuerySearch> searches, Action<QuerySearch> handler, CloneArgs cloneArgs = default)
+		public static void ImportFromListSubmenu(SearchGroup searches, Action<QuerySearch> handler, CloneArgs cloneArgs = default)
 		{
 			List<FloatMenuOption> searchOptions = new();
 			foreach (QuerySearch search in searches)
@@ -146,7 +146,7 @@ namespace TD_Find_Lib
 					case ISearchProvider.Method.Selection:
 						importOptions.Add(new FloatMenuOption(provider.ProvideName, () =>
 						{
-							handler(provider.ProvideSelection().Clone(cloneArgs));
+							handler(provider.ProvideGroup().Clone(cloneArgs));
 						}));
 						continue;
 					case ISearchProvider.Method.Grouping:
@@ -154,11 +154,11 @@ namespace TD_Find_Lib
 						{
 							List<FloatMenuOption> submenuOptions = new();
 
-							foreach (SearchGroup group in provider.ProvideGrouping())
+							foreach (SearchGroup group in provider.ProvideLibrary())
 							{
 								submenuOptions.Add(new FloatMenuOption("+ " + group.name, () =>
 								{
-									handler(provider.ProvideSelection().Clone(cloneArgs));
+									handler(provider.ProvideGroup().Clone(cloneArgs));
 								}));
 							}
 
