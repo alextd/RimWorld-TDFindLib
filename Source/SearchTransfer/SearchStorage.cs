@@ -122,11 +122,11 @@ namespace TD_Find_Lib
 
 
 		// Basically a copy of ButtonChooseImportSearch, but accepting SearchGroup instead of QuerySearch.
-		// Single searches are not accepted, and one less submenu is needed to get at options 
+		// Single searches are not accepted, and one less submenu is needed to get at options.
 		// handler should set parent and siblings, or just extract each item from the list.
-		public static void ButtonChooseImportSearchGroup(WidgetRow row, Action<SearchGroup> handler, string source = null)
+		public static void ButtonChooseImportSearchGroup(WidgetRow row, Action<SearchGroup> handler, string source = null, CloneArgs cloneArgs = default)
 		{
-			var options = ImportSearchGroupOptions(handler, source);
+			var options = ImportSearchGroupOptions(handler, source, cloneArgs);
 			if (options.Count > 0 && row.ButtonIcon(FindTex.ImportGroup, "TD.ImportGroupFrom".Translate()))
 				Find.WindowStack.Add(new FloatMenu(options));
 		}
