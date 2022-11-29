@@ -418,9 +418,9 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class RefreshSearchGroupDrawer : SearchListDrawer<List<RefreshQuerySearch>, RefreshQuerySearch>
+	public class RefreshSearchGroupDrawer : SearchListDrawer<RefreshGroup, RefreshQuerySearch>
 	{
-		public RefreshSearchGroupDrawer(List<RefreshQuerySearch> l) : base(l) { }
+		public RefreshSearchGroupDrawer(RefreshGroup l) : base(l) { }
 
 		public override string Name => "TD.ActiveSearches".Translate();
 		public override QuerySearch SearchAt(int i) => list[i].search;

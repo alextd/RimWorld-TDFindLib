@@ -13,7 +13,7 @@ namespace TD_Find_Lib
 		public TDFindLibGameComp(Game g) : base() { }
 
 		//continuousRefresh
-		public List<RefreshQuerySearch> searchRefreshers = new();
+		public RefreshGroup searchRefreshers = new();
 
 		public bool RemoveRefresh(QuerySearch search) =>
 			searchRefreshers.RemoveAll(r => r.search == search) > 0;
@@ -55,14 +55,15 @@ namespace TD_Find_Lib
 			}
 			else
 			{
-				Scribe_Collections.Look(ref searchRefreshers, "refreshers");
+				Scribe_Deep.Look(ref searchRefreshers, "refreshers");
 			}
 		}
 	}
 
-	public abstract class RefreshQuerySearch : IExposable
+	public abstract class RefreshQuerySearch : IQuerySearch
 	{
 		public QuerySearch search;
+		public QuerySearch Search => search;
 		public string tag;
 		public int period;
 		public bool permanent;
@@ -84,5 +85,10 @@ namespace TD_Find_Lib
 		}
 
 		public abstract void OpenUI(QuerySearch search);
+	}
+
+
+	public class RefreshGroup : SearchGroupBase<RefreshQuerySearch>
+	{
 	}
 }
