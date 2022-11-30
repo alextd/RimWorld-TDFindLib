@@ -288,7 +288,7 @@ namespace TD_Find_Lib
 
 			//Draw Queries:
 			if(search.Children.DrawQueriesInRect(listRect, locked, ref scrollPosition, ref scrollHeight))
-				search.RemakeList();
+				search.Changed();
 
 			listing.End();
 		}

@@ -121,7 +121,7 @@ namespace TD_Find_Lib
 		public override void Root_NotifyUpdated()
 		{
 			RebindMap();
-			RemakeList();
+			Changed();
 		}
 		public override bool Root_Active => active;
 
@@ -136,7 +136,7 @@ namespace TD_Find_Lib
 
 			FixListType();
 
-			if (remake) RemakeList();
+			if (remake) Changed();
 		}
 
 		public void AddListType(SearchListType newType, bool remake = true)
@@ -152,7 +152,7 @@ namespace TD_Find_Lib
 
 			FixListType();
 
-			if (remake) RemakeList();
+			if (remake) Changed();
 		}
 
 		public void RemoveListType(SearchListType oldType, bool remake = true)
@@ -161,7 +161,7 @@ namespace TD_Find_Lib
 
 			FixListType();
 
-			if (remake) RemakeList();
+			if (remake) Changed();
 		}
 
 		public void ToggleListType(SearchListType toggleType, bool remake = true)
@@ -171,6 +171,8 @@ namespace TD_Find_Lib
 				RemoveListType(toggleType);
 			else
 				AddListType(toggleType);
+
+			//Fixed and Changed() is done in Add or Remove
 		}
 		// Make sure the list type doesn't have duplicate ListerThing types
 		private void FixListType()
@@ -197,7 +199,8 @@ namespace TD_Find_Lib
 			{
 				children.matchAllQueries = value;
 
-				RemakeList();
+				//it would be nice if this had an option not to trigger a remake ohwell.
+				Changed();
 			}
 		}
 
@@ -217,7 +220,7 @@ namespace TD_Find_Lib
 			parameters.searchMaps.Clear();
 			parameters.searchMaps.Add(newMap);
 
-			if (remake) RemakeList();
+			if (remake) Changed();
 		}
 
 		public void SetSearchMaps(IEnumerable<Map> newMaps, bool remake = true)
@@ -226,7 +229,7 @@ namespace TD_Find_Lib
 			parameters.searchMaps.Clear();
 			parameters.searchMaps.AddRange(newMaps);
 
-			if (remake) RemakeList();
+			if (remake) Changed();
 		}
 
 		public void AddSearchMap(Map newMap, bool remake = true)
@@ -234,7 +237,7 @@ namespace TD_Find_Lib
 			parameters.mapType = SearchMapType.ChosenMaps;
 			parameters.searchMaps.Add(newMap);
 
-			if (remake) RemakeList();
+			if (remake) Changed();
 		}
 
 		public void RemoveSearchMap(Map oldMap, bool remake = true)
@@ -243,7 +246,7 @@ namespace TD_Find_Lib
 
 			parameters.searchMaps.Remove(oldMap);
 
-			if (remake) RemakeList();
+			if (remake) Changed();
 		}
 
 		public void ToggleSearchMap(Map toggleMap, bool remake = true)
@@ -264,7 +267,7 @@ namespace TD_Find_Lib
 			else
 				parameters.searchMaps.Add(toggleMap);
 
-			if (remake) RemakeList();
+			if (remake) Changed();
 		}
 
 		public void SetSearchCurrentMap(bool remake = true)
@@ -274,7 +277,7 @@ namespace TD_Find_Lib
 			parameters.mapType = SearchMapType.CurMap;
 			parameters.searchMaps.Clear();
 
-			if (remake) RemakeList();
+			if (remake) Changed();
 		}
 
 		public void SetSearchAllMaps(bool remake = true)
@@ -284,7 +287,7 @@ namespace TD_Find_Lib
 			parameters.mapType = SearchMapType.AllMaps;
 			parameters.searchMaps.Clear();
 
-			if (remake) RemakeList();
+			if (remake) Changed();
 		}
 
 		// Get maps shenanigans
@@ -325,6 +328,7 @@ namespace TD_Find_Lib
 
 			parameters = new();
 			result = new();
+			changedSinceRemake = true;
 		}
 
 
@@ -457,17 +461,39 @@ namespace TD_Find_Lib
 			return newSearch;
 		}
 
+		// Only update once a tick, in case you try to access the list many times.
+		// But to update it if the filters have changed.
+		public bool oncePerTick = true;
+		public bool changedSinceRemake;
+		public int lastRemakeTick;
+		public void Changed()
+		{
+			changed = true;
+			changedSinceRemake = true;
+
+			RemakeList();
+		}
 
 
 		// Here we are finally
 		// Actually searching and finding the list of things:
 		public void RemakeList()
 		{
-			changed = true;
-
 			// inactive = Don't do anything!
 			if (!active)
 				return;
+
+			if(oncePerTick)
+			{
+				int curTick = Current.Game.tickManager.TicksGame;
+				if (changedSinceRemake || lastRemakeTick < curTick)
+				{
+					changedSinceRemake = false;
+					lastRemakeTick = curTick;
+				}
+				else
+					return;
+			}
 
 			// Set up the maps:
 			result.resultMaps.Clear();
