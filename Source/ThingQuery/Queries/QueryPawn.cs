@@ -561,6 +561,33 @@ namespace TD_Find_Lib
 			ex == 1 ? "TD.IsPrisoner".Translate() : "TD.InCell".Translate();
 	}
 
+	// the option here is "Helper"
+	public class ThingQueryQuest : ThingQueryWithOption<bool>
+	{
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null)
+				return false;
+
+			return sel ? pawn.IsQuestLodger() : pawn.IsQuestLodger();
+		}
+
+		public override bool DrawMain(Rect rect, bool locked)
+		{
+			base.DrawMain(rect, locked);
+			string label = sel ? "Is Lodger" : "Is Helper";
+			Rect buttRect = rect.RightPart(0.4f);
+			buttRect.xMin -= Mathf.Max(buttRect.width, Text.CalcSize(label).x) - buttRect.width;
+			if (Widgets.ButtonText(buttRect, label))
+			{
+				sel = !sel;
+				return true;
+			}
+			return false;
+		}
+	}
+
 	public enum DraftQuery { Drafted, Undrafted, Controllable }
 	public class ThingQueryDrafted : ThingQueryDropDown<DraftQuery>
 	{

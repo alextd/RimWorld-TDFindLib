@@ -48,6 +48,7 @@
 			<li>Query_AreaRestriction</li>
 			<li>Query_Drafted</li>
 			<li>Query_Prisoner</li>
+			<li>Query_Quest</li>
 			<li>Query_Gender</li>
 			<li>Query_ThingQueryDevelopmentalStage</li>
 			<li>Query_MissingBodyPart</li>
@@ -143,6 +144,12 @@
 		<defName>Query_Prisoner</defName>
 		<label>prisoner</label>
 		<queryClass>TD_Find_Lib.ThingQueryPrisoner</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Quest</defName>
+		<label>quest status</label>
+		<queryClass>TD_Find_Lib.ThingQueryQuest</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 
 	<TD_Find_Lib.ThingQueryDef>
