@@ -595,7 +595,7 @@ namespace TD_Find_Lib
 			ex == 1 ? "TD.IsPrisoner".Translate() : "TD.InCell".Translate();
 	}
 
-	// the option here is "Helper"
+	// the option here is default true = "Lodger", true= "Helper"
 	public class ThingQueryQuest : ThingQueryWithOption<bool>
 	{
 		public override bool AppliesDirectlyTo(Thing thing)
@@ -604,13 +604,13 @@ namespace TD_Find_Lib
 			if (pawn == null)
 				return false;
 
-			return sel ? pawn.IsQuestLodger() : pawn.IsQuestLodger();
+			return sel ? pawn.IsQuestHelper() : pawn.IsQuestLodger();
 		}
 
 		public override bool DrawMain(Rect rect, bool locked)
 		{
 			base.DrawMain(rect, locked);
-			string label = sel ? "Is Lodger" : "Is Helper";
+			string label = sel ? "Is Helper" : "Is Lodger";
 			Rect buttRect = rect.RightPart(0.4f);
 			buttRect.xMin -= Mathf.Max(buttRect.width, Text.CalcSize(label).x) - buttRect.width;
 			if (Widgets.ButtonText(buttRect, label))
