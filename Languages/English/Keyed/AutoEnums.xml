@@ -46,5 +46,16 @@
 	<TD.ProgressType.Milkable>Milk ready</TD.ProgressType.Milkable>
 	<TD.ProgressType.Shearable>Wool ready</TD.ProgressType.Shearable>
 	<TD.ProgressType.EggHatch>Hatching progress</TD.ProgressType.EggHatch>
-	
+
+	<TD.QueryPawnProperty.IsColonist>Is Colonist</TD.QueryPawnProperty.IsColonist>
+	<TD.QueryPawnProperty.IsFreeColonist>Is Free Colonist</TD.QueryPawnProperty.IsFreeColonist>
+	<TD.QueryPawnProperty.IsPrisonerOfColony>Is Your Prisoner</TD.QueryPawnProperty.IsPrisonerOfColony>
+	<TD.QueryPawnProperty.IsSlaveOfColony>Is Your Slave</TD.QueryPawnProperty.IsSlaveOfColony>
+	<TD.QueryPawnProperty.IsPrisoner>Is A Prisoner</TD.QueryPawnProperty.IsPrisoner>
+	<TD.QueryPawnProperty.IsSlave>Is A Slave</TD.QueryPawnProperty.IsSlave>
+	<TD.QueryPawnProperty.IsColonyMech>Is Your Mech</TD.QueryPawnProperty.IsColonyMech>
+	<TD.QueryPawnProperty.Downed>Is Downed</TD.QueryPawnProperty.Downed>
+	<TD.QueryPawnProperty.Dead>Is Dead</TD.QueryPawnProperty.Dead>
+	<TD.QueryPawnProperty.HasPsylink>Has Psylink</TD.QueryPawnProperty.HasPsylink>
+
 </LanguageData>

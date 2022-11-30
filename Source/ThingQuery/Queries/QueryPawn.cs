@@ -10,6 +10,38 @@ using UnityEngine;
 
 namespace TD_Find_Lib
 {
+	public enum QueryPawnProperty
+	{
+		IsColonist
+	, IsFreeColonist
+	, IsPrisonerOfColony
+	, IsSlaveOfColony
+	, IsPrisoner
+	, IsSlave
+	, IsColonyMech
+	, Downed
+	, Dead
+	, HasPsylink
+	}
+	public class ThingQueryBasicProperty : ThingQueryDropDown<QueryPawnProperty>
+	{
+		public override bool AppliesDirectlyTo(Thing thing) =>
+			thing is Pawn pawn ? sel switch
+			{
+				QueryPawnProperty.IsColonist => pawn.IsColonist
+			, QueryPawnProperty.IsFreeColonist => pawn.IsFreeColonist
+			, QueryPawnProperty.IsPrisonerOfColony => pawn.IsPrisonerOfColony
+			, QueryPawnProperty.IsSlaveOfColony => pawn.IsSlaveOfColony
+			, QueryPawnProperty.IsPrisoner => pawn.IsPrisoner
+			, QueryPawnProperty.IsSlave => pawn.IsSlave
+			, QueryPawnProperty.IsColonyMech => pawn.IsColonyMech
+			, QueryPawnProperty.Downed => pawn.Downed
+			, QueryPawnProperty.Dead => pawn.Dead
+			, QueryPawnProperty.HasPsylink => pawn.HasPsylink
+			,	_ => false
+			} : false;
+	}
+
 	public class ThingQuerySkill : ThingQueryDropDown<SkillDef>
 	{
 		IntRangeUB skillRange = new IntRangeUB(SkillRecord.MinLevel, SkillRecord.MaxLevel);
@@ -517,8 +549,9 @@ namespace TD_Find_Lib
 
 			return
 				extraOption == 1 ? pawn.MentalState != null: 
+				extraOption == 2 ? pawn.MentalState?.def is MentalStateDef def && def.IsAggro : 
 				sel == null ? pawn.MentalState == null : 
-				pawn.MentalState?.def is MentalStateDef def && def == sel;
+				pawn.MentalState?.def is MentalStateDef sDef && sDef == sel;
 		}
 
 		public override IEnumerable<MentalStateDef> Options() =>
@@ -530,8 +563,9 @@ namespace TD_Find_Lib
 
 		public override string NullOption() => "None".Translate();
 
-		public override int ExtraOptionsCount => 1;
-		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
+		public override int ExtraOptionsCount => 2;
+		public override string NameForExtra(int ex) =>
+			ex == 1 ? "TD.AnyOption".Translate() : "Any Aggresive";
 	}
 
 	public class ThingQueryPrisoner : ThingQueryDropDown<PrisonerInteractionModeDef>
@@ -809,7 +843,7 @@ namespace TD_Find_Lib
 			return false;
 		}
 
-		public abstract int Max { get; }
+		public abstract int Max { get;  }
 		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
 		{
 			//TODO: write 'IsNull' method to handle confusing extraOption == 1 but Sel == null

@@ -32,6 +32,7 @@
 		<defName>Category_PawnProp</defName>
 		<label>personal details</label>
 		<subQueries>
+			<li>Query_PawnProperty</li>
 			<li>Query_Skill</li>
 			<li>Query_Trait</li>
 			<li>Query_Thought</li>
@@ -55,6 +56,12 @@
 			<!-- Seems like it should be here but it also includes "holder has" which is an item detail - shrug. <li>Query_Inventory</li>-->
 		</subQueries>
 	</TD_Find_Lib.ThingQueryCategoryDef>
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_PawnProperty</defName>
+		<label>basics</label>
+		<queryClass>TD_Find_Lib.ThingQueryBasicProperty</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Skill</defName>
