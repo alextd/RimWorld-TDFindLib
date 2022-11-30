@@ -156,7 +156,7 @@ namespace TD_Find_Lib
 
 							foreach (SearchGroup group in provider.ProvideLibrary())
 							{
-								submenuOptions.Add(new FloatMenuOption("+ " + group.name, () =>
+								submenuOptions.Add(new FloatMenuOption(group.name, () =>
 								{
 									handler(provider.ProvideGroup().Clone(cloneArgs));
 								}));
