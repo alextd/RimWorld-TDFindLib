@@ -630,8 +630,23 @@ namespace TD_Find_Lib
 
 	public class ThingQueryGuestStatus : ThingQueryDropDown<GuestStatus>
 	{
-		public override bool AppliesDirectlyTo(Thing thing) =>
-			thing is Pawn pawn && pawn.GuestStatus is GuestStatus status && status == sel;
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null) return false;
+
+			if (pawn.GuestStatus is GuestStatus status)
+			{
+				if (extraOption == 1) return status == GuestStatus.Prisoner && (pawn.guest?.PrisonerIsSecure ?? false);
+				if (extraOption == 2) return status == GuestStatus.Slave && (pawn.guest?.SlaveIsSecure ?? false);
+				return status == sel;
+			}
+			return false;
+		}
+
+		public override int ExtraOptionsCount => 2;
+		public override string NameForExtra(int ex) =>
+			ex == 1 ? "Secure Prisoner" : "Secure Slave";
 	}
 
 	public enum RacePropsQuery { Predator, Prey, Herd, Pack, Wildness, Petness, Trainability, Intelligence }
