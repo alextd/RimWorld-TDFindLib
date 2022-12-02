@@ -72,6 +72,10 @@ namespace TD_Find_Lib
 					{
 						Find.WindowStack.Add(new ResultThingListWindow(drawer.search.CloneForUseSingle()));
 					}
+#if DEBUG
+					if (DebugSettings.godMode && row.ButtonIcon(FindTex.Infinity))
+						UnitTests.Run();
+#endif
 				});
 		}
 	}
