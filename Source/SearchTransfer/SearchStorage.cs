@@ -41,17 +41,22 @@ namespace TD_Find_Lib
 		{
 			var options = ImportSearchOptions(handler, source, cloneArgs);
 			if (options.Count > 0 && row.ButtonIcon(FindTex.Import, "TD.ImportSearchFrom".Translate()))
-				Find.WindowStack.Add(new FloatMenu(options));
+			{
+				if (options.Count == 1)
+					options[0].action();
+				else
+					Find.WindowStack.Add(new FloatMenu(options));
+			}
 		}
 		public static List<FloatMenuOption> ImportSearchOptions(Action<QuerySearch> handler, string source = null, CloneArgs cloneArgs = default)
 		{
 			List<FloatMenuOption> importOptions = new();
 
-			foreach(ISearchProvider provider in SearchTransfer.providers)
+			foreach (ISearchProvider provider in SearchTransfer.providers)
 			{
 				if (provider.Source != null && provider.Source == source) continue;
 
-				switch(provider.ProvideMethod())
+				switch (provider.ProvideMethod())
 				{
 					case ISearchProvider.Method.None:
 						continue;
@@ -80,7 +85,7 @@ namespace TD_Find_Lib
 							Find.WindowStack.Add(new FloatMenu(submenuOptions));
 						}));
 						continue;
-					//TODO no way we want 3 nested sublists right?
+						//TODO no way we want 3 nested sublists right?
 				}
 			}
 
@@ -108,7 +113,7 @@ namespace TD_Find_Lib
 		{
 			List<FloatMenuOption> exportOptions = new();
 
-			foreach(ISearchReceiver receiver in SearchTransfer.receivers)
+			foreach (ISearchReceiver receiver in SearchTransfer.receivers)
 			{
 				if (receiver.Source != null && receiver.Source == source) continue;
 				if (!receiver.CanReceive()) continue;
