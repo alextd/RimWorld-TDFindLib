@@ -67,7 +67,11 @@ namespace TD_Find_Lib
 			drawer.DrawQuerySearch(fillRect, Find.CurrentMap == null ? null :
 				row =>
 				{
+					
+					SearchStorage.ButtonChooseImportSearch(row, s => drawer.search = s, transferTag, default);
+					
 					SearchStorage.ButtonChooseExportSearch(row, drawer.search, transferTag);
+
 					if (row.ButtonIcon(FindTex.List, "TD.ListThingsMatchingThisSearch".Translate()))
 					{
 						Find.WindowStack.Add(new ResultThingListWindow(drawer.search.CloneForUseSingle()));
