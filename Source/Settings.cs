@@ -109,23 +109,29 @@ namespace TD_Find_Lib
 		public void Receive(QuerySearch search)
 		{
 			//Save to groups
-			if (searchGroups.Count == 1)
-			{
-				// Only one group? skip this submenu
-				SaveToGroup(search, searchGroups[0]);
-			}
-			else
-			{
-				//TODO: generalize this in SearchStorage if we think many Receivers are going to want to specify which group to receive?
-				List<FloatMenuOption> submenuOptions = new();
 
-				foreach (SearchGroup group in searchGroups)
+			//TODO: generalize this in SearchStorage if we think many Receivers are going to want to specify which group to receive?
+			List<FloatMenuOption> submenuOptions = new();
+
+			foreach (SearchGroup group in searchGroups)
+			{
+				submenuOptions.Add(new FloatMenuOption(group.name, () => SaveToGroup(search, group)));
+			}
+
+			submenuOptions.Add(new FloatMenuOption("TD.AddNewGroup".Translate(), () =>
+			{
+				Find.WindowStack.Add(new Dialog_Name("TD.NewGroup".Translate(), n =>
 				{
-					submenuOptions.Add(new FloatMenuOption("+ " + group.name, () => SaveToGroup(search, group)));
-				}
+					var group = new SearchGroup(n, this);
+					Add(group);
 
-				Find.WindowStack.Add(new FloatMenu(submenuOptions));
-			}
+					SaveToGroup(search, group);
+				},
+				"TD.NameForNewGroup".Translate(),
+				n => Children.Any(f => f.name == n)));
+			}));
+
+			Find.WindowStack.Add(new FloatMenu(submenuOptions));
 		}
 
 		public void Receive(SearchGroup group) => Add(group);
