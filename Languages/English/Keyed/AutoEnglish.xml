@@ -115,5 +115,15 @@
 	<TD.SearchChosenMapsOnceLoaded>Search chosen maps (once loaded)</TD.SearchChosenMapsOnceLoaded>
 	<TD.AFilterIsForcingThisSearchToRunOnTheCurrentMapOnly>A filter is forcing this search to run on the current map only</TD.AFilterIsForcingThisSearchToRunOnTheCurrentMapOnly>
 	<TD.Rename0>Rename {0}</TD.Rename0>
-
+	<TD.Missing01>Missing {0}: {1}?</TD.Missing01>
+	<TD.Filter01NeedsAMap>Filter {0}: {1} needs a map - was given null map?</TD.Filter01NeedsAMap>
+	<TD.Missing01On2>Missing {0}: {1} on {2}?</TD.Missing01On2>
+	<TD.Search0TriedToLoad1FilterButNoMapToFind2>Search {0} tried to load {1} filter but no map was given to find {2}</TD.Search0TriedToLoad1FilterButNoMapToFind2>
+	<TD.NoMap>No Map</TD.NoMap>
+	<TD.AnyAggresive>Any Aggresive</TD.AnyAggresive>
+	<TD.IsHelper>Is Helper</TD.IsHelper>
+	<TD.IsLodger>Is Lodger</TD.IsLodger>
+	<TD.SecurePrisoner>Secure Prisoner</TD.SecurePrisoner>
+	<TD.SecureSlave>Secure Slave</TD.SecureSlave>
+	
 </LanguageData>

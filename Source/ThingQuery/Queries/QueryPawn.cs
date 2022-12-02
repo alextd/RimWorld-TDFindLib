@@ -565,7 +565,7 @@ namespace TD_Find_Lib
 
 		public override int ExtraOptionsCount => 2;
 		public override string NameForExtra(int ex) =>
-			ex == 1 ? "TD.AnyOption".Translate() : "Any Aggresive";
+			ex == 1 ? "TD.AnyOption".Translate() : "TD.AnyAggresive".Translate();
 	}
 
 	public class ThingQueryPrisoner : ThingQueryDropDown<PrisonerInteractionModeDef>
@@ -610,7 +610,7 @@ namespace TD_Find_Lib
 		public override bool DrawMain(Rect rect, bool locked)
 		{
 			base.DrawMain(rect, locked);
-			string label = sel ? "Is Helper" : "Is Lodger";
+			string label = sel ? "TD.IsHelper".Translate() : "TD.IsLodger".Translate();
 			Rect buttRect = rect.RightPart(0.4f);
 			buttRect.xMin -= Mathf.Max(buttRect.width, Text.CalcSize(label).x) - buttRect.width;
 			if (Widgets.ButtonText(buttRect, label))
@@ -680,7 +680,7 @@ namespace TD_Find_Lib
 
 		public override int ExtraOptionsCount => 2;
 		public override string NameForExtra(int ex) =>
-			ex == 1 ? "Secure Prisoner" : "Secure Slave";
+			ex == 1 ? "TD.SecurePrisoner".Translate() : "TD.SecureSlave".Translate();
 	}
 
 	public enum RacePropsQuery { Predator, Prey, Herd, Pack, Wildness, Petness, Trainability, Intelligence }

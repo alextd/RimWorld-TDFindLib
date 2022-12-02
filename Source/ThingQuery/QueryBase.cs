@@ -468,7 +468,7 @@ namespace TD_Find_Lib
 
 				if(_sel == null)
 				{
-					selectionError = $"Missing {def.LabelCap}: {selName}?";
+					selectionError = "TD.Missing01".Translate(def.LabelCap, selName);
 					selectionErrorCurMap = selectionError; // Sort of redundant to use "curmap" here but it does apply to whatever the current map is because it always applies
 					Verse.Log.Warning("TD.SearchTriedToLoad".Translate(RootHolder.Name, def.LabelCap, selName));
 				}
@@ -510,13 +510,13 @@ namespace TD_Find_Lib
 
 		private void RefError(Map map)
 		{
-			selectionErrorCurMap = map == null ? $"Filter {def.LabelCap}: {selName} needs a map - was given null map?"
-				: $"Missing {def.LabelCap}: {selName} on {map.Parent.LabelCap}?";
+			selectionErrorCurMap = map == null ? "TD.Filter01NeedsAMap".Translate(def.LabelCap, selName)
+				: "TD.Missing01On2".Translate(def.LabelCap, selName, map.Parent.LabelCap);
 			if (!refErrorReported)
 			{
 				// Report the first one, even if there's many. User will have to deal with them one-by-one.
-				Messages.Message(map == null ? $"Search {RootHolder.Name} tried to load {def.LabelCap} filter but no map was given to find {selName}" :
-					"TD.SearchTriedToLoadOnMap".Translate(RootHolder.Name, def.LabelCap, selName, map?.Parent.LabelCap ?? "No Map"),
+				Messages.Message(map == null ? "TD.Search0TriedToLoad1FilterButNoMapToFind2".Translate(RootHolder.Name, def.LabelCap, selName) :
+					"TD.SearchTriedToLoadOnMap".Translate(RootHolder.Name, def.LabelCap, selName, map?.Parent.LabelCap ?? "TD.NoMap".Translate()),
 					MessageTypeDefOf.RejectInput, false);
 
 				refErrorMap = map;
