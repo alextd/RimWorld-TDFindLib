@@ -171,7 +171,7 @@ namespace TD_Find_Lib
 			if (Mouse.IsOver(rect))
 			{
 				Vector3 center = UI.UIToMapPosition((float)(UI.screenWidth / 2), (float)(UI.screenHeight / 2));
-				bool arrow = (center - thing.DrawPos).MagnitudeHorizontalSquared() >= 121f;//Normal arrow is 9^2, using 11^2 seems good too.
+				bool arrow = !thing.Spawned || (center - thing.DrawPos).MagnitudeHorizontalSquared() >= 121f;//Normal arrow is 9^2, using 11^2 seems good too.
 				TargetHighlighter.Highlight(thing, arrow, true, true);
 			}
 
