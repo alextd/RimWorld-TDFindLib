@@ -257,7 +257,7 @@ namespace TD_Find_Lib
 			else if (buttonRow.ButtonIcon(FindTex.Cancel, "ClearAll".Translate()))
 				search.Reset();
 
-			// Locked BUtotn
+			// Locked button
 			if (!permalocked && buttonRow.ButtonIcon(locked ? FindTex.LockOn : FindTex.LockOff, "TD.LockEditing".Translate()))
 				locked = !locked;
 
@@ -271,6 +271,8 @@ namespace TD_Find_Lib
 			// Show ACTIVE when godmode?
 			if (DebugSettings.godMode)
 				buttonRow.Label(search.active ? "ACTIVE!" : "INACTIVE");
+
+			SearchStorage.ButtonOpenLibrary(buttonRow);
 
 			// Extra custom buttons!
 			extraIconsDrawer?.Invoke(buttonRow);
