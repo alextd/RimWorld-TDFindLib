@@ -62,13 +62,19 @@ namespace TD_Find_Lib
 		}
 
 
+		public virtual QuerySearch.CloneArgs ImportArgs => default;
+		public virtual void Import(QuerySearch search)
+		{
+			drawer.search = search;
+		}
+
 		public override void DoWindowContents(Rect fillRect)
 		{
 			drawer.DrawQuerySearch(fillRect, Find.CurrentMap == null ? null :
 				row =>
 				{
 					
-					SearchStorage.ButtonChooseImportSearch(row, s => drawer.search = s, transferTag, default);
+					SearchStorage.ButtonChooseImportSearch(row, Import, transferTag, ImportArgs);
 					
 					SearchStorage.ButtonChooseExportSearch(row, drawer.search, transferTag);
 
