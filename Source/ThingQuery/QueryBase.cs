@@ -26,6 +26,7 @@ namespace TD_Find_Lib
 		public ThingQueryDef def;
 
 		public IQueryHolder parent;
+		public IQueryHolder Parent => parent;
 
 		public IQueryHolder RootHolder => parent?.RootHolder;
 

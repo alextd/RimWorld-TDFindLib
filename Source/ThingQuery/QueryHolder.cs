@@ -13,6 +13,7 @@ namespace TD_Find_Lib
 	{
 		public string Name { get; }
 		public HeldQueries Children { get; }
+		public IQueryHolder Parent { get; }
 		public IQueryHolder RootHolder { get; }	//Either return this or a parent
 		public void Root_NotifyUpdated();
 		public void Root_NotifyRefUpdated();
@@ -37,6 +38,7 @@ namespace TD_Find_Lib
 
 
 		// from IQueryHolder:
+		public IQueryHolder Parent => null;
 		public virtual IQueryHolder RootHolder => this;
 		public HeldQueries Children => children;
 		public virtual void Root_NotifyUpdated() { }
@@ -91,7 +93,7 @@ namespace TD_Find_Lib
 		}
 
 		// Check if the thing passes the queries.
-		// A Map are needed for certain filters like zones and areas.
+		// A Map is needed for certain filters like zones and areas.
 		public bool AppliesTo(Thing thing, Map map = null)
 		{
 			if(map != null)
@@ -278,9 +280,14 @@ namespace TD_Find_Lib
 			ForEach(delegate (IQueryHolder holder)
 			{
 				if (holder.Children.reorderID == toGroup)
-					// Hold up, don't drop inside yourself
-					if (draggedQuery != holder)
-						newHolder = holder;	//todo: abort early?
+				{
+					// Hold up, don't drop inside yourself or any of your sacred lineage
+					for(IQueryHolder ancestor = holder; ancestor != null; ancestor = ancestor.Parent)
+						if (draggedQuery == ancestor)
+							return;
+
+					newHolder = holder; //todo: abort early?
+				}
 			});
 
 			if (newHolder != null)
