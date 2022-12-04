@@ -185,7 +185,9 @@ namespace TD_Find_Lib
 
 			//Draw option row
 			rowRect.width -= (rowRect.xMax - row.FinalX);
-			changed |= DrawMain(rowRect, locked);
+			Rect fullRect = rowRect;
+			fullRect.xMin = 0;//Since it's in a listing group, left side is 0. TODO with 2 colunmns??
+			changed |= DrawMain(rowRect, locked, fullRect);
 			changed |= DrawUnder(listing, locked);
 			if (shouldFocus)
 			{
@@ -212,7 +214,7 @@ namespace TD_Find_Lib
 		}
 
 
-		public virtual bool DrawMain(Rect rect, bool locked)
+		public virtual bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			Widgets.Label(rect, Label);
 			return false;
@@ -613,7 +615,7 @@ namespace TD_Find_Lib
 		private IEnumerable<int> ExtraOptions() => Enumerable.Range(1, ExtraOptionsCount);
 		public virtual string NameForExtra(int ex) => throw new NotImplementedException();
 
-		public override bool DrawMain(Rect rect, bool locked)
+		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			bool changeSelection = false;
 			bool changed = false;
@@ -626,15 +628,14 @@ namespace TD_Find_Lib
 
 				Rect customRect = rect;
 				customRect.xMin = row.FinalX;
-				changed = DrawCustom(customRect, row, rect);
+				changed = DrawCustom(customRect, row, fullRect);
 			}
 			else
 			{
 				//Just the label on left, and selected option button on right
-				base.DrawMain(rect, locked);
+				base.DrawMain(rect, locked, fullRect);
+				Rect buttRect = fullRect.RightPartClamped(0.4f, Text.CalcSize(Label).x);
 				string label = GetSelLabel();
-				Rect buttRect = rect.RightPart(0.4f);
-				buttRect.xMin -= Mathf.Max(buttRect.width, Text.CalcSize(label).x) - buttRect.width;
 				changeSelection = Widgets.ButtonText(buttRect, label);
 			}
 			if (changeSelection)
@@ -723,10 +724,10 @@ namespace TD_Find_Lib
 			Scribe_Values.Look(ref _sel.range, "sel");
 		}
 
-		public override bool DrawMain(Rect rect, bool locked)
+		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
-			base.DrawMain(rect, locked);
-			return TDWidgets.FloatRangeUB(rect.RightHalfClamped(Text.CalcSize(Label).x), id, ref selByRef, valueStyle: Style);
+			base.DrawMain(rect, locked, fullRect);
+			return TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(Text.CalcSize(Label).x), id, ref selByRef, valueStyle: Style);
 		}
 	}
 }

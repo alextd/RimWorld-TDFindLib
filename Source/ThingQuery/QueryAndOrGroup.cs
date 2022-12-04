@@ -51,7 +51,7 @@ namespace TD_Find_Lib
 			return false;
 		}
 
-		public override bool DrawMain(Rect rect, bool locked)
+		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			WidgetRow row = new WidgetRow(rect.x, rect.y);
 
@@ -118,7 +118,7 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		public override bool DrawMain(Rect rect, bool locked)
+		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			bool changed = false;
 			WidgetRow row = new WidgetRow(rect.x, rect.y);
@@ -161,14 +161,14 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		public override bool DrawMain(Rect rect, bool locked)
+		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			WidgetRow row = new WidgetRow(rect.x, rect.y);
 
 			row.Label("TD.AnythingXStepsNearbyMatches".Translate());
 			bool changed = ButtonToggleAny(row);
 
-			changed |= TDWidgets.IntRange(rect.RightHalfClamped(row.FinalX), id, ref range, max: 10);
+			changed |= TDWidgets.IntRange(fullRect.RightHalfClamped(row.FinalX), id, ref range, max: 10);
 			range.min = 0; // sorry we're not looking in a ring but we do want the slider UI
 
 			return changed;

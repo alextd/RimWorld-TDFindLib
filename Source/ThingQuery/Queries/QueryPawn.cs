@@ -607,12 +607,11 @@ namespace TD_Find_Lib
 			return sel ? pawn.IsQuestHelper() : pawn.IsQuestLodger();
 		}
 
-		public override bool DrawMain(Rect rect, bool locked)
+		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
-			base.DrawMain(rect, locked);
+			base.DrawMain(rect, locked, fullRect);
+			Rect buttRect = fullRect.RightPartClamped(0.4f, Text.CalcSize(Label).x);
 			string label = sel ? "TD.IsHelper".Translate() : "TD.IsLodger".Translate();
-			Rect buttRect = rect.RightPart(0.4f);
-			buttRect.xMin -= Mathf.Max(buttRect.width, Text.CalcSize(label).x) - buttRect.width;
 			if (Widgets.ButtonText(buttRect, label))
 			{
 				sel = !sel;

@@ -23,7 +23,7 @@ namespace TD_Find_Lib
 			namedLabelWidth.HasValue ? namedLabelWidth.Value :
 			(namedLabelWidth = Text.CalcSize(namedLabel).x).Value;
 
-		public override bool DrawMain(Rect rect, bool locked)
+		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			Widgets.Label(rect, namedLabel);
 			rect.xMin += NamedLabelWidth;
@@ -156,10 +156,10 @@ namespace TD_Find_Lib
 		public override bool AppliesDirectlyTo(Thing thing) =>
 			thing.TryGetComp<CompRottable>()?.TicksUntilRotAtCurrentTemp is int t && ticksRange.Includes(t);
 
-		public override bool DrawMain(Rect rect, bool locked)
+		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
-			base.DrawMain(rect, locked);
-			return TDWidgets.IntRangeUB(rect.RightHalfClamped(Text.CalcSize(Label).x), id, ref ticksRange, ticks => $"{ticks * 1f / GenDate.TicksPerDay:0.0}");
+			base.DrawMain(rect, locked, fullRect);
+			return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(Text.CalcSize(Label).x), id, ref ticksRange, ticks => $"{ticks * 1f / GenDate.TicksPerDay:0.0}");
 		}
 	}
 
@@ -309,12 +309,12 @@ namespace TD_Find_Lib
 			ex == 4 ? "TD.AnyOption".Translate() :
 			"TD.NoFaction".Translate();
 
-		public override bool DrawMain(Rect rect, bool locked)
+		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			//This is not DrawCustom because then the faction button would go on the left.
-			bool changed = base.DrawMain(rect, locked);
+			bool changed = base.DrawMain(rect, locked, fullRect);
 
-			Rect hostRect = rect.LeftPart(0.6f);
+			Rect hostRect = fullRect.LeftPart(0.6f);
 			hostRect.xMin = hostRect.xMax - 60;
 			if (Widgets.ButtonText(hostRect, host ? "TD.HostIs".Translate() : "TD.FactionIs".Translate()))
 			{
@@ -429,12 +429,12 @@ namespace TD_Find_Lib
 			thing.TryGetQuality(out QualityCategory qc) &&
 			sel.Includes(qc);
 
-		public override bool DrawMain(Rect rect, bool locked)
+		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
-			base.DrawMain(rect, locked);
+			base.DrawMain(rect, locked, fullRect);
 
 			QualityRange newRange = sel;
-			Widgets.QualityRange(rect.RightHalfClamped(Text.CalcSize(Label).x), id, ref newRange);
+			Widgets.QualityRange(fullRect.RightHalfClamped(Text.CalcSize(Label).x), id, ref newRange);
 			if (sel != newRange)
 			{
 				sel = newRange;
