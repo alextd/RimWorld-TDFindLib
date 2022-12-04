@@ -66,10 +66,21 @@ namespace TD_Find_Lib
 		public virtual void Import(QuerySearch search)
 		{
 			drawer.search = search;
+			drawer.search.changed = true;
 		}
 
 		public override void DoWindowContents(Rect fillRect)
 		{
+			if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.V && Event.current.control)
+			{
+				ClipboardTransfer clippy = new();
+				if (clippy.ProvideMethod() == ISearchProvider.Method.Single)
+				{
+					Import(clippy.ProvideSingle());
+					Event.current.Use();
+				}
+			}
+
 			drawer.DrawQuerySearch(fillRect, Find.CurrentMap == null ? null :
 				row =>
 				{
