@@ -122,7 +122,7 @@ namespace TD_Find_Lib
 	public class HeldQueries // : IExposable //Not IExposable because that means ctor QueryHolder() should exist.
 	{
 		private IQueryHolder parent;
-		public List<ThingQuery> queries = new List<ThingQuery>() { };
+		private List<ThingQuery> queries = new List<ThingQuery>() { };
 		public bool matchAllQueries = true;	// or ANY
 
 		public HeldQueries(IQueryHolder p)
@@ -150,6 +150,14 @@ namespace TD_Find_Lib
 			clone.matchAllQueries = matchAllQueries;
 
 			return clone;
+		}
+
+		public void Import(HeldQueries otherHolder)
+		{
+			queries = otherHolder.queries;
+			matchAllQueries = otherHolder.matchAllQueries;
+
+			queries.ForEach(q => q.parent = parent);
 		}
 
 
