@@ -34,10 +34,10 @@ namespace TD_Find_Lib
 		public SearchGroup Clone(CloneArgs cloneArgs, string newName = null, ISearchStorageParent newParent = null)
 		{
 			SearchGroup clone = new(newName ?? name, newParent);
-			foreach (QuerySearch query in this)
+			foreach (QuerySearch search in this)
 			{
 				//obviously don't set newName in cloneArgs
-				clone.Add(query.Clone(cloneArgs));
+				clone.Add(search.Clone(cloneArgs));
 			}
 			return clone;
 		}
