@@ -327,7 +327,7 @@ namespace TD_Find_Lib
 
 			listing.BeginScrollView(listRect, ref scrollPositionFilt, viewRect);
 
-			bool changed = DrawQueriesListing(listing, locked);
+			bool changed = DrawQueriesListing(listing, locked, extendableHeight: listRect.height);
 
 			List<int> reorderIDs = new(Gather<int>(f => f.Children.reorderID));
 
@@ -343,7 +343,7 @@ namespace TD_Find_Lib
 		public int reorderID;
 		private float reorderRectHeight;
 
-		public bool DrawQueriesListing(Listing_StandardIndent listing, bool locked, string indentAfterFirst = null)
+		public bool DrawQueriesListing(Listing_StandardIndent listing, bool locked, string indentAfterFirst = null, float extendableHeight = 0)
 		{
 			float startHeight = listing.CurHeight;
 
@@ -400,6 +400,8 @@ namespace TD_Find_Lib
 				DrawAddRow(listing);
 
 			reorderRectHeight = listing.CurHeight - startHeight;
+			if (extendableHeight > reorderRectHeight)
+				reorderRectHeight = extendableHeight;
 
 			if (indentAfterFirst != null)
 				listing.NestedOutdent();
