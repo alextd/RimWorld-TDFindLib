@@ -363,25 +363,20 @@ namespace TD_Find_Lib
 			bool first = true;
 			foreach (ThingQuery query in queries)
 			{
-				Rect usedRect = listing.GetRect(0);
+				// Layout in Listing will set usedRect ; Repaint in Reorderable will use it.
+				// But the reorderable of the parent has to come before children
+				// so children can be selected in the nested area.
+				ReorderableWidget.Reorderable(reorderID, query.usedRect);
 
 				(bool ch, bool d) = query.Listing(listing, locked);
 				changed |= ch;
 				if (d)
 					removedQueries.Add(query);
 
-				//Reorder box with only one line tall ;
-				//TODO: make its yMax = query.CurHeight,
-				//but then you can't drag AWAY from subqueries,
-				//though it's correct where you drag TO
-				usedRect.height = Text.LineHeight;
-				ReorderableWidget.Reorderable(reorderID, usedRect);
-
 				// Highlight the queries that pass for selected objects (useful for "any" queries)
 				if (!(query is IQueryHolder) && Find.UIRoot is UIRoot_Play && Find.Selector.SelectedObjects.Any(o => o is Thing t && query.AppliesTo(t)))
 				{
-					usedRect.yMax = listing.CurHeight;
-					Widgets.DrawHighlight(usedRect);
+					Widgets.DrawHighlight(query.usedRect);
 				}
 				if(first)
 				{

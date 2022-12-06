@@ -138,6 +138,7 @@ namespace TD_Find_Lib
 			incExcWidth.HasValue ? incExcWidth.Value :
 			(incExcWidth = Mathf.Max(Text.CalcSize("TD.IncludeShort".Translate()).x, Text.CalcSize("TD.ExcludeShort".Translate()).x)).Value;
 
+		public Rect usedRect;
 		public (bool, bool) Listing(Listing_StandardIndent listing, bool locked)
 		{
 			Rect rowRect = listing.GetRect(Text.LineHeight + listing.verticalSpacing); //ends up being 22 which is height of Text.CalcSize 
@@ -201,10 +202,13 @@ namespace TD_Find_Lib
 				TooltipHandler.TipRegion(rowRect, reason);
 			}
 
+			if (Event.current.type == EventType.Layout)
+			{
+				usedRect = rowRect;
+				usedRect.yMax = listing.CurHeight;
+			}
 			if (!enabled)
 			{
-				Rect usedRect = rowRect;
-				usedRect.yMax = listing.CurHeight;
 				Widgets.DrawBoxSolid(usedRect, DisabledOverlayColor);
 			}
 
