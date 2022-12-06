@@ -54,7 +54,7 @@ namespace TD_Find_Lib
 
 			foreach (ISearchProvider provider in SearchTransfer.providers)
 			{
-				if (provider.Source != null && provider.Source == source) continue;
+				if (SourceMatch(provider.Source, source)) continue;
 
 				switch (provider.ProvideMethod())
 				{
@@ -115,7 +115,7 @@ namespace TD_Find_Lib
 
 			foreach (ISearchReceiver receiver in SearchTransfer.receivers)
 			{
-				if (receiver.Source != null && receiver.Source == source) continue;
+				if (SourceMatch(receiver.Source, source)) continue;
 				if (!receiver.CanReceive()) continue;
 
 				exportOptions.Add(new FloatMenuOption(receiver.ReceiveName, () => receiver.Receive(search.Clone(receiver.CloneArgs))));
@@ -141,7 +141,7 @@ namespace TD_Find_Lib
 
 			foreach (ISearchProvider provider in SearchTransfer.providers)
 			{
-				if (provider.Source != null && provider.Source == source) continue;
+				if (SourceMatch(provider.Source, source)) continue;
 
 				switch (provider.ProvideMethod())
 				{
@@ -192,7 +192,7 @@ namespace TD_Find_Lib
 
 			foreach (ISearchGroupReceiver receiver in SearchTransfer.groupReceivers)
 			{
-				if (receiver.Source != null && receiver.Source == source) continue;
+				if (SourceMatch(receiver.Source, source)) continue;
 				if (!receiver.CanReceive()) continue;
 
 				exportOptions.Add(new FloatMenuOption(receiver.ReceiveName, () => receiver.Receive(group.Clone(receiver.CloneArgs))));
@@ -200,5 +200,9 @@ namespace TD_Find_Lib
 
 			return exportOptions;
 		}
+
+		public static bool SourceMatch(string source1, string source2) =>
+			source1 != null && source2 != null &&
+			source1.Split(',').Intersect(source2.Split(',')).Count() > 0;
 	}
 }
