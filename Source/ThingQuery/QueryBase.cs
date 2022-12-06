@@ -474,6 +474,8 @@ namespace TD_Find_Lib
 
 			if (selName == SaveLoadXmlConstants.IsNullAttributeName)
 			{
+				//if(NullOption() != null)	//Let's not double check on load, it's not too bad.
+
 				_sel = default; //can't use null because generic T isn't bound as reftype
 			}
 			else
