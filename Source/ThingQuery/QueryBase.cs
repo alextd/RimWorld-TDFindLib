@@ -334,7 +334,7 @@ namespace TD_Find_Lib
 		//  PostChosen: to set a default value, that is valid for the selection
 		//   e.g. Specific Thing query sets the default chosen range based on the stackLimit
 		//   e.g. NOT with the skill query which has a range 0-20, but that's valid for all skills, so no need to set per def
-		// Most subclasses needing PostChosen will also override PostProcess, to set the valid range and the default
+		// Few subclasses need PostProcess, but they will also need PostChosen.
 		protected virtual void PostProcess() { }
 		protected virtual void PostChosen() { }
 
