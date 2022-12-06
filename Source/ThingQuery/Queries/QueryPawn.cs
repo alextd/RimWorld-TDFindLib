@@ -417,8 +417,8 @@ namespace TD_Find_Lib
 
 			return
 				extraOption == 1 ? pawn.health.hediffSet.hediffs.Any(h => h.Visible || DebugSettings.godMode) :
-				extraOption == 2 ? pawn.health.hediffSet.hediffs.Any(h => h.Visible || DebugSettings.godMode && h.Bleeding) :
-				extraOption == 3 ? pawn.health.hediffSet.hediffs.Any(h => h.Visible || DebugSettings.godMode && h.TendableNow()) :
+				extraOption == 2 ? pawn.health.hediffSet.hediffs.Any(h => (h.Visible || DebugSettings.godMode) && h.Bleeding) :
+				extraOption == 3 ? pawn.health.hediffSet.hediffs.Any(h => (h.Visible || DebugSettings.godMode) && h.TendableNow()) :
 				sel == null ? !pawn.health.hediffSet.hediffs.Any(h => h.Visible || DebugSettings.godMode) :
 				(pawn.health.hediffSet.GetFirstHediffOfDef(sel, !DebugSettings.godMode) is Hediff hediff &&
 				(!usesSeverity || severityRange.Includes(hediff.Severity)));
