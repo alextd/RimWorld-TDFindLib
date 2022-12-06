@@ -69,15 +69,15 @@ namespace TD_Find_Lib
 			clone.passion = passion;
 			return clone;
 		}
-
-		public override string NullOption() => "TD.AnyOption".Translate();
+		public override int ExtraOptionsCount => 1;
+		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
 
 		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Pawn_SkillTracker skills = (thing as Pawn)?.skills;
 			if (skills == null) return false;
 
-			return sel == null ? skills.skills.Any(AppliesRecord) :
+			return extraOption == 1 ? skills.skills.Any(AppliesRecord) :
 				skills.GetSkill(sel) is SkillRecord rec && AppliesRecord(rec);
 		}
 
@@ -502,6 +502,7 @@ namespace TD_Find_Lib
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
+
 			float temp = pawn.AmbientTemperature;
 			FloatRange safeRange = pawn.SafeTemperatureRange();
 			FloatRange comfRange = pawn.ComfortableTemperatureRange();
@@ -589,8 +590,7 @@ namespace TD_Find_Lib
 				return thing.GetRoom()?.IsPrisonCell ?? false;
 
 			Pawn pawn = thing as Pawn;
-			if (pawn == null)
-				return false;
+			if (pawn == null) return false;
 
 			if (extraOption == 1)
 				return pawn.IsPrisoner;
@@ -609,8 +609,7 @@ namespace TD_Find_Lib
 		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
-			if (pawn == null)
-				return false;
+			if (pawn == null) return false;
 
 			return sel ? pawn.IsQuestHelper() : pawn.IsQuestLodger();
 		}
@@ -1073,23 +1072,23 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		public override string NullOption() => "TD.AnyOption".Translate();
+		public override int ExtraOptionsCount => 1;
+		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
 
 		private bool Includes(Pawn pawn, PawnCapacityDef def) =>
 			capacityRange.Includes(pawn.health.capacities.GetLevel(def));
 
 		public override bool AppliesDirectlyTo(Thing thing)
 		{
-			if (thing is Pawn pawn)
-			{
-				if(sel != null)
-					return Includes(pawn, sel);
+			Pawn pawn = thing as Pawn;
+			if (pawn == null) return false;
 
+			if(extraOption == 1)
 				foreach (PawnCapacityDef def in DefDatabase<PawnCapacityDef>.AllDefs)
 					if (Includes(pawn, def))
 						return true;
-			}
-			return false;
+
+			return Includes(pawn, sel);
 		}
 
 		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)

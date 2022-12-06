@@ -89,14 +89,26 @@ namespace TD_Find_Lib
 
 	public class ThingQueryDesignation : ThingQueryDropDown<DesignationDef>
 	{
-		public override bool AppliesDirectlyTo(Thing thing) =>
-			sel != null ?
-			(sel.targetType == TargetType.Thing ? thing.MapHeld.designationManager.DesignationOn(thing, sel) != null :
-			thing.MapHeld.designationManager.DesignationAt(thing.PositionHeld, sel) != null) :
-			(thing.MapHeld.designationManager.DesignationOn(thing) != null ||
-			thing.MapHeld.designationManager.AllDesignationsAt(thing.PositionHeld).Count() > 0);
+		public ThingQueryDesignation() => extraOption = 1;
 
-		public override string NullOption() => "TD.AnyOption".Translate();
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			if (extraOption == 1)
+				return thing.MapHeld.designationManager.DesignationOn(thing) != null
+					|| thing.MapHeld.designationManager.AllDesignationsAt(thing.PositionHeld).Count() > 0;
+
+			if( sel == null)
+				return thing.MapHeld.designationManager.DesignationOn(thing) == null
+					&& thing.MapHeld.designationManager.AllDesignationsAt(thing.PositionHeld).Count() == 0;
+
+			return sel.targetType == TargetType.Thing ? thing.MapHeld.designationManager.DesignationOn(thing, sel) != null :
+				thing.MapHeld.designationManager.DesignationAt(thing.PositionHeld, sel) != null;
+		}
+
+		public override string NullOption() => "None".Translate();
+
+		public override int ExtraOptionsCount => 1;
+		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
 
 		public override bool Ordered => true;
 		public override IEnumerable<DesignationDef> Options() =>
@@ -204,7 +216,7 @@ namespace TD_Find_Lib
 
 			if (extraOption == 1)
 				return yield != null;
-			if (extraOption == 2)
+			if (sel == null)
 				return yield == null;
 
 			return sel == yield;
@@ -237,10 +249,10 @@ namespace TD_Find_Lib
 		}
 		public override bool Ordered => true;
 
-		public override int ExtraOptionsCount => 2;
-		public override string NameForExtra(int ex) => // or FleshTypeDef but this works
-			ex == 1 ? "TD.AnyOption".Translate() :
-			"None".Translate();
+		public override string NullOption() => "None".Translate();
+
+		public override int ExtraOptionsCount => 1;
+		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
 	}
 
 
@@ -307,7 +319,7 @@ namespace TD_Find_Lib
 			ex == 2 ? "TD.Mechanoid".Translate() :
 			ex == 3 ? "TD.Insectoid".Translate() :
 			ex == 4 ? "TD.AnyOption".Translate() :
-			"TD.NoFaction".Translate();
+			"TD.NoFaction".Translate();	//Can't be null because T is struct
 
 		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
@@ -445,17 +457,19 @@ namespace TD_Find_Lib
 
 	public class ThingQueryStuff : ThingQueryDropDown<ThingDef>
 	{
+		public ThingQueryPlantHarvest() => sel = ThingDefOf.Steel;
+
 		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			ThingDef stuff = thing is IConstructible c ? c.EntityToBuildStuff() : thing.Stuff;
 			return
-				extraOption == 1 ? !thing.def.MadeFromStuff :
+				extraOption == 1 ? stuff != null :
 				extraOption > 1 ? stuff?.stuffProps?.categories?.Contains(DefDatabase<StuffCategoryDef>.AllDefsListForReading[extraOption - 2]) ?? false :
-				sel == null ? stuff != null :
+				sel == null ? !thing.def.MadeFromStuff :
 				stuff == sel;
 		}
 
-		public override string NullOption() => "TD.AnyOption".Translate();
+		public override string NullOption() => "TD.NotMadeFromStuff".Translate();
 		private static List<ThingDef> stuffList = DefDatabase<ThingDef>.AllDefs.Where(d => d.IsStuff).ToList();
 		public override IEnumerable<ThingDef> Options() =>
 			Mod.settings.OnlyAvailable
@@ -464,7 +478,7 @@ namespace TD_Find_Lib
 
 		public override int ExtraOptionsCount => DefDatabase<StuffCategoryDef>.DefCount + 1;
 		public override string NameForExtra(int ex) =>
-			ex == 1 ? "TD.NotMadeFromStuff".Translate() :
+			ex == 1 ? "TD.AnyOption".Translate():
 			DefDatabase<StuffCategoryDef>.AllDefsListForReading[ex - 2]?.LabelCap;
 	}
 
@@ -476,12 +490,12 @@ namespace TD_Find_Lib
 			if (pawn == null) return false;
 
 			return
-				extraOption == 1 ? pawn.health.hediffSet.GetMissingPartsCommonAncestors().NullOrEmpty() :
-				sel == null ? !pawn.health.hediffSet.GetMissingPartsCommonAncestors().NullOrEmpty() :
+				extraOption == 1 ? !pawn.health.hediffSet.GetMissingPartsCommonAncestors().NullOrEmpty() :
+				sel == null ? pawn.health.hediffSet.GetMissingPartsCommonAncestors().NullOrEmpty() :
 				pawn.RaceProps.body.GetPartsWithDef(sel).Any(r => pawn.health.hediffSet.PartIsMissing(r));
 		}
 
-		public override string NullOption() => "TD.AnyOption".Translate();
+		public override string NullOption() => "None".Translate();
 		public override IEnumerable<BodyPartDef> Options() =>
 			Mod.settings.OnlyAvailable
 				? base.Options().Intersect(ContentsUtility.AvailableInGame(
@@ -499,17 +513,14 @@ namespace TD_Find_Lib
 		}
 
 		public override int ExtraOptionsCount => 1;
-		public override string NameForExtra(int ex) => "None".Translate();
+		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
 	}
 
 
 	public enum BaseAreas { Home, BuildRoof, NoRoof, SnowClear };
 	public class ThingQueryArea : ThingQueryDropDown<Area>
 	{
-		public ThingQueryArea()
-		{
-			extraOption = 1;
-		}
+		public ThingQueryArea() => extraOption = 1;
 
 		protected override Area ResolveRef(Map map) =>
 			map.areaManager.GetLabeled(selName);
@@ -522,9 +533,11 @@ namespace TD_Find_Lib
 			if (extraOption == 5)
 				return pos.Roofed(map);
 
+			if (extraOption == 6)
+				return map.areaManager.AllAreas.Any(a => a[pos]);
+
 			if (extraOption == 0)
-				return sel != null ? sel[pos] :
-				map.areaManager.AllAreas.Any(a => a[pos]);
+				return sel[pos];
 
 			switch ((BaseAreas)(extraOption - 1))
 			{
@@ -536,7 +549,6 @@ namespace TD_Find_Lib
 			return false;
 		}
 
-		public override string NullOption() => "TD.AnyOption".Translate();
 		public override IEnumerable<Area> Options() => Find.CurrentMap?.areaManager.AllAreas.Where(a => a is Area_Allowed) ?? Enumerable.Empty<Area>();
 		public override string NameFor(Area o) => o.Label;
 
@@ -544,6 +556,7 @@ namespace TD_Find_Lib
 		public override string NameForExtra(int ex)
 		{
 			if (ex == 5) return "Roofed".Translate().CapitalizeFirst();
+			if (ex == 6) return "TD.AnyOption".Translate();
 			switch ((BaseAreas)(ex - 1))
 			{
 				case BaseAreas.Home: return "Home".Translate();
@@ -557,6 +570,8 @@ namespace TD_Find_Lib
 
 	public class ThingQueryZone : ThingQueryDropDown<Zone>
 	{
+		public ThingQueryZone() => extraOption = 3;
+
 		protected override Zone ResolveRef(Map map) =>
 			map.zoneManager.AllZones.FirstOrDefault(z => z.label == selName);
 
@@ -567,15 +582,20 @@ namespace TD_Find_Lib
 			return
 				extraOption == 1 ? zoneAtPos is Zone_Stockpile :
 				extraOption == 2 ? zoneAtPos is Zone_Growing :
-				sel != null ? zoneAtPos == sel :
-				zoneAtPos != null;
+				extraOption == 3 ? zoneAtPos != null :
+				zoneAtPos == sel;
 		}
 
-		public override string NullOption() => "TD.AnyOption".Translate();
 		public override IEnumerable<Zone> Options() => Find.CurrentMap?.zoneManager.AllZones ?? Enumerable.Empty<Zone>();
 
 		public override int ExtraOptionsCount => 2;
-		public override string NameForExtra(int ex) => ex == 1 ? "TD.AnyStockpile".Translate() : "TD.AnyGrowingZone".Translate();
+		public override string NameForExtra(int ex) =>
+			ex switch
+			{
+				1 => "TD.AnyStockpile".Translate(),
+				2 => "TD.AnyGrowingZone".Translate(),
+				_ => "TD.AnyOption".Translate()
+			};
 	}
 
 	public class ThingQueryDeterioration : ThingQuery
