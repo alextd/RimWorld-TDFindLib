@@ -407,7 +407,7 @@ namespace TD_Find_Lib
 		public static void DrawMouseAttachedQuery(ThingQuery dragQuery, float width)
 		{
 			Vector2 mousePositionOffset = Event.current.mousePosition + Vector2.one * 12;
-			Rect dragRect = new Rect(mousePositionOffset, new(width, Text.LineHeight));
+			Rect dragRect = new Rect(mousePositionOffset, new(width, Text.LineHeight + 2));//not sure where the constant for listing.verticalSpacing is
 
 			//Same id 34003428 as GenUI.DrawMouseAttachment
 			Find.WindowStack.ImmediateWindow(34003428, dragRect, WindowLayer.Super,
