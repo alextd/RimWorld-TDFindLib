@@ -190,6 +190,7 @@
 			<li>Query_Milk</li>
 			<li>Query_Wool</li>
 			<li>Query_ProductProgress</li>
+			<li>Query_Trained</li>
 		</subQueries>
 	</TD_Find_Lib.ThingQueryCategoryDef>
 
@@ -233,6 +234,12 @@
 		<defName>Query_ProductProgress</defName>
 		<label>progress</label>
 		<queryClass>TD_Find_Lib.ThingQueryProductProgress</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Trained</defName>
+		<label>trained</label>
+		<queryClass>TD_Find_Lib.ThingQueryTrained</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 
 	

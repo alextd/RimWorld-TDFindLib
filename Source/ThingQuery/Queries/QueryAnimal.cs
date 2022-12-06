@@ -334,4 +334,50 @@ namespace TD_Find_Lib
 		}
 	}
 
+
+	public class ThingQueryTrained : ThingQueryDropDown<TrainableDef>
+	{
+		protected IntRangeUB stepRange;
+
+		public ThingQueryTrained() => sel = TrainableDefOf.Tameness;
+
+		protected override void PostProcess()
+		{
+			stepRange.absRange = new(0, sel?.steps ?? 1);
+		}
+		protected override void PostChosen()
+		{
+			stepRange.range = new(1, sel.steps);
+		}
+
+		public override void ExposeData()
+		{
+			base.ExposeData();
+			Scribe_Values.Look(ref stepRange.range, "stepRange");
+		}
+		public override ThingQuery Clone()
+		{
+			ThingQueryTrained clone = (ThingQueryTrained)base.Clone();
+			clone.stepRange = stepRange;
+			return clone;
+		}
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null) return false;
+
+			var training = pawn.training;
+			if (training == null) return false;
+
+			return stepRange.Includes(training.GetSteps(sel));
+		}
+
+		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
+		{
+			if (sel == null) return false;
+
+			return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref stepRange);
+		}
+	}
 }
