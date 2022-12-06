@@ -457,7 +457,7 @@ namespace TD_Find_Lib
 
 	public class ThingQueryStuff : ThingQueryDropDown<ThingDef>
 	{
-		public ThingQueryPlantHarvest() => sel = ThingDefOf.Steel;
+		public ThingQueryStuff() => sel = ThingDefOf.Steel;
 
 		public override bool AppliesDirectlyTo(Thing thing)
 		{
