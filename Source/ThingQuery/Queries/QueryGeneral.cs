@@ -47,7 +47,7 @@ namespace TD_Find_Lib
 			}
 			if (Widgets.ButtonImage(rect.RightPartPixels(rect.height), TexUI.RotLeftTex))
 			{
-				GUI.FocusControl("");
+				UI.UnfocusCurrentControl();
 				sel = "";
 				return true;
 			}
@@ -62,7 +62,7 @@ namespace TD_Find_Lib
 		{
 			if (GUI.GetNameOfFocusedControl() == $"THING_QUERY_NAME_INPUT{id}")
 			{
-				GUI.FocusControl("");
+				UI.UnfocusCurrentControl();
 				return true;
 			}
 
@@ -861,7 +861,7 @@ namespace TD_Find_Lib
 		{
 			if (GUI.GetNameOfFocusedControl() == controlNameL || GUI.GetNameOfFocusedControl() == controlNameR)
 			{
-				GUI.FocusControl("");
+				UI.UnfocusCurrentControl();
 				return true;
 			}
 
