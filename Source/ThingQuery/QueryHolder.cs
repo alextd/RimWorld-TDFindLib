@@ -110,11 +110,13 @@ namespace TD_Find_Lib
 		}
 
 
+
+		// Handle esc key before windows do. Also unfocus when leaving the window.
 		// This is a roundabout way to hijack the esc-keypress from a window before it closes the window.
-		// Any window displaying this has to override OnCancelKeyPressed and call this
-		public bool OnCancelKeyPressed()
+		// Any Window displaying this should override OnCancelKeyPressed/Notify_ClickOutsideWindow and call this
+		public bool Unfocus()
 		{
-			return children.Any(f => f.OnCancelKeyPressed());
+			return children.Any(f => f.Unfocus());
 		}
 	}
 

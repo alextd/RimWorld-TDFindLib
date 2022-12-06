@@ -31,8 +31,13 @@ namespace TD_Find_Lib
 
 		public override void OnCancelKeyPressed()
 		{
-			if (!drawer.search.OnCancelKeyPressed())
+			if (!drawer.search.Unfocus())
 				base.OnCancelKeyPressed();
+		}
+
+		public override void Notify_ClickOutsideWindow()
+		{
+			drawer.search.Unfocus();
 		}
 
 		public override void PostOpen()

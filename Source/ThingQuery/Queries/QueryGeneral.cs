@@ -58,7 +58,7 @@ namespace TD_Find_Lib
 		{
 			GUI.FocusControl($"THING_QUERY_NAME_INPUT{id}");
 		}
-		public override bool OnCancelKeyPressed()
+		public override bool Unfocus()
 		{
 			if (GUI.GetNameOfFocusedControl() == $"THING_QUERY_NAME_INPUT{id}")
 			{
@@ -857,7 +857,7 @@ namespace TD_Find_Lib
 			GUI.FocusControl(controlNameL);
 		}
 
-		public override bool OnCancelKeyPressed()
+		public override bool Unfocus()
 		{
 			if (GUI.GetNameOfFocusedControl() == controlNameL || GUI.GetNameOfFocusedControl() == controlNameR)
 			{
