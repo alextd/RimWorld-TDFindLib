@@ -34,6 +34,20 @@ namespace TD_Find_Lib
 						settings.Write();
 					}
 				}
+
+				if (!settings.warnedAnyNull)
+				{
+					Verse.Log.Error("TD Find Lib here: The definitions for Any/None filters selections have changed around a bit. Double-check if any of your filters have those set."); //also to stop hugslibs from autostarting
+					
+					settings.warnedAnyNull = true;
+					settings.Write();
+
+					LongEventHandler.QueueLongEvent(() =>
+						Find.WindowStack.Add(new Dialog_MessageBox(@"TD Find Lib here: The definitions for Any/None filters selections have changed around a bit.
+
+Double-check if any of your filters have those set.")),
+						"TDFINDLIB", true, _ => { });
+				}
 			});
 		}
 

@@ -87,10 +87,12 @@ namespace TD_Find_Lib
 
 
 		public bool firstUse = true;
+		public bool warnedAnyNull = true;
 		public override void ExposeData()
 		{
 			Scribe_Values.Look(ref onlyAvailable, "onlyAvailable", true);
 			Scribe_Values.Look(ref firstUse, "firstUse", false);
+			Scribe_Values.Look(ref warnedAnyNull, "warnedAnyNull", false);
 
 			Scribe_Collections.Look(ref searchGroups, "searchGroups", LookMode.Deep, "??Group Name??", this);
 			
