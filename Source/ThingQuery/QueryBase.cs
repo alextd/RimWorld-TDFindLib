@@ -248,14 +248,22 @@ namespace TD_Find_Lib
 	public class FloatMenuOptionAndRefresh : FloatMenuOption
 	{
 		ThingQuery owner;
-		public FloatMenuOptionAndRefresh(string label, Action action, ThingQuery query) : base(label, action)
+		Color color = Color.white;
+		public FloatMenuOptionAndRefresh(string label, Action action, ThingQuery query, Color? color = null) : base(label, action)
 		{
 			owner = query;
+			if(color.HasValue)
+				this.color = Color.Lerp(Color.white, color.Value, .2f);
 		}
 
 		public override bool DoGUI(Rect rect, bool colonistOrdering, FloatMenu floatMenu)
 		{
+			Color oldColor = GUI.color;
+			GUI.color = color;
+
 			bool result = base.DoGUI(rect, colonistOrdering, floatMenu);
+
+			GUI.color = oldColor;
 
 			if (result)
 				owner.RootHolder.Root_NotifyUpdated();
@@ -646,7 +654,7 @@ namespace TD_Find_Lib
 				List<FloatMenuOption> options = new();
 
 				if (NullOption() is string nullOption)
-					options.Add(new FloatMenuOptionAndRefresh(nullOption, () => sel = default, this)); //can't null because T isn't bound as reftype
+					options.Add(new FloatMenuOptionAndRefresh(nullOption, () => sel = default, this, Color.red)); //can't null because T isn't bound as reftype
 
 				if (UsesCategories)
 				{
@@ -668,7 +676,7 @@ namespace TD_Find_Lib
 				}
 
 				foreach (int ex in ExtraOptions())
-					options.Add(new FloatMenuOptionAndRefresh(NameForExtra(ex), () => extraOption = ex, this));
+					options.Add(new FloatMenuOptionAndRefresh(NameForExtra(ex), () => extraOption = ex, this, Color.yellow));
 
 				DoFloatOptions(options);
 			}
