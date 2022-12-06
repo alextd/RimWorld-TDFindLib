@@ -381,7 +381,9 @@ namespace TD_Find_Lib
 
 
 		// Cloning shenanigans
-		public enum CloneType { Save, Edit, Use }//Reference? Copy?
+		public enum CloneType { Save, Edit, Use }
+		// Reference? Copy?
+		// Edit is obsolete. It's essentially the same as save.
 
 		//default(CloneArgs) CloneArgs is CloneType.Save
 		public struct CloneArgs
