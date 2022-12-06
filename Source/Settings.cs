@@ -134,7 +134,29 @@ namespace TD_Find_Lib
 			Find.WindowStack.Add(new FloatMenu(submenuOptions));
 		}
 
-		public void Receive(SearchGroup group) => Add(group);
+		public void Receive(SearchGroup newGroup)
+		{
+			List<FloatMenuOption> submenuOptions = new();
+
+			foreach (SearchGroup group in searchGroups)
+			{
+				submenuOptions.Add(new FloatMenuOption(group.name, () => group.AddRange(newGroup)));
+			}
+
+			submenuOptions.Add(new FloatMenuOption("TD.AddNewGroup".Translate(), () =>
+			{
+				Find.WindowStack.Add(new Dialog_Name("TD.NewGroup".Translate(), n =>
+				{
+					newGroup.name = n;
+
+					Add(newGroup);
+				},
+				"TD.NameForNewGroup".Translate(),
+				n => Children.Any(f => f.name == n)));
+			}));
+
+			Find.WindowStack.Add(new FloatMenu(submenuOptions));
+		}
 
 		public static void SaveToGroup(QuerySearch search, SearchGroup group)
 		{

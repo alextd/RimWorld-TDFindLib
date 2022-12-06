@@ -94,7 +94,7 @@
 	<TD.TDFindLibSearchLibrary>TD Find Lib: Search Library</TD.TDFindLibSearchLibrary>
 	<TD.NewGroup>New Group</TD.NewGroup>
 	<TD.NameForNewGroup>Name for New Group</TD.NameForNewGroup>
-	<TD.AddNewGroup>Add New Group</TD.AddNewGroup>
+	<TD.AddNewGroup>Add New Group...</TD.AddNewGroup>
 	<TD.NewSearch>New Search</TD.NewSearch>
 	<TD.NameForNewSearch>Name for New Search</TD.NameForNewSearch>
 	<TD.EditThisSearch>Edit this search</TD.EditThisSearch>
