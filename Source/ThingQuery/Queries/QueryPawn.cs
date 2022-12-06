@@ -417,6 +417,8 @@ namespace TD_Find_Lib
 
 			return
 				extraOption == 1 ? pawn.health.hediffSet.hediffs.Any(h => h.Visible || DebugSettings.godMode) :
+				extraOption == 2 ? pawn.health.hediffSet.hediffs.Any(h => h.Visible || DebugSettings.godMode && h.Bleeding) :
+				extraOption == 3 ? pawn.health.hediffSet.hediffs.Any(h => h.Visible || DebugSettings.godMode && h.TendableNow()) :
 				sel == null ? !pawn.health.hediffSet.hediffs.Any(h => h.Visible || DebugSettings.godMode) :
 				(pawn.health.hediffSet.GetFirstHediffOfDef(sel, !DebugSettings.godMode) is Hediff hediff &&
 				(!usesSeverity || severityRange.Includes(hediff.Severity)));
@@ -430,8 +432,14 @@ namespace TD_Find_Lib
 
 		public override bool Ordered => true;
 
-		public override int ExtraOptionsCount => 1;
-		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
+		public override int ExtraOptionsCount => 3;
+		public override string NameForExtra(int ex) =>
+			ex switch
+			{
+				1 => "TD.AnyOption".Translate(),
+				2 => "Any bleeding",
+				_ => "CanTendNow".Translate()
+			};
 
 		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
 		{
