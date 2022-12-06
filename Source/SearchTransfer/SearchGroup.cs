@@ -13,7 +13,7 @@ namespace TD_Find_Lib
 	{
 		public void NotifyChanged();
 		public List<SearchGroup> Children { get; }
-		public void Add(SearchGroup group);
+		public void Add(SearchGroup group, bool refresh = true);
 		public void ReorderGroup(int from, int to);
 	}
 

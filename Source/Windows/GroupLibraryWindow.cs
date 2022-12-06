@@ -31,7 +31,7 @@ namespace TD_Find_Lib
 			doCloseX = true;
 		}
 
-		private void SetupDrawers()
+		public void SetupDrawers()
 		{
 			groupDrawers.Clear();
 			foreach (SearchGroup group in parent.Children)
@@ -136,7 +136,7 @@ namespace TD_Find_Lib
 					Find.WindowStack.Add(new Dialog_Name("TD.NewGroup".Translate(), n =>
 					{
 						var group = new SearchGroup(n, parent);
-						parent.Add(group);
+						parent.Add(group, false);
 
 						var drawer = new SearchGroupDrawer(group, groupDrawers);
 						groupDrawers.Add(drawer);
@@ -151,7 +151,7 @@ namespace TD_Find_Lib
 				// Import button
 				SearchStorage.ButtonChooseImportSearchGroup(newGroupRow, group =>
 				{
-					parent.Add(group);
+					parent.Add(group, false);
 
 					var drawer = new SearchGroupDrawer(group, groupDrawers);
 					if (groupDrawers.Any(d => d.Name == group.name))

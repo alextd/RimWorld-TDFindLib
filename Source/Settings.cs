@@ -26,11 +26,15 @@ namespace TD_Find_Lib
 		//ISearchStorageParent stuff
 		public void NotifyChanged() => Write(); //Write() in parent class
 		public List<SearchGroup> Children => searchGroups;
-		public void Add(SearchGroup group)
+		public void Add(SearchGroup group, bool refresh = true)
 		{
 			Children.Add(group);
 			group.parent = this;
+
+			if(refresh)
+				Find.WindowStack?.WindowOfType<GroupLibraryWindow>()?.SetupDrawers();
 		}
+
 		public void ReorderGroup(int from, int to)
 		{
 			var group = searchGroups[from];
@@ -172,7 +176,7 @@ namespace TD_Find_Lib
 		}
 
 		public QuerySearch ProvideSingle() => null;
-		public SearchGroup ProvideGroup() => searchGroups[0];
+		public SearchGroup ProvideGroup() => searchGroups[0]; //IF there's only one group
 		public List<SearchGroup> ProvideLibrary() => searchGroups;
 	}
 }
