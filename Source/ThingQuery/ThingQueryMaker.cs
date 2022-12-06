@@ -38,6 +38,10 @@ namespace TD_Find_Lib
 
 			foreach (var queryDef in DefDatabase<ThingQueryDef>.AllDefsListForReading)
 				defForQueryClasses[queryDef.queryClass] = queryDef;
+
+			foreach (var queryType in GenTypes.AllSubclassesNonAbstract(typeof(ThingQuery)))
+				if (!defForQueryClasses.ContainsKey(queryType))
+					Verse.Log.Error($"TDFindLib here, uhhh, there is no ThingQueryDef for {queryType}, thought you should know.");
 		}
 
 		public static IEnumerable<ThingQuerySelectableDef> SelectableList =>
