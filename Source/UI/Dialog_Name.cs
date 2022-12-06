@@ -15,6 +15,9 @@ namespace TD_Find_Lib
 		Predicate<string> rejector;
 		string title;
 
+		//actually protected
+		public override int MaxNameLength => 256;
+
 		public Dialog_Name(string name, Action<string> act, string title = null, Predicate<string> rejector = null)
 		{
 			curName = name;
