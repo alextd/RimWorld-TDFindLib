@@ -103,6 +103,13 @@ namespace TD_Find_Lib
 						UnitTests.Run();
 #endif
 				});
+
+			if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.C && Event.current.control)
+			{
+				ClipboardTransfer clippy = new();
+				clippy.Receive(drawer.search);
+				Event.current.Use();
+			}
 		}
 	}
 	public class TDFindLibViewerWindow : SearchEditorWindow
