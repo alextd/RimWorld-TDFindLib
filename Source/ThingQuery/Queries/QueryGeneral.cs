@@ -403,6 +403,77 @@ namespace TD_Find_Lib
 			sel.Worker.Matches(thing);
 	}
 
+	public class ThingQueryApparelLayer : ThingQueryMask<ApparelLayerDef>
+	{
+		public ThingQueryApparelLayer()
+		{
+			mustHave.Add(ApparelLayerDefOf.OnSkin);
+			SetSelLabel();
+		}
+
+		public static List<ApparelLayerDef> layers = DefDatabase<ApparelLayerDef>.AllDefsListForReading;
+		public override List<ApparelLayerDef> Options => layers;
+
+		public override string GetOptionLabel(ApparelLayerDef def) => def.LabelCap;
+
+		public override int CompareSelector(ApparelLayerDef def) => def.drawOrder;
+
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Apparel apparel = thing as Apparel;
+			if (apparel == null) return false;
+
+			var layers = apparel.def.apparel?.layers;
+			if (layers == null) return false;
+
+			return mustHave.All(layers.Contains) && !cantHave.Any(layers.Contains);
+		}
+	}
+
+	public class ThingQueryApparelCoverage : ThingQueryMask<BodyPartGroupDef>
+	{
+		public ThingQueryApparelCoverage()
+		{
+			mustHave.Add(BodyPartGroupDefOf.Legs);
+			SetSelLabel();
+		}
+
+		public static List<BodyPartGroupDef> partGroups;
+		public override List<BodyPartGroupDef> Options => partGroups;
+		static ThingQueryApparelCoverage()
+		{
+			HashSet<BodyPartGroupDef> apparelCoveredParts = new();
+			foreach(ThingDef def in DefDatabase<ThingDef>.AllDefsListForReading)
+			{
+				if (def.apparel?.bodyPartGroups is List<BodyPartGroupDef> parts)
+					apparelCoveredParts.AddRange(parts);
+			}
+
+			partGroups = apparelCoveredParts.ToList();
+
+			partGroups.SortBy(d => d.listOrder);
+		}
+
+
+		public override string GetOptionLabel(BodyPartGroupDef def) => def.LabelCap;
+
+		public override int CompareSelector(BodyPartGroupDef def) => -def.listOrder;
+
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Apparel apparel = thing as Apparel;
+			if (apparel == null) return false;
+
+			var groups = apparel.def.apparel?.bodyPartGroups;
+			if (groups == null) return false;
+
+			return mustHave.All(groups.Contains) && !cantHave.Any(groups.Contains);
+		}
+	}
+
+
 	public enum MineableType { Resource, Rock, All }
 	public class ThingQueryMineable : ThingQueryDropDown<MineableType>
 	{

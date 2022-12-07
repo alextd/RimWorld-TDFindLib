@@ -252,6 +252,8 @@
 			<li>Query_Quality</li>
 			<li>Query_Stuff</li>
 			<li>Query_SpecialFilter</li>
+			<li>Query_ApparelLayer</li>
+			<li>Query_ApparelCoverage</li>
 			<li>Query_Forbidden</li>
 		</subQueries>
 	</TD_Find_Lib.ThingQueryCategoryDef>
@@ -279,6 +281,18 @@
 		<defName>Query_SpecialFilter</defName>
 		<label>special filter</label>
 		<queryClass>TD_Find_Lib.ThingQuerySpecialFilter</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_ApparelLayer</defName>
+		<label>apparel layer</label>
+		<queryClass>TD_Find_Lib.ThingQueryApparelLayer</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_ApparelCoverage</defName>
+		<label>apparel coverage</label>
+		<queryClass>TD_Find_Lib.ThingQueryApparelCoverage</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 
 	<TD_Find_Lib.ThingQueryDef>

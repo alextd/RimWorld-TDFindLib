@@ -255,6 +255,10 @@ namespace TD_Find_Lib
 			if(color.HasValue)
 				this.color = Color.Lerp(Color.white, color.Value, .2f);
 		}
+		public FloatMenuOptionAndRefresh(string label, Action action, ThingQuery query, Texture2D itemIcon, Color iconColor) : base(label, action, itemIcon, iconColor)
+		{
+			owner = query;
+		}
 
 		public override bool DoGUI(Rect rect, bool colonistOrdering, FloatMenu floatMenu)
 		{
@@ -741,6 +745,105 @@ namespace TD_Find_Lib
 		{
 			base.DrawMain(rect, locked, fullRect);
 			return TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(Text.CalcSize(Label).x), id, ref selByRef, valueStyle: Style);
+		}
+	}
+
+	public abstract class ThingQueryMask<T> : ThingQuery
+	{
+		public abstract List<T> Options { get; }
+		public abstract string GetOptionLabel(T o);
+		public abstract int CompareSelector(T o);
+
+		public string label;
+		public List<T> mustHave = new(), cantHave = new();
+
+		public override ThingQuery Clone()
+		{
+			ThingQueryMask<T> clone = (ThingQueryMask<T>)base.Clone();
+			clone.mustHave = mustHave.ToList();
+			clone.cantHave = cantHave.ToList();
+			clone.label = label;
+			return clone;
+		}
+		public override void ExposeData()
+		{
+			base.ExposeData();
+
+			Scribe_Collections.Look(ref mustHave, "mustHave");
+			Scribe_Collections.Look(ref cantHave, "cannotHave");
+
+			if (Scribe.mode == LoadSaveMode.PostLoadInit)
+				SetSelLabel();
+		}
+
+		static readonly Color mustColor = Color.Lerp(Color.green, Color.gray, .5f);
+		static readonly Color cantColor = Color.Lerp(Color.red, Color.gray, .5f);
+		public void SetSelLabel()
+		{
+			string must = string.Join(", ", mustHave.Select(GetOptionLabel));
+			string cant = string.Join(", ", cantHave.Select(GetOptionLabel));
+
+			StringBuilder sb = new();
+			if (must.Length > 0)
+			{
+				sb.Append(must.Colorize(mustColor));
+			}
+			if (cant.Length > 0)
+			{
+				if (sb.Length > 0)
+					sb.Append(" ; ");
+				sb.Append(cant.Colorize(cantColor));
+			}
+			if (sb.Length == 0)
+				label = "TD.AnyOption".Translate();
+			else
+				label = sb.ToString();
+		}
+
+		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		{
+			base.DrawMain(rect, locked, fullRect);
+			if (Widgets.ButtonText(fullRect.RightPart(.7f), label))
+			{
+				List<FloatMenuOption> layerOption = new List<FloatMenuOption>();
+				foreach (T option in Options)
+				{
+					layerOption.Add(new FloatMenuOptionAndRefresh(
+						GetOptionLabel(option),
+						() => {
+							if (Event.current.button == 1)
+							{
+								mustHave.Remove(option);
+								cantHave.Remove(option);
+							}
+							else if (mustHave.Contains(option))
+							{
+								mustHave.Remove(option);
+
+								cantHave.Add(option);
+								cantHave.SortBy(CompareSelector);
+							}
+							else if (cantHave.Contains(option))
+							{
+								cantHave.Remove(option);
+							}
+							else
+							{
+								mustHave.Add(option);
+								cantHave.SortBy(CompareSelector);
+							}
+							SetSelLabel();
+						},
+						this,
+						mustHave.Contains(option) ? Widgets.CheckboxOnTex
+						: cantHave.Contains(option) ? Widgets.CheckboxOffTex
+						: Widgets.CheckboxPartialTex,
+						Color.white));
+				}
+
+				Find.WindowStack.Add(new FloatMenu(layerOption));
+			}
+			return false;
 		}
 	}
 }
