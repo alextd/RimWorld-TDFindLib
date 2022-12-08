@@ -363,15 +363,17 @@ namespace TD_Find_Lib
 			bool first = true;
 			foreach (ThingQuery query in queries)
 			{
-				// Layout in Listing will set usedRect ; Repaint in Reorderable will use it.
-				// But the reorderable of the parent has to come before children
-				// so children can be selected in the nested area.
-				ReorderableWidget.Reorderable(reorderID, query.usedRect);
-
 				(bool ch, bool d) = query.Listing(listing, locked);
 				changed |= ch;
 				if (d)
 					removedQueries.Add(query);
+
+				// Layout event in query.Listing will set query.usedRect ; Repaint in Reorderable will use it.
+				// We'd like the reorderable of the parent has to come before children
+				// so children will be last in the list, and will override the selected clicked rect
+				// But events in the children should be caught and used before dragging is allowed, so it has to go after.
+				ReorderableWidget.Reorderable(reorderID, query.usedRect);
+
 
 				// Highlight the queries that pass for selected objects (useful for "any" queries)
 				if (!(query is IQueryHolder) && Find.UIRoot is UIRoot_Play && Find.Selector.SelectedObjects.Any(o => o is Thing t && query.AppliesTo(t)))
