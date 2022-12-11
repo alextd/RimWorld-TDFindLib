@@ -444,7 +444,9 @@ namespace TD_Find_Lib
 		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
 		{
 			if (sel != null && usesSeverity)
-				return TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref severityRange, valueStyle: ToStringStyle.FloatOne);
+				return TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref severityRange, valueStyle: ToStringStyle.PercentZero);
+
+			// Injuries shuld be ToStringStyle.Float but they do not have a lethalSeverity so do not display their severity here
 
 			return false;
 		}
