@@ -52,7 +52,7 @@ namespace TD_Find_Lib
 
 		public void MasterReorderSearch(int from, int fromGroupID, int to, int toGroupID)
 		{
-			Log.Message($"TDFindLibListWindow.MasterReorderSearch(int from={from}, int fromGroup={fromGroupID}, int to={to}, int toGroup={toGroupID})");
+			Log.Message($"GroupLibraryWindow.MasterReorderSearch(int from={from}, int fromGroup={fromGroupID}, int to={to}, int toGroup={toGroupID})");
 			SearchGroup fromGroup = groupDrawers.First(dr => dr.reorderID == fromGroupID).list;
 			SearchGroup toGroup = groupDrawers.First(dr => dr.reorderID == toGroupID).list;
 			var search = fromGroup[from];
@@ -441,7 +441,7 @@ namespace TD_Find_Lib
 		{
 			if (row.ButtonIcon(FindTex.Edit, "TD.ViewThisSearch".Translate()))
 			{
-				Find.WindowStack.Add(new TDFindLibViewerWindow(refSearch.search, Settings.StorageTransferTag));
+				Find.WindowStack.Add(new SearchViewerWindow(refSearch.search, Settings.StorageTransferTag));
 			}
 
 			if (row.ButtonIcon(TexButton.AutoHomeArea, "TD.OpenTheModControllingThisSearch".Translate()))

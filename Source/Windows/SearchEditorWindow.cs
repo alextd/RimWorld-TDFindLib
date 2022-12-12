@@ -8,55 +8,162 @@ using RimWorld;
 
 namespace TD_Find_Lib
 {
-	public class SearchEditorWindow : Window
+	// Your standard popup editor.
+	public class SearchEditorWindow : QueryDrawerWindow
 	{
-		public readonly QuerySearchDrawer drawer;
 		private Action<QuerySearch> onCloseIfChanged;
-		private string transferTag;
-
-		public SearchEditorWindow(QuerySearch search, string transferTag, Action<QuerySearch> onCloseIfChanged = null)
+		public SearchEditorWindow(QuerySearch search, string transferTag, Action<QuerySearch> onCloseIfChanged = null) : base(search, transferTag)
 		{
-			this.transferTag = transferTag;
+			title = "TD.Editing".Translate();
+			showNameAfterTitle = true;
 
-			drawer = new QuerySearchDrawer(search, "TD.Editing".Translate()) { showNameAfterTitle = true };
+			this.onCloseIfChanged = onCloseIfChanged;
+		}
+
+		public override void PostClose()
+		{
+			if (search.changed)
+				onCloseIfChanged?.Invoke(search);
+		}
+
+		public override void DrawIcons(WidgetRow row)
+		{
+			base.DrawIcons(row);
+
+			if (Find.CurrentMap != null &&
+				row.ButtonIcon(FindTex.List, "TD.ListThingsMatchingThisSearch".Translate()))
+			{
+				Find.WindowStack.Add(new ResultThingListWindow(search.CloneForUseSingle()));
+			}
+
+#if DEBUG
+			if (DebugSettings.godMode && row.ButtonIcon(FindTex.Infinity))
+				UnitTests.Run();
+#endif
+		}
+	}
+
+	// Just view, no editing.
+	public class SearchViewerWindow : QueryDrawerWindow
+	{
+		public SearchViewerWindow(QuerySearch search, string tag) : base(search, tag)
+		{
+			title = "TD.Viewing".Translate();
+			showNameAfterTitle = true;
+
+			permalocked = true;
+		}
+
+		public override void DrawIcons(WidgetRow row)
+		{
+			base.DrawIcons(row);
+
+			if (Find.CurrentMap != null &&
+				row.ButtonIcon(FindTex.List, "TD.ListThingsMatchingThisSearch".Translate()))
+			{
+				Find.WindowStack.Add(new ResultThingListWindow(search.CloneForUseSingle()));
+			}
+		}
+	}
+
+
+	// Editor window with closing confirmation to revert, restoring the filters and listtype
+	// Doesn't change name or map types.
+	// For mods to use.
+	public abstract class SearchEditorRevertableWindow : SearchEditorWindow
+	{
+		QuerySearch originalSearch;
+		public SearchEditorRevertableWindow(QuerySearch search, string transferTag) : base(search, transferTag)
+		{
+			search.changed = false;
+			originalSearch = search.CloneInactive();
+		}
+
+		public override void Import(QuerySearch newSearch)
+		{
+			ImportInto(newSearch, search);
+		}
+			
+		public static void ImportInto(QuerySearch sourceSeach, QuerySearch destSearch)
+		{
+			// Keep name and map type, only take these:
+			destSearch.parameters.listType = sourceSeach.parameters.listType;
+			destSearch.Children.Import(sourceSeach.Children);
+
+			destSearch.changedSinceRemake = true;
+			destSearch.changed = true;
+		}
+
+		public override void PostClose()
+		{
+			if (search.changed)
+			{
+				Verse.Find.WindowStack.Add(new Dialog_MessageBox(
+					null,
+					"Confirm".Translate(), null,
+					"No".Translate(), () => Import(originalSearch),
+					"Keep changes?",
+					true, null,
+					delegate () { }// I dunno who wrote this class but this empty method is required so the window can close with esc because its logic is very different from its base class
+					)); ;
+			}
+		}
+	}
+
+	// Base class for mods to subclass, also SearchEditorWindow does.
+	public abstract class QueryDrawerWindow : Window
+	{
+		public QuerySearch search;
+		public string transferTag;
+
+		private bool _locked;
+		public bool locked
+		{
+			get => _locked || permalocked;
+			set => _locked = value;
+		}
+
+		public bool permalocked;
+
+		public bool showNameAfterTitle;
+		public string title;
+
+
+		public QueryDrawerWindow()
+		{
 			onlyOneOfTypeAllowed = false;
 			preventCameraMotion = false;
 			draggable = true;
 			resizeable = true;
-			//closeOnAccept = false;
-			//closeOnCancel = false;
 			doCloseX = true;
-			this.onCloseIfChanged = onCloseIfChanged;
+		}
+		public QueryDrawerWindow(QuerySearch search, string transferTag) : this()
+		{
+			this.search = search;
+			this.transferTag = transferTag;
 		}
 
 		public override void OnCancelKeyPressed()
 		{
-			if (!drawer.search.Unfocus())
+			if (!search.Unfocus())
 				base.OnCancelKeyPressed();
 		}
 
 		public override void Notify_ClickOutsideWindow()
 		{
-			drawer.search.Unfocus();
+			search.Unfocus();
 		}
 
 		public override void PostOpen()
 		{
 			base.PostOpen();
 
-			if (Find.WindowStack.Windows.FirstOrDefault(w => w != this && w is SearchEditorWindow sw && sw.drawer.search == drawer.search) is Window duplicate)
+			if (Find.WindowStack.Windows.FirstOrDefault(w => w != this && w is QueryDrawerWindow dw && dw.search == search) is Window duplicate)
 			{
 				Close();
 				Find.WindowStack.Notify_ClickedInsideWindow(duplicate);
 			}
 		}
-
-		public override void PostClose()
-		{
-			if (drawer.search.changed)
-				onCloseIfChanged?.Invoke(drawer.search);
-		}
-
 
 		public override Vector2 InitialSize => new Vector2(600, 600);
 
@@ -70,76 +177,31 @@ namespace TD_Find_Lib
 		public virtual QuerySearch.CloneArgs ImportArgs => default;
 		public virtual void Import(QuerySearch search)
 		{
-			drawer.search = search;
-			drawer.search.changed = true;
+			search.changed = true;
+			this.search = search;
 		}
 
 		public override void DoWindowContents(Rect fillRect)
 		{
-			if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.V && Event.current.control)
+			if (!locked && 
+				Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.V && Event.current.control)
 			{
 				ClipboardTransfer clippy = new();
 				if (clippy.ProvideMethod() == ISearchProvider.Method.Single)
 				{
-					Import(clippy.ProvideSingle());
+					Import(clippy.ProvideSingle().Clone(ImportArgs));
 					Event.current.Use();
 				}
 			}
 
-			drawer.DrawQuerySearch(fillRect, Find.CurrentMap == null ? null :
-				row =>
-				{
-					
-					SearchStorage.ButtonChooseImportSearch(row, Import, transferTag, ImportArgs);
-					
-					SearchStorage.ButtonChooseExportSearch(row, drawer.search, transferTag);
-
-					if (row.ButtonIcon(FindTex.List, "TD.ListThingsMatchingThisSearch".Translate()))
-					{
-						Find.WindowStack.Add(new ResultThingListWindow(drawer.search.CloneForUseSingle()));
-					}
-#if DEBUG
-					if (DebugSettings.godMode && row.ButtonIcon(FindTex.Infinity))
-						UnitTests.Run();
-#endif
-				});
+			DrawQuerySearch(fillRect);
 
 			if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.C && Event.current.control)
 			{
 				ClipboardTransfer clippy = new();
-				clippy.Receive(drawer.search);
+				clippy.Receive(search);
 				Event.current.Use();
 			}
-		}
-	}
-	public class TDFindLibViewerWindow : SearchEditorWindow
-	{
-		public TDFindLibViewerWindow(QuerySearch search, string tag):base(search, tag)
-		{
-			drawer.permalocked = true;
-			drawer.title = "TD.Viewing".Translate();
-		}
-	}
-
-	public class QuerySearchDrawer
-	{ 
-		public QuerySearch search;
-		private bool _locked;
-		public bool locked
-		{
-			get => _locked || permalocked;
-			set => _locked = value;
-		}
-		public bool permalocked;
-
-		//Pick one or the other.
-		public bool showNameAfterTitle;
-		public string title;
-
-		public QuerySearchDrawer(QuerySearch search, string title)
-		{
-			this.search = search;
-			this.title = title;
 		}
 
 		protected virtual void DrawHeader(Rect headerRect)
@@ -247,13 +309,46 @@ namespace TD_Find_Lib
 			}
 		}
 
+		public virtual void DrawIcons(WidgetRow row)
+		{
+			if (!permalocked)
+			{
+				// Reset button
+				if (locked)
+					row.IncrementPosition(WidgetRow.IconSize); //not Gap because that checks for 0 and doesn't actually gap
+				else if (row.ButtonIcon(FindTex.Cancel, "ClearAll".Translate()))
+					search.Reset();
+
+				// Locked button
+				if (row.ButtonIcon(locked ? FindTex.LockOn : FindTex.LockOff, "TD.LockEditing".Translate()))
+					locked = !locked;
+			}
+
+			// Rename button
+			if (!locked && showNameAfterTitle && row.ButtonIcon(TexButton.Rename))
+				Find.WindowStack.Add(new Dialog_Name(
+					search.name,
+					newName => { search.name = newName; search.changed = true; },
+					"TD.Rename0".Translate(search.name)));
+
+			// Library button
+			SearchStorage.ButtonOpenLibrary(row);
+
+			// Export button
+			SearchStorage.ButtonChooseExportSearch(row, search, transferTag);
+
+			// Import button
+			if(!permalocked)
+				SearchStorage.ButtonChooseImportSearch(row, Import, transferTag, ImportArgs);
+		}
+
 
 
 		//Draw Search
 		private Vector2 scrollPosition;
 		private float scrollHeight;
 
-		public void DrawQuerySearch(Rect rect, Action<WidgetRow> extraIconsDrawer = null)
+		public void DrawQuerySearch(Rect rect)
 		{
 			Listing_StandardIndent listing = new Listing_StandardIndent()
 			{ maxOneColumn = true };
@@ -268,42 +363,15 @@ namespace TD_Find_Lib
 			if (showNameAfterTitle)
 				titleLabel += ": " + search.name;
 			Widgets.Label(nameRect, titleLabel);
+			Text.Font = GameFont.Small;
 
 
 			//Buttons
-			WidgetRow buttonRow = new WidgetRow(nameRect.xMax - 20, nameRect.yMin, UIDirection.LeftThenDown);
+			WidgetRow buttonRow = new (nameRect.xMax - 20, nameRect.yMin, UIDirection.LeftThenDown);
+			DrawIcons(buttonRow);
 
 
-			// Reset button
-			if (locked)
-				buttonRow.IncrementPosition(WidgetRow.IconSize); //not Gap because that checks for 0 and doesn't actually gap
-			else if (buttonRow.ButtonIcon(FindTex.Cancel, "ClearAll".Translate()))
-				search.Reset();
-
-			// Locked button
-			if (!permalocked && buttonRow.ButtonIcon(locked ? FindTex.LockOn : FindTex.LockOff, "TD.LockEditing".Translate()))
-				locked = !locked;
-
-			// Rename button
-			if (!locked && showNameAfterTitle && buttonRow.ButtonIcon(TexButton.Rename))
-				Find.WindowStack.Add(new Dialog_Name(
-					search.name, 
-					newName => { search.name = newName; search.changed = true; },
-					"TD.Rename0".Translate(search.name)));
-
-			// Show ACTIVE when godmode?
-			if (DebugSettings.godMode)
-				buttonRow.Label(search.active ? "ACTIVE!" : "INACTIVE");
-
-			SearchStorage.ButtonOpenLibrary(buttonRow);
-
-			// Extra custom buttons!
-			extraIconsDrawer?.Invoke(buttonRow);
-
-
-			// Listing Type
-			Text.Font = GameFont.Small;
-
+			// Header (Listing/Any/Map)
 			Rect headerRect = listing.GetRect(Text.LineHeight);
 			DrawHeader(headerRect);
 
