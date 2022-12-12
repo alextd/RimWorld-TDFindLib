@@ -47,6 +47,8 @@ namespace TD_Find_Lib
 	{
 		public QuerySearch search;
 
+		const int RowHeight = 34;
+
 		public ThingListDrawer(QuerySearch search)
 		{
 			this.search = search;
@@ -59,7 +61,6 @@ namespace TD_Find_Lib
 		}
 
 		private Vector2 scrollPositionList = Vector2.zero;
-		private float scrollViewHeightList;
 		ThingDef selectAllDef;
 		bool selectAll;
 		public void DrawThingList(Rect inRect)
@@ -99,7 +100,7 @@ namespace TD_Find_Lib
 
 			//Draw box:
 			Rect listRect = inRect;
-			listRect.yMin += 34;
+			listRect.yMin += 34; //Also RowHeight but doesn't need to be equal necessarily
 
 			GUI.color = Color.gray;
 			Widgets.DrawBox(listRect);
@@ -111,29 +112,22 @@ namespace TD_Find_Lib
 			listRect.width -= 2; listRect.x += 1;
 
 			//Keep full width if nothing to scroll:
+			float scrollViewListHeight = search.result.allThings.Count * RowHeight;
 			float viewWidth = listRect.width;
-			if (scrollViewHeightList > listRect.height)
+			if (scrollViewListHeight > listRect.height)
 				viewWidth -= 16f;
 
 			//Draw Scrolling list:
-			Rect viewRect = new Rect(0f, 0f, viewWidth, scrollViewHeightList);
+			Rect viewRect = new Rect(0f, 0f, viewWidth, scrollViewListHeight);
 			Widgets.BeginScrollView(listRect, ref scrollPositionList, viewRect);
-			Rect thingRect = new Rect(viewRect.x, 0, viewRect.width, 32);
 
-			foreach (Thing thing in search.result.allThings)
-			{
-				//Be smart about drawing only what's visible.
-				if (thingRect.y + 32 >= scrollPositionList.y)
-					DrawThingRow(thing, ref thingRect);
-
-				thingRect.y += 34;
-
-				if (thingRect.y > scrollPositionList.y + listRect.height)
-					break;
-			}
-
-			if (Event.current.type == EventType.Layout)
-				scrollViewHeightList = search.result.allThings.Count * 34f;
+			//Be smart about drawing only what's visible.
+			//For: Set up 3 starting variables woahwoahwoah
+			int i = (int)scrollPositionList.y / RowHeight;
+			int iMax = Math.Min(1 + (int)(scrollPositionList.y+listRect.height) / RowHeight, search.result.allThings.Count);
+			Rect thingRect = new Rect(viewRect.x, i*RowHeight, viewRect.width, 32);
+			for (; i < iMax; thingRect.y += RowHeight, i++)
+				DrawThingRow(search.result.allThings[i], thingRect);
 
 			//Select all 
 			Map currentMap = Find.CurrentMap;
@@ -158,7 +152,7 @@ namespace TD_Find_Lib
 		bool dragSelect = false;
 		bool dragDeselect = false;
 		bool dragJump = false;
-		private void DrawThingRow(Thing thing, ref Rect rect)
+		private void DrawThingRow(Thing thing, Rect rect)
 		{
 			//Highlight selected
 			if (Find.Selector.IsSelected(thing))
@@ -167,17 +161,15 @@ namespace TD_Find_Lib
 			//Draw
 			DrawThing(rect, thing);
 
-			//Draw arrow pointing to hovered thing
 			if (Mouse.IsOver(rect))
 			{
+				//Draw arrow pointing to hovered thing
 				Vector3 center = UI.UIToMapPosition((float)(UI.screenWidth / 2), (float)(UI.screenHeight / 2));
 				bool arrow = !thing.Spawned || (center - thing.DrawPos).MagnitudeHorizontalSquared() >= 121f;//Normal arrow is 9^2, using 11^2 seems good too.
 				TargetHighlighter.Highlight(thing, arrow, true, true);
-			}
+			
 
-			//Mouse event: select.
-			if (Mouse.IsOver(rect))
-			{
+				//Mouse event: select.
 				if (Event.current.type == EventType.MouseDown)
 				{
 					if (!thing.def.selectable || !thing.Spawned)
