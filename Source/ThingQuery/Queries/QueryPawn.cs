@@ -437,7 +437,7 @@ namespace TD_Find_Lib
 			ex switch
 			{
 				1 => "TD.AnyOption".Translate(),
-				2 => "Any bleeding",
+				2 => "TD.AnyBleeding".Translate(),
 				_ => "CanTendNow".Translate()
 			};
 

@@ -125,5 +125,7 @@
 	<TD.IsLodger>Is Lodger</TD.IsLodger>
 	<TD.SecurePrisoner>Secure Prisoner</TD.SecurePrisoner>
 	<TD.SecureSlave>Secure Slave</TD.SecureSlave>
+	<TD.AnyBleeding>Any bleeding</TD.AnyBleeding>
+	<TD.KeepChanges>Keep changes?</TD.KeepChanges>
 	
 </LanguageData>

@@ -102,7 +102,7 @@ namespace TD_Find_Lib
 					null,
 					"Confirm".Translate(), null,
 					"No".Translate(), () => Import(originalSearch),
-					"Keep changes?",
+					"TD.KeepChanges".Translate(),
 					true, null,
 					delegate () { }// I dunno who wrote this class but this empty method is required so the window can close with esc because its logic is very different from its base class
 					)); ;
