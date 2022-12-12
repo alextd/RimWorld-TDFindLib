@@ -85,6 +85,7 @@ namespace TD_Find_Lib
 		public List<Map> resultMaps = new();
 
 		public List<Thing> allThings = new();
+		public int allThingsCount; // including stack size
 		public Dictionary<Map, List<Thing>> mapThings = new();
 		//Todo things by def/map?
 
@@ -523,6 +524,8 @@ namespace TD_Find_Lib
 			}
 
 			newListedThings.Clear();
+
+			result.allThingsCount = result.allThings.Sum(t => t.stackCount);
 
 			//Btw, were we looking with godmode?
 			result.godMode = DebugSettings.godMode;

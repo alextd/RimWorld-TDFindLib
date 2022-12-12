@@ -82,7 +82,7 @@ namespace TD_Find_Lib
 
 			//Count text
 			Text.Anchor = TextAnchor.UpperRight;
-			Widgets.Label(inRect, LabelCountThings(search.result.allThings));
+			Widgets.Label(inRect, LabelCountThings(search.result));
 			Text.Anchor = default;
 
 			//Handle mouse selection
@@ -264,10 +264,15 @@ namespace TD_Find_Lib
 			}
 		}
 
-
+		// Obsolete
 		public static string LabelCountThings(IEnumerable<Thing> things)
 		{
 			return "TD.LabelCountThings".Translate(things.Sum(t => t.stackCount));
+		}
+
+		public static string LabelCountThings(SearchResult result)
+		{
+			return "TD.LabelCountThings".Translate(result.allThingsCount);
 		}
 	}
 }
