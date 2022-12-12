@@ -158,7 +158,7 @@ namespace TD_Find_Lib
 		{
 			base.PostOpen();
 
-			if (Find.WindowStack.Windows.FirstOrDefault(w => w != this && w is QueryDrawerWindow dw && dw.search == search) is Window duplicate)
+			if (Find.WindowStack.Windows.FirstOrDefault(w => w != this && w is QueryDrawerWindow dw && GetType() == dw.GetType() && dw.search == search) is Window duplicate)
 			{
 				Close();
 				Find.WindowStack.Notify_ClickedInsideWindow(duplicate);
