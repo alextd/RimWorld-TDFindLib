@@ -407,7 +407,7 @@ namespace TD_Find_Lib
 				if (Scribe.mode == LoadSaveMode.LoadingVars)
 					extraOption = _extraOption;	// property setter to set other fields null: TODO: they already are null, right?
 
-				// No need to worry about sel or refname, we're done!
+				// No need to worry about sel or selName, we're done!
 				return;
 			}
 
@@ -470,7 +470,7 @@ namespace TD_Find_Lib
 
 		// Subclasses where SaveLoadByName is true need to override ResolveName() or ResolveRef()
 		// (unless it's just a Def, already handled)
-		// return matching object based on refName (refName will not be "null")
+		// return matching object based on selName (selName will not be "null")
 		// returning null produces a selection error and the query will be disabled
 		public override void DoResolveName()
 		{
