@@ -33,27 +33,54 @@
 		<label>personal details</label>
 		<subQueries>
 			<li>Query_PawnProperty</li>
-			<li>Query_Skill</li>
-			<li>Query_Trait</li>
-			<li>Query_Thought</li>
-			<li>Query_Need</li>
-			<li>Query_Health</li>
-			<li>Query_Capacity</li>
-			<li>Query_Job</li>
-			<li>Query_Inspiration</li>
-			<li>Query_Guest</li>
-			<li>Query_MentalState</li>
+			<li>Category_PawnStats</li> <!-- I'd say it's intentionally confusing to have stats and status but I didn't make up those words -->
+			<li>Category_PawnStatus</li>
+			<li>Category_PawnGuest</li>
+			<li>Query_Drafted</li>
 			<li>Query_Temp</li>
 			<li>Query_ComfyTemp</li>
-			<li>Query_Incapable</li>
 			<li>Query_AreaRestriction</li>
-			<li>Query_Drafted</li>
-			<li>Query_Prisoner</li>
-			<li>Query_Quest</li>
+			<li>Query_Inventory</li>
+		</subQueries>
+	</TD_Find_Lib.ThingQueryCategoryDef>
+	
+	<TD_Find_Lib.ThingQueryCategoryDef>
+		<defName>Category_PawnStats</defName>
+		<label>statistics</label>
+		<subQueries>
+			<li>Query_Skill</li>
+			<li>Query_Trait</li>
+			<li>Query_Health</li>
+			<li>Query_Capacity</li>
+			<li>Query_Incapable</li>
 			<li>Query_Gender</li>
 			<li>Query_ThingQueryDevelopmentalStage</li>
+		</subQueries>
+	</TD_Find_Lib.ThingQueryCategoryDef>
+
+	<TD_Find_Lib.ThingQueryCategoryDef>
+		<defName>Category_PawnStatus</defName>
+		<label>status</label>
+		<subQueries>
+			<li>Query_Thought</li>
+			<li>Query_Need</li>
+			<li>Query_Job</li>
+			<li>Query_Health</li>
+			<li>Query_HP</li>
+			<li>Query_Inspiration</li>
+			<li>Query_MentalState</li>
 			<li>Query_MissingBodyPart</li>
-			<!-- Seems like it should be here but it also includes "holder has" which is an item detail - shrug. <li>Query_Inventory</li>-->
+		</subQueries>
+	</TD_Find_Lib.ThingQueryCategoryDef>
+
+	<TD_Find_Lib.ThingQueryCategoryDef>
+		<defName>Category_PawnGuest</defName>
+		<label>guests</label>
+		<subQueries>
+			<li>Query_Faction</li>
+			<li>Query_Guest</li>
+			<li>Query_Prisoner</li>
+			<li>Query_Quest</li>
 		</subQueries>
 	</TD_Find_Lib.ThingQueryCategoryDef>
 
@@ -310,6 +337,8 @@
 			<li>Query_BuildingCategory</li>
 			<li>Query_Stuff</li>
 			<li>Query_Quality</li>
+			<li>Query_Designation</li>
+			<li>Query_HP</li>
 			<li>Query_Mineable</li>
 			<li>Query_Door</li>
 		</subQueries>
@@ -408,6 +437,7 @@
 			<li>Query_Zone</li>
 			<li>Query_Temp</li>
 			<li>Query_Deterioration</li>
+			<li>Query_AreaRestriction</li>
 			<li>Query_Nearby</li>
 		</subQueries>
 	</TD_Find_Lib.ThingQueryCategoryDef>
@@ -448,24 +478,28 @@
 		<defName>Query_HP</defName>
 		<label>health %</label>
 		<queryClass>TD_Find_Lib.ThingQueryHP</queryClass>
+		<topLevelSelectable>true</topLevelSelectable>
 	</TD_Find_Lib.ThingQueryDef>
 	
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Inventory</defName>
 		<label>inventory</label>
 		<queryClass>TD_Find_Lib.ThingQueryInventory</queryClass>
+		<topLevelSelectable>true</topLevelSelectable>
 	</TD_Find_Lib.ThingQueryDef>
 
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Designation</defName>
 		<label>designated</label>
 		<queryClass>TD_Find_Lib.ThingQueryDesignation</queryClass>
+		<topLevelSelectable>true</topLevelSelectable>
 	</TD_Find_Lib.ThingQueryDef>
 	
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Faction</defName>
 		<label>faction</label>
 		<queryClass>TD_Find_Lib.ThingQueryFaction</queryClass>
+		<topLevelSelectable>true</topLevelSelectable>
 	</TD_Find_Lib.ThingQueryDef>
 
 	<TD_Find_Lib.ThingQueryDef>

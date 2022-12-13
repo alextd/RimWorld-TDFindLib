@@ -33,8 +33,9 @@ namespace TD_Find_Lib
 		{
 			rootSelectableQueries = DefDatabase<ThingQuerySelectableDef>.AllDefs.ToList();
 			foreach (var listDef in DefDatabase<ThingQueryCategoryDef>.AllDefs)
-				foreach (var subDef in listDef.SubQueries)
-					rootSelectableQueries.Remove(subDef);
+				foreach (ThingQuerySelectableDef subDef in listDef.SubQueries)
+					if(!subDef.topLevelSelectable)
+						rootSelectableQueries.Remove(subDef);
 
 			foreach (var queryDef in DefDatabase<ThingQueryDef>.AllDefsListForReading)
 				defForQueryClasses[queryDef.queryClass] = queryDef;

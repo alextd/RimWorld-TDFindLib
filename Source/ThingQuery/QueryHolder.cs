@@ -441,37 +441,27 @@ namespace TD_Find_Lib
 
 		public void DoFloatAllQueries()
 		{
+			DoFloatAllQueries(ThingQueryMaker.SelectableList);
+		}
+
+		public void DoFloatAllQueries(IEnumerable<ThingQuerySelectableDef> defs)
+		{ 
 			List<FloatMenuOption> options = new List<FloatMenuOption>();
-			foreach (ThingQuerySelectableDef def in ThingQueryMaker.SelectableList)
+			foreach (ThingQuerySelectableDef def in defs)
 			{
 				if (def is ThingQueryDef fDef)
 					options.Add(new FloatMenuOption(
 						fDef.LabelCap,
 						() => Add(ThingQueryMaker.MakeQuery(fDef), focus: true)
 					));
-				if (def is ThingQueryCategoryDef cDef)
+				else if (def is ThingQueryCategoryDef cDef)
 					options.Add(new FloatMenuOption(
 						"+ " + cDef.LabelCap,
-						() => DoFloatAllCategory(cDef)
+						() => DoFloatAllQueries(cDef.SubQueries)
 					));
 			}
 			Find.WindowStack.Add(new FloatMenu(options));
 		}
-
-		public void DoFloatAllCategory(ThingQueryCategoryDef cDef)
-		{
-			List<FloatMenuOption> options = new List<FloatMenuOption>();
-			foreach (ThingQueryDef def in cDef.SubQueries)
-			{
-				// I don't think we need to worry about double-nested queries
-				options.Add(new FloatMenuOption(
-					def.LabelCap,
-					() => Add(ThingQueryMaker.MakeQuery(def), focus: true)
-				));
-			}
-			Find.WindowStack.Add(new FloatMenu(options));
-		}
-
 
 
 		// APPLY THE QUERIES!
