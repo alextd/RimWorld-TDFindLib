@@ -833,7 +833,7 @@ namespace TD_Find_Lib
 			if (Current.Game?.drugPolicyDatabase?.DefaultDrugPolicy() is DrugPolicy defaultDrug)
 				sel = defaultDrug;
 			else
-				selName = DefDatabase<DrugPolicyDef>.GetNamed("SocialDrugs").label;
+				selName = DefDatabase<DrugPolicyDef>.GetNamed("SocialDrugs").label;//notranslate
 		}
 
 		public override bool AppliesDirectlyTo(Thing thing) =>
