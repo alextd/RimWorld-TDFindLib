@@ -36,6 +36,7 @@
 			<li>Category_PawnStats</li> <!-- I'd say it's intentionally confusing to have stats and status but I didn't make up those words -->
 			<li>Category_PawnStatus</li>
 			<li>Category_PawnGuest</li>
+			<li>Category_PawnAssign</li>
 			<li>Query_Drafted</li>
 			<li>Query_Temp</li>
 			<li>Query_ComfyTemp</li>
@@ -81,6 +82,16 @@
 			<li>Query_Guest</li>
 			<li>Query_Prisoner</li>
 			<li>Query_Quest</li>
+		</subQueries>
+	</TD_Find_Lib.ThingQueryCategoryDef>
+
+	<TD_Find_Lib.ThingQueryCategoryDef>
+		<defName>Category_PawnAssign</defName>
+		<label>assign</label>
+		<subQueries>
+			<li>Query_AssignOutfit</li>
+			<li>Query_AssignFood</li>
+			<li>Query_AssignDrug</li>
 		</subQueries>
 	</TD_Find_Lib.ThingQueryCategoryDef>
 
@@ -184,6 +195,24 @@
 		<defName>Query_Quest</defName>
 		<label>quest status</label>
 		<queryClass>TD_Find_Lib.ThingQueryQuest</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_AssignOutfit</defName>
+		<label>outfit</label>
+		<queryClass>TD_Find_Lib.ThingQueryOutfit</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_AssignFood</defName>
+		<label>food restriction</label>
+		<queryClass>TD_Find_Lib.ThingQueryFoodRestriction</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_AssignDrug</defName>
+		<label>drug policy</label>
+		<queryClass>TD_Find_Lib.ThingQueryDrugPolicy</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 
 	<TD_Find_Lib.ThingQueryDef>

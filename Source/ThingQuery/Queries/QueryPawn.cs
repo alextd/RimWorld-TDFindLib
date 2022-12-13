@@ -777,4 +777,75 @@ namespace TD_Find_Lib
 		}
 	}
 
+
+	public class ThingQueryOutfit : ThingQueryDropDown<Outfit>
+	{
+		public ThingQueryOutfit()
+		{
+			if (Current.Game?.outfitDatabase?.DefaultOutfit() is Outfit defaultOutfit)
+				sel = defaultOutfit;
+			else
+				selName = "Anything";//notranslate
+		}
+
+		public override bool AppliesDirectlyTo(Thing thing) =>
+			(thing as Pawn)?.outfits?.CurrentOutfit == sel;
+
+		protected override Outfit ResolveRef(Map map) =>
+			Current.Game.outfitDatabase.AllOutfits.FirstOrDefault(o => o.label == selName);
+
+		public override string NameFor(Outfit o) => o.label;
+		protected override string MakeSaveName() => sel.label;
+
+		public override IEnumerable<Outfit> Options() =>
+			Current.Game?.outfitDatabase?.AllOutfits ?? Enumerable.Empty<Outfit>();
+	}
+
+
+	public class ThingQueryFoodRestriction : ThingQueryDropDown<FoodRestriction>
+	{
+		public ThingQueryFoodRestriction()
+		{
+			if (Current.Game?.foodRestrictionDatabase?.DefaultFoodRestriction() is FoodRestriction defaultFood)
+				sel = defaultFood;
+			else
+				selName = "FoodRestrictionLavish".Translate();
+		}
+
+		public override bool AppliesDirectlyTo(Thing thing) =>
+			(thing as Pawn)?.foodRestriction?.CurrentFoodRestriction == sel;
+
+		protected override FoodRestriction ResolveRef(Map map) =>
+			Current.Game.foodRestrictionDatabase.AllFoodRestrictions.FirstOrDefault(o => o.label == selName);
+
+		public override string NameFor(FoodRestriction o) => o.label;
+		protected override string MakeSaveName() => sel.label;
+
+		public override IEnumerable<FoodRestriction> Options() =>
+			Current.Game?.foodRestrictionDatabase?.AllFoodRestrictions ?? Enumerable.Empty<FoodRestriction>();
+	}
+
+
+	public class ThingQueryDrugPolicy : ThingQueryDropDown<DrugPolicy>
+	{
+		public ThingQueryDrugPolicy()
+		{
+			if (Current.Game?.drugPolicyDatabase?.DefaultDrugPolicy() is DrugPolicy defaultDrug)
+				sel = defaultDrug;
+			else
+				selName = DefDatabase<DrugPolicyDef>.GetNamed("SocialDrugs").label;
+		}
+
+		public override bool AppliesDirectlyTo(Thing thing) =>
+			(thing as Pawn)?.drugs?.CurrentPolicy == sel;
+
+		protected override DrugPolicy ResolveRef(Map map) =>
+			Current.Game.drugPolicyDatabase.AllPolicies.FirstOrDefault(o => o.label == selName);
+
+		public override string NameFor(DrugPolicy o) => o.label;
+		protected override string MakeSaveName() => sel.label;
+
+		public override IEnumerable<DrugPolicy> Options() =>
+			Current.Game?.drugPolicyDatabase?.AllPolicies ?? Enumerable.Empty<DrugPolicy>();
+	}
 }
