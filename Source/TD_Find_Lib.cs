@@ -30,7 +30,7 @@ namespace TD_Find_Lib
 					{
 						settings.firstUse = false;
 
-						settings.Receive(group);
+						settings.Add(group);
 						settings.Write();
 					}
 				}
