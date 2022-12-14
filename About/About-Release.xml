@@ -16,4 +16,7 @@
 			<downloadUrl>https://github.com/alextd/RimWorld-TDS-Bugfixes/releases/latest</downloadUrl>
 		</li>
 	</modDependencies>
+	<loadAfter>
+		<li>DerekBickley.LTOColonyGroupsFinal</li>
+	</loadAfter>
 </ModMetaData>

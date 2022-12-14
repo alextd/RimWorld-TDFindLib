@@ -1,5 +1,7 @@
 <loadFolders>
   <v1.4>
     <li>/</li>
+		<li IfModActive="DerekBickley.LTOColonyGroupsFinal">ModSupport/LTOColonyGroups</li>
+		<li IfModActive="DerekBickley.LTOColonyGroupsFinal">1.4/ModSupport/LTOColonyGroups</li>
   </v1.4>
 </loadFolders>
