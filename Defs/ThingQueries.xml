@@ -530,6 +530,16 @@
 		<queryClass>TD_Find_Lib.ThingQueryFaction</queryClass>
 		<topLevelSelectable>true</topLevelSelectable>
 	</TD_Find_Lib.ThingQueryDef>
+	
+	
+	<!-- Modded 
+	Category_Mod is auto-filled ingame with any modded queries, and will also includes Query_Mod in the category instead of the mainmenu
+	-->
+		
+	<TD_Find_Lib.ThingQueryCategoryDef>
+		<defName>Category_Mod</defName>
+		<label>Modded filters</label>
+	</TD_Find_Lib.ThingQueryCategoryDef>
 
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Mod</defName>
@@ -537,6 +547,8 @@
 		<queryClass>TD_Find_Lib.ThingQueryModded</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 
+		
+		
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Onscreen</defName>
 		<label>currently on screen</label>

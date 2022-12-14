@@ -11,6 +11,7 @@ namespace TD_Find_Lib
 	public abstract class ThingQuerySelectableDef : Def
 	{
 		public bool devOnly;
+		public string mod;
 		public bool topLevelSelectable;// Even if it's in a category, show it in main menu too.
 	}
 
@@ -20,13 +21,13 @@ namespace TD_Find_Lib
 	// subqueries pop up when the category is selected
 	public class ThingQueryCategoryDef : ThingQuerySelectableDef
 	{ 
-		private List<ThingQuerySelectableDef> subQueries = null;
+		public List<ThingQuerySelectableDef> subQueries = null;
 		public IEnumerable<ThingQuerySelectableDef> SubQueries =>
 			subQueries ?? Enumerable.Empty<ThingQuerySelectableDef>();
 
 		public override IEnumerable<string> ConfigErrors()
 		{
-			if (subQueries.NullOrEmpty())
+			if (subQueries.NullOrEmpty() && this != ThingQuerySelectableDefOf.Category_Mod)
 				yield return "ThingQueryCategoryDef needs to set subQueries";
 		}
 	}
