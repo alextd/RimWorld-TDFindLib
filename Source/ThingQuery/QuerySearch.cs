@@ -112,6 +112,9 @@ namespace TD_Find_Lib
 		public SearchResult result = new();
 
 
+		public override string ToString() => $"QuerySearch \"{name}\"";
+
+
 		// "Inactive" is for the saved library of searches to Clone from.
 		// inactive won't actually fill their lists,
 		// which normally happens whenever queries are edited

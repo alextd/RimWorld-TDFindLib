@@ -135,6 +135,9 @@ namespace TD_Find_Lib
 
 						foreach (XmlNode node in curXmlParent.ChildNodes)
 							base.Add(ScribeExtractor.SaveableFromNode<T>(node, new object[] { }));
+
+						// Somehow this happened perhaps with modded subclass of ThingQuery
+						base.RemoveAll(i => i == null);
 					}
 				}
 				finally
