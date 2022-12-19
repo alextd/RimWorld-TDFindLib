@@ -159,13 +159,13 @@ namespace TD_Find_Lib
 			queries = otherHolder.queries;
 			matchAllQueries = otherHolder.matchAllQueries;
 
-			queries.ForEach(q => q.parent = parent);
+			ForEach(q => q.parent = parent);
 		}
 
 
 		public void DoResolveRef(Map map)
 		{
-			queries.ForEach(f => f.DoResolveRef(map));
+			ForEach(f => f.DoResolveRef(map));
 		}
 
 
