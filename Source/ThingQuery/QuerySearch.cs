@@ -147,11 +147,17 @@ namespace TD_Find_Lib
 		{
 			parameters.listType |= newType;
 
-			//Set off "all" if selected another type
+			//Set off "map"/"all" if selected another type
 			if ((newType & (SearchListType.Everyone | SearchListType.Items | SearchListType.Buildings
 					| SearchListType.Plants | SearchListType.Natural | SearchListType.Junk)) != 0)
 			{
 				parameters.listType &= ~(SearchListType.Selectable | SearchListType.All);
+			}
+
+			//Set off "all" if selected "map"
+			if (newType  == SearchListType.Selectable)
+			{
+				parameters.listType &= ~SearchListType.All;
 			}
 
 			FixListType();
