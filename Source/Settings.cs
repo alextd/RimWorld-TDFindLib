@@ -88,11 +88,27 @@ namespace TD_Find_Lib
 
 		public bool firstUse = true;
 		public bool warnedAnyNull = true;
+		public bool warnedModdedFilterLibrary = false;
 		public override void ExposeData()
 		{
+			if(Scribe.mode == LoadSaveMode.Saving && !warnedModdedFilterLibrary)
+			{
+				if (searchGroups.Any(sg => sg.Any(qs => qs.Children.Any(tq => ThingQueryMaker.moddedQueries.Contains(tq.def)))))
+				{
+					//Popup warning.
+					//TODO: Save to separate file.
+
+					Dialog_MessageBox dialog_MessageBox = new Dialog_MessageBox("");
+					dialog_MessageBox.image = ContentFinder<Texture2D>.Get("TDbadtime");
+					Find.WindowStack.Add(dialog_MessageBox);
+
+					warnedModdedFilterLibrary = true;
+				}
+			}
 			Scribe_Values.Look(ref onlyAvailable, "onlyAvailable", true);
 			Scribe_Values.Look(ref firstUse, "firstUse", false);
 			Scribe_Values.Look(ref warnedAnyNull, "warnedAnyNull", false);
+			Scribe_Values.Look(ref warnedModdedFilterLibrary, "warnedModdedFilterLibrary", false);
 
 			Scribe_Collections.Look(ref searchGroups, "searchGroups", LookMode.Deep, "??Group Name??", this);
 			

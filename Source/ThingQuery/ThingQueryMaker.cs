@@ -28,6 +28,7 @@ namespace TD_Find_Lib
 
 		// Categories, and Queries that aren't grouped under a Category
 		private static readonly List<ThingQuerySelectableDef> rootSelectableQueries;
+		public static readonly List<ThingQueryDef> moddedQueries;
 
 		static ThingQueryMaker()
 		{
@@ -41,18 +42,19 @@ namespace TD_Find_Lib
 						rootSelectableQueries.Remove(subDef);
 
 			// Find modded queries
-			var vanillaQueries = LoadedModManager.GetMod<Mod>().Content;
-			List<ThingQuerySelectableDef> moddedQueries = rootSelectableQueries.FindAll(
-				def => def.modContentPack != vanillaQueries || def.mod != null);
+			var basePack = LoadedModManager.GetMod<Mod>().Content;
+			List<ThingQuerySelectableDef> moddedSelections = rootSelectableQueries.FindAll(
+				def => def.modContentPack != basePack || def.mod != null);
+			moddedQueries = moddedSelections.Where(tq => tq is ThingQueryDef).Cast<ThingQueryDef>().ToList();
 
 			// Remove the mod category if there's no modded filters
-			if (moddedQueries.Count == 0)
+			if (moddedSelections.Count == 0)
 				rootSelectableQueries.Remove(ThingQuerySelectableDefOf.Category_Mod);
 			else
 			{
 				// Move Query_Mod, and all queries from mods, into Category_Mod
 				rootSelectableQueries.Remove(ThingQuerySelectableDefOf.Query_Mod);
-				ThingQuerySelectableDefOf.Category_Mod.subQueries = moddedQueries;
+				ThingQuerySelectableDefOf.Category_Mod.subQueries = moddedSelections;
 				ThingQuerySelectableDefOf.Category_Mod.subQueries.Insert(0, ThingQuerySelectableDefOf.Query_Mod);
 			}
 
