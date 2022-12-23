@@ -41,9 +41,7 @@ namespace TD_Find_Lib
 						rootSelectableQueries.Remove(subDef);
 
 			// Find modded queries
-			var vanillaQueries = LoadedModManager.GetMod<Mod>().Content;
-			List<ThingQuerySelectableDef> moddedQueries = rootSelectableQueries.FindAll(
-				def => def.modContentPack != vanillaQueries || def.mod != null);
+			List<ThingQuerySelectableDef> moddedQueries = rootSelectableQueries.FindAll(d => d.Modded);
 
 			// Remove the mod category if there's no modded filters
 			if (moddedQueries.Count == 0)

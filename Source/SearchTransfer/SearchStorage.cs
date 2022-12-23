@@ -5,7 +5,6 @@ using System.Text;
 using UnityEngine;
 using Verse;
 using RimWorld;
-using CloneArgs = TD_Find_Lib.QuerySearch.CloneArgs;
 
 namespace TD_Find_Lib
 {
@@ -37,7 +36,7 @@ namespace TD_Find_Lib
 
 
 
-		public static void ButtonChooseImportSearch(WidgetRow row, Action<QuerySearch> handler, string source = null, CloneArgs cloneArgs = default)
+		public static void ButtonChooseImportSearch(WidgetRow row, Action<QuerySearch> handler, string source = null, QuerySearch.CloneArgs cloneArgs = default)
 		{
 			var options = ImportSearchOptions(handler, source, cloneArgs);
 			if (options.Count > 0 && row.ButtonIcon(FindTex.Import, "TD.ImportSearchFrom".Translate()))
@@ -48,7 +47,7 @@ namespace TD_Find_Lib
 					Find.WindowStack.Add(new FloatMenu(options));
 			}
 		}
-		public static List<FloatMenuOption> ImportSearchOptions(Action<QuerySearch> handler, string source = null, CloneArgs cloneArgs = default)
+		public static List<FloatMenuOption> ImportSearchOptions(Action<QuerySearch> handler, string source = null, QuerySearch.CloneArgs cloneArgs = default)
 		{
 			List<FloatMenuOption> importOptions = new();
 
@@ -92,7 +91,7 @@ namespace TD_Find_Lib
 			return importOptions;
 		}
 
-		public static void ImportFromListSubmenu(SearchGroup searches, Action<QuerySearch> handler, CloneArgs cloneArgs = default)
+		public static void ImportFromListSubmenu(SearchGroup searches, Action<QuerySearch> handler, QuerySearch.CloneArgs cloneArgs = default)
 		{
 			List<FloatMenuOption> searchOptions = new();
 			foreach (QuerySearch search in searches)
@@ -129,13 +128,13 @@ namespace TD_Find_Lib
 		// Basically a copy of ButtonChooseImportSearch, but accepting SearchGroup instead of QuerySearch.
 		// Single searches are not accepted, and one less submenu is needed to get at options.
 		// handler should set parent and siblings, or just extract each item from the list.
-		public static void ButtonChooseImportSearchGroup(WidgetRow row, Action<SearchGroup> handler, string source = null, CloneArgs cloneArgs = default)
+		public static void ButtonChooseImportSearchGroup(WidgetRow row, Action<SearchGroup> handler, string source = null, QuerySearch.CloneArgs cloneArgs = default)
 		{
 			var options = ImportSearchGroupOptions(handler, source, cloneArgs);
 			if (options.Count > 0 && row.ButtonIcon(FindTex.ImportGroup, "TD.ImportGroupFrom".Translate()))
 				Find.WindowStack.Add(new FloatMenu(options));
 		}
-		public static List<FloatMenuOption> ImportSearchGroupOptions(Action<SearchGroup> handler, string source, CloneArgs cloneArgs = default)
+		public static List<FloatMenuOption> ImportSearchGroupOptions(Action<SearchGroup> handler, string source, QuerySearch.CloneArgs cloneArgs = default)
 		{
 			List<FloatMenuOption> importOptions = new();
 
@@ -179,10 +178,10 @@ namespace TD_Find_Lib
 
 
 
-		public static void ButtonChooseExportSearchGroup(WidgetRow row, SearchGroup search, string source = null)
+		public static void ButtonChooseExportSearchGroup(WidgetRow row, SearchGroup group, string source = null)
 		{
 			if (row.ButtonIcon(FindTex.ExportGroup, "TD.ExportGroupTo".Translate()))
-				Find.WindowStack.Add(new FloatMenu(ExportSearchGroupOptions(search, source)));
+				Find.WindowStack.Add(new FloatMenu(ExportSearchGroupOptions(group, source)));
 			;
 		}
 

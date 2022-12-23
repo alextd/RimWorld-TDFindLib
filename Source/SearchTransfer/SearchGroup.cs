@@ -5,59 +5,28 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Verse;
-using CloneArgs = TD_Find_Lib.QuerySearch.CloneArgs;
 
 namespace TD_Find_Lib
 {
-	public interface ISearchStorageParent
-	{
-		public void NotifyChanged();
-		public List<SearchGroup> Children { get; }
-		public void Add(SearchGroup group, bool refresh = true);
-		public void ReorderGroup(int from, int to);
-	}
-
-	// Trying to save a List<List<Deep>> doesn't work.
-	// Need List to be "exposable" on its own.
 	public class SearchGroup : SearchGroupBase<QuerySearch>
 	{
 		public string name;
-		public ISearchStorageParent parent;
 
-		public SearchGroup(string name, ISearchStorageParent parent)
+		public SearchGroup(string name)
 		{
 			this.name = name;
-			this.parent = parent;
 		}
 
 
-		public SearchGroup Clone(CloneArgs cloneArgs, string newName = null, ISearchStorageParent newParent = null)
+		public SearchGroup Clone(QuerySearch.CloneArgs cloneArgs, string newName = null)
 		{
-			SearchGroup clone = new(newName ?? name, newParent);
+			SearchGroup clone = new(newName ?? name);
 			foreach (QuerySearch search in this)
 			{
 				//obviously don't set newName in cloneArgs
 				clone.Add(search.Clone(cloneArgs));
 			}
 			return clone;
-		}
-
-		public override void Replace(QuerySearch newSearch, int i)
-		{
-			base.Replace(newSearch, i);
-			parent.NotifyChanged();
-		}
-
-		public override void Copy(QuerySearch newSearch, int i)
-		{
-			base.Copy(newSearch, i);
-			parent.NotifyChanged();
-		}
-
-		public override void DoAdd(QuerySearch newSearch)
-		{
-			base.DoAdd(newSearch);
-			parent.NotifyChanged();
 		}
 
 
@@ -69,6 +38,8 @@ namespace TD_Find_Lib
 		}
 	}
 
+	// Trying to save a List<List<Deep>> doesn't work.
+	// Need List to be "exposable" on its own.
 	public abstract class SearchGroupBase<T> : List<T>, IExposable where T : IQuerySearch
 	{
 		public virtual void Replace(T newSearch, int i)
@@ -83,6 +54,10 @@ namespace TD_Find_Lib
 		public virtual void DoAdd(T newSearch)
 		{
 			base.Add(newSearch);
+		}
+		public virtual void DoAddRange(IEnumerable<T> newSearches)
+		{
+			base.AddRange(newSearches);
 		}
 
 		public void ConfirmPaste(T newSearch, int i)

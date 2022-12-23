@@ -401,7 +401,7 @@ namespace TD_Find_Lib
 			public static CloneArgs edit = new CloneArgs() { type = CloneType.Edit };
 			public static CloneArgs use = new CloneArgs() { type = CloneType.Use };
 		}
-		public QuerySearch Clone(CloneArgs args)
+		public QuerySearch Clone(CloneArgs args = default)
 		{
 			return args.type switch
 			{

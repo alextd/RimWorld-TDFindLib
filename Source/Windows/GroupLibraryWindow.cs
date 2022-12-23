@@ -10,11 +10,11 @@ namespace TD_Find_Lib
 {
 	public class GroupLibraryWindow : Window
 	{
-		private ISearchStorageParent parent;
+		private ILibraryParent parent;
 		private List<SearchGroupDrawer> groupDrawers = new();
 		private RefreshSearchGroupDrawer refreshDrawer;
 
-		public GroupLibraryWindow(ISearchStorageParent parent)
+		public GroupLibraryWindow(ILibraryParent parent)
 		{
 			this.parent = parent;
 

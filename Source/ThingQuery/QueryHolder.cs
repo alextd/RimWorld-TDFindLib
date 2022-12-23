@@ -249,6 +249,18 @@ namespace TD_Find_Lib
 					foreach (T r in childHolder.Children.Gather(selector))
 						yield return r;
 		}
+		public IEnumerable<T> Gather<T>(Func<ThingQuery, T> selector) where T : class
+		{
+			foreach (var query in queries)
+			{
+				if (selector(query) is T result)
+					yield return result;
+
+				if (query is IQueryHolder childHolder)
+					foreach (T r in childHolder.Children.Gather(selector))
+						yield return r;
+			}
+		}
 
 		//Gather method that passes in both QuerySearch and all ThingQuerys to selector
 		public void ForEach(Action<IQueryHolder> action)

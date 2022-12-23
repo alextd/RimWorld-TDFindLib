@@ -8,7 +8,7 @@ using RimWorld;
 
 namespace TD_Find_Lib
 {
-	public class Settings : ModSettings, ISearchReceiver, ISearchGroupReceiver, ISearchProvider, ISearchStorageParent
+	public class Settings : ModSettings, ISearchReceiver, ISearchGroupReceiver, ISearchProvider, ILibraryParent
 	{
 		private bool onlyAvailable = true;
 		public bool OnlyAvailable => onlyAvailable != Event.current.shift && Find.CurrentMap != null;
@@ -16,17 +16,28 @@ namespace TD_Find_Lib
 		public static string defaultGroupName = "TD.SavedSearches".Translate();
 
 		//Don't touch my searches
-		internal List<SearchGroup> searchGroups;
+		internal List<LibrarySearchGroup> searchGroups;
+		internal Dictionary<string, ModdedSearchGroup> moddedSearchGroups = new();
 		public Settings()
 		{
 			SanityCheck();
 			SearchTransfer.Register(this);
 		}
 
+		public ModdedSearchGroup SearchGroupForMod(string modId)
+		{
+			if (moddedSearchGroups.TryGetValue(modId, out ModdedSearchGroup group))
+				return group;
+
+			ModdedSearchGroup newGroup = new ModdedSearchGroup(modId);
+			moddedSearchGroups[modId] = newGroup;
+			return newGroup;
+		}
+
 		//ISearchStorageParent stuff
 		public void NotifyChanged() => Write(); //Write() in parent class
-		public List<SearchGroup> Children => searchGroups;
-		public void Add(SearchGroup group, bool refresh = true)
+		public List<LibrarySearchGroup> Children => searchGroups;
+		public void Add(LibrarySearchGroup group, bool refresh = true)
 		{
 			Children.Add(group);
 			group.parent = this;
@@ -116,6 +127,21 @@ namespace TD_Find_Lib
 		{
 			//Save to groups
 
+			//First check modded filters
+			List<string> modIds = search.Children.Gather((ThingQuery q) => q.def.Modded ? q.def.mod : null).ToList();
+			if(modIds.Count > 0)
+			{
+				string modConcatId = string.Join("+", modIds);
+				ModdedSearchGroup modGroup = SearchGroupForMod(modConcatId);
+
+				Find.WindowStack.Add(new Dialog_Name(search.name, n => { search.name = n; modGroup.TryAdd(search); }, "TD.SaveTo0".Translate(modGroup.modId)));
+
+				return;
+			}
+
+
+
+
 			//TODO: generalize this in SearchStorage if we think many Receivers are going to want to specify which group to receive?
 			List<FloatMenuOption> submenuOptions = new();
 
@@ -128,7 +154,7 @@ namespace TD_Find_Lib
 			{
 				Find.WindowStack.Add(new Dialog_Name("TD.NewGroup".Translate(), n =>
 				{
-					var group = new SearchGroup(n, this);
+					var group = new LibrarySearchGroup(n, this);
 					Add(group);
 
 					SaveToGroup(search, group);
@@ -146,7 +172,7 @@ namespace TD_Find_Lib
 
 			foreach (SearchGroup group in searchGroups)
 			{
-				submenuOptions.Add(new FloatMenuOption(group.name, () => group.AddRange(newGroup)));
+				submenuOptions.Add(new FloatMenuOption(group.name, () => group.DoAddRange(newGroup)));
 			}
 
 			submenuOptions.Add(new FloatMenuOption("TD.AddNewGroup".Translate(), () =>

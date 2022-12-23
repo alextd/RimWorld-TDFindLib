@@ -13,6 +13,15 @@ namespace TD_Find_Lib
 		public bool devOnly;
 		public string mod;
 		public bool topLevelSelectable;// Even if it's in a category, show it in main menu too.
+
+		public static ModContentPack vanillaQueries = LoadedModManager.GetMod<Mod>().Content;
+		public override void PostLoad()
+		{
+			if (mod == null && modContentPack != vanillaQueries)
+				mod = modContentPack.PackageIdPlayerFacing;
+		}
+
+		public bool Modded => mod != null;
 	}
 
 	// There are too many query subclasses to globally list them
