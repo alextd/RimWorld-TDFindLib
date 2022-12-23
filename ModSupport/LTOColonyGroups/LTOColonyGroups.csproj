@@ -29,7 +29,8 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>none</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>..\..\..\TD Find Lib - Release\ModSupport\LTOColonyGroups\Assemblies\</OutputPath>
+    <OutputPath>..\..\..\$(SolutionName) - Release\ModSupport\$(MSBuildProjectName)\Assemblies\</OutputPath>
+		<OutputPathFiles>$(OutputPath)..\</OutputPathFiles>
     <DefineConstants></DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -64,5 +65,15 @@
     <Compile Include="ThingQueryLTOGroup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
+	
+  <ItemGroup>
+		<ReleaseFiles Include="Defs\**;Patches\**;Languages\**;Sounds\**;Textures\**"/>
+  </ItemGroup>
+  <Target Name="PostBuild" AfterTargets="Build">
+    <Copy Condition=" '$(Configuration)' == 'Release' "
+					SourceFiles="@(ReleaseFiles)"
+					DestinationFiles="@(ReleaseFiles->'$(OutputPathFiles)%(RelativeDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+  </Target>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
