@@ -18,5 +18,6 @@
 	</modDependencies>
 	<loadAfter>
 		<li>DerekBickley.LTOColonyGroupsFinal</li>
+		<li>RealFogOfWarSupport.ThingQueryRealFOW</li>
 	</loadAfter>
 </ModMetaData>
