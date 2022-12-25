@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+	<HugsLib.UpdateFeatureDef Abstract="true" Name="TDFindLibUpdateFeatureBase">
+		<modNameReadable>TD Find Library</modNameReadable>
+		<linkUrl>https://steamcommunity.com/sharedfiles/filedetails/?id=2895299310</linkUrl>
+	</HugsLib.UpdateFeatureDef>
+	
+	<HugsLib.UpdateFeatureDef ParentName="TDFindLibUpdateFeatureBase">
+		<defName>TDFindLib_1_1_0</defName>
+		<assemblyVersion>1.1.0</assemblyVersion>
+		<content>TD Find Library has many new filters since release!
+- "Assign": outfit, food and drug policies.
+- Apparel Coverage and Layer
+- Filters for mods: LTO Groups and Real Fog of War visibilty
+</content>
+	</HugsLib.UpdateFeatureDef>
+</Defs>
