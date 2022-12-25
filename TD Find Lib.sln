@@ -9,7 +9,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Files", "Files.csproj", "{A
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LTOColonyGroups", "ModSupport\LTOColonyGroups\LTOColonyGroups.csproj", "{70B818C5-84E1-409D-82A1-030ECAB170FB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealFOW", "ModSupport\RealFogOfWar\RealFOW.csproj", "{6F86326B-B5B9-48FA-9E5A-C0DF2FDACCF6}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RealFOW", "ModSupport\RealFOW\RealFOW.csproj", "{6F86326B-B5B9-48FA-9E5A-C0DF2FDACCF6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
