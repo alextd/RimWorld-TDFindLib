@@ -54,6 +54,7 @@ namespace TD_Find_Lib
 			{
 				// Move Query_Mod, and all queries from mods, into Category_Mod
 				rootSelectableQueries.Remove(ThingQuerySelectableDefOf.Query_Mod);
+				moddedSelections.ForEach(d => rootSelectableQueries.Remove(d));
 				ThingQuerySelectableDefOf.Category_Mod.subQueries = moddedSelections;
 				ThingQuerySelectableDefOf.Category_Mod.subQueries.Insert(0, ThingQuerySelectableDefOf.Query_Mod);
 			}
