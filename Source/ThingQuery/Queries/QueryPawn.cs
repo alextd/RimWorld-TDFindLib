@@ -848,4 +848,23 @@ namespace TD_Find_Lib
 		public override IEnumerable<DrugPolicy> Options() =>
 			Current.Game?.drugPolicyDatabase?.AllPolicies ?? Enumerable.Empty<DrugPolicy>();
 	}
+
+
+	public class ThingQueryWork : ThingQueryDropDown<WorkTypeDef>
+	{
+		public ThingQueryWork()
+		{
+			sel = WorkTypeDefOf.Firefighter;
+		}
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null) return false;
+
+			return pawn.workSettings?.WorkIsActive(sel) ?? false;
+		}
+
+		public override string NameFor(WorkTypeDef o) => o.pawnLabel;
+	}
 }

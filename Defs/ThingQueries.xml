@@ -89,6 +89,7 @@
 		<defName>Category_PawnAssign</defName>
 		<label>assign</label>
 		<subQueries>
+			<li>Query_Work</li>
 			<li>Query_AssignOutfit</li>
 			<li>Query_AssignFood</li>
 			<li>Query_AssignDrug</li>
@@ -196,6 +197,13 @@
 		<label>quest status</label>
 		<queryClass>TD_Find_Lib.ThingQueryQuest</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
+	
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Work</defName>
+		<label>work enabled</label>
+		<queryClass>TD_Find_Lib.ThingQueryWork</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_AssignOutfit</defName>
@@ -214,6 +222,7 @@
 		<label>drug policy</label>
 		<queryClass>TD_Find_Lib.ThingQueryDrugPolicy</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
+	
 
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_ThingQueryDevelopmentalStage</defName>
