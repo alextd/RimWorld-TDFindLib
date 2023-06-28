@@ -57,6 +57,8 @@ namespace TD_Find_Lib
 				moddedSelections.ForEach(d => rootSelectableQueries.Remove(d));
 				ThingQuerySelectableDefOf.Category_Mod.subQueries = moddedSelections;
 				ThingQuerySelectableDefOf.Category_Mod.subQueries.Insert(0, ThingQuerySelectableDefOf.Query_Mod);
+
+				//TODO: Multiple filters for a mod => Mod sublist by def.mod/def.modContentPack
 			}
 
 			// Construct the Def=>Query class dictionary so we can create Queries from MakeQuery<T> above
