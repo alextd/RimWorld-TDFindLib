@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+	<!-- queries in order -->
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Royalty</defName>
+		<label>Royalty Filter</label>
+		<queryClass>TDFindLib_Royalty.ThingQueryRoyalty</queryClass>
+		<mod>Ludeon.Rimworld.Royalty</mod>
+	</TD_Find_Lib.ThingQueryDef>
+
+</Defs>
