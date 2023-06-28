@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6F86326B-B5B9-48FA-9E5A-C0DF2FDACCF6}</ProjectGuid>
+    <ProjectGuid>{EF3C0B53-9EE9-4E55-B124-48E6601BEC18}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TDFindLib_Royalty</RootNamespace>
