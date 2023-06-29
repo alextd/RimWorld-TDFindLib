@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+	<!-- queries in order -->
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_{{cookiecutter.mod_name}}</defName>
+		<label>{{cookiecutter.mod_name}} Filter</label>
+		<queryClass>TDFindLib_{{cookiecutter.mod_name}}.ThingQuery{{cookiecutter.mod_name}}</queryClass>
+		<mod>{{cookiecutter.packageID}}</mod>
+	</TD_Find_Lib.ThingQueryDef>
+
+</Defs>
