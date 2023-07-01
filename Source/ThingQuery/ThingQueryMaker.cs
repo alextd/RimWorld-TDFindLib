@@ -13,11 +13,16 @@ namespace TD_Find_Lib
 	[StaticConstructorOnStartup]
 	public static class ThingQueryMaker
 	{
-		// The result is to be added to a IQueryHolder with Add()
+		// Construct a ThingQuery subclass, automatically assigning the appropriate Def
+		// (This mod doesn't use it but other mods will)
+		// The result ThingQuery is to be added to a IQueryHolder with Add()
 		// (Probably a QuerySearch or a ThingQueryGrouping)
-		private static readonly Dictionary<Type, ThingQueryDef> defForQueryClasses = new();
+		private static readonly Dictionary<Type, ThingQueryDef> queryDefForType = new();
+		public static ThingQueryDef QueryDefForType(Type t) =>
+			queryDefForType[t];
+
 		public static T MakeQuery<T>() where T : ThingQuery =>
-			(T)MakeQuery(defForQueryClasses[typeof(T)]);
+			(T)MakeQuery(QueryDefForType(typeof(T)));
 
 		public static ThingQuery MakeQuery(ThingQueryDef def)
 		{
@@ -28,6 +33,8 @@ namespace TD_Find_Lib
 
 		// Categories, and Queries that aren't grouped under a Category
 		private static readonly List<ThingQuerySelectableDef> rootSelectableQueries;
+
+		// moddedQueiries was gonna be used to smart save them. But that never happened.
 		public static readonly List<ThingQueryDef> moddedQueries;
 
 		static ThingQueryMaker()
@@ -41,6 +48,7 @@ namespace TD_Find_Lib
 					if(!subDef.topLevelSelectable)
 						rootSelectableQueries.Remove(subDef);
 
+
 			// Find modded queries
 			var basePack = LoadedModManager.GetMod<Mod>().Content;
 			List<ThingQuerySelectableDef> moddedSelections = rootSelectableQueries.FindAll(
@@ -49,36 +57,43 @@ namespace TD_Find_Lib
 
 			// Remove the mod category if there's no modded filters
 			if (moddedSelections.Count == 0)
-				rootSelectableQueries.Remove(ThingQuerySelectableDefOf.Category_Mod);
+				rootSelectableQueries.Remove(ThingQueryDefOf.Category_Mod);
 			else
 			{
 				// Move Query_Mod, and all queries from mods, into Category_Mod
-				rootSelectableQueries.Remove(ThingQuerySelectableDefOf.Query_Mod);
+				rootSelectableQueries.Remove(ThingQueryDefOf.Query_Mod);
 				moddedSelections.ForEach(d => rootSelectableQueries.Remove(d));
-				ThingQuerySelectableDefOf.Category_Mod.subQueries = moddedSelections;
-				ThingQuerySelectableDefOf.Category_Mod.subQueries.Insert(0, ThingQuerySelectableDefOf.Query_Mod);
+				ThingQueryDefOf.Category_Mod.subQueries = moddedSelections;
+				ThingQueryDefOf.Category_Mod.subQueries.Insert(0, ThingQueryDefOf.Query_Mod);
+
+				// Also insert where requested. The filter can end up in two places (as we already do for things like Stuff)
+				foreach(var def in moddedSelections)
+					if(def.insertCategory != null)
+						def.insertCategory.subQueries.Add(def);
 
 				//TODO: Multiple filters for a mod => Mod sublist by def.mod/def.modContentPack
 			}
 
+
 			// Construct the Def=>Query class dictionary so we can create Queries from MakeQuery<T> above
 			foreach (var queryDef in DefDatabase<ThingQueryDef>.AllDefsListForReading)
-				defForQueryClasses[queryDef.queryClass] = queryDef;
+				queryDefForType[queryDef.queryClass] = queryDef;
+
 
 			// Config Error check
 			foreach (var queryType in GenTypes.AllSubclassesNonAbstract(typeof(ThingQuery)))
-				if (!defForQueryClasses.ContainsKey(queryType))
+				if (!queryDefForType.ContainsKey(queryType))
 					Verse.Log.Error($"TDFindLib here, uhhh, there is no ThingQueryDef for {queryType}, thought you should know.");
 		}
 
-		public static IEnumerable<ThingQuerySelectableDef> SelectableList =>
-			rootSelectableQueries.Where(d => (DebugSettings.godMode || !d.devOnly));
+		public static IEnumerable<ThingQuerySelectableDef> RootQueries => rootSelectableQueries;
 	}
 
 	[DefOf]
-	public static class ThingQuerySelectableDefOf
+	public static class ThingQueryDefOf
 	{
 		public static ThingQueryCategoryDef Category_Mod;
 		public static ThingQueryDef Query_Mod;
+		public static ThingQueryDef Query_Ability;
 	}
 }

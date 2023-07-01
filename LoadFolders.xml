@@ -5,5 +5,7 @@
 		<li IfModActive="DerekBickley.LTOColonyGroupsFinal">1.4/ModSupport/LTOColonyGroups</li>
 		<li IfModActive="Nowano.RimWorldRealFoW">ModSupport/RealFOW</li>
 		<li IfModActive="Nowano.RimWorldRealFoW">1.4/ModSupport/RealFOW</li>
+		<li>ModSupport/Royalty</li>
+		<li>1.4/ModSupport/Royalty</li>
   </v1.4>
 </loadFolders>

@@ -13,6 +13,9 @@ namespace TD_Find_Lib
 		public bool devOnly;
 		public string mod;
 		public bool topLevelSelectable;// Even if it's in a category, show it in main menu too.
+
+		// For modded Queries to use:
+		public ThingQueryCategoryDef insertCategory;
 	}
 
 	// There are too many query subclasses to globally list them
@@ -27,7 +30,7 @@ namespace TD_Find_Lib
 
 		public override IEnumerable<string> ConfigErrors()
 		{
-			if (subQueries.NullOrEmpty() && this != ThingQuerySelectableDefOf.Category_Mod)
+			if (subQueries.NullOrEmpty() && this != ThingQueryDefOf.Category_Mod)
 				yield return "ThingQueryCategoryDef needs to set subQueries";
 		}
 	}

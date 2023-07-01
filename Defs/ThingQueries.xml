@@ -37,6 +37,7 @@
 			<li>Category_PawnStatus</li>
 			<li>Category_PawnGuest</li>
 			<li>Category_PawnAssign</li>
+			<li>Query_Ability</li> <!-- Will be hidden if no abilities -->
 			<li>Query_Drafted</li>
 			<li>Query_Temp</li>
 			<li>Query_ComfyTemp</li>
@@ -160,6 +161,12 @@
 		<defName>Query_AreaRestriction</defName>
 		<label>area restriction</label>
 		<queryClass>TD_Find_Lib.ThingQueryRestricted</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Ability</defName>
+		<label>has ability</label>
+		<queryClass>TD_Find_Lib.ThingQueryAbility</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 
 	<TD_Find_Lib.ThingQueryDef>

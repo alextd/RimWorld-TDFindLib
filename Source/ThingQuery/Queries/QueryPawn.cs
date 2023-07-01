@@ -867,4 +867,32 @@ namespace TD_Find_Lib
 
 		public override string NameFor(WorkTypeDef o) => o.pawnLabel;
 	}
+
+
+	[StaticConstructorOnStartup]
+	public class ThingQueryAbility : ThingQueryDropDown<AbilityDef>
+	{
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null || pawn.abilities == null) return false;
+
+			if (sel == null)
+				return pawn.abilities.AllAbilitiesForReading.Count == 0;
+
+			return pawn.abilities?.AllAbilitiesForReading.Any(a => a.def == sel) ?? false;
+		}
+
+		public override string NullOption() => "None".Translate();
+
+
+		static ThingQueryAbility()
+		{
+			// Remove Query_Ability from selectable list if there's no abiliites a.k.a. no expansions
+			if (DefDatabase<AbilityDef>.DefCount == 0)
+			{
+				ThingQueryDefOf.Query_Ability.devOnly = true;
+			}
+		}
+	}
 }

@@ -3,10 +3,11 @@
 
 	<!-- queries in order -->
 	<TD_Find_Lib.ThingQueryDef>
-		<defName>Query_Royalty</defName>
-		<label>Royalty Filter</label>
-		<queryClass>TDFindLib_Royalty.ThingQueryRoyalty</queryClass>
+		<defName>Query_Royalty_Title</defName>
+		<label>Royal Title</label>
+		<queryClass>TDFindLib_Royalty.ThingQueryRoyalTitle</queryClass>
 		<mod>Ludeon.Rimworld.Royalty</mod>
+		<insertCategory>Category_PawnStats</insertCategory>
 	</TD_Find_Lib.ThingQueryDef>
 
 </Defs>

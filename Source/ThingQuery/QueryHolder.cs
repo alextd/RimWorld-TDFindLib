@@ -441,13 +441,13 @@ namespace TD_Find_Lib
 
 		public void DoFloatAllQueries()
 		{
-			DoFloatAllQueries(ThingQueryMaker.SelectableList);
+			DoFloatAllQueries(ThingQueryMaker.RootQueries);
 		}
 
 		public void DoFloatAllQueries(IEnumerable<ThingQuerySelectableDef> defs)
-		{ 
+		{
 			List<FloatMenuOption> options = new List<FloatMenuOption>();
-			foreach (ThingQuerySelectableDef def in defs)
+			foreach (ThingQuerySelectableDef def in defs.Where(d => (DebugSettings.godMode || !d.devOnly)))
 			{
 				if (def is ThingQueryDef fDef)
 					options.Add(new FloatMenuOption(
