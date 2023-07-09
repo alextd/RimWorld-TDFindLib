@@ -4,7 +4,7 @@
 	<!-- queries in order -->
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Royalty_Title</defName>
-		<label>Royal Title</label>
+		<label>royal title</label>
 		<queryClass>TDFindLib_Royalty.ThingQueryRoyalTitle</queryClass>
 		<mod>Ludeon.Rimworld.Royalty</mod>
 		<insertCategory>Category_PawnStats</insertCategory>
@@ -12,8 +12,16 @@
 	
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Royalty_Psyfocus</defName>
-		<label>Psyfocus</label>
+		<label>psyfocus</label>
 		<queryClass>TDFindLib_Royalty.ThingQueryPsyfocus</queryClass>
+		<mod>Ludeon.Rimworld.Royalty</mod>
+		<insertCategory>Category_PawnStatus</insertCategory>
+	</TD_Find_Lib.ThingQueryDef>
+	
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Royalty_Entropy</defName>
+		<label>neural heat</label>
+		<queryClass>TDFindLib_Royalty.ThingQueryEntropyValue</queryClass>
 		<mod>Ludeon.Rimworld.Royalty</mod>
 		<insertCategory>Category_PawnStatus</insertCategory>
 	</TD_Find_Lib.ThingQueryDef>

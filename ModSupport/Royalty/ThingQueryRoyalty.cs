@@ -37,7 +37,22 @@ namespace TDFindLib_Royalty
 			return sel.Includes(pawn.psychicEntropy.CurrentPsyfocus);
 		}
 	}
-	
+
+	public class ThingQueryEntropyValue : ThingQueryFloatRange
+	{
+		public override float Max => 80f;   //Base 30 * max buff of 2.667
+		public override ToStringStyle Style => ToStringStyle.Integer;
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null || pawn.psychicEntropy == null) return false;
+
+
+			return sel.Includes(pawn.psychicEntropy.EntropyValue);
+		}
+	}
+
 	[StaticConstructorOnStartup]
 	public static class ExpansionHider
 	{
