@@ -9,7 +9,7 @@ using RimWorld;
 
 namespace TDFindLib_Royalty
 {
-	// It is a bit roundabout to have a project for this when there is no new dll dependency but, eh, organization I gues.
+	// It is a bit roundabout to have a project for this when there is no new dll dependency but, eh, organization I guess.
 	public class ThingQueryRoyalTitle : ThingQueryDropDown<RoyalTitleDef>
 	{
 		public override bool AppliesDirectlyTo(Thing thing)
@@ -26,17 +26,27 @@ namespace TDFindLib_Royalty
 		public override string NullOption() => "None".Translate();
 	}
 
+	public class ThingQueryPsyfocus : ThingQueryFloatRange
+	{
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null || pawn.psychicEntropy == null) return false;
+
+
+			return sel.Includes(pawn.psychicEntropy.CurrentPsyfocus);
+		}
+	}
+	
 	[StaticConstructorOnStartup]
 	public static class ExpansionHider
 	{
 		static ExpansionHider()
 		{
-			if(!ModsConfig.RoyaltyActive)
-			{
-				//TODO: Foreach all classes in this namespace
-				ThingQueryDef def = ThingQueryMaker.QueryDefForType(typeof(ThingQueryRoyalTitle));
-				def.devOnly = true;
-			}
+			if (!ModsConfig.RoyaltyActive)
+				foreach (ThingQueryDef def in DefDatabase<ThingQueryDef>.AllDefsListForReading)
+					if (def.mod == "Ludeon.Rimworld.Royalty")
+						def.devOnly = true;
 		}
 	}
 }
