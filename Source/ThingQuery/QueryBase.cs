@@ -69,7 +69,7 @@ namespace TD_Find_Lib
 
 		// Okay, save/load. The basic gist here is:
 		// During ExposeData loading, ResolveName is called for globally named things (defs)
-		// But anything with a local reference (Zones) needs to resolve that ref on a map
+		// But anything with a local reference (Zones) needs to resolve that ref on a map, or a game (Factions)
 		// Queries loaded from storage need to be cloned to a map to be used
 
 		public virtual bool UsesResolveName => false;

@@ -11,6 +11,14 @@
 	</TD_Find_Lib.ThingQueryDef>
 	
 	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Royalty_Honor</defName>
+		<label>honor</label>
+		<queryClass>TDFindLib_Royalty.ThingQueryHonor</queryClass>
+		<mod>Ludeon.Rimworld.Royalty</mod>
+		<insertCategory>Category_PawnStatus</insertCategory>
+	</TD_Find_Lib.ThingQueryDef>
+	
+	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Royalty_Psyfocus</defName>
 		<label>psyfocus</label>
 		<queryClass>TDFindLib_Royalty.ThingQueryPsyfocus</queryClass>
