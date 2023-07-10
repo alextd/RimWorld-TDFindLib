@@ -54,6 +54,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Krafs.Publicizer" Version="2.1.0">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <Publicize Include="Assembly-CSharp" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\Source\TD_Find_Lib.csproj">
       <Project>{D7D21B4A-1DA7-41D8-B202-C58CA8FA62AA}</Project>
       <Name>TD Find Lib</Name>
