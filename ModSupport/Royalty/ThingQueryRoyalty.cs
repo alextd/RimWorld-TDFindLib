@@ -85,7 +85,7 @@ namespace TDFindLib_Royalty
 		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
-			if (pawn == null || pawn.psychicEntropy == null) return false;
+			if (pawn == null || !pawn.HasPsylink) return false;
 
 
 			return sel.Includes(pawn.psychicEntropy.CurrentPsyfocus);
@@ -100,7 +100,7 @@ namespace TDFindLib_Royalty
 		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
-			if (pawn == null || pawn.psychicEntropy == null) return false;
+			if (pawn == null || !pawn.HasPsylink) return false;
 
 
 			return sel.Includes(pawn.psychicEntropy.EntropyValue);
