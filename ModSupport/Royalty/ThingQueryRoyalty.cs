@@ -114,7 +114,7 @@ namespace TDFindLib_Royalty
 		{
 			if (!ModsConfig.RoyaltyActive)
 				foreach (ThingQueryDef def in DefDatabase<ThingQueryDef>.AllDefsListForReading)
-					if (def.mod == "Ludeon.Rimworld.Royalty")
+					if (def.mod == "ludeon.rimworld.royalty")
 						def.devOnly = true;
 		}
 	}

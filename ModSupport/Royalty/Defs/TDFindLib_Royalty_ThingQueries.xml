@@ -6,7 +6,7 @@
 		<defName>Query_Royalty_Title</defName>
 		<label>royal title</label>
 		<queryClass>TDFindLib_Royalty.ThingQueryRoyalTitle</queryClass>
-		<mod>Ludeon.Rimworld.Royalty</mod>
+		<mod>ludeon.rimworld.royalty</mod>
 		<insertCategory>Category_PawnStats</insertCategory>
 	</TD_Find_Lib.ThingQueryDef>
 	
@@ -14,7 +14,7 @@
 		<defName>Query_Royalty_Honor</defName>
 		<label>honor</label>
 		<queryClass>TDFindLib_Royalty.ThingQueryHonor</queryClass>
-		<mod>Ludeon.Rimworld.Royalty</mod>
+		<mod>ludeon.rimworld.royalty</mod>
 		<insertCategory>Category_PawnStatus</insertCategory>
 	</TD_Find_Lib.ThingQueryDef>
 	
@@ -22,7 +22,7 @@
 		<defName>Query_Royalty_Psyfocus</defName>
 		<label>psyfocus</label>
 		<queryClass>TDFindLib_Royalty.ThingQueryPsyfocus</queryClass>
-		<mod>Ludeon.Rimworld.Royalty</mod>
+		<mod>ludeon.rimworld.royalty</mod>
 		<insertCategory>Category_PawnStatus</insertCategory>
 	</TD_Find_Lib.ThingQueryDef>
 	
@@ -30,7 +30,7 @@
 		<defName>Query_Royalty_Entropy</defName>
 		<label>neural heat</label>
 		<queryClass>TDFindLib_Royalty.ThingQueryEntropyValue</queryClass>
-		<mod>Ludeon.Rimworld.Royalty</mod>
+		<mod>ludeon.rimworld.royalty</mod>
 		<insertCategory>Category_PawnStatus</insertCategory>
 	</TD_Find_Lib.ThingQueryDef>
 

@@ -11,7 +11,7 @@ namespace TD_Find_Lib
 	public abstract class ThingQuerySelectableDef : Def
 	{
 		public bool devOnly;
-		public string mod;
+		public string mod;	//lowercase even though it's capitalized in about.xml
 		public bool topLevelSelectable;// Even if it's in a category, show it in main menu too.
 
 		// For modded Queries to use:
