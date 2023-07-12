@@ -32,6 +32,107 @@ namespace TDFindLib_Royalty
 		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
 	}
 
+	public class ThingQueryRoyalTitleRange : ThingQueryDropDown<Faction>
+	{
+		protected IntRange seniorityRange;
+
+		public ThingQueryRoyalTitleRange()
+		{
+			extraOption = 1;
+		}
+
+		public static List<RoyalTitleDef> RoyalTitleDefsFor(Faction fac) =>
+			fac != null ? fac.def.RoyalTitlesAllInSeniorityOrderForReading :
+			DefDatabase<RoyalTitleDef>.AllDefsListForReading;
+
+		public List<RoyalTitleDef> RoyalTitleDefsForSel()
+		{
+			if (Current.Game?.World == null || extraOption == 1)
+				return RoyalTitleDefsFor(null);
+
+			return RoyalTitleDefsFor(sel);
+		}
+
+		public static IntRange SeniorityRangeFor(Faction fac)
+		{
+			var defs = RoyalTitleDefsFor(fac);
+			return new IntRange(defs.Min(def => def.seniority), defs.Max(def => def.seniority));
+		}
+
+		public IntRange SeniorityRangeForSel()
+		{
+			if (Current.Game?.World == null || extraOption == 1)
+				return SeniorityRangeFor(null);
+
+			return SeniorityRangeFor(sel);
+		}
+
+		protected override Faction ResolveRef(Map map) =>
+			Current.Game.World.factionManager.AllFactionsVisibleInViewOrder.FirstOrDefault(f => f.Name == selName);
+
+		public override string NameFor(Faction f) => f.Name;
+		protected override string MakeSaveName() => sel.Name;
+
+		public override void ExposeData()
+		{
+			base.ExposeData();
+			Scribe_Values.Look(ref seniorityRange, "range");
+		}
+		public override ThingQuery Clone()
+		{
+			ThingQueryRoyalTitleRange clone = (ThingQueryRoyalTitleRange)base.Clone();
+			clone.seniorityRange = seniorityRange;
+			return clone;
+		}
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null || pawn.royalty == null) return false;
+
+			if (extraOption == 1) //Any
+				return pawn.royalty.highestTitles.Values.Any(def => seniorityRange.Includes(def.seniority));
+
+			if(pawn.royalty.GetCurrentTitle(sel) is RoyalTitleDef def)
+				return seniorityRange.Includes(def.seniority);
+
+			return false;
+		}
+		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
+		{
+			Rect buttonRect = fullRect.RightHalfClamped(row.FinalX);
+			DoSeniorityDropdown(buttonRect.LeftHalf(), seniorityRange.min, s => seniorityRange.min = s, max: seniorityRange.max);
+			DoSeniorityDropdown(buttonRect.RightHalf(), seniorityRange.max, s => seniorityRange.max = s, min: seniorityRange.min);
+			return false;
+		}
+
+		private void DoSeniorityDropdown(Rect rect, int seniority, Action<int> selectedAction, int min = 0, int max = int.MaxValue)
+		{
+			List<RoyalTitleDef> titles = RoyalTitleDefsForSel();
+			RoyalTitleDef selectedDef = titles.FirstOrDefault(def => def.seniority == seniority);
+
+			if (Widgets.ButtonText(rect, selectedDef?.LabelCap ?? "???"))
+			{
+				List<FloatMenuOption> options = new List<FloatMenuOption>();
+				foreach (RoyalTitleDef def in titles)
+				{
+					if(def.seniority >= min && def.seniority <= max)
+						options.Add(new FloatMenuOptionAndRefresh(def.LabelCap, () => selectedAction(def.seniority), this));
+				}
+
+				DoFloatOptions(options);
+			}
+		}
+
+
+		public override IEnumerable<Faction> Options() =>
+			Current.Game?.World?.factionManager.AllFactionsVisibleInViewOrder.Where(f => f.def.HasRoyalTitles) ?? Enumerable.Empty<Faction>();
+
+
+		public override int ExtraOptionsCount => 1;
+		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
+	}
+
 	public class ThingQueryHonor : ThingQueryDropDown<Faction>
 	{
 		protected IntRangeUB favorRange;
@@ -78,7 +179,7 @@ namespace TDFindLib_Royalty
 		}
 
 		public override IEnumerable<Faction> Options() =>
-			Current.Game.World.factionManager.AllFactionsVisibleInViewOrder.Where(f => f.def.HasRoyalTitles);
+			Current.Game?.World?.factionManager.AllFactionsVisibleInViewOrder.Where(f => f.def.HasRoyalTitles) ?? Enumerable.Empty<Faction>();
 
 
 		public override int ExtraOptionsCount => 1;

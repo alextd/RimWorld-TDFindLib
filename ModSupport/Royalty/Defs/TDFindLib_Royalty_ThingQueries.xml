@@ -4,8 +4,16 @@
 	<!-- queries in order -->
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Royalty_Title</defName>
-		<label>royal title</label>
+		<label>has royal title</label>
 		<queryClass>TDFindLib_Royalty.ThingQueryRoyalTitle</queryClass>
+		<mod>ludeon.rimworld.royalty</mod>
+		<insertCategory>Category_PawnStats</insertCategory>
+	</TD_Find_Lib.ThingQueryDef>
+	
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Royalty_TitleRange</defName>
+		<label>royal title range</label>
+		<queryClass>TDFindLib_Royalty.ThingQueryRoyalTitleRange</queryClass>
 		<mod>ludeon.rimworld.royalty</mod>
 		<insertCategory>Category_PawnStats</insertCategory>
 	</TD_Find_Lib.ThingQueryDef>

@@ -381,7 +381,7 @@ namespace TD_Find_Lib
 		//Queries that UsesResolveName can be resolved after the game starts up (e.g. defs),
 		// - ResolveName is called from ExposeData, ResolvingCrossRefs
 		// - Queries that fail to resolve name are disabled until reset (at least, the DropDown subclasses)
-		//Queries that UsesResolveRef must be resolved on a map (e.g. Zones, ILoadReferenceable)
+		//Queries that UsesResolveRef must be resolved in-game on a map (e.g. Zones, ILoadReferenceable, Factions)
 		// - Queries that are loaded and inactive do not call ResolveRef and only have selName set.
 		// - Queries need their refs resolved when a search is performed - e.g. when QuerySearch calls BindToMap()
 		// - BindToMap will remember it's bound to that map and not bother to re-bind
