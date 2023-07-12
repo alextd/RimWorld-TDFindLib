@@ -554,7 +554,7 @@
 		
 	<TD_Find_Lib.ThingQueryCategoryDef>
 		<defName>Category_Mod</defName>
-		<label>Modded filters</label>
+		<label>Expansion/Mod</label>
 	</TD_Find_Lib.ThingQueryCategoryDef>
 
 	<TD_Find_Lib.ThingQueryDef>
