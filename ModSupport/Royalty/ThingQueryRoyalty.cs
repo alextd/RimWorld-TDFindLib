@@ -18,6 +18,9 @@ namespace TDFindLib_Royalty
 			Pawn pawn = thing as Pawn;
 			if (pawn == null || pawn.royalty == null) return false;
 
+			if (extraOption > 0)
+				return pawn.royalty.AllTitlesForReading.Count > 0;
+
 			if (sel == null)
 				return pawn.royalty.AllTitlesForReading.Count == 0;
 
@@ -25,6 +28,8 @@ namespace TDFindLib_Royalty
 		}
 
 		public override string NullOption() => "None".Translate();
+		public override int ExtraOptionsCount => 1;
+		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
 	}
 
 	public class ThingQueryHonor : ThingQueryDropDown<Faction>
