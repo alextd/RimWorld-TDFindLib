@@ -63,15 +63,42 @@ namespace TD_Find_Lib
 				// Move Query_Mod, and all queries from mods, into Category_Mod
 				rootSelectableQueries.Remove(ThingQueryDefOf.Query_Mod);
 				moddedSelections.ForEach(d => rootSelectableQueries.Remove(d));
-				ThingQueryDefOf.Category_Mod.subQueries = moddedSelections;
-				ThingQueryDefOf.Category_Mod.subQueries.Insert(0, ThingQueryDefOf.Query_Mod);
+
+				Dictionary<string, List<ThingQuerySelectableDef>> modGroups = new();
+				foreach(var def in moddedSelections)
+				{
+					string packageId = def.mod ?? def.modContentPack.PackageId;
+					if(modGroups.TryGetValue(packageId, out var defs))
+					{
+						defs.Add(def);
+					}
+					else
+					{
+						modGroups[packageId] = new List<ThingQuerySelectableDef>() { def };
+					}
+				}
+
+				List<ThingQuerySelectableDef> modMenu = new() { ThingQueryDefOf.Query_Mod };
+				foreach ((string packageId, var defs) in modGroups)
+				{
+					if (defs.Count == 1)
+						modMenu.AddRange(defs);
+					else
+					{
+						ThingQueryCategoryDef catMenuSelectable = new() { mod = packageId };
+						catMenuSelectable.label = LoadedModManager.RunningMods.FirstOrDefault(mod => mod.PackageId == packageId)?.Name ?? packageId;
+						catMenuSelectable.subQueries = new();
+						catMenuSelectable.subQueries.AddRange(defs);
+						modMenu.Add(catMenuSelectable);
+					}
+				}
+
+				ThingQueryDefOf.Category_Mod.subQueries = modMenu;
 
 				// Also insert where requested. The filter can end up in two places (as we already do for things like Stuff)
 				foreach(var def in moddedSelections)
 					if(def.insertCategory != null)
 						def.insertCategory.subQueries.Add(def);
-
-				//TODO: Multiple filters for a mod => Mod sublist by def.mod/def.modContentPack
 			}
 
 
