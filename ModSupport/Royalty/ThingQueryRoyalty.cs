@@ -419,7 +419,7 @@ namespace TDFindLib_Royalty
 		static ExpansionHider()
 		{
 			if (!ModsConfig.RoyaltyActive)
-				foreach (ThingQueryDef def in DefDatabase<ThingQueryDef>.AllDefsListForReading)
+				foreach (ThingQuerySelectableDef def in DefDatabase<ThingQuerySelectableDef>.AllDefsListForReading)
 					if (def.mod == "ludeon.rimworld.royalty")
 						def.devOnly = true;
 		}
