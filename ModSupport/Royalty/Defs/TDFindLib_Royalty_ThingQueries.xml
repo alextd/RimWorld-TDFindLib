@@ -23,7 +23,7 @@
 		<label>unmet royal requirement</label>
 		<queryClass>TDFindLib_Royalty.ThingQueryRoyalTitleRequirementUnmet</queryClass>
 		<mod>ludeon.rimworld.royalty</mod>
-		<insertCategory>Category_PawnStats</insertCategory>
+		<insertCategory>Category_PawnStatus</insertCategory>
 	</TD_Find_Lib.ThingQueryDef>
 	
 	<TD_Find_Lib.ThingQueryDef>
@@ -48,6 +48,14 @@
 		<queryClass>TDFindLib_Royalty.ThingQueryEntropyValue</queryClass>
 		<mod>ludeon.rimworld.royalty</mod>
 		<insertCategory>Category_PawnStatus</insertCategory>
+	</TD_Find_Lib.ThingQueryDef>
+	
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Royalty_PermitPoints</defName>
+		<label>permit points</label>
+		<queryClass>TDFindLib_Royalty.ThingQueryPermitPoints</queryClass>
+		<mod>ludeon.rimworld.royalty</mod>
+		<insertCategory>Category_PawnStats</insertCategory>
 	</TD_Find_Lib.ThingQueryDef>
 
 </Defs>

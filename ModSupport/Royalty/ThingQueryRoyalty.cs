@@ -324,6 +324,26 @@ namespace TDFindLib_Royalty
 		}
 	}
 
+	public class ThingQueryPermitPoints : ThingQueryIntRange
+	{
+		public override int Min => 0;
+		public override int Max => 5; //Seems enough
+
+		public ThingQueryPermitPoints() => _sel.range.min = 1;
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null || pawn.royalty == null) return false;
+
+			int points = 0;
+			foreach (Faction faction in Find.FactionManager.AllFactionsVisible)
+				points += pawn.royalty.GetPermitPoints(faction);
+
+			return sel.Includes(points);
+		}
+	}
+
 	[StaticConstructorOnStartup]
 	public static class ExpansionHider
 	{

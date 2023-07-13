@@ -299,6 +299,7 @@ namespace TD_Find_Lib
 		public override string DisableReasonCurMap => selectionErrorCurMap;
 
 		// would like this to be T const * sel;
+		// TODO: Is this needed? was _sel private?
 		public ref T selByRef => ref _sel;
 		public T sel
 		{
@@ -745,6 +746,28 @@ namespace TD_Find_Lib
 		{
 			base.DrawMain(rect, locked, fullRect);
 			return TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(Text.CalcSize(Label).x), id, ref selByRef, valueStyle: Style);
+		}
+	}
+
+	public abstract class ThingQueryIntRange : ThingQueryWithOption<FloatRangeUB>
+	{
+		public virtual int Min => 0;
+		public virtual int Max => 1;
+
+		public ThingQueryIntRange() => sel = new IntRangeUB(Min, Max);
+
+
+		public override void ExposeData()
+		{
+			base.ExposeData();
+
+			Scribe_Values.Look(ref _sel.range, "sel");
+		}
+
+		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		{
+			base.DrawMain(rect, locked, fullRect);
+			return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(Text.CalcSize(Label).x), id, ref selByRef);
 		}
 	}
 
