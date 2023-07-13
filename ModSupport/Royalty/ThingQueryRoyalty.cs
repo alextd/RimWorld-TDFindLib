@@ -324,16 +324,18 @@ namespace TDFindLib_Royalty
 		}
 	}
 
-	[DefOf]
 	public class ThingQueryPermit : ThingQueryDropDown<RoyalTitlePermitDef>
 	{
 		public Faction faction; //null = Any!
-		public static RoyalTitlePermitDef TradeSettlement;
+		public static RoyalTitlePermitDef TradeSettlement = DefDatabase<RoyalTitlePermitDef>.GetNamedSilentFail("TradeSettlement");
 		public bool onlyReady;	// filter only if ready 
 
 		public ThingQueryPermit()
 		{
-			sel = TradeSettlement;
+			if (TradeSettlement == null)
+				extraOption = 1;
+			else
+				sel = TradeSettlement;
 			faction = null;
 			onlyReady = true;
 		}
