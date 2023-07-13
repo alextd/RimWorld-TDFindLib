@@ -66,5 +66,15 @@ namespace TD_Find_Lib
 
 			return IntRange(rect, id, ref rangeUB.range, rangeUB.absRange.min, rangeUB.absRange.max, labelKey);
 		}
+		public static bool IntRangeUB(Rect rect, int id, ref FloatRangeUB rangeUB, Func<int, string> writer = null)
+		{
+			IntRangeUB temp = rangeUB;
+			bool changed = IntRangeUB(rect, id, ref temp, writer);
+			if(changed)
+			{
+				rangeUB = temp;
+			}
+			return changed;
+		}
 	}
 }

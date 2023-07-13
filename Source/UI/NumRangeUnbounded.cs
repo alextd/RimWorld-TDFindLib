@@ -44,6 +44,11 @@ namespace TD_Find_Lib
 			this.range = selRange;
 		}
 
+		public static implicit operator IntRangeUB(IntRange range) => new(range);
+
+		public static implicit operator IntRangeUB(FloatRangeUB floatRange) =>
+			new((int)floatRange.absRange.min, (int)floatRange.absRange.max, (int)floatRange.range.min, (int)floatRange.range.max);
+
 		public int min
 		{
 			get => range.min;
@@ -94,6 +99,9 @@ namespace TD_Find_Lib
 		}
 
 		public static implicit operator FloatRangeUB(FloatRange range) => new(range);
+
+		public static implicit operator FloatRangeUB(IntRangeUB intRange) =>
+			new(intRange.absRange.min, intRange.absRange.max, intRange.range.min, intRange.range.max);
 
 		public float min
 		{

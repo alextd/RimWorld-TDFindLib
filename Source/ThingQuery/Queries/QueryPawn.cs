@@ -443,12 +443,18 @@ namespace TD_Find_Lib
 
 		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
 		{
-			if (sel != null && usesSeverity)
-				return TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref severityRange, valueStyle: ToStringStyle.PercentZero);
+			if (sel == null || !usesSeverity) return false;
 
-			// Injuries shuld be ToStringStyle.Float but they do not have a lethalSeverity so do not display their severity here
 
-			return false;
+			//<initialSeverity>1</initialSeverity> <!-- Severity is bound to level of implant -->
+			if (typeof(Hediff_Level).IsAssignableFrom(sel.hediffClass))
+				return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref severityRange);
+
+
+
+			return TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref severityRange, valueStyle: ToStringStyle.PercentZero);
+
+			// Injuries should be ToStringStyle.Float but they do not have a max/lethal value so do not display their severity here
 		}
 
 		public static FloatRange? SeverityRangeFor(HediffDef hediffDef)
