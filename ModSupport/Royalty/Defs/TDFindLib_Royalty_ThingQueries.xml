@@ -19,11 +19,19 @@
 	</TD_Find_Lib.ThingQueryDef>
 	
 	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Royalty_TitleRequirement</defName>
+		<label>unmet royal requirement</label>
+		<queryClass>TDFindLib_Royalty.ThingQueryRoyalTitleRequirementUnmet</queryClass>
+		<mod>ludeon.rimworld.royalty</mod>
+		<insertCategory>Category_PawnStats</insertCategory>
+	</TD_Find_Lib.ThingQueryDef>
+	
+	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Royalty_Honor</defName>
 		<label>honor</label>
 		<queryClass>TDFindLib_Royalty.ThingQueryHonor</queryClass>
 		<mod>ludeon.rimworld.royalty</mod>
-		<insertCategory>Category_PawnStatus</insertCategory>
+		<insertCategory>Category_PawnStats</insertCategory>
 	</TD_Find_Lib.ThingQueryDef>
 	
 	<TD_Find_Lib.ThingQueryDef>

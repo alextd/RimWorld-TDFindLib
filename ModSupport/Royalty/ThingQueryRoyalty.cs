@@ -133,6 +133,117 @@ namespace TDFindLib_Royalty
 		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
 	}
 
+	// From Royalty Alerts.xml or Thoughts_RoyalTitles.xml
+	public enum UnmetRequirementType { 
+		NeedThroneAssigned, UndignifiedThroneroom, 
+		NeedBedroomAssigned, UndignifiedBedroom, 
+		RoyalNoAcceptableFood, 
+		ApparelRequirementNotMet, ApparelMinQualityNotMet }
+	public class ThingQueryRoyalTitleRequirementUnmet : ThingQueryDropDown<UnmetRequirementType>
+	{
+		public ThingQueryRoyalTitleRequirementUnmet() => extraOption = 1;
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null || pawn.royalty == null) return false;
+
+			if(extraOption == 1)
+			{
+				foreach (UnmetRequirementType type in Enum.GetValues(typeof(UnmetRequirementType)))
+					if (UnmetRequirement(pawn, type))
+						return true;
+			}
+
+			return UnmetRequirement(pawn, sel);
+		}
+
+		public static bool UnmetRequirement(Pawn pawn, UnmetRequirementType req)
+		{
+			switch (req)
+			{
+				case UnmetRequirementType.NeedThroneAssigned:
+					//Alert_RoyalNoThroneAssigned
+					if (pawn.Suspended || !pawn.royalty.CanRequireThroneroom())
+						return false;
+
+					foreach (var title in pawn.royalty.titles)
+						if (!title.def.throneRoomRequirements.NullOrEmpty() && pawn.ownership.AssignedThrone == null)
+							return true;
+
+					return false;
+
+				case UnmetRequirementType.UndignifiedThroneroom:
+					//Alert_UndignifiedThroneroom
+					return !pawn.Suspended && pawn.royalty.GetUnmetThroneroomRequirements(false).Any();
+
+
+				case UnmetRequirementType.NeedBedroomAssigned:
+					//Alert_TitleRequiresBedroom
+					return pawn.royalty.HighestTitleWithBedroomRequirements() != null && !pawn.Suspended && !pawn.royalty.HasPersonalBedroom();
+
+				case UnmetRequirementType.UndignifiedBedroom:
+					//Alert_UndignifiedBedroom
+					return !pawn.Suspended && pawn.royalty.GetUnmetBedroomRequirements(false).Any();
+
+
+				case UnmetRequirementType.RoyalNoAcceptableFood:
+					//Alert_RoyalNoAcceptableFood
+
+					if (pawn.Spawned && (pawn.story == null || !pawn.story.traits.HasTrait(TraitDefOf.Ascetic)))
+					{
+						RoyalTitle royalTitle = pawn.royalty?.MostSeniorTitle;
+						if (royalTitle != null && royalTitle.conceited && royalTitle.def.foodRequirement.Defined &&
+							!FoodUtility.TryFindBestFoodSourceFor_NewTemp(pawn, pawn, desperate: false, out var _, out var _, allowCorpse: false, ignoreReservations: true, minPrefOverride: FoodPreferability.DesperateOnly))
+						{
+							return true;
+						}
+					}
+					return false;
+
+
+				case UnmetRequirementType.ApparelRequirementNotMet:
+					//ThoughtWorker_RoyalTitleApparelRequirementNotMet
+					if (!pawn.royalty.allowApparelRequirements)
+						return false;
+
+
+					foreach (RoyalTitle t in pawn.royalty.AllTitlesInEffectForReading)
+					{
+						if (t.def.requiredApparel == null || t.def.requiredApparel.Count <= 0)
+							continue;
+
+						for (int i = 0; i < t.def.requiredApparel.Count; i++)
+						{
+							ApparelRequirement apparelRequirement = t.def.requiredApparel[i];
+							if (apparelRequirement.IsActive(pawn) && !apparelRequirement.IsMet(pawn))
+								return true;
+						}
+					}
+					return false;
+
+				case UnmetRequirementType.ApparelMinQualityNotMet:
+					//ThoughtWorker_RoyalTitleApparelMinQualityNotMet
+					if (pawn.royalty.AllTitlesForReading.Count == 0)
+						return false;
+
+					QualityCategory minQuality = pawn.royalty.AllTitlesInEffectForReading.Max(t => t.def.requiredMinimumApparelQuality);
+
+					foreach (var apparel in pawn.apparel.WornApparel)
+						if (apparel.TryGetQuality(out var qc) && qc < minQuality)
+							return true;
+
+					return false;
+			}
+
+			return false;
+		}
+
+
+	public override int ExtraOptionsCount => 1;
+		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
+	}
+
 	public class ThingQueryHonor : ThingQueryDropDown<Faction>
 	{
 		protected IntRangeUB favorRange;
