@@ -324,6 +324,71 @@ namespace TDFindLib_Royalty
 		}
 	}
 
+	[DefOf]
+	public class ThingQueryPermit : ThingQueryDropDown<RoyalTitlePermitDef>
+	{
+		public Faction faction; //null = Any!
+		public static RoyalTitlePermitDef TradeSettlement;
+		public bool onlyReady;	// filter only if ready 
+
+		public ThingQueryPermit()
+		{
+			sel = TradeSettlement;
+			faction = null;
+			onlyReady = true;
+		}
+
+		// Given it exists, does this filter apply?
+		// If we're not checking if it's ready, existence is enough
+		// Otherwise, it only applies if it's ready aka not on cooldown
+		public bool Applies(FactionPermit p) => !onlyReady || !p.OnCooldown;
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null || pawn.royalty == null) return false;
+
+			if (extraOption == 1) //ANY permit
+			{
+				if (faction == null)  //ANY faction
+					return pawn.royalty.AllFactionPermits.Any(Applies);
+
+				return pawn.royalty.PermitsFromFaction(faction).Any(Applies);
+			}
+
+			// sel only
+			if(faction == null)	//ANY faction
+				return pawn.royalty.AllFactionPermits.Any(p => p.Permit == sel && Applies(p));
+
+			return pawn.royalty.GetPermit(sel, faction) is FactionPermit p && Applies(p);
+		}
+
+		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
+		{
+			if(row.ButtonText(faction?.Name ?? "TD.AnyOption".Translate()))
+			{
+				List<FloatMenuOption> options = new List<FloatMenuOption>();
+
+				if (Current.Game?.World is RimWorld.Planet.World world)
+					foreach (Faction fac in world.factionManager.AllFactionsVisibleInViewOrder.Where(f => f.def.HasRoyalTitles))
+						options.Add(new FloatMenuOptionAndRefresh(fac.Name, () => faction = fac, this));
+
+				options.Add(new FloatMenuOptionAndRefresh("TD.AnyOption".Translate(), () => faction = null, this, Color.yellow));
+
+				DoFloatOptions(options);
+			}
+			if(row.ButtonText(onlyReady ? "Permit is Ready" : "Holds Permit"))
+			{
+				onlyReady = !onlyReady;
+				return true;
+			}
+			return false;
+		}
+
+		public override int ExtraOptionsCount => 1;
+		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
+	}
+
 	public class ThingQueryPermitPoints : ThingQueryIntRange
 	{
 		public override int Min => 0;
@@ -343,6 +408,8 @@ namespace TDFindLib_Royalty
 			return sel.Includes(points);
 		}
 	}
+
+
 
 	[StaticConstructorOnStartup]
 	public static class ExpansionHider

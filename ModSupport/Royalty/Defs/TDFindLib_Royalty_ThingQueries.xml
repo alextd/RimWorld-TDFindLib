@@ -13,6 +13,7 @@
 			<li>Query_Royalty_TitleRequirement</li>
 			<li>Query_Royalty_Honor</li>
 			<li>Query_Royalty_PermitPoints</li>
+			<li>Query_Royalty_Permit</li>
 			<li>Query_Royalty_Psyfocus</li>
 			<li>Query_Royalty_Entropy</li>
 		</subQueries>
@@ -45,6 +46,13 @@
 		<defName>Query_Royalty_Honor</defName>
 		<label>honor</label>
 		<queryClass>TDFindLib_Royalty.ThingQueryHonor</queryClass>
+		<mod>ludeon.rimworld.royalty</mod>
+	</TD_Find_Lib.ThingQueryDef>
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Royalty_Permit</defName>
+		<label>permit</label>
+		<queryClass>TDFindLib_Royalty.ThingQueryPermit</queryClass>
 		<mod>ludeon.rimworld.royalty</mod>
 	</TD_Find_Lib.ThingQueryDef>
 
