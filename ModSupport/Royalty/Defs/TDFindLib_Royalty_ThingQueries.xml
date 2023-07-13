@@ -2,12 +2,28 @@
 <Defs>
 
 	<!-- queries in order -->
+	<TD_Find_Lib.ThingQueryCategoryDef>
+		<mod>ludeon.rimworld.royalty</mod>
+		<defName>Category_Royal</defName>
+		<label>royalty</label>
+		<insertCategory>Category_PawnProp</insertCategory>
+		<subQueries>
+			<li>Query_Royalty_Title</li>
+			<li>Query_Royalty_TitleRange</li>
+			<li>Query_Royalty_TitleRequirement</li>
+			<li>Query_Royalty_Honor</li>
+			<li>Query_Royalty_PermitPoints</li>
+			<li>Query_Royalty_Psyfocus</li>
+			<li>Query_Royalty_Entropy</li>
+		</subQueries>
+	</TD_Find_Lib.ThingQueryCategoryDef>
+	
+	
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Royalty_Title</defName>
 		<label>has royal title</label>
 		<queryClass>TDFindLib_Royalty.ThingQueryRoyalTitle</queryClass>
 		<mod>ludeon.rimworld.royalty</mod>
-		<insertCategory>Category_PawnStats</insertCategory>
 	</TD_Find_Lib.ThingQueryDef>
 	
 	<TD_Find_Lib.ThingQueryDef>
@@ -15,7 +31,6 @@
 		<label>royal title range</label>
 		<queryClass>TDFindLib_Royalty.ThingQueryRoyalTitleRange</queryClass>
 		<mod>ludeon.rimworld.royalty</mod>
-		<insertCategory>Category_PawnStats</insertCategory>
 	</TD_Find_Lib.ThingQueryDef>
 	
 	<TD_Find_Lib.ThingQueryDef>
@@ -23,39 +38,36 @@
 		<label>unmet royal requirement</label>
 		<queryClass>TDFindLib_Royalty.ThingQueryRoyalTitleRequirementUnmet</queryClass>
 		<mod>ludeon.rimworld.royalty</mod>
-		<insertCategory>Category_PawnStatus</insertCategory>
 	</TD_Find_Lib.ThingQueryDef>
+	
 	
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Royalty_Honor</defName>
 		<label>honor</label>
 		<queryClass>TDFindLib_Royalty.ThingQueryHonor</queryClass>
 		<mod>ludeon.rimworld.royalty</mod>
-		<insertCategory>Category_PawnStats</insertCategory>
 	</TD_Find_Lib.ThingQueryDef>
-	
-	<TD_Find_Lib.ThingQueryDef>
-		<defName>Query_Royalty_Psyfocus</defName>
-		<label>psyfocus</label>
-		<queryClass>TDFindLib_Royalty.ThingQueryPsyfocus</queryClass>
-		<mod>ludeon.rimworld.royalty</mod>
-		<insertCategory>Category_PawnStatus</insertCategory>
-	</TD_Find_Lib.ThingQueryDef>
-	
-	<TD_Find_Lib.ThingQueryDef>
-		<defName>Query_Royalty_Entropy</defName>
-		<label>neural heat</label>
-		<queryClass>TDFindLib_Royalty.ThingQueryEntropyValue</queryClass>
-		<mod>ludeon.rimworld.royalty</mod>
-		<insertCategory>Category_PawnStatus</insertCategory>
-	</TD_Find_Lib.ThingQueryDef>
-	
+
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Royalty_PermitPoints</defName>
 		<label>permit points</label>
 		<queryClass>TDFindLib_Royalty.ThingQueryPermitPoints</queryClass>
 		<mod>ludeon.rimworld.royalty</mod>
-		<insertCategory>Category_PawnStats</insertCategory>
+	</TD_Find_Lib.ThingQueryDef>
+	
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Royalty_Psyfocus</defName>
+		<label>psyfocus</label>
+		<queryClass>TDFindLib_Royalty.ThingQueryPsyfocus</queryClass>
+		<mod>ludeon.rimworld.royalty</mod>
+	</TD_Find_Lib.ThingQueryDef>
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Royalty_Entropy</defName>
+		<label>neural heat</label>
+		<queryClass>TDFindLib_Royalty.ThingQueryEntropyValue</queryClass>
+		<mod>ludeon.rimworld.royalty</mod>
 	</TD_Find_Lib.ThingQueryDef>
 
 </Defs>
