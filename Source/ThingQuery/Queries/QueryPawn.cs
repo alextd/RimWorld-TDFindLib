@@ -908,7 +908,7 @@ namespace TD_Find_Lib
 
 		public override IEnumerable<AbilityDef> Options() => 
 			Mod.settings.OnlyAvailable
-				? ContentsUtility.AvailableInGame(t => (t as Pawn)?.abilities?.AllAbilitiesForReading.Select(a => a.def) ?? Enumerable.Empty<AbilityDef>())
+				? base.Options().Intersect(ContentsUtility.AvailableInGame(t => (t as Pawn)?.abilities?.AllAbilitiesForReading.Select(a => a.def) ?? Enumerable.Empty<AbilityDef>()))
 				: base.Options();
 	}
 }

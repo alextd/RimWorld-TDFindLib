@@ -599,6 +599,10 @@ namespace TD_Find_Lib
 			return NullOption() ?? "??Null selection??";
 		}
 
+		// Subclass Options() don't need to handle simple enums or defs
+		// Often they will use Mod.settings.OnlyAvailable to show a subset of options when shift is held
+		// That would also use ContentsUtility.AvailableInGame for ease of searching inside all things.
+		// This subset should be passed to base.Options().Intersect() so they are consistent ordering.
 		public virtual IEnumerable<T> Options()
 		{
 			if (IsEnum)
