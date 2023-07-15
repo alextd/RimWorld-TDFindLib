@@ -140,11 +140,11 @@ namespace TD_Find_Lib
 
 			ThingDef productDef = DefFor(pawn);
 
-			if (extraOption == 0 && sel == null)
-				return productDef == null;
-
 			if (extraOption == 1 ? productDef != null : sel == productDef)
 				return countRange.Includes(CountFor(pawn));
+
+			if (sel == null)
+				return productDef == null;
 
 			return false;
 		}
