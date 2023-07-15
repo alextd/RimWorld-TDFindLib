@@ -882,13 +882,19 @@ namespace TD_Find_Lib
 			Pawn pawn = thing as Pawn;
 			if (pawn == null || pawn.abilities == null) return false;
 
+			if (extraOption == 1)
+				return pawn.abilities.AllAbilitiesForReading.Count > 0;
+
 			if (sel == null)
 				return pawn.abilities.AllAbilitiesForReading.Count == 0;
 
-			return pawn.abilities?.AllAbilitiesForReading.Any(a => a.def == sel) ?? false;
+			return pawn.abilities.AllAbilitiesForReading.Any(a => a.def == sel);
 		}
 
 		public override string NullOption() => "None".Translate();
+
+		public override int ExtraOptionsCount => 1;
+		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
 
 
 		static ThingQueryAbility()
@@ -899,5 +905,10 @@ namespace TD_Find_Lib
 				ThingQueryDefOf.Query_Ability.devOnly = true;
 			}
 		}
+
+		public override IEnumerable<AbilityDef> Options() => 
+			Mod.settings.OnlyAvailable
+				? ContentsUtility.AvailableInGame(t => (t as Pawn)?.abilities?.AllAbilitiesForReading.Select(a => a.def) ?? Enumerable.Empty<AbilityDef>())
+				: base.Options();
 	}
 }
