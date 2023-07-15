@@ -615,23 +615,24 @@ namespace TD_Find_Lib
 		// Override this to group your T options into submenu categories
 		public virtual string CategoryFor(T def) => null;
 
+		private Dictionary<string, List<T>> _optionCategories = new();
 		private Dictionary<string, List<T>> OptionCategories()
 		{
-			Dictionary<string, List<T>> result = new();
+			_optionCategories.Clear();
 			foreach (T def in Options())
 			{
 				string cat = CategoryFor(def);
 
 				List<T> options;
-				if (!result.TryGetValue(cat, out options))
+				if (!_optionCategories.TryGetValue(cat, out options))
 				{
 					options = new();
-					result[cat] = options;
+					_optionCategories[cat] = options;
 				}
 
 				options.Add(def);
 			}
-			return result;
+			return _optionCategories;
 		}
 
 
@@ -681,7 +682,7 @@ namespace TD_Find_Lib
 				if (NullOption() is string nullOption)
 					options.Add(new FloatMenuOptionAndRefresh(nullOption, () => sel = default, this, Color.red)); //can't null because T isn't bound as reftype
 
-				if (UsesCategories)
+				if (UsesCategories && Options().Count() > 10)
 				{
 					Dictionary<string, List<T>> categories = OptionCategories();
 
