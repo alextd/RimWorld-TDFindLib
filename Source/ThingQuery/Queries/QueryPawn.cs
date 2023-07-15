@@ -62,7 +62,7 @@ namespace TD_Find_Lib
 			Scribe_Values.Look(ref skillRange.range, "skillRange");
 			Scribe_Values.Look(ref passion, "passion");
 		}
-		public override ThingQuery Clone()
+		protected override ThingQuery Clone()
 		{
 			ThingQuerySkill clone = (ThingQuerySkill)base.Clone();
 			clone.skillRange = skillRange;
@@ -124,7 +124,7 @@ namespace TD_Find_Lib
 			base.ExposeData();
 			Scribe_Values.Look(ref traitDegree, "traitDegree");
 		}
-		public override ThingQuery Clone()
+		protected override ThingQuery Clone()
 		{
 			ThingQueryTrait clone = (ThingQueryTrait)base.Clone();
 			clone.traitDegree = traitDegree;
@@ -221,7 +221,7 @@ namespace TD_Find_Lib
 
 			Scribe_Values.Look(ref stageRange, "stageRange");
 		}
-		public override ThingQuery Clone()
+		protected override ThingQuery Clone()
 		{
 			ThingQueryThought clone = (ThingQueryThought)base.Clone();
 			clone.stageRange = stageRange;
@@ -355,7 +355,7 @@ namespace TD_Find_Lib
 			base.ExposeData();
 			Scribe_Values.Look(ref needRange.range, "needRange");
 		}
-		public override ThingQuery Clone()
+		protected override ThingQuery Clone()
 		{
 			ThingQueryNeed clone = (ThingQueryNeed)base.Clone();
 			clone.needRange = needRange;
@@ -401,7 +401,7 @@ namespace TD_Find_Lib
 
 			Scribe_Values.Look(ref severityRange.range, "severityRange");
 		}
-		public override ThingQuery Clone()
+		protected override ThingQuery Clone()
 		{
 			ThingQueryHealth clone = (ThingQueryHealth)base.Clone();
 			clone.severityRange = severityRange;
@@ -743,7 +743,7 @@ namespace TD_Find_Lib
 			base.ExposeData();
 			Scribe_Values.Look(ref capacityRange.range, "capacityRange");
 		}
-		public override ThingQuery Clone()
+		protected override ThingQuery Clone()
 		{
 			ThingQueryCapacity clone = (ThingQueryCapacity)base.Clone();
 			clone.capacityRange = capacityRange;

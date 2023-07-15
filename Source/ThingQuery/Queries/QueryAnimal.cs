@@ -35,7 +35,7 @@ namespace TD_Find_Lib
 			Scribe_Values.Look(ref valueRange.range, "valueRange");
 			Scribe_Defs.Look(ref trainability, "trainability");
 		}
-		public override ThingQuery Clone()
+		protected override ThingQuery Clone()
 		{
 			ThingQueryRaceProps clone = (ThingQueryRaceProps)base.Clone();
 			clone.intelligence = intelligence;
@@ -123,7 +123,7 @@ namespace TD_Find_Lib
 			base.ExposeData();
 			Scribe_Values.Look(ref countRange.range, "countRange");
 		}
-		public override ThingQuery Clone()
+		protected override ThingQuery Clone()
 		{
 			ThingQueryProduct clone = (ThingQueryProduct)base.Clone();
 			clone.countRange = countRange;
@@ -273,7 +273,7 @@ namespace TD_Find_Lib
 			base.ExposeData();
 			Scribe_Values.Look(ref progressRange.range, "progressRange");
 		}
-		public override ThingQuery Clone()
+		protected override ThingQuery Clone()
 		{
 			ThingQueryProductProgress clone = (ThingQueryProductProgress)base.Clone();
 			clone.progressRange = progressRange;
@@ -355,7 +355,7 @@ namespace TD_Find_Lib
 			base.ExposeData();
 			Scribe_Values.Look(ref stepRange.range, "stepRange");
 		}
-		public override ThingQuery Clone()
+		protected override ThingQuery Clone()
 		{
 			ThingQueryTrained clone = (ThingQueryTrained)base.Clone();
 			clone.stepRange = stepRange;

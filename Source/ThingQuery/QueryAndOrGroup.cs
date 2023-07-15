@@ -32,7 +32,7 @@ namespace TD_Find_Lib
 
 			Children.ExposeData();
 		}
-		public override ThingQuery Clone()
+		protected override ThingQuery Clone()
 		{
 			ThingQueryAndOrGroup clone = (ThingQueryAndOrGroup)base.Clone();
 			clone.children = children.Clone(clone);
@@ -111,7 +111,7 @@ namespace TD_Find_Lib
 			base.ExposeData();
 			Scribe_Values.Look(ref holdingThis, "holdingThis", true);
 		}
-		public override ThingQuery Clone()
+		protected override ThingQuery Clone()
 		{
 			ThingQueryInventory clone = (ThingQueryInventory)base.Clone();
 			clone.holdingThis = holdingThis;
@@ -154,7 +154,7 @@ namespace TD_Find_Lib
 			base.ExposeData();
 			Scribe_Values.Look(ref range, "range");
 		}
-		public override ThingQuery Clone()
+		protected override ThingQuery Clone()
 		{
 			ThingQueryNearby clone = (ThingQueryNearby)base.Clone();
 			clone.range = range;

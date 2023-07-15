@@ -78,7 +78,7 @@ namespace TDFindLib_Royalty
 			base.ExposeData();
 			Scribe_Values.Look(ref seniorityRange, "range");
 		}
-		public override ThingQuery Clone()
+		protected override ThingQuery Clone()
 		{
 			ThingQueryRoyalTitleRange clone = (ThingQueryRoyalTitleRange)base.Clone();
 			clone.seniorityRange = seniorityRange;
@@ -267,7 +267,7 @@ namespace TDFindLib_Royalty
 			base.ExposeData();
 			Scribe_Values.Look(ref favorRange.range, "range");
 		}
-		public override ThingQuery Clone()
+		protected override ThingQuery Clone()
 		{
 			ThingQueryHonor clone = (ThingQueryHonor)base.Clone();
 			clone.favorRange = favorRange;

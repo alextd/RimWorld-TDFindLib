@@ -147,7 +147,7 @@ namespace TD_Find_Lib
 			HeldQueries clone = new HeldQueries(newParent);
 
 			foreach (var f in queries)
-				clone.Add(f.Clone(), remake: false);
+				clone.Add(f.MakeClone(), remake: false);
 
 			clone.matchAllQueries = matchAllQueries;
 
@@ -217,7 +217,7 @@ namespace TD_Find_Lib
 			var draggedQuery = queries[from];
 			if (Event.current.control)
 			{
-				var newQuery = draggedQuery.Clone();
+				var newQuery = draggedQuery.MakeClone();
 				Add(newQuery, to, remake);
 			}
 			else
@@ -304,7 +304,7 @@ namespace TD_Find_Lib
 			{
 				if (Event.current.control)
 				{
-					newHolder.Children.Add(draggedQuery.Clone(), to);
+					newHolder.Children.Add(draggedQuery.MakeClone(), to);
 				}
 				else
 				{

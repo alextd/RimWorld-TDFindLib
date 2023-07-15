@@ -158,7 +158,7 @@ namespace TD_Find_Lib
 			base.ExposeData();
 			Scribe_Values.Look(ref ticksRange.range, "ticksRange");
 		}
-		public override ThingQuery Clone()
+		protected override ThingQuery Clone()
 		{
 			ThingQueryTimeToRot clone = (ThingQueryTimeToRot)base.Clone();
 			clone.ticksRange = ticksRange;
@@ -284,7 +284,7 @@ namespace TD_Find_Lib
 			base.ExposeData();
 			Scribe_Values.Look(ref host, "host");
 		}
-		public override ThingQuery Clone()
+		protected override ThingQuery Clone()
 		{
 			ThingQueryFaction clone = (ThingQueryFaction)base.Clone();
 			clone.host = host;
@@ -728,7 +728,7 @@ namespace TD_Find_Lib
 			if(Scribe.mode != LoadSaveMode.Saving || sel.stackLimit > 1)
 				Scribe_Values.Look(ref stackRange.range, "stackRange");
 		}
-		public override ThingQuery Clone()
+		protected override ThingQuery Clone()
 		{
 			ThingQueryThingDef clone = (ThingQueryThingDef)base.Clone();
 			clone.stackRange = stackRange;
@@ -858,7 +858,7 @@ namespace TD_Find_Lib
 			base.ExposeData();
 			Scribe_Values.Look(ref valueRange, "valueRange");
 		}
-		public override ThingQuery Clone()
+		protected override ThingQuery Clone()
 		{
 			ThingQueryStat clone = (ThingQueryStat)base.Clone();
 			clone.valueRange = valueRange;
@@ -971,7 +971,8 @@ namespace TD_Find_Lib
 	}
 
 	/*
-	 * Labels were not easy to get, they were unstranslated if expansions weren't active, ugh.
+	 * Aborting this attempt at a fitler for items that match Alerts
+	 * Labels were not easy to get, they were untranslated if expansions weren't active, ugh.
 	 * 
 	public class ThingQueryAlert : ThingQueryDropDown<Type>
 	{

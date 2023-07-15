@@ -87,7 +87,11 @@ namespace TD_Find_Lib
 			}
 		}
 
-		public virtual ThingQuery Clone()
+		// Make clone and possibly postprocess.
+		public virtual ThingQuery MakeClone() => Clone();
+
+		// Internal Cloning fields
+		protected virtual ThingQuery Clone()
 		{
 			ThingQuery clone = ThingQueryMaker.MakeQuery(def);
 			clone.enabled = enabled;
@@ -450,7 +454,13 @@ namespace TD_Find_Lib
 				PostProcess();
 		}
 
-		public override ThingQuery Clone()
+		public override ThingQuery MakeClone()
+		{
+			ThingQueryWithOption<T> clone = (ThingQueryWithOption<T>)base.MakeClone();
+			clone.PostProcess();
+			return clone;
+		}
+		protected override ThingQuery Clone()
 		{
 			ThingQueryWithOption<T> clone = (ThingQueryWithOption<T>)base.Clone();
 
@@ -529,6 +539,7 @@ namespace TD_Find_Lib
 					}
 				}
 			}
+
 			PostProcess();
 		}
 
@@ -597,7 +608,7 @@ namespace TD_Find_Lib
 			throw new NotImplementedException();
 		}
 
-		// Override this to group your T options into categories
+		// Override this to group your T options into submenu categories
 		public virtual string CategoryFor(T def) => null;
 
 		private Dictionary<string, List<T>> OptionCategories()
@@ -783,7 +794,7 @@ namespace TD_Find_Lib
 		public string label;
 		public List<T> mustHave = new(), cantHave = new();
 
-		public override ThingQuery Clone()
+		protected override ThingQuery Clone()
 		{
 			ThingQueryMask<T> clone = (ThingQueryMask<T>)base.Clone();
 			clone.mustHave = mustHave.ToList();
