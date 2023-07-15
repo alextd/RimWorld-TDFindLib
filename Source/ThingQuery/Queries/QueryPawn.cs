@@ -225,7 +225,6 @@ namespace TD_Find_Lib
 		{
 			ThingQueryThought clone = (ThingQueryThought)base.Clone();
 			clone.stageRange = stageRange;
-			clone.PostProcess();
 			return clone;
 		}
 

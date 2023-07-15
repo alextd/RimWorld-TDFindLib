@@ -329,6 +329,8 @@ namespace TD_Find_Lib
 
 
 		// PostProcess is called any time the selection is set: even after loading and cloning, etc.
+		//  good for setting other fields based on sel: options to select from usually.
+		//  such fields should not be saved to file, and are PostProcesses on load
 		// PostChosen is called when the user selects the option (after a call to PostProcess)
 
 		// A subclass with fields whose validity depends on the selection should override these
@@ -339,7 +341,7 @@ namespace TD_Find_Lib
 		//  PostChosen: to set a default value, that is valid for the selection
 		//   e.g. Specific Thing query sets the default chosen range based on the stackLimit
 		//   e.g. NOT with the skill query which has a range 0-20, but that's valid for all skills, so no need to set per def
-		// Few subclasses need PostProcess, but they will also need PostChosen.
+		// Few subclasses need PostProcess, and they will often also need PostChosen.
 		protected virtual void PostProcess() { }
 		protected virtual void PostChosen() { }
 
@@ -527,6 +529,7 @@ namespace TD_Find_Lib
 					}
 				}
 			}
+			PostProcess();
 		}
 
 		private void RefError(Map map)
