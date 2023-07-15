@@ -339,7 +339,7 @@ namespace TD_Find_Lib
 
 	}
 
-	enum ListCategory
+	public enum ListCategory
 	{
 		Person,
 		Animal,
@@ -349,7 +349,7 @@ namespace TD_Find_Lib
 		Plant,
 		Other
 	}
-	class ThingQueryCategory : ThingQueryDropDown<ListCategory>
+	public class ThingQueryCategory : ThingQueryDropDown<ListCategory>
 	{
 		public override bool AppliesDirectlyTo(Thing thing) =>
 			sel switch
@@ -969,4 +969,88 @@ namespace TD_Find_Lib
 		public override IEnumerable<DesignationCategoryDef> Options() =>
 			base.Options().Where(desCatDef => desCatDef.AllResolvedDesignators.Any(d => d is Designator_Build));
 	}
+
+	/*
+	 * Labels were not easy to get, they were unstranslated if expansions weren't active, ugh.
+	 * 
+	public class ThingQueryAlert : ThingQueryDropDown<Type>
+	{
+		Alert alert;
+		AlertReport report;
+		List<Thing> offenders = new();
+		int tickReport;
+
+		public ThingQueryAlert()
+		{
+			sel = typeof(Alert_Heatstroke);
+		}
+
+		protected override void PostProcess()
+		{
+			alert = FindAlert(sel);
+			report = default;
+			offenders.Clear();
+			tickReport = 0;
+		}
+
+		public static Alert FindAlert(Type alertType)
+		{
+			if (alertType == null) return null;
+
+			return Find.Alerts.AllAlerts.FirstOrDefault(a => a.GetType() == alertType);
+		}
+
+		private void Update()
+		{
+			if (alert == null) return;
+
+			if (tickReport == Current.Game.tickManager.TicksGame) return;
+			tickReport = Current.Game.tickManager.TicksGame;
+
+			//PostProcess should handle this:
+			//if (alert.GetType() != sel)
+			//	alert = FindAlert(sel);
+
+			report = alert.GetReport();
+			offenders.Clear();
+			offenders.AddRange(report.AllCulprits.Where(c => c.HasThing).Select(c => c.Thing));
+		}
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Update();
+			return offenders.Contains(thing);
+		}
+
+
+		// Preprocess alert list:
+		public static bool ValidAlert(Type alertType) =>
+			!typeof(Alert_ActionDelay).IsAssignableFrom(alertType) &&
+			!typeof(Alert_ActivatorCountdown).IsAssignableFrom(alertType);
+		public static readonly List<Type> alertTypes = AlertsReadout.allAlertTypesCached.Where(ValidAlert).ToList();
+		public static readonly Dictionary<Type, string> alertNames = alertTypes.ToDictionary(t => t,
+			(Type t) =>
+			{
+				try
+				{
+					return FindAlert(t).GetLabel();
+				}
+				catch
+				{
+					return $"({t?.Name})";
+				}
+			});
+
+
+		public override string NameFor(Type o) => alertNames[o];
+
+		public override IEnumerable<Type> Options()
+		{
+			if (Mod.settings.OnlyAvailable && Find.Alerts.activeAlerts.Count > 0)
+				return Find.Alerts.activeAlerts.Select(a => a.GetType()).Where(ValidAlert);
+
+			return alertTypes;
+		}		
+		// Alert_ActionDelay are silly alerts, let's not go there (and their labels give nullrefs when inactive)
+	}*/
 }
