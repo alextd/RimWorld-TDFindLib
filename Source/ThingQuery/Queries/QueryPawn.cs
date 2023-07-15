@@ -906,9 +906,22 @@ namespace TD_Find_Lib
 			}
 		}
 
+
+		//public override bool Ordered => true;
+		public override string CategoryFor(AbilityDef def) => def.modContentPack.Name;
+
+		public override string DropdownNameFor(AbilityDef def) =>
+			def.level == 0 ? NameFor(def) : $"Level {def.level}: {NameFor(def)}";
+
+		private readonly List<AbilityDef> orderedOptions =
+			DefDatabase<AbilityDef>.AllDefs
+			.OrderBy(def => def.level)
+			.ThenBy(def => def.category?.displayOrder ?? 0) // (unseen category that is used only for gizmo ordering)
+			.ThenBy(def => def.label).ToList();
+
 		public override IEnumerable<AbilityDef> Options() => 
 			Mod.settings.OnlyAvailable
-				? base.Options().Intersect(ContentsUtility.AvailableInGame(t => (t as Pawn)?.abilities?.AllAbilitiesForReading.Select(a => a.def) ?? Enumerable.Empty<AbilityDef>()))
-				: base.Options();
+				? orderedOptions.Intersect(ContentsUtility.AvailableInGame(t => (t as Pawn)?.abilities?.AllAbilitiesForReading.Select(a => a.def) ?? Enumerable.Empty<AbilityDef>()))
+				: orderedOptions;
 	}
 }
