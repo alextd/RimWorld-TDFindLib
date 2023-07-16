@@ -253,13 +253,15 @@ namespace TD_Find_Lib
 	{
 		ThingQuery owner;
 		Color color = Color.white;
-		public FloatMenuOptionAndRefresh(string label, Action action, ThingQuery query, Color? color = null) : base(label, action)
+		public FloatMenuOptionAndRefresh(string label, Action action, ThingQuery query, Color? color = null)
+			: base(label, action)
 		{
 			owner = query;
 			if(color.HasValue)
 				this.color = Color.Lerp(Color.white, color.Value, .2f);
 		}
-		public FloatMenuOptionAndRefresh(string label, Action action, ThingQuery query, Texture2D itemIcon, Color iconColor) : base(label, action, itemIcon, iconColor)
+		public FloatMenuOptionAndRefresh(string label, Action action, ThingQuery query, Texture2D itemIcon, Color? iconColor = null)
+			: base(label, action, itemIcon, iconColor ?? Color.white)
 		{
 			owner = query;
 		}
@@ -639,6 +641,7 @@ namespace TD_Find_Lib
 		public virtual bool Ordered => false;
 		public virtual string NameFor(T o) => o is Def def ? def.LabelCap.RawText : typeof(T).IsEnum ? o.TranslateEnum() : o.ToString();
 		public virtual string DropdownNameFor(T o) => NameFor(o);
+		public virtual Texture2D IconFor(T o) => null;
 		protected override string MakeSaveName()
 		{
 			if (sel is Def def)
@@ -691,14 +694,14 @@ namespace TD_Find_Lib
 						{
 							List<FloatMenuOption> catOptions = new();
 							foreach (T o in Ordered ? categories[catLabel].AsEnumerable().OrderBy(o => NameFor(o)).ToList() : categories[catLabel])
-								catOptions.Add(new FloatMenuOptionAndRefresh(DropdownNameFor(o), () => sel = o, this));
+								catOptions.Add(new FloatMenuOptionAndRefresh(DropdownNameFor(o), () => sel = o, this, IconFor(o)));
 							DoFloatOptions(catOptions);
 						}));
 				}
 				else
 				{
 					foreach (T o in Ordered ? Options().OrderBy(o => NameFor(o)) : Options())
-						options.Add(new FloatMenuOptionAndRefresh(DropdownNameFor(o), () => sel = o, this));
+						options.Add(new FloatMenuOptionAndRefresh(DropdownNameFor(o), () => sel = o, this, IconFor(o)));
 				}
 
 				foreach (int ex in ExtraOptions())
@@ -879,8 +882,7 @@ namespace TD_Find_Lib
 						this,
 						mustHave.Contains(option) ? Widgets.CheckboxOnTex
 						: cantHave.Contains(option) ? Widgets.CheckboxOffTex
-						: Widgets.CheckboxPartialTex,
-						Color.white));
+						: Widgets.CheckboxPartialTex));
 				}
 
 				Find.WindowStack.Add(new FloatMenu(layerOption));
