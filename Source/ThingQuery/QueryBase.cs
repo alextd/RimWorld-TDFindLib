@@ -622,6 +622,9 @@ namespace TD_Find_Lib
 		}
 
 		// Override this to group your T options into submenu categories
+		// TODO: doubly nested categories: Items => Weapon => longsword
+		// TODO: Any option inside a category
+		// TODO: abstract ThingQueryCategorizedDropdown for all this
 		public virtual string CategoryFor(T def) => null;
 
 		private Dictionary<string, List<T>> _optionCategories = new();
