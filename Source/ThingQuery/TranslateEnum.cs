@@ -15,12 +15,12 @@ namespace TD_Find_Lib
 			if (_enumStringCache.TryGetValue(e, out string tr))
 				return tr;
 
-			string translated = e.DoTranslateEnum();
+			string translated = DoTranslateEnum(e);
 			_enumStringCache[e] = translated;
 			return translated;
 		}
 
-		public static string DoTranslateEnum(this object e)
+		private static string DoTranslateEnum(object e)
 		{ 
 			string type = e.GetType().Name;
 			string name = e.ToString();
