@@ -244,9 +244,11 @@ namespace TD_Find_Lib
 
 		//Probably a good filter
 		public static bool ValidDef(ThingDef def) =>
+			(def.category != ThingCategory.Ethereal || def.selectable) && // anything EtherealThingBase that isn't selectable is out. e.g. Flashstorms
 			!typeof(Mote).IsAssignableFrom(def.thingClass) &&
 			!typeof(Projectile).IsAssignableFrom(def.thingClass) &&
-			def.drawerType != DrawerType.None;  //non-drawers are weird abstract things.
+			def.drawerType != DrawerType.None &&  //non-drawers are weird abstract things.
+			def.category != ThingCategory.PsychicEmitter; //Solar pinhole why? can't you stay ThingCategory.Ethereal
 	}
 
 	public class FloatMenuOptionAndRefresh : FloatMenuOption
@@ -262,6 +264,11 @@ namespace TD_Find_Lib
 		}
 		public FloatMenuOptionAndRefresh(string label, Action action, ThingQuery query, Texture2D itemIcon, Color? iconColor = null)
 			: base(label, action, itemIcon, iconColor ?? Color.white)
+		{
+			owner = query;
+		}
+		public FloatMenuOptionAndRefresh(string label, Action action, ThingQuery query, ThingDef shownItemForIcon, ThingStyleDef thingStyle = null, bool forceBasicStyle = false)
+			: base(label, action, shownItemForIcon, thingStyle, forceBasicStyle)
 		{
 			owner = query;
 		}
@@ -621,8 +628,10 @@ namespace TD_Find_Lib
 		private Dictionary<string, List<T>> OptionCategories()
 		{
 			_optionCategories.Clear();
+			int i = 0;
 			foreach (T def in Options())
 			{
+				i++;
 				string cat = CategoryFor(def);
 
 				List<T> options;
@@ -634,14 +643,30 @@ namespace TD_Find_Lib
 
 				options.Add(def);
 			}
+			Log.Message($"There's {i} things for {GetType()}");
 			return _optionCategories;
 		}
 
-
-		public virtual bool Ordered => false;
 		public virtual string NameFor(T o) => o is Def def ? def.LabelCap.RawText : typeof(T).IsEnum ? o.TranslateEnum() : o.ToString();
+
+		// dropdown menu options
+		public virtual bool Ordered => false;
 		public virtual string DropdownNameFor(T o) => NameFor(o);
-		public virtual Texture2D IconFor(T o) => null;
+		public virtual Texture2D IconTexFor(T o) => null;
+		public virtual ThingDef IconDefFor(T o) => null;
+		private FloatMenuOption FloatMenuFor(T o)
+		{
+			if (IconTexFor(o) is Texture2D tex)
+				return new FloatMenuOptionAndRefresh(DropdownNameFor(o), () => sel = o, this, tex == BaseContent.BadTex ? BaseContent.ClearTex : tex);
+
+			if(IconDefFor(o) is ThingDef def)
+				return new FloatMenuOptionAndRefresh(DropdownNameFor(o), () => sel = o, this, def);
+
+			return new FloatMenuOptionAndRefresh(DropdownNameFor(o), () => sel = o, this);
+		}
+
+
+
 		protected override string MakeSaveName()
 		{
 			if (sel is Def def)
@@ -694,14 +719,14 @@ namespace TD_Find_Lib
 						{
 							List<FloatMenuOption> catOptions = new();
 							foreach (T o in Ordered ? categories[catLabel].AsEnumerable().OrderBy(o => NameFor(o)).ToList() : categories[catLabel])
-								catOptions.Add(new FloatMenuOptionAndRefresh(DropdownNameFor(o), () => sel = o, this, IconFor(o)));
+								catOptions.Add(FloatMenuFor(o));
 							DoFloatOptions(catOptions);
 						}));
 				}
 				else
 				{
 					foreach (T o in Ordered ? Options().OrderBy(o => NameFor(o)) : Options())
-						options.Add(new FloatMenuOptionAndRefresh(DropdownNameFor(o), () => sel = o, this, IconFor(o)));
+						options.Add(FloatMenuFor(o));
 				}
 
 				foreach (int ex in ExtraOptions())

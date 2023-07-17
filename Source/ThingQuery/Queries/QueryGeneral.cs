@@ -749,6 +749,8 @@ namespace TD_Find_Lib
 				base.Options())
 			.Where(def => ValidDef(def));
 
+		public override ThingDef IconDefFor(ThingDef o) => o;//duh
+
 		public override string CategoryFor(ThingDef def)
 		{
 			if (typeof(Blueprint_Install).IsAssignableFrom(def.thingClass))

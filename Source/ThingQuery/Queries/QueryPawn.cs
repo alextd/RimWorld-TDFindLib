@@ -912,7 +912,7 @@ namespace TD_Find_Lib
 
 		public override string DropdownNameFor(AbilityDef def) =>
 			def.level == 0 ? NameFor(def) : $"Level {def.level}: {NameFor(def)}";
-		public override Texture2D IconFor(AbilityDef def) => def.uiIcon;
+		public override Texture2D IconTexFor(AbilityDef def) => def.uiIcon;
 
 		private readonly List<AbilityDef> orderedOptions =
 			DefDatabase<AbilityDef>.AllDefs
