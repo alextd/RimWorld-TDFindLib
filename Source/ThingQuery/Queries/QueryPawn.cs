@@ -877,6 +877,13 @@ namespace TD_Find_Lib
 	[StaticConstructorOnStartup]
 	public class ThingQueryAbility : ThingQueryDropDown<AbilityDef>
 	{
+		static ThingQueryAbility()
+		{
+			// Remove Query_Ability from selectable list if there's no abiliites a.k.a. no expansions
+			if (DefDatabase<AbilityDef>.DefCount == 0)
+				ThingQueryDefOf.Query_Ability.devOnly = true;
+		}
+
 		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
@@ -895,16 +902,6 @@ namespace TD_Find_Lib
 
 		public override int ExtraOptionsCount => 1;
 		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
-
-
-		static ThingQueryAbility()
-		{
-			// Remove Query_Ability from selectable list if there's no abiliites a.k.a. no expansions
-			if (DefDatabase<AbilityDef>.DefCount == 0)
-			{
-				ThingQueryDefOf.Query_Ability.devOnly = true;
-			}
-		}
 
 
 		//public override bool Ordered => true;
