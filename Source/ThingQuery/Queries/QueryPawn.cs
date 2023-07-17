@@ -884,18 +884,50 @@ namespace TD_Find_Lib
 				ThingQueryDefOf.Query_Ability.devOnly = true;
 		}
 
+
+		public enum FilterType { Has, Cooldown, CanCast, Charges}
+		public FilterType filterType;	
+		public IntRangeUB chargeRange = new(0,5,1,5);
+
+		public ThingQueryAbility() => extraOption = 1;
+
+		public override void ExposeData()
+		{
+			base.ExposeData();
+			Scribe_Values.Look(ref filterType, "filterType");
+			Scribe_Values.Look(ref chargeRange.range, "chargeRange", new(1,5));
+		}
+		protected override ThingQuery Clone()
+		{
+			ThingQueryAbility clone = (ThingQueryAbility)base.Clone();
+			clone.filterType = filterType;
+			clone.chargeRange = chargeRange;
+			return clone;
+		}
+
+
 		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null || pawn.abilities == null) return false;
 
+			var abilitiesInQuestion = pawn.abilities.AllAbilitiesForReading.Where(a =>
+			filterType switch
+			{
+				FilterType.Cooldown => a.CooldownTicksRemaining > 0,
+				FilterType.CanCast => a.CanCast,
+				FilterType.Charges => chargeRange.Includes(a.charges),
+
+				_ => true // FilterType.Has 
+			});
+
 			if (extraOption == 1)
-				return pawn.abilities.AllAbilitiesForReading.Count > 0;
+				return abilitiesInQuestion.Count() > 0;
 
 			if (sel == null)
-				return pawn.abilities.AllAbilitiesForReading.Count == 0;
+				return abilitiesInQuestion.Count() == 0;
 
-			return pawn.abilities.AllAbilitiesForReading.Any(a => a.def == sel);
+			return abilitiesInQuestion.Any(a => a.def == sel);
 		}
 
 		public override string NullOption() => "None".Translate();
@@ -904,7 +936,6 @@ namespace TD_Find_Lib
 		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
 
 
-		//public override bool Ordered => true;
 		public override string CategoryFor(AbilityDef def) => def.modContentPack.Name;
 
 		public override string DropdownNameFor(AbilityDef def) =>
@@ -921,5 +952,38 @@ namespace TD_Find_Lib
 			Mod.settings.OnlyAvailable
 				? orderedOptions.Intersect(ContentsUtility.AvailableInGame(t => (t as Pawn)?.abilities?.AllAbilitiesForReading.Select(a => a.def) ?? Enumerable.Empty<AbilityDef>()))
 				: orderedOptions;
+
+
+		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
+		{
+			if (row.ButtonTextNoGap(filterType.TranslateEnum()))
+			{
+				List<FloatMenuOption> options = new();
+
+				foreach (FilterType type in Enum.GetValues(typeof(FilterType)))
+				{
+					if (type == FilterType.Charges && sel != null && sel.charges == 1)
+					{
+						continue;
+					}
+
+					if (type == FilterType.Cooldown && sel != null &&
+						sel.cooldownTicksRange == default && (sel.groupDef?.cooldownTicks ?? 0) == 0)
+					{
+						continue;
+					}
+
+					options.Add(new FloatMenuOptionAndRefresh(type.TranslateEnum(), () => filterType = type, this));
+				}
+
+				DoFloatOptions(options);
+			}
+
+			if(filterType == FilterType.Charges)
+			{
+				return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref chargeRange);
+			}
+			return false;
+		}
 	}
 }

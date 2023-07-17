@@ -165,7 +165,7 @@
 
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Ability</defName>
-		<label>has ability</label>
+		<label>ability</label>
 		<queryClass>TD_Find_Lib.ThingQueryAbility</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 

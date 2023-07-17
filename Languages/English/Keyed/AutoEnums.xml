@@ -58,4 +58,9 @@
 	<TD.QueryPawnProperty.Dead>Is Dead</TD.QueryPawnProperty.Dead>
 	<TD.QueryPawnProperty.HasPsylink>Has Psylink</TD.QueryPawnProperty.HasPsylink>
 
+	<TD.FilterType.Has>Known</TD.FilterType.Has>
+	<TD.FilterType.Cooldown>On Cooldown</TD.FilterType.Cooldown>
+	<TD.FilterType.CanCast>Available</TD.FilterType.CanCast>
+	<TD.FilterType.Charges>Charges Available</TD.FilterType.Charges>
+
 </LanguageData>
