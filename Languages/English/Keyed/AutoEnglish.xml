@@ -87,6 +87,8 @@
 	<TD.InstallingCategory>(Installing)</TD.InstallingCategory>
 	<TD.BlueprintCategory>(Blueprint)</TD.BlueprintCategory>
 	<TD.FrameCategory>(Frame)</TD.FrameCategory>
+	<TD.BlueprintCategoryTerrain>(Terrain Blueprint)</TD.BlueprintCategoryTerrain>
+	<TD.FrameCategoryTerrain>(Terrain Frame)</TD.FrameCategoryTerrain>
 	<TD.MiscCategory>Misc</TD.MiscCategory>
 	<TD.LivingCategory>Living</TD.LivingCategory>
 	<TD.MineableCategory>Mineable</TD.MineableCategory>

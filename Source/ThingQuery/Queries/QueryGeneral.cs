@@ -759,15 +759,25 @@ namespace TD_Find_Lib
 
 		public override string CategoryFor(ThingDef def)
 		{
+			//Blueprints etc
 			if (typeof(Blueprint_Install).IsAssignableFrom(def.thingClass))
 				return "TD.InstallingCategory".Translate();
 
-			if (def.IsBlueprint)
-				return "TD.BlueprintCategory".Translate();
+			string blueprintKey = null; // Might append "Terrain"
+			if (def.IsFrame)	//Terrain blueprints are not ethereal so you gotta check frame first?
+				blueprintKey = "TD.FrameCategory";
+			else if (def.IsBlueprint)
+				blueprintKey = "TD.BlueprintCategory";
 
-			if (def.IsFrame)
-				return "TD.FrameCategory".Translate();
+			if (blueprintKey != null)
+			{
+				// Terrain is not a Thing so TerrainDef will only show up as the blueprint/frame Thing for it:
+				if (def.entityDefToBuild is TerrainDef)
+					blueprintKey += "Terrain";
+				return blueprintKey.Translate();
+			}
 
+			// Categorized things:
 			if (def.FirstThingCategory?.LabelCap.ToString() is string label)
 			{
 				if (label == "TD.MiscCategory".Translate())
@@ -775,7 +785,7 @@ namespace TD_Find_Lib
 				return label;
 			}
 
-			//catchall for unminifiable buildings.
+			// Catchall for unminifiable buildings.
 			if (def.designationCategory?.LabelCap.ToString() is string label2)
 			{
 				if (label2 == "TD.MiscCategory".Translate())
