@@ -174,6 +174,7 @@ namespace TD_Find_Lib
 			return AllOptions();
 		}
 		public override bool Ordered => true;
+		public override ThingDef IconDefFor(ThingDef o) => o;
 
 		public override string NullOption() => "None".Translate();
 

@@ -247,7 +247,9 @@ namespace TD_Find_Lib
 			}
 			return allHarvests;
 		}
+
 		public override bool Ordered => true;
+		public override ThingDef IconDefFor(ThingDef def) => def;//duh;
 
 		public override string NullOption() => "None".Translate();
 
@@ -393,6 +395,8 @@ namespace TD_Find_Lib
 
 		public override string DropdownNameFor(ThingCategoryDef def) =>
 			string.Concat(Enumerable.Repeat("- ", def.Parents.Count())) + base.NameFor(def);
+
+		//public override Texture2D IconTexFor(ThingCategoryDef def) => def.icon; //They don't all have icons so no
 	}
 
 	public class ThingQuerySpecialFilter : ThingQueryDropDown<SpecialThingFilterDef>
@@ -551,6 +555,8 @@ namespace TD_Find_Lib
 		public override string NameForExtra(int ex) =>
 			ex == 1 ? "TD.AnyOption".Translate():
 			DefDatabase<StuffCategoryDef>.AllDefsListForReading[ex - 2]?.LabelCap;
+
+		public override ThingDef IconDefFor(ThingDef def) => def;//duh
 	}
 
 	public class ThingQueryMissingBodyPart : ThingQueryDropDown<BodyPartDef>
