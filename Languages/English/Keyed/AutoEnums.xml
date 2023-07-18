@@ -26,9 +26,9 @@
 	<TD.ListCategory.Plant>Plant</TD.ListCategory.Plant>
 	<TD.ListCategory.Other>Other</TD.ListCategory.Other>
 
-	<TD.MineableCategoryType.Resource>Resource</TD.MineableCategoryType.Resource>
-	<TD.MineableCategoryType.Rock>Rock</TD.MineableCategoryType.Rock>
-	<TD.MineableCategoryType.All>All</TD.MineableCategoryType.All>
+	<TD.MineableType.Resource>Resource</TD.MineableType.Resource>
+	<TD.MineableType.Rock>Rock</TD.MineableType.Rock>
+	<TD.MineableType.All>All</TD.MineableType.All>
 
 	<TD.DraftQuery.Drafted>Drafted</TD.DraftQuery.Drafted>
 	<TD.DraftQuery.Undrafted>Undrafted</TD.DraftQuery.Undrafted>
