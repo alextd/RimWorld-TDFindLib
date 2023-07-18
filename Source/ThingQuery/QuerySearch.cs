@@ -584,22 +584,22 @@ namespace TD_Find_Lib
 				//A few other weird types
 				if (searchListType.HasFlag(SearchListType.Natural))
 					newListedThings.AddRange(searchMap.listerThings.AllThings.Where(t => t.def.filthLeaving == ThingDefOf.Filth_RubbleRock).MaybeWhere(visible));
-
-				if (searchListType.HasFlag(SearchListType.Inventory))
-				{
-					foreach (Thing t in searchMap.listerThings.ThingsInGroup(ThingRequestGroup.ThingHolder).MaybeWhere(visible))
-						if (t is IThingHolder holder && t is not Corpse && t is not MinifiedThing)
-							ContentsUtility.AddAllKnownThingsInside(holder, newListedThings);
-				}
-
-				//Silly devmode options
-				if (searchListType.HasFlag(SearchListType.Haulables))
-					newListedThings.AddRange(searchMap.listerHaulables.ThingsPotentiallyNeedingHauling().MaybeWhere(visible));
-				if (searchListType.HasFlag(SearchListType.Mergables))
-					newListedThings.AddRange(searchMap.listerMergeables.ThingsPotentiallyNeedingMerging().MaybeWhere(visible));
-				if (searchListType.HasFlag(SearchListType.FilthInHomeArea))
-					newListedThings.AddRange(searchMap.listerFilthInHomeArea.FilthInHomeArea.MaybeWhere(visible));
 			}
+
+			if (searchListType.HasFlag(SearchListType.Inventory))
+			{
+				foreach (Thing t in searchMap.listerThings.ThingsInGroup(ThingRequestGroup.ThingHolder).MaybeWhere(visible))
+					if (t is IThingHolder holder)// && t is not Corpse && t is not MinifiedThing)
+						ContentsUtility.AddAllKnownThingsInside(holder, newListedThings);
+			}
+
+			//Silly devmode options
+			if (searchListType.HasFlag(SearchListType.Haulables))
+				newListedThings.AddRange(searchMap.listerHaulables.ThingsPotentiallyNeedingHauling().MaybeWhere(visible));
+			if (searchListType.HasFlag(SearchListType.Mergables))
+				newListedThings.AddRange(searchMap.listerMergeables.ThingsPotentiallyNeedingMerging().MaybeWhere(visible));
+			if (searchListType.HasFlag(SearchListType.FilthInHomeArea))
+				newListedThings.AddRange(searchMap.listerFilthInHomeArea.FilthInHomeArea.MaybeWhere(visible));
 
 			// Apply the actual queries, finally
 			Filter(ref newListedThings, searchMap);
