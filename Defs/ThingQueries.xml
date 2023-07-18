@@ -323,6 +323,7 @@
 			<li>Query_ItemCategory</li>
 			<li>Query_Quality</li>
 			<li>Query_Stuff</li>
+			<li>Query_Accessible</li>
 			<li>Query_SpecialFilter</li>
 			<li>Query_ApparelLayer</li>
 			<li>Query_ApparelCoverage</li>
@@ -373,6 +374,12 @@
 		<queryClass>TD_Find_Lib.ThingQueryForbidden</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Accessible</defName>
+		<label>Accessible materials</label>
+		<queryClass>TD_Find_Lib.ThingQueryAccessible</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
+
 
 	<!--Building queries-->
 	<TD_Find_Lib.ThingQueryCategoryDef>
@@ -384,6 +391,7 @@
 			<li>Query_Quality</li>
 			<li>Query_Designation</li>
 			<li>Query_HP</li>
+			<li>Query_Accessible</li>
 			<li>Query_Mineable</li>
 			<li>Query_Door</li>
 		</subQueries>

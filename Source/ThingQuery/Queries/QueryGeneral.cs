@@ -87,6 +87,109 @@ namespace TD_Find_Lib
 		}
 	}
 
+	public class ThingQueryAccessible : ThingQueryDropDown<ThingDef>
+	{
+		public ThingQueryAccessible() => sel = ThingDefOf.Steel;
+
+		public override bool AppliesDirectlyTo(Thing thing) =>
+			extraOption == 1 ? LeavingsFor(thing).Any() : 
+			LeavingsFor(thing).Any(def => def == sel);
+
+
+		// Hey this is basically CacheAccessibleThings
+		public static IEnumerable<ThingDef> LeavingsFor(Thing thing) => LeavingsFor(thing.def, thing.Stuff);
+		public static IEnumerable<ThingDef> LeavingsFor(ThingDef def, ThingDef stuff = null)
+		{
+			/*
+			// Filth created, no one cares.
+			if (def.filthLeaving != null)
+				yield return def.filthLeaving;
+			*/
+
+			// Smelted/Deconstructed/Killed
+			bool smeltable = (stuff == null ? def.PotentiallySmeltable : (def.smeltable && stuff.smeltable));
+			if (smeltable || 
+				(def.building != null && def.building.deconstructible && def.resourcesFractionWhenDeconstructed > 0) ||
+				def.leaveResourcesWhenKilled)
+			{
+				if (def.CostList != null)
+					foreach (var d in def.CostList)
+						if (!d.thingDef.intricate)	//Clever
+							yield return d.thingDef;
+
+				if (stuff == null)
+					foreach (var d in GenStuff.AllowedStuffsFor(def))	// Eh, todo: not unsmeltable if only smeltable?
+						yield return d;
+				else
+					yield return stuff;
+
+				// Smelted extra products ffs is this only ChunkSlagSteel
+				if (smeltable && def.smeltProducts != null)
+					foreach (var d in def.smeltProducts)
+						yield return d.thingDef;
+			}
+
+			// Butchered. Actually this is for stone blocks only.
+			if (def.butcherProducts != null)
+				foreach (var d in def.butcherProducts)
+					yield return d.thingDef;
+
+			/*
+			 * Use Meat/Leather filters
+			if (def.race != null)
+			{
+				if(def.race.meatDef != null)
+					yield return def.race.meatDef;
+				if(def.race.leatherDef != null)
+				yield return def.race.leatherDef;
+			}
+			*/
+
+			/*
+			 * Use the minable filter instead.
+			 * A mineable object's only purpose is to be mined, 
+			 * whereas this filter is for "accessible" but not exactly "inevitable" things
+			// Mined
+			if (def.building?.mineableThing is ThingDef productDef)
+				yield return productDef;
+			*/
+
+			/*
+			 * Use the plant harvest filter
+			// Harvested
+			if (def.plant?.harvestedThingDef is ThingDef harvestDef)
+				yield return harvestDef;
+			*/
+
+
+			// left when killed
+			if (def.killedLeavings != null)
+				foreach (var d in def.killedLeavings)
+					yield return d.thingDef;
+
+			if (def.killedLeavingsPlayerHostile != null)
+				foreach (var d in def.killedLeavingsPlayerHostile)
+					yield return d.thingDef;
+		}
+
+
+		public static readonly List<ThingDef> leavingDefs =
+			DefDatabase<ThingDef>.AllDefsListForReading
+			.SelectMany(def => LeavingsFor(def)).ToHashSet().ToList();
+
+		public override IEnumerable<ThingDef> Options() =>
+			Mod.settings.OnlyAvailable ?
+				leavingDefs.Intersect(ContentsUtility.AvailableInGame(LeavingsFor))
+				: leavingDefs;
+
+		public override int ExtraOptionsCount => 1;
+		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
+
+		public override ThingDef IconDefFor(ThingDef o) => o;//duh
+	}
+
+
+
 	public class ThingQueryDesignation : ThingQueryDropDown<DesignationDef>
 	{
 		public ThingQueryDesignation() => extraOption = 1;
@@ -989,7 +1092,7 @@ namespace TD_Find_Lib
 	}
 
 	/*
-	 * Aborting this attempt at a fitler for items that match Alerts
+	 * Aborting this attempt at a filter for items that match Alerts
 	 * Labels were not easy to get, they were untranslated if expansions weren't active, ugh.
 	 * 
 	public class ThingQueryAlert : ThingQueryDropDown<Type>
