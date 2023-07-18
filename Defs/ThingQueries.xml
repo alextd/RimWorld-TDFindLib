@@ -392,7 +392,7 @@
 			<li>Query_Designation</li>
 			<li>Query_HP</li>
 			<li>Query_Accessible</li>
-			<li>Query_Mineable</li>
+			<li>Query_MineableDef</li>
 			<li>Query_Door</li>
 		</subQueries>
 	</TD_Find_Lib.ThingQueryCategoryDef>
@@ -401,6 +401,13 @@
 		<defName>Query_Mineable</defName>
 		<label>mineable</label>
 		<queryClass>TD_Find_Lib.ThingQueryMineable</queryClass>
+		<obsolete>true</obsolete>
+	</TD_Find_Lib.ThingQueryDef>
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_MineableDef</defName>
+		<label>mineable</label>
+		<queryClass>TD_Find_Lib.ThingQueryMineableDef</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 
 	<TD_Find_Lib.ThingQueryDef>

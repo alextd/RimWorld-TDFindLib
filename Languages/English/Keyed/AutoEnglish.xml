@@ -129,5 +129,9 @@
 	<TD.SecureSlave>Secure Slave</TD.SecureSlave>
 	<TD.AnyBleeding>Any bleeding</TD.AnyBleeding>
 	<TD.KeepChanges>Keep changes?</TD.KeepChanges>
+
+	<TD.Resource>Resource</TD.Resource>
+	<TD.Rock>Rock</TD.Rock>
+	<TD.Mineable>Mineable</TD.Mineable>
 	
 </LanguageData>

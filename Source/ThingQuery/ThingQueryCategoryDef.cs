@@ -10,7 +10,8 @@ namespace TD_Find_Lib
 	//Both ThingQueryDef and ThingQueryCategoryDef extend ThingQuerySelectableDef, so they show up in the main list alongside each other in order of the xml
 	public abstract class ThingQuerySelectableDef : Def
 	{
-		public bool devOnly;
+		public bool devOnly; //only shown in menu when godmode is on
+		public bool obsolete; //not shown in menus ; only kept for backcompat.
 		public string mod;	//lowercase even though it's capitalized in about.xml
 		public bool topLevelSelectable;// Even if it's in a category, show it in main menu too.
 

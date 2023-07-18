@@ -447,7 +447,7 @@ namespace TD_Find_Lib
 		public void DoFloatAllQueries(IEnumerable<ThingQuerySelectableDef> defs)
 		{
 			List<FloatMenuOption> options = new List<FloatMenuOption>();
-			foreach (ThingQuerySelectableDef def in defs.Where(d => (DebugSettings.godMode || !d.devOnly)))
+			foreach (ThingQuerySelectableDef def in defs.Where(d => !d.obsolete && (DebugSettings.godMode || !d.devOnly)))
 			{
 				if (def is ThingQueryDef fDef)
 					options.Add(new FloatMenuOption(

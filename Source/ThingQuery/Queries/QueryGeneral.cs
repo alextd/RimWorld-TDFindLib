@@ -581,6 +581,7 @@ namespace TD_Find_Lib
 	}
 
 
+	// obsolete
 	public enum MineableType { Resource, Rock, All }
 	public class ThingQueryMineable : ThingQueryDropDown<MineableType>
 	{
@@ -593,6 +594,32 @@ namespace TD_Find_Lib
 				case MineableType.All: return thing.def.mineable;
 			}
 			return false;
+		}
+	}
+
+	public class ThingQueryMineableDef : ThingQueryDropDown<ThingDef>
+	{
+		public ThingQueryMineableDef() => extraOption = 1;
+
+		public override bool AppliesDirectlyTo(Thing thing) =>
+			extraOption switch
+			{
+				1 => thing.def.building?.isResourceRock ?? false,
+				2 => (thing.def.building?.isNaturalRock ?? false) && (!thing.def.building?.isResourceRock ?? true),
+				3 => thing.def.mineable,
+				_ => thing.def.building?.mineableThing == sel
+			};
+
+		public static readonly List<ThingDef> options = DefDatabase<ThingDef>.AllDefsListForReading
+			.Select(def => def.building?.mineableThing).Distinct().Where(d => d != null).ToList();
+		public override IEnumerable<ThingDef> Options() => options;
+		public override ThingDef IconDefFor(ThingDef o) => o;//duh
+
+		public override int ExtraOptionsCount => 3;
+		public override string NameForExtra(int ex)
+		{
+			string key = ex switch { 1 => "TD.Resource", 2 => "TD.Rock", _ => "TD.Mineable" }; // not .AnyOption because technically mienable doesn't mean resources?
+			return key.Translate();
 		}
 	}
 
