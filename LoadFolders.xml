@@ -5,7 +5,11 @@
 		<li IfModActive="DerekBickley.LTOColonyGroupsFinal">1.4/ModSupport/LTOColonyGroups</li>
 		<li IfModActive="Nowano.RimWorldRealFoW">ModSupport/RealFOW</li>
 		<li IfModActive="Nowano.RimWorldRealFoW">1.4/ModSupport/RealFOW</li>
+	
+	<!--Expansions don't have another dll to depend on so they can be loaded without conditional -->
 		<li>ModSupport/Royalty</li>
 		<li>1.4/ModSupport/Royalty</li>
+		<li>ModSupport/Ideology</li>
+		<li>1.4/ModSupport/Ideology</li>
   </v1.4>
 </loadFolders>
