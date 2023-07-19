@@ -4,8 +4,8 @@
 	<!-- queries in order -->
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Ideology</defName>
-		<label>Ideology Filter</label>
-		<queryClass>TDFindLib_Ideology.ThingQueryIdeology</queryClass>
+		<label>Style</label>
+		<queryClass>TDFindLib_Ideology.ThingQueryThingStyle</queryClass>
 		<mod>Ludeon.RimWorld.Ideology</mod>
 	</TD_Find_Lib.ThingQueryDef>
 

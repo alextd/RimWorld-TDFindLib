@@ -5,12 +5,70 @@ using System.Text;
 using System.Threading.Tasks;
 using TD_Find_Lib;
 using Verse;
+using UnityEngine;
 
 namespace TDFindLib_Ideology
 {
-	public class ThingQueryIdeology : ThingQuery
+	public class ThingQueryThingStyle : ThingQueryDropDown<ThingStyleDef>
 	{
-		public override bool AppliesDirectlyTo(Thing thing) =>
-			true;
+		public ThingQueryThingStyle() => extraOption = 1;
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			if (extraOption == 1)
+				return thing.StyleDef != null;
+
+			// redundant with check below
+			//if (sel == null)
+			//	return thing.StyleDef == null;
+
+			return thing.StyleDef == sel;
+		}
+
+		public static readonly Dictionary<ThingStyleDef, string> styleNames = new();
+		static ThingQueryThingStyle()
+		{
+			foreach (StyleCategoryDef styleDef in DefDatabase<StyleCategoryDef>.AllDefsListForReading)
+				foreach (ThingDefStyle style in styleDef.thingDefStyles)
+					styleNames[style.StyleDef] = styleDef.LabelCap + " " + style.ThingDef.LabelCap;
+
+			// Probably redundant since this seems to be overriden below:
+			foreach(ThingDef thingDef in DefDatabase<ThingDef>.AllDefsListForReading)
+				if(thingDef.randomStyle != null)
+					foreach(ThingStyleChance styleChance in thingDef.randomStyle)
+						styleNames[styleChance.StyleDef] = thingDef.LabelCap;
+
+			// overrides
+			foreach (ThingStyleDef styleDef in DefDatabase<ThingStyleDef>.AllDefsListForReading)
+				if (styleDef.overrideLabel != null)
+					styleNames[styleDef] = styleDef.overrideLabel.CapitalizeFirst();
+		}
+		public override string NameFor(ThingStyleDef def) => styleNames[def];
+
+		public override string NullOption() => "None".Translate();
+		public override int ExtraOptionsCount => 1;
+		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
+
+		public override string CategoryFor(ThingStyleDef def) => def.Category?.LabelCap ?? "TD.OtherCategory".Translate();
+		public override Texture2D IconTexFor(ThingStyleDef def) => def.UIIcon;
+
+		public override IEnumerable<ThingStyleDef> Options() =>
+			TD_Find_Lib.Mod.settings.OnlyAvailable
+				? base.Options().Intersect(ContentsUtility.AvailableInGame(t => t.StyleDef))
+				: base.Options();
+	}
+
+
+
+	[StaticConstructorOnStartup]
+	public static class ExpansionHider
+	{
+		static ExpansionHider()
+		{
+			if (!ModsConfig.IdeologyActive)
+				foreach (ThingQuerySelectableDef def in DefDatabase<ThingQuerySelectableDef>.AllDefsListForReading)
+					if (def.mod == "ludeon.rimworld.ideology")
+						def.devOnly = true;
+		}
 	}
 }
