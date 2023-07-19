@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace TDFindLib_Ideology
 {
-	public class ThingQueryThingStyle : ThingQueryDropDown<ThingStyleDef>
+	public class ThingQueryThingStyle : ThingQueryCategorizedDropdown<StyleCategoryDef, ThingStyleDef>
 	{
 		public ThingQueryThingStyle() => extraOption = 1;
 
@@ -45,11 +45,15 @@ namespace TDFindLib_Ideology
 		}
 		public override string NameFor(ThingStyleDef def) => styleNames[def];
 
+
 		public override string NullOption() => "None".Translate();
 		public override int ExtraOptionsCount => 1;
 		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
 
-		public override string CategoryFor(ThingStyleDef def) => def.Category?.LabelCap ?? "TD.OtherCategory".Translate();
+
+		public override string CatLabel(StyleCategoryDef cat) => cat?.LabelCap ?? "TD.OtherCategory".Translate();
+		public override StyleCategoryDef CategoryFor(ThingStyleDef def) => def.Category;
+
 		public override Texture2D IconTexFor(ThingStyleDef def) => def.UIIcon;
 
 		public override IEnumerable<ThingStyleDef> Options() =>

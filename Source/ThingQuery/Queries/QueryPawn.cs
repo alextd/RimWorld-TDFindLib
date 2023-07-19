@@ -875,7 +875,7 @@ namespace TD_Find_Lib
 
 
 	[StaticConstructorOnStartup]
-	public class ThingQueryAbility : ThingQueryDropDown<AbilityDef>
+	public class ThingQueryAbility : ThingQueryCategorizedDropdown<ModContentPack, AbilityDef>
 	{
 		static ThingQueryAbility()
 		{
@@ -936,7 +936,8 @@ namespace TD_Find_Lib
 		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
 
 
-		public override string CategoryFor(AbilityDef def) => def.modContentPack.Name;
+		public override string CatLabel(ModContentPack cat) => cat.Name;
+		public override ModContentPack CategoryFor(AbilityDef def) => def.modContentPack;
 
 		public override string DropdownNameFor(AbilityDef def) =>
 			def.level == 0 ? NameFor(def) : $"Level {def.level}: {NameFor(def)}";

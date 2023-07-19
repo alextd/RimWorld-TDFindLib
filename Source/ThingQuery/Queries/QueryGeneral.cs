@@ -840,7 +840,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class ThingQueryThingDef : ThingQueryDropDown<ThingDef>
+	public class ThingQueryThingDef : ThingQueryCategorizedDropdown<string, ThingDef>
 	{
 		public IntRangeUB stackRange;//unknown until sel set
 
@@ -887,6 +887,7 @@ namespace TD_Find_Lib
 
 		public override ThingDef IconDefFor(ThingDef o) => o;//duh
 
+		public override string CatLabel(string cat) => cat;
 		public override string CategoryFor(ThingDef def)
 		{
 			//Blueprints etc
@@ -986,7 +987,7 @@ namespace TD_Find_Lib
 	}
 
 
-	public class ThingQueryStat : ThingQueryDropDown<StatDef>
+	public class ThingQueryStat : ThingQueryCategorizedDropdown<string, StatDef>
 	{
 		FloatRange valueRange;
 
@@ -1022,6 +1023,9 @@ namespace TD_Find_Lib
 			base.Options().Where(d => !d.alwaysHide);
 
 
+		//should be StatCategoryDef but they have multiple with same name
+		public override string CatLabel(string cat) =>
+			cat;
 		public override string CategoryFor(StatDef def) =>
 			def.category.LabelCap;
 

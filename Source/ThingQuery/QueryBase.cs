@@ -621,35 +621,6 @@ namespace TD_Find_Lib
 			throw new NotImplementedException();
 		}
 
-		// Override this to group your T options into submenu categories
-		// TODO: doubly nested categories: Items => Weapon => longsword
-		// TODO: Any option inside a category
-		// TODO: abstract ThingQueryCategorizedDropdown for all this
-		public virtual string CategoryFor(T def) => null;
-
-		private Dictionary<string, List<T>> _optionCategories = new();
-		private Dictionary<string, List<T>> OptionCategories()
-		{
-			_optionCategories.Clear();
-			int i = 0;
-			foreach (T def in Options())
-			{
-				i++;
-				string cat = CategoryFor(def);
-
-				List<T> options;
-				if (!_optionCategories.TryGetValue(cat, out options))
-				{
-					options = new();
-					_optionCategories[cat] = options;
-				}
-
-				options.Add(def);
-			}
-			Log.Message($"There's {i} things for {GetType()}");
-			return _optionCategories;
-		}
-
 		public virtual string NameFor(T o) => o is Def def ? def.LabelCap.RawText : typeof(T).IsEnum ? o.TranslateEnum() : o.ToString();
 
 		// dropdown menu options
@@ -657,7 +628,7 @@ namespace TD_Find_Lib
 		public virtual string DropdownNameFor(T o) => NameFor(o);
 		public virtual Texture2D IconTexFor(T o) => null;
 		public virtual ThingDef IconDefFor(T o) => null;
-		private FloatMenuOption FloatMenuFor(T o)
+		protected FloatMenuOption FloatMenuFor(T o)
 		{
 			if (IconTexFor(o) is Texture2D tex)
 				return new FloatMenuOptionAndRefresh(DropdownNameFor(o), () => sel = o, this, tex == BaseContent.BadTex ? BaseContent.ClearTex : tex);
@@ -682,6 +653,12 @@ namespace TD_Find_Lib
 		public virtual int ExtraOptionsCount => 0;
 		private IEnumerable<int> ExtraOptions() => Enumerable.Range(1, ExtraOptionsCount);
 		public virtual string NameForExtra(int ex) => throw new NotImplementedException();
+
+		public virtual void MakeDropdownOptions(List<FloatMenuOption> options)
+		{
+			foreach (T o in Ordered ? Options().OrderBy(o => NameFor(o)) : Options())
+				options.Add(FloatMenuFor(o));
+		}
 
 		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
@@ -713,24 +690,7 @@ namespace TD_Find_Lib
 				if (NullOption() is string nullOption)
 					options.Add(new FloatMenuOptionAndRefresh(nullOption, () => sel = default, this, Color.red)); //can't null because T isn't bound as reftype
 
-				if (UsesCategories && Options().Count() > 10)
-				{
-					Dictionary<string, List<T>> categories = OptionCategories();
-
-					foreach (string catLabel in categories.Keys)
-						options.Add(new FloatMenuOption(catLabel, () =>
-						{
-							List<FloatMenuOption> catOptions = new();
-							foreach (T o in Ordered ? categories[catLabel].AsEnumerable().OrderBy(o => NameFor(o)).ToList() : categories[catLabel])
-								catOptions.Add(FloatMenuFor(o));
-							DoFloatOptions(catOptions);
-						}));
-				}
-				else
-				{
-					foreach (T o in Ordered ? Options().OrderBy(o => NameFor(o)) : Options())
-						options.Add(FloatMenuFor(o));
-				}
+				MakeDropdownOptions(options);
 
 				foreach (int ex in ExtraOptions())
 					options.Add(new FloatMenuOptionAndRefresh(NameForExtra(ex), () => extraOption = ex, this, Color.yellow));
@@ -749,9 +709,6 @@ namespace TD_Find_Lib
 		private static readonly HashSet<Type> customDrawers = null;
 		private bool HasCustom => customDrawers?.Contains(GetType()) ?? false;
 
-		// Auto detection of subclasses that use Dropdown Categories:
-		private static readonly HashSet<Type> categoryUsers = null;
-		private bool UsesCategories => categoryUsers?.Contains(GetType()) ?? false;
 		static ThingQueryDropDown()//<T>	//Remember there's a customDrawers for each <T> but functionally that doesn't change anything
 		{
 			Type baseType = typeof(ThingQueryDropDown<T>);
@@ -764,17 +721,73 @@ namespace TD_Find_Lib
 
 					customDrawers.Add(subclass);
 				}
-
-				if (subclass.GetMethod(nameof(CategoryFor)).DeclaringType != baseType)
-				{
-					if (categoryUsers == null)
-						categoryUsers = new HashSet<Type>();
-
-					categoryUsers.Add(subclass);
-				}
 			}
 		}
 	}
+
+
+
+	public abstract class ThingQueryCategorizedDropdown<C, T> : ThingQueryDropDown<T> where C : class
+	{
+		// TODO: doubly nested categories: Items => Weapon => longsword
+		// TODO: Any option inside a category
+		public abstract string CatLabel(C cat);
+		public abstract C CategoryFor(T def);
+
+		private Dictionary<C, List<T>> _catOptions = new();
+		private List<T> _nullOptions = new();
+		private (Dictionary<C, List<T>>, List<T>) OptionCategories()
+		{
+			_catOptions.Clear();
+			_nullOptions.Clear();
+			int i = 0;
+			foreach (T def in Options())
+			{
+				i++;
+				C cat = CategoryFor(def);
+
+				List<T> optionsForCat;
+				if (cat == null)
+					optionsForCat = _nullOptions;
+				else if (!_catOptions.TryGetValue(cat, out optionsForCat))
+				{
+					optionsForCat = new();
+					_catOptions[cat] = optionsForCat;
+				}
+
+				optionsForCat.Add(def);
+			}
+			return (_catOptions, _nullOptions);
+		}
+
+		public override void MakeDropdownOptions(List<FloatMenuOption> floatOptions)
+		{
+			if (Options().Count() > 10)
+			{
+				(Dictionary<C, List<T>> catOptions, List<T> nullCategory) = OptionCategories();
+
+				if(nullCategory.Count > 0)
+					floatOptions.Add(FloatFor(null, nullCategory));
+
+				foreach (var options in catOptions)
+					floatOptions.Add(FloatFor(options.Key, options.Value));
+			}
+			else
+				base.MakeDropdownOptions(floatOptions);
+		}
+
+		private FloatMenuOption FloatFor(C cat, List<T> options)
+		{
+			return new FloatMenuOption(CatLabel(cat), () =>
+			{
+				List<FloatMenuOption> catOptions = new();
+				foreach (T o in Ordered ? options.OrderBy(o => NameFor(o)).ToList() : options)
+					catOptions.Add(FloatMenuFor(o));
+				DoFloatOptions(catOptions);
+			});
+		}
+	}
+
 
 	public abstract class ThingQueryFloatRange : ThingQueryWithOption<FloatRangeUB>
 	{
@@ -820,6 +833,7 @@ namespace TD_Find_Lib
 			return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(Text.CalcSize(Label).x), id, ref selByRef);
 		}
 	}
+
 
 	public abstract class ThingQueryMask<T> : ThingQuery
 	{
