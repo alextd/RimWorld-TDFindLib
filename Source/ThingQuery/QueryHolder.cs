@@ -159,7 +159,8 @@ namespace TD_Find_Lib
 			queries = otherHolder.queries;
 			matchAllQueries = otherHolder.matchAllQueries;
 
-			ForEach(q => q.parent = parent);
+			foreach (var f in queries)
+				f.parent = parent;
 		}
 
 
@@ -250,7 +251,7 @@ namespace TD_Find_Lib
 						yield return r;
 		}
 
-		//Gather method that passes in both QuerySearch and all ThingQuerys to selector
+		// Do action on all IQueryHolder
 		public void ForEach(Action<IQueryHolder> action)
 		{
 			action(parent);
@@ -260,7 +261,7 @@ namespace TD_Find_Lib
 					childHolder.Children.ForEach(action); //handles calling on itself
 		}
 
-		//Gather method that passes in both QuerySearch and all ThingQuerys to selector
+		// Do action on all ThingQuery
 		public void ForEach(Action<ThingQuery> action)
 		{
 			if(parent is ThingQuery f)
