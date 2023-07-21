@@ -3,10 +3,11 @@
 
 	<!-- queries in order -->
 	<TD_Find_Lib.ThingQueryDef>
-		<defName>Query_Ideology</defName>
+		<defName>Query_Style</defName>
 		<label>Style</label>
 		<queryClass>TDFindLib_Ideology.ThingQueryThingStyle</queryClass>
 		<mod>Ludeon.RimWorld.Ideology</mod>
+		<insertCategory>Category_BuildingInfo</insertCategory>
 	</TD_Find_Lib.ThingQueryDef>
 
 </Defs>
