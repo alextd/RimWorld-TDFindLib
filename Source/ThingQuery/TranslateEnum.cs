@@ -24,14 +24,31 @@ namespace TD_Find_Lib
 		{ 
 			string type = e.GetType().Name;
 			string name = e.ToString();
-			string key = ("TD." + type + "." + name);
+			List<string> flagNames = new();
+			foreach (string flagName in name.Split(new string[] { ", " }, StringSplitOptions.None))
+			{
+				string key = $"TD.{type}.{flagName}";
 
-			TaggedString result;
-			if (key.TryTranslate(out result))
-				return result;
-			if (name.TryTranslate(out result))
-				return result;
+				TaggedString result;
+				if (key.TryTranslate(out result))
+				{
+					flagNames.Add(result);
+				}
+				// fallback on translation in vanilla. Sometimes I plan for this, it gets translations so that's nice.
+				else if (name.TryTranslate(out result))
+				{
+					Verse.Log.Warning($"TD here! Enum {e} Translated to {result} because no key ({key}) was found but {name} was a normal translation");
+					flagNames.Add(result);
+				}
+			}
 			//return key.Translate(); //And get markings on letters, nah.
+			
+			if(!flagNames.NullOrEmpty())
+			{
+				return String.Join(", ", flagNames);
+			}
+			Verse.Log.Warning($"TD here! Enum ({e}) Translated to \"{name}\" because no translation was found");
+
 			return name;
 		}
 	}
