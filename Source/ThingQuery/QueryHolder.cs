@@ -124,7 +124,7 @@ namespace TD_Find_Lib
 	public class HeldQueries // : IExposable //Not IExposable because that means ctor QueryHolder() should exist.
 	{
 		private IQueryHolder parent;
-		private List<ThingQuery> queries = new List<ThingQuery>() { };
+		public List<ThingQuery> queries = new ();
 		public bool matchAllQueries = true;	// or ANY
 
 		public HeldQueries(IQueryHolder p)
@@ -135,11 +135,20 @@ namespace TD_Find_Lib
 		public void ExposeData()
 		{
 			Scribe_Collections.Look(ref queries, "queries");
-			Scribe_Values.Look(ref matchAllQueries, "matchAllQueries", forceSave: true);	//Force save because the default is different in different contexts
+			Scribe_Values.Look(ref matchAllQueries, "matchAllQueries", forceSave: true);  //Force save because the default is different in different contexts
 
-			if(Scribe.mode == LoadSaveMode.LoadingVars)
-				foreach (var f in queries)
-					f.parent = parent;
+			if (Scribe.mode == LoadSaveMode.LoadingVars)
+			{
+				if (queries == null)
+				{
+					queries = new ();
+				}
+				else
+				{
+					foreach (var f in queries)
+						f.parent = parent;
+				}
+			}
 		}
 
 		public HeldQueries Clone(IQueryHolder newParent)

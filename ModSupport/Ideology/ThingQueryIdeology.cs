@@ -9,11 +9,24 @@ using UnityEngine;
 
 namespace TDFindLib_Ideology
 {
-	public class ThingQueryThingStyle : ThingQueryCategorizedDropdown<StyleCategoryDef, ThingStyleDef>
+
+	//helper class for category
+	public class ThingQueryStyleCategory : ThingQueryCategorizedDropdownHelper<ThingStyleDef, StyleCategoryDef, ThingQueryThingStyle, ThingQueryStyleCategory>
+	{
+		public override bool AppliesDirectlyTo(Thing thing) =>
+			// Not ?.StyleDef because null .Category is an option
+			thing.StyleDef is ThingStyleDef styleDef && styleDef.Category == sel;
+
+
+		public override string NameFor(StyleCategoryDef cat) => cat.LabelCap;
+		public override string NullOption() => "TD.OtherCategory".Translate();
+	}
+
+	public class ThingQueryThingStyle : ThingQueryCategorizedDropdown<ThingStyleDef, StyleCategoryDef, ThingQueryThingStyle, ThingQueryStyleCategory>
 	{
 		public ThingQueryThingStyle() => extraOption = 1;
 
-		public override bool AppliesDirectlyTo(Thing thing)
+		public override bool AppliesDirectly2(Thing thing)
 		{
 			if (extraOption == 1)
 				return thing.StyleDef != null;
@@ -49,9 +62,6 @@ namespace TDFindLib_Ideology
 		public override string NullOption() => "None".Translate();
 		public override int ExtraOptionsCount => 1;
 		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
-
-
-		public override string CatLabel(StyleCategoryDef cat) => cat?.LabelCap ?? "TD.OtherCategory".Translate();
 		public override StyleCategoryDef CategoryFor(ThingStyleDef def) => def.Category;
 
 		public override Texture2D IconTexFor(ThingStyleDef def) => def.UIIcon;

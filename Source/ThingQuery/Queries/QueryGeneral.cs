@@ -840,62 +840,22 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class ThingQueryThingDef : ThingQueryCategorizedDropdown<string, ThingDef>
+	
+	//ThingQueryThingDef helper class for category
+	public class ThingQueryThingDefCategory : ThingQueryCategorizedDropdownHelper<ThingDef, string, ThingQueryThingDef, ThingQueryThingDefCategory>
 	{
-		public IntRangeUB stackRange;//unknown until sel set
-
-		public ThingQueryThingDef()
-		{
-			sel = ThingDefOf.WoodLog;
-		}
-		protected override void PostProcess()
-		{
-			stackRange.absRange = new(1, sel?.stackLimit ?? 1);
-		}
-		protected override void PostChosen()
-		{
-			stackRange.range = new(1, sel.stackLimit);
-		}
-
-		public override void ExposeData()
-		{
-			base.ExposeData();
-			
-			if(Scribe.mode != LoadSaveMode.Saving || sel.stackLimit > 1)
-				Scribe_Values.Look(ref stackRange.range, "stackRange");
-		}
-		protected override ThingQuery Clone()
-		{
-			ThingQueryThingDef clone = (ThingQueryThingDef)base.Clone();
-			clone.stackRange = stackRange;
-			return clone;
-		}
-
-
 		public override bool AppliesDirectlyTo(Thing thing) =>
-			sel == thing.def &&
-			(sel.stackLimit <= 1 || stackRange.Includes(thing.stackCount));
+			CategoryFor(thing.def) == sel;
 
 
-		public override bool Ordered => true;
-
-		public override IEnumerable<ThingDef> Options() =>
-			(Mod.settings.OnlyAvailable ?
-				base.Options().Intersect(ContentsUtility.AvailableInGame(t => t.def)) :
-				base.Options())
-			.Where(def => ValidDef(def));
-
-		public override ThingDef IconDefFor(ThingDef o) => o;//duh
-
-		public override string CatLabel(string cat) => cat;
-		public override string CategoryFor(ThingDef def)
+		public static string CategoryFor(ThingDef def)
 		{
 			//Blueprints etc
 			if (typeof(Blueprint_Install).IsAssignableFrom(def.thingClass))
 				return "TD.InstallingCategory".Translate();
 
 			string blueprintKey = null; // Might append "Terrain"
-			if (def.IsFrame)	//Terrain blueprints are not ethereal so you gotta check frame first?
+			if (def.IsFrame)  //Terrain blueprints are not ethereal so you gotta check frame first?
 				blueprintKey = "TD.FrameCategory";
 			else if (def.IsBlueprint)
 				blueprintKey = "TD.BlueprintCategory";
@@ -932,6 +892,58 @@ namespace TD_Find_Lib
 
 			return "TD.OtherCategory".Translate();
 		}
+
+	}
+
+	public class ThingQueryThingDef : ThingQueryCategorizedDropdown<ThingDef, string, ThingQueryThingDef, ThingQueryThingDefCategory>
+	{
+		public IntRangeUB stackRange;//unknown until sel set
+
+		public ThingQueryThingDef()
+		{
+			sel = ThingDefOf.WoodLog;
+		}
+		protected override void PostProcess()
+		{
+			stackRange.absRange = new(1, sel?.stackLimit ?? 1);
+		}
+		protected override void PostChosen()
+		{
+			stackRange.range = new(1, sel.stackLimit);
+		}
+
+		public override void ExposeData()
+		{
+			base.ExposeData();
+			
+			if(Scribe.mode != LoadSaveMode.Saving || sel?.stackLimit > 1)
+				Scribe_Values.Look(ref stackRange.range, "stackRange");
+		}
+		protected override ThingQuery Clone()
+		{
+			ThingQueryThingDef clone = (ThingQueryThingDef)base.Clone();
+			clone.stackRange = stackRange;
+			return clone;
+		}
+
+
+		public override bool AppliesDirectly2(Thing thing) =>
+			sel == thing.def &&
+			(sel.stackLimit <= 1 || stackRange.Includes(thing.stackCount));
+
+
+		public override bool Ordered => true;
+
+		public override IEnumerable<ThingDef> Options() =>
+			(Mod.settings.OnlyAvailable ?
+				base.Options().Intersect(ContentsUtility.AvailableInGame(t => t.def)) :
+				base.Options())
+			.Where(def => ValidDef(def));
+
+		public override ThingDef IconDefFor(ThingDef o) => o;//duh
+
+
+		public override string CategoryFor(ThingDef def) => ThingQueryThingDefCategory.CategoryFor(def);
 
 
 		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
@@ -987,7 +999,7 @@ namespace TD_Find_Lib
 	}
 
 
-	public class ThingQueryStat : ThingQueryCategorizedDropdown<string, StatDef>
+	public class ThingQueryStat : ThingQueryCategorizedDropdown<StatDef, string>
 	{
 		FloatRange valueRange;
 
@@ -1024,7 +1036,7 @@ namespace TD_Find_Lib
 
 
 		//should be StatCategoryDef but they have multiple with same name
-		public override string CatLabel(string cat) =>
+		public override string NameForCat(string cat) =>
 			cat;
 		public override string CategoryFor(StatDef def) =>
 			def.category.LabelCap;

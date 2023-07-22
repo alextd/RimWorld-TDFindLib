@@ -230,6 +230,9 @@ namespace TD_Find_Lib
 
 		public virtual bool CurMapOnly => false;
 
+		// DisableReason is global and draws red box to show it's disabled
+		// DisableReasonCurMap is local to the current map and actually Disables the filter
+		// This handles multi-map filters that work for one map but not another (eg zone names)
 		public virtual string DisableReason => null;
 		public virtual string DisableReasonCurMap => null;
 		public static readonly Color DisabledBecauseReasonOverlayColor = new Color(0.5f, 0, 0, 0.25f);
@@ -295,7 +298,7 @@ namespace TD_Find_Lib
 		// selection
 		protected T _sel;
 		protected string selName;// if UsesSaveLoadName,  = SaveLoadXmlConstants.IsNullAttributeName;
-		private int _extraOption; //0 meaning use _sel, what 1+ means is defined in subclass
+		protected int _extraOption; //0 meaning use _sel, what 1+ means is defined in subclass
 
 		// A subclass with extra fields needs to override ExposeData and Clone to copy them
 
@@ -305,7 +308,13 @@ namespace TD_Find_Lib
 		// Whereas selectionError is kept around, for an allmaps search that fails only on one map - other maps still use the filter, but the error is remembered for UI
 		public string selectionError;
 		public string selectionErrorCurMap;
-		public bool refErrorReported; // Only report it once - not once each map for a refreshing allmaps search. 
+		public bool refErrorOnAnyMap; // Only report it once - not once each map for a refreshing allmaps search. 
+		public void ClearRefError()
+		{
+			selectionError = null;
+			selectionErrorCurMap = null;
+			refErrorOnAnyMap = false;
+		}
 		// (It will not reset when you change the map selection though, only when you set the query selection again)
 
 		public override string DisableReason => selectionError;
@@ -314,15 +323,15 @@ namespace TD_Find_Lib
 		// would like this to be T const * sel;
 		// TODO: Is this needed? was _sel private?
 		public ref T selByRef => ref _sel;
-		public T sel
+		public virtual T sel
 		{
 			get => _sel;
 			set
 			{
 				_sel = value;
 				_extraOption = 0;
-				selectionError = selectionErrorCurMap = null;
-				refErrorReported = false;
+
+				ClearRefError();
 				if (SaveLoadByName) selName = MakeSaveName();
 				if (UsesResolveRef) RootHolder?.Root_NotifyRefUpdated();
 				PostProcess();
@@ -362,15 +371,15 @@ namespace TD_Find_Lib
 		// Both telling if Sel can be set to null, and the string to show for null selection
 		public virtual string NullOption() => null;
 
-		protected int extraOption
+		public virtual int extraOption
 		{
 			get => _extraOption;
 			set
 			{
 				_extraOption = value;
 				_sel = default;
-				selectionError = selectionErrorCurMap = null;
-				refErrorReported = false;
+
+				ClearRefError();
 				selName = null;
 			}
 		}
@@ -519,7 +528,7 @@ namespace TD_Find_Lib
 			}
 		}
 
-		Map refErrorMap;
+		Map lastRefErrorMap;
 		public override void DoResolveRef(Map map)
 		{
 			if (!UsesResolveRef || extraOption > 0) return;
@@ -539,13 +548,15 @@ namespace TD_Find_Lib
 					RefError(map);
 				else
 				{
-					selectionErrorCurMap = null;
-					if (refErrorMap == map)
+					if (lastRefErrorMap == map)
 					{
-						refErrorMap = null;
-						selectionError = null;
-						refErrorReported = false;
+						lastRefErrorMap = null;
+						// Managed to bind to map that previously failed, so clear the entire refError 
+						// TODO: Track more than one error.
+						ClearRefError();
 					}
+					else
+						selectionErrorCurMap = null; //For this binding it's good. May be another map it's failed on.
 				}
 			}
 
@@ -556,16 +567,17 @@ namespace TD_Find_Lib
 		{
 			selectionErrorCurMap = map == null ? "TD.Filter01NeedsAMap".Translate(def.LabelCap, selName)
 				: "TD.Missing01On2".Translate(def.LabelCap, selName, map.Parent.LabelCap);
-			if (!refErrorReported)
+
+			if (!refErrorOnAnyMap)
 			{
 				// Report the first one, even if there's many. User will have to deal with them one-by-one.
 				Messages.Message(map == null ? "TD.Search0TriedToLoad1FilterButNoMapToFind2".Translate(RootHolder.Name, def.LabelCap, selName) :
 					"TD.SearchTriedToLoadOnMap".Translate(RootHolder.Name, def.LabelCap, selName, map?.Parent.LabelCap ?? "TD.NoMap".Translate()),
 					MessageTypeDefOf.RejectInput, false);
 
-				refErrorMap = map;
+				lastRefErrorMap = map;
 				selectionError = selectionErrorCurMap;
-				refErrorReported = true;
+				refErrorOnAnyMap = true;
 			}
 		}
 
@@ -577,7 +589,6 @@ namespace TD_Find_Lib
 				//_sel = ScribeExtractor.DefFromNodeUnsafe<T>(Scribe.loader.curXmlParent["sel"]);
 
 				//DefFromNodeUnsafe also doesn't work since it logs errors - so here's custom code copied to remove the logging:
-
 				return (T)(object)GenDefDatabase.GetDefSilentFail(typeof(T), selName, false);
 			}
 
@@ -591,7 +602,7 @@ namespace TD_Find_Lib
 
 	public abstract class ThingQueryDropDown<T> : ThingQueryWithOption<T>
 	{
-		private string GetSelLabel()
+		public virtual string GetSelLabel()
 		{
 			if (selectionError != null) // Not selectionErrorCurMap - globally remembered error.
 				return selName;
@@ -609,9 +620,9 @@ namespace TD_Find_Lib
 		}
 
 		// Subclass Options() don't need to handle simple enums or defs
-		// Often they will use Mod.settings.OnlyAvailable to show a subset of options when shift is held
+		// Often overrides will use Mod.settings.OnlyAvailable to show a subset of options when shift is held
 		// That would also use ContentsUtility.AvailableInGame for ease of searching inside all things.
-		// This subset should be passed to base.Options().Intersect() so they are consistent ordering.
+		// This subset should be passed to base.Options().Intersect() so they have consistent ordering.
 		public virtual IEnumerable<T> Options()
 		{
 			if (IsEnum)
@@ -664,12 +675,14 @@ namespace TD_Find_Lib
 		{
 			bool changeSelection = false;
 			bool changed = false;
+			string label = GetSelLabel();
+
 			if (HasCustom)
 			{
 				// Label, Selection option button on left, custom on the remaining rect
 				WidgetRow row = new WidgetRow(rect.x, rect.y);
 				row.Label(Label);
-				changeSelection = row.ButtonText(GetSelLabel());
+				changeSelection = row.ButtonText(label);
 
 				Rect customRect = rect;
 				customRect.xMin = row.FinalX;
@@ -680,7 +693,6 @@ namespace TD_Find_Lib
 				//Just the label on left, and selected option button on right
 				base.DrawMain(rect, locked, fullRect);
 				Rect buttRect = fullRect.RightPartClamped(0.4f, Text.CalcSize(Label).x);
-				string label = GetSelLabel();
 				changeSelection = Widgets.ButtonText(buttRect, label);
 			}
 			if (changeSelection)
@@ -726,13 +738,19 @@ namespace TD_Find_Lib
 	}
 
 
-
-	public abstract class ThingQueryCategorizedDropdown<C, T> : ThingQueryDropDown<T> where C : class
+	/*
+	 * Categorized Dropdown, organizing the Options into submenus
+	 * Each option T needs to know its category C: CategoryFor
+	 * Each C will need to know its label: NameForCat
+	 * And voila!
+	 * The dropdown menu will list each C that it finds from base.Options
+	 * Selecting C will open a second dropdown menu listing each T from that Category.
+	*/
+	public abstract class ThingQueryCategorizedDropdown<T, C> : ThingQueryDropDown<T>
 	{
-		// TODO: doubly nested categories: Items => Weapon => longsword
-		// TODO: Any option inside a category
-		public abstract string CatLabel(C cat);
 		public abstract C CategoryFor(T def);
+		public abstract string NameForCat(C cat);
+		private string NameForCatMenu(C cat) => cat == null ? "TD.OtherCategory".Translate() : NameForCat(cat);
 
 		private Dictionary<C, List<T>> _catOptions = new();
 		private List<T> _nullOptions = new();
@@ -764,27 +782,205 @@ namespace TD_Find_Lib
 		{
 			if (Options().Count() > 10)
 			{
-				(Dictionary<C, List<T>> catOptions, List<T> nullCategory) = OptionCategories();
+				(Dictionary<C, List<T>> catOptions, List<T> nullOptions) = OptionCategories();
 
-				if(nullCategory.Count > 0)
-					floatOptions.Add(FloatFor(null, nullCategory));
+				if (nullOptions.Count > 0)
+					floatOptions.Add(FloatOptionForCat(default, nullOptions));
 
 				foreach (var options in catOptions)
-					floatOptions.Add(FloatFor(options.Key, options.Value));
+					floatOptions.Add(FloatOptionForCat(options.Key, options.Value));
 			}
 			else
 				base.MakeDropdownOptions(floatOptions);
 		}
 
-		private FloatMenuOption FloatFor(C cat, List<T> options)
+		private FloatMenuOption FloatOptionForCat(C cat, List<T> options)
 		{
-			return new FloatMenuOption(CatLabel(cat), () =>
+			return new FloatMenuOption(NameForCatMenu(cat), () =>
 			{
 				List<FloatMenuOption> catOptions = new();
-				foreach (T o in Ordered ? options.OrderBy(o => NameFor(o)).ToList() : options)
-					catOptions.Add(FloatMenuFor(o));
+
+				foreach (var catOption in FloatSubmenuOptionsFor(cat, options))
+					catOptions.Add(catOption);
+
 				DoFloatOptions(catOptions);
 			});
+		}
+
+		protected virtual IEnumerable<FloatMenuOption> FloatSubmenuOptionsFor(C cat, List<T> options)
+		{
+			foreach (T option in Ordered ? options.OrderBy(o => NameFor(o)).ToList() : options)
+				yield return FloatMenuFor(option);
+		}
+	}
+
+	/* 
+	 * Okay but what if you want that category to be a selection itself?
+	 * Select in the submenu "Any" : "Match any from this category"
+	 *  
+	 * WELL SHIT THEN, you have to save it to file and that becomes awful complicated!
+	 * 
+	 * So That's why there's ThingQueryCategorizedDropdown<T, C, TQCD, TQCH> 
+	 * ( and ThingQueryCategorizedDropdownHelper<T, C, TQCD, TQCH> )
+	 * Oh my god what generic nightmare is this?
+	 * T and C are selection type and category type as usual
+	 * TQCD is the ThingQueryCategorizedDropdown subclass
+	 * TQCH is the ThingQueryCategorizedDropdownHelper subclass
+	 * (The generic list is so long because these two classes need to refer to each other and that's how it ended up working)
+	 *  This helper class is the ThingQuery for the Category selection
+	 * It holds a reference to the parent TQCD ThingQuery, so it can use those settings in its filtering
+	 * (This helper class is not a normally selectable filter,
+	 *  only intended to work as a companion helper to its TQCD)
+	 * TQCH exists to handle saving/loading, mainly
+	 * leveraging the effort in ThingQueryDropDown to handle all that
+	 * Even though it doesn't have its own dropdown menu, as it it set via TQCD
+	*/
+	public abstract class ThingQueryCategorizedDropdownHelper<T, C, TQCD, TQCH> : ThingQueryDropDown<C>
+		where TQCH : ThingQueryCategorizedDropdownHelper<T, C, TQCD, TQCH>
+		where TQCD : ThingQueryCategorizedDropdown<T, C, TQCD, TQCH>
+	{
+		public TQCD ParentQuery => parent as TQCD;	//that was a lot of effort for this here reference
+	}
+
+	// TODO: doubly nested categories e.g. Items => Weapon => longsword
+	public abstract class ThingQueryCategorizedDropdown<T, C, TQCD, TQCH> : ThingQueryCategorizedDropdown<T, C>, IQueryHolder
+		where TQCH : ThingQueryCategorizedDropdownHelper<T, C, TQCD, TQCH>
+		where TQCD : ThingQueryCategorizedDropdown<T, C, TQCD, TQCH>
+	{
+		// IQueryHolder 
+		protected HeldQueries children;
+		public HeldQueries Children => children;
+
+		public void Root_NotifyUpdated() { }
+		public void Root_NotifyRefUpdated() { }
+		public bool Root_Active => false;
+		public string Name => "??QueryAndOrGroup??";  //Should not be used.
+		// Parent and RootHolder handled by ThingQuery
+		
+
+		// The query for the category selection, and if we're set to use it
+		protected TQCH catQuery;
+		protected bool useCat;
+
+		public C SelCat {
+			get => useCat ? catQuery.sel : default;
+			set
+			{
+				catQuery.sel = value;
+				useCat = true;
+
+				_extraOption = 0;
+				_sel = default;
+
+				ClearRefError();
+
+				selName = null;
+			}
+		}
+
+		public override int extraOption
+		{
+			set
+			{
+				base.extraOption = value;
+				useCat = false;
+			}
+		}
+		public override T sel
+		{
+			set
+			{
+				base.sel = value;
+				useCat = false;
+			}
+		}
+
+
+		public ThingQueryCategorizedDropdown()
+		{
+			children = new HeldQueries(this);
+
+			ResolveCatQuery();
+		}
+
+		private void ResolveCatQuery()
+		{
+			if(children.queries.FirstOrDefault() is TQCH cQ)
+				catQuery = cQ;
+			if (catQuery == null)
+			{
+				catQuery = ThingQueryMaker.MakeQuery<TQCH>();
+				children.Add(catQuery);
+			}
+		}
+		public override void ExposeData()
+		{
+			base.ExposeData();
+
+			Scribe_Values.Look(ref useCat, "useCat");
+			if(useCat)
+				Children.ExposeData();
+
+			if (Scribe.mode == LoadSaveMode.PostLoadInit)
+				ResolveCatQuery();
+		}
+		protected override ThingQuery Clone()
+		{
+			var clone = (ThingQueryCategorizedDropdown<T, C, TQCD, TQCH>)base.Clone();
+			
+			clone.useCat = useCat;
+			clone.children = children.Clone(clone);
+			clone.ResolveCatQuery();
+
+			return clone;
+		}
+
+
+		public override string DisableReason => useCat ? catQuery.DisableReason : base.DisableReason;
+		public override string DisableReasonCurMap => useCat ? catQuery.selectionErrorCurMap : base.selectionErrorCurMap;
+
+
+		// sealed because this needs to run: otherwise overrides would skip the useCat check, or would have to check it themselves.
+		// new virtual that subclasses override instead.
+		public sealed override bool AppliesDirectlyTo(Thing thing)
+		{
+			if (useCat)
+				return catQuery.AppliesDirectlyTo(thing);
+
+			return AppliesDirectly2(thing);
+		}
+		// I know but what am I supposed to name it to mean " AppliesDirectlyTo but you need not worry about the category selection "
+		public abstract bool AppliesDirectly2(Thing thing);
+
+
+		protected override IEnumerable<FloatMenuOption> FloatSubmenuOptionsFor(C cat, List<T> options)
+		{
+			foreach (var floatOption in base.FloatSubmenuOptionsFor(cat, options))
+				yield return floatOption;
+
+			yield return new FloatMenuOptionAndRefresh(NameForAnyCat(cat), () => SelCat = cat, this, Color.yellow);
+		}
+
+		//sealed this because the catQuery will handle it
+		public override sealed string NameForCat(C cat) => catQuery.DropdownNameFor(cat);
+		public string NameForAnyCat(C cat)
+		{
+			string label = cat == null ? catQuery.NullOption() : NameForCat(cat);
+			return $"{label} ({"TD.AnyOption".Translate()})";
+		}
+		public override string GetSelLabel()
+		{
+			if (useCat)
+				return catQuery.GetSelLabel();
+
+			return base.GetSelLabel();
+		}
+
+		public override void DoResolveName()
+		{
+			if (useCat) return; //don't try to resolve null
+
+			base.DoResolveName();
 		}
 	}
 

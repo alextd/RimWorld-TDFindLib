@@ -16,7 +16,7 @@ namespace TD_Find_Lib
 		// Construct a ThingQuery subclass, automatically assigning the appropriate Def
 		// (This mod doesn't use it but other mods will)
 		// The result ThingQuery is to be added to a IQueryHolder with Add()
-		// (Probably a QuerySearch or a ThingQueryGrouping)
+		// (Probably a QuerySearch or a ThingQueryAndOrGroup)
 		private static readonly Dictionary<Type, ThingQueryDef> queryDefForType = new();
 		public static ThingQueryDef QueryDefForType(Type t) =>
 			queryDefForType[t];
@@ -106,6 +106,24 @@ namespace TD_Find_Lib
 			foreach (var queryDef in DefDatabase<ThingQueryDef>.AllDefsListForReading)
 				queryDefForType[queryDef.queryClass] = queryDef;
 
+			// Make dummy defs for All ThingQueryCategorizedDropdownHelper so they trigger warning below
+			var modContentPack = LoadedModManager.GetMod<Mod>().Content;
+			
+			// GenTypes.AllSubclassesNonAbstract doesnt check generics properly so:
+			foreach (Type helperType in (from x in GenTypes.AllTypes
+																	 where !x.IsAbstract && x.IsSubclassOfRawGeneric(typeof(ThingQueryCategorizedDropdownHelper<,,,>))
+																	 select x).ToList())
+			{
+				ThingQueryDef dummyDef = new();
+				dummyDef.defName = "ThingQueryHelper_" + helperType.Name;
+				dummyDef.queryClass = helperType;
+				dummyDef.modContentPack = modContentPack;
+
+				queryDefForType[helperType] = dummyDef;
+
+				DefGenerator.AddImpliedDef(dummyDef);
+			}
+
 
 			// Config Error check
 			foreach (var queryType in GenTypes.AllSubclassesNonAbstract(typeof(ThingQuery)))
@@ -114,6 +132,22 @@ namespace TD_Find_Lib
 		}
 
 		public static IEnumerable<ThingQuerySelectableDef> RootQueries => rootSelectableQueries;
+
+
+		// am I dabblin so far into the arcane I need this helper?
+		static bool IsSubclassOfRawGeneric(this Type toCheck, Type generic)
+		{
+			while (toCheck != null && toCheck != typeof(object))
+			{
+				var cur = toCheck.IsGenericType ? toCheck.GetGenericTypeDefinition() : toCheck;
+				if (generic == cur)
+				{
+					return true;
+				}
+				toCheck = toCheck.BaseType;
+			}
+			return false;
+		}
 	}
 
 	[DefOf]

@@ -875,7 +875,28 @@ namespace TD_Find_Lib
 
 
 	[StaticConstructorOnStartup]
-	public class ThingQueryAbility : ThingQueryCategorizedDropdown<ModContentPack, AbilityDef>
+	public class ThingQueryAbiltyCategory : ThingQueryCategorizedDropdownHelper<AbilityDef, ModContentPack, ThingQueryAbility, ThingQueryAbiltyCategory>
+	{
+		public static ModContentPack CategoryFor(AbilityDef def) => def.modContentPack;
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null || pawn.abilities == null) return false;
+
+			return ParentQuery.AbilitiesInQuestion(pawn).Any(a => CategoryFor(a.def) == sel);
+		}
+
+		public override string NameFor(ModContentPack o) => o.Name;
+
+		public override bool UsesResolveName => true;
+		protected override string MakeSaveName() => sel.PackageIdPlayerFacing;
+
+		protected override ModContentPack ResolveName() =>
+			LoadedModManager.RunningMods.FirstOrDefault(mod => mod.PackageIdPlayerFacing == selName);
+	}
+
+	public class ThingQueryAbility : ThingQueryCategorizedDropdown<AbilityDef, ModContentPack, ThingQueryAbility, ThingQueryAbiltyCategory>
 	{
 		static ThingQueryAbility()
 		{
@@ -890,6 +911,8 @@ namespace TD_Find_Lib
 		public IntRangeUB chargeRange = new(0,5,1,5);
 
 		public ThingQueryAbility() => extraOption = 1;
+
+		
 
 		public override void ExposeData()
 		{
@@ -906,12 +929,7 @@ namespace TD_Find_Lib
 		}
 
 
-		public override bool AppliesDirectlyTo(Thing thing)
-		{
-			Pawn pawn = thing as Pawn;
-			if (pawn == null || pawn.abilities == null) return false;
-
-			var abilitiesInQuestion = pawn.abilities.AllAbilitiesForReading.Where(a =>
+		public IEnumerable<Ability> AbilitiesInQuestion(Pawn pawn) => pawn.abilities.AllAbilitiesForReading.Where(a =>
 			filterType switch
 			{
 				FilterType.Cooldown => a.CooldownTicksRemaining > 0,
@@ -920,6 +938,13 @@ namespace TD_Find_Lib
 
 				_ => true // FilterType.Has 
 			});
+
+		public override bool AppliesDirectly2(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null || pawn.abilities == null) return false;
+
+			var abilitiesInQuestion = AbilitiesInQuestion(pawn);
 
 			if (extraOption == 1)
 				return abilitiesInQuestion.Count() > 0;
@@ -935,9 +960,7 @@ namespace TD_Find_Lib
 		public override int ExtraOptionsCount => 1;
 		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
 
-
-		public override string CatLabel(ModContentPack cat) => cat.Name;
-		public override ModContentPack CategoryFor(AbilityDef def) => def.modContentPack;
+		public override ModContentPack CategoryFor(AbilityDef def) => ThingQueryAbiltyCategory.CategoryFor(def);
 
 		public override string DropdownNameFor(AbilityDef def) =>
 			def.level == 0 ? NameFor(def) : $"Level {def.level}: {NameFor(def)}";
