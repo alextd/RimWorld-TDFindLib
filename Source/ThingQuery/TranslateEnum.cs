@@ -27,7 +27,7 @@ namespace TD_Find_Lib
 			List<string> flagNames = new();
 			foreach (string flagName in name.Split(new string[] { ", " }, StringSplitOptions.None))
 			{
-				string key = $"TD.{type}.{flagName}";
+				string key = $"TD.{type}.{flagName}";//notranslate
 
 				TaggedString result;
 				if (key.TryTranslate(out result))

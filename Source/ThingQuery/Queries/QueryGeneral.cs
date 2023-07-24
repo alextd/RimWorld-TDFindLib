@@ -864,7 +864,7 @@ namespace TD_Find_Lib
 			{
 				// Terrain is not a Thing so TerrainDef will only show up as the blueprint/frame Thing for it:
 				if (def.entityDefToBuild is TerrainDef)
-					blueprintKey += "Terrain";
+					blueprintKey += "Terrain";//notranslate
 				return blueprintKey.Translate();
 			}
 
@@ -894,10 +894,10 @@ namespace TD_Find_Lib
 			if (typeof(Building).IsAssignableFrom(def.thingClass))
 			{
 				if(typeof(IThingHolder).IsAssignableFrom(def.thingClass))
-					return "Containers";
+					return "TD.ContainerBuildings".Translate();
 
 				// Other uncategorized buildings
-				return "Structures" + " " + "TD.OtherCategory".Translate();
+				return "TD.Structures".Translate() + " " + "TD.OtherCategory".Translate();
 			}
 
 			return "TD.OtherCategory".Translate();

@@ -379,7 +379,7 @@ namespace TDFindLib_Royalty
 
 				DoFloatOptions(options);
 			}
-			if(row.ButtonText(onlyReady ? "Permit is Ready" : "Holds Permit"))
+			if(row.ButtonText(onlyReady ? "TD.PermitIsReady".Translate() : "TD.HoldsPermit".Translate()))
 			{
 				onlyReady = !onlyReady;
 				return true;

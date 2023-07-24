@@ -133,5 +133,10 @@
 	<TD.Resource>Resource</TD.Resource>
 	<TD.Rock>Rock</TD.Rock>
 	<TD.Mineable>Mineable</TD.Mineable>
+	<TD.PermitIsReady>Permit is Ready</TD.PermitIsReady>
+	<TD.HoldsPermit>Holds Permit</TD.HoldsPermit>
+	<TD.ContainerBuildings>Containers</TD.ContainerBuildings>
+	<TD.Structures>Structures</TD.Structures>
+	<TD.AbilityLevel01>Level {0}: {1}</TD.AbilityLevel01>
 	
 </LanguageData>

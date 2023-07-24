@@ -963,7 +963,7 @@ namespace TD_Find_Lib
 		public override ModContentPack CategoryFor(AbilityDef def) => ThingQueryAbiltyCategory.CategoryFor(def);
 
 		public override string DropdownNameFor(AbilityDef def) =>
-			def.level == 0 ? NameFor(def) : $"Level {def.level}: {NameFor(def)}";
+			def.level == 0 ? NameFor(def) : "TD.AbilityLevel01".Translate(def.level, NameFor(def));
 		public override Texture2D IconTexFor(AbilityDef def) => def.uiIcon;
 
 		private readonly List<AbilityDef> orderedOptions =
