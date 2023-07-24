@@ -42,7 +42,7 @@
 	<TD.Hot>Hot</TD.Hot>
 	<TD.IsPrisoner>Is Prisoner</TD.IsPrisoner>
 	<TD.InCell>In Cell</TD.InCell>
-	<TD.ThereAreNoOptionsAvailablePerhapsYouShouldUncheckOnlyAvailableThings>There are no options available (Perhaps you should uncheck 'Only available things')</TD.ThereAreNoOptionsAvailablePerhapsYouShouldUncheckOnlyAvailableThings>
+	<TD.ThereAreNoOptionsAvailablePerhapsYouShouldUncheckOnlyAvailableThings>There are no options available (Perhaps you should hold shift when clicking to show all options)</TD.ThereAreNoOptionsAvailablePerhapsYouShouldUncheckOnlyAvailableThings>
 	<TD.LockEditing>Lock Editing</TD.LockEditing>
 	<TD.Listing>Listing: </TD.Listing>
 	<TD.Name>Name:</TD.Name>
