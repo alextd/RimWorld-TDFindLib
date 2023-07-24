@@ -890,6 +890,16 @@ namespace TD_Find_Lib
 			if (typeof(Mineable).IsAssignableFrom(def.thingClass))
 				return "TD.MineableCategory".Translate();
 
+			// Buildings
+			if (typeof(Building).IsAssignableFrom(def.thingClass))
+			{
+				if(typeof(IThingHolder).IsAssignableFrom(def.thingClass))
+					return "Containers";
+
+				// Other uncategorized buildings
+				return "Structures" + " " + "TD.OtherCategory".Translate();
+			}
+
 			return "TD.OtherCategory".Translate();
 		}
 
