@@ -1032,7 +1032,7 @@ namespace TD_Find_Lib
 
 
 		public override IEnumerable<StatDef> Options() =>
-			base.Options().Where(d => !d.alwaysHide);
+			base.Options().Where(d => !d.alwaysHide && (DebugSettings.godMode || d.CanShowWithLoadedMods()));
 
 
 		//should be StatCategoryDef but they have multiple with same name
