@@ -386,7 +386,7 @@ namespace TD_Find_Lib
 
 
 				// Highlight the queries that pass for selected objects (useful for "any" queries)
-				if (!(query is IQueryHolder) && Find.UIRoot is UIRoot_Play && Find.Selector.SelectedObjects.Any(o => o is Thing t && query.AppliesTo(t)))
+				if (!(query is ThingQueryAndOrGroup) && Find.UIRoot is UIRoot_Play && Find.Selector.SelectedObjects.Any(o => o is Thing t && query.AppliesTo(t)))
 				{
 					Widgets.DrawHighlight(query.usedRect);
 				}
