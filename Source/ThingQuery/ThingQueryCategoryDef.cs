@@ -17,6 +17,7 @@ namespace TD_Find_Lib
 
 		// For modded Queries to use:
 		public ThingQueryCategoryDef insertCategory;
+		public List<ThingQueryCategoryDef> insertCategories;
 	}
 
 	// There are too many query subclasses to globally list them

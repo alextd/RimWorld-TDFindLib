@@ -96,9 +96,15 @@ namespace TD_Find_Lib
 				ThingQueryDefOf.Category_Mod.subQueries = modMenu;
 
 				// Also insert where requested. The filter can end up in two places (as we already do for things like Stuff)
-				foreach(var def in moddedSelections)
-					if(def.insertCategory != null)
+				foreach (var def in moddedSelections)
+				{
+					if (def.insertCategory != null)
 						def.insertCategory.subQueries.Add(def);
+
+					if (def.insertCategories != null)
+						foreach(var cat in def.insertCategories)
+							cat.subQueries.Add(def);
+				}
 			}
 
 

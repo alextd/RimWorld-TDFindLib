@@ -7,7 +7,10 @@
 		<label>Style</label>
 		<queryClass>TDFindLib_Ideology.ThingQueryThingStyle</queryClass>
 		<mod>Ludeon.RimWorld.Ideology</mod>
-		<insertCategory>Category_BuildingInfo</insertCategory>
+		<insertCategories>
+			<li>Category_BuildingInfo</li>
+			<li>Category_ItemInfo</li>
+		</insertCategories>
 	</TD_Find_Lib.ThingQueryDef>
 
 </Defs>
