@@ -47,9 +47,12 @@ namespace TD_Find_Lib
 			set
 			{
 				_include = value;
-				_label = null;
+				DirtyLabel();
 			}
 		}
+
+		protected virtual string MakeLabel() => def.LabelCap;
+		protected void DirtyLabel() { _label = null; }
 
 		private string _label;
 		public string Label
@@ -57,7 +60,7 @@ namespace TD_Find_Lib
 			get {
 				if (_label == null)
 				{
-					_label = def.LabelCap;
+					_label = MakeLabel();
 					if (!include)
 						_label = "TD.NOT".Translate().Colorize(Color.red) + " " + _label;
 				}
@@ -1008,10 +1011,11 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public abstract class ThingQueryIntRange : ThingQueryWithOption<FloatRangeUB>
+	public abstract class ThingQueryIntRange : ThingQueryWithOption<IntRangeUB>
 	{
 		public virtual int Min => 0;
 		public virtual int Max => 1;
+		public virtual Func<int, string> Writer => null;
 
 		public ThingQueryIntRange() => sel = new IntRangeUB(Min, Max);
 
@@ -1026,7 +1030,7 @@ namespace TD_Find_Lib
 		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			base.DrawMain(rect, locked, fullRect);
-			return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(Text.CalcSize(Label).x), id, ref selByRef);
+			return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(Text.CalcSize(Label).x), id, ref selByRef, Writer);
 		}
 	}
 

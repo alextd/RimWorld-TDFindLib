@@ -42,6 +42,54 @@ namespace TD_Find_Lib
 			} : false;
 	}
 
+	public class ThingQueryDying : ThingQueryIntRange
+	{
+		public override int Min => 0;
+		public override int Max => GenDate.TicksPerDay * 2;
+		public override Func<int, string> Writer => ticks => $"{ticks * 1f / GenDate.TicksPerHour:0.0}";
+
+		public ThingQueryDying() => selByRef.max = GenDate.TicksPerDay;
+
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null) return false;
+
+			int eta = HealthUtility.TicksUntilDeathDueToBloodLoss(pawn);
+
+			// Unbounded range includes >max when the max is set to max...
+			// but we don't actually want to incude IntMax
+			if (eta == int.MaxValue)
+				return false;
+
+			return sel.Includes(eta);
+		}
+
+
+		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		{
+			if (base.DrawMain(rect, locked, fullRect))
+			{
+				DirtyLabel();
+				return true;
+			}
+			return false;
+		}
+
+		protected override string MakeLabel()
+		{
+			string rangeLabel = sel.min == 0 ? "" : $"{sel.min.ToStringTicksToPeriod(shortForm: true)} - ";//notranslate
+			
+			if (sel.max == sel.absRange.max)
+				rangeLabel += "AnyLower".Translate();
+			else 
+				rangeLabel += sel.max.ToStringTicksToPeriod(shortForm: true);
+
+			return "TimeToDeath".Translate(rangeLabel).CapitalizeFirst();
+		}
+	}
+
 	public class ThingQuerySkill : ThingQueryDropDown<SkillDef>
 	{
 		IntRangeUB skillRange = new IntRangeUB(SkillRecord.MinLevel, SkillRecord.MaxLevel);
@@ -963,7 +1011,7 @@ namespace TD_Find_Lib
 		public override ModContentPack CategoryFor(AbilityDef def) => ThingQueryAbiltyCategory.CategoryFor(def);
 
 		public override string DropdownNameFor(AbilityDef def) =>
-			def.level == 0 ? NameFor(def) : "TD.AbilityLevel01".Translate(def.level, NameFor(def));
+			def.level == 0 ? NameFor(def) : $"Level {def.level}: {NameFor(def)}";
 		public override Texture2D IconTexFor(AbilityDef def) => def.uiIcon;
 
 		private readonly List<AbilityDef> orderedOptions =

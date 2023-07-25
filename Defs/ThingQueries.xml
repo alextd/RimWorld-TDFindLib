@@ -69,6 +69,7 @@
 			<li>Query_Job</li>
 			<li>Query_Health</li>
 			<li>Query_HP</li>
+			<li>Query_PawnDying</li>
 			<li>Query_Inspiration</li>
 			<li>Query_MentalState</li>
 			<li>Query_MissingBodyPart</li>
@@ -101,6 +102,12 @@
 		<defName>Query_PawnProperty</defName>
 		<label>basics</label>
 		<queryClass>TD_Find_Lib.ThingQueryBasicProperty</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_PawnDying</defName>
+		<label>dies in</label>
+		<queryClass>TD_Find_Lib.ThingQueryDying</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 
 	<TD_Find_Lib.ThingQueryDef>
