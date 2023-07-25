@@ -5,6 +5,7 @@
 	<Query_Def.label>specific thing</Query_Def.label>
 	<Query_Category.label>general category</Query_Category.label>
 	<Query_Stat.label>stat</Query_Stat.label>
+	<Query_PawnProperty.label>basics</Query_PawnProperty.label>
 	<Query_Skill.label>skill</Query_Skill.label>
 	<Query_Trait.label>trait</Query_Trait.label>
 	<Query_Thought.label>thought</Query_Thought.label>
@@ -15,11 +16,17 @@
 	<Query_ComfyTemp.label>comfort at temperature</Query_ComfyTemp.label>
 	<Query_Incapable.label>incapable</Query_Incapable.label>
 	<Query_AreaRestriction.label>area restriction</Query_AreaRestriction.label>
+	<Query_Ability.label>ability</Query_Ability.label>
 	<Query_Drafted.label>drafted</Query_Drafted.label>
 	<Query_Job.label>current action</Query_Job.label>
 	<Query_Inspiration.label>inspiration</Query_Inspiration.label>
 	<Query_Guest.label>guest status</Query_Guest.label>
 	<Query_Prisoner.label>prisoner</Query_Prisoner.label>
+	<Query_Quest.label>quest status</Query_Quest.label>
+	<Query_Work.label>work enabled</Query_Work.label>
+	<Query_AssignOutfit.label>outfit</Query_AssignOutfit.label>
+	<Query_AssignFood.label>food restriction</Query_AssignFood.label>
+	<Query_AssignDrug.label>drug policy</Query_AssignDrug.label>
 	<Query_ThingQueryDevelopmentalStage.label>age</Query_ThingQueryDevelopmentalStage.label>
 	<Query_Gender.label>gender</Query_Gender.label>
 	<Query_MissingBodyPart.label>missing Body Part</Query_MissingBodyPart.label>
@@ -30,12 +37,17 @@
 	<Query_Milk.label>milk per year</Query_Milk.label>
 	<Query_Wool.label>wool per year</Query_Wool.label>
 	<Query_ProductProgress.label>progress</Query_ProductProgress.label>
+	<Query_Trained.label>trained</Query_Trained.label>
 	<Query_ItemCategory.label>item category</Query_ItemCategory.label>
 	<Query_Quality.label>quality</Query_Quality.label>
 	<Query_Stuff.label>made From</Query_Stuff.label>
 	<Query_SpecialFilter.label>special filter</Query_SpecialFilter.label>
+	<Query_ApparelLayer.label>apparel layer</Query_ApparelLayer.label>
+	<Query_ApparelCoverage.label>apparel coverage</Query_ApparelCoverage.label>
 	<Query_Forbidden.label>forbidden</Query_Forbidden.label>
+	<Query_Accessible.label>Accessible materials</Query_Accessible.label>
 	<Query_Mineable.label>mineable</Query_Mineable.label>
+	<Query_MineableDef.label>mineable</Query_MineableDef.label>
 	<Query_BuildingCategory.label>Building category</Query_BuildingCategory.label>
 	<Query_Door.label>Door Status</Query_Door.label>
 	<Query_Crop.label>is a crop</Query_Crop.label>
