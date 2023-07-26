@@ -273,10 +273,13 @@ namespace TD_Find_Lib
 		{
 			owner = query;
 		}
-		public FloatMenuOptionAndRefresh(string label, Action action, ThingQuery query, ThingDef shownItemForIcon, ThingStyleDef thingStyle = null, bool forceBasicStyle = false)
+		public FloatMenuOptionAndRefresh(string label, Action action, ThingQuery query, ThingDef shownItemForIcon, Color? iconColor = null, ThingStyleDef thingStyle = null, bool forceBasicStyle = false)
 			: base(label, action, shownItemForIcon, thingStyle, forceBasicStyle)
 		{
 			owner = query;
+			// base const doesn't take iconColor O_o
+			if (iconColor.HasValue)
+				this.iconColor = iconColor.Value;
 		}
 
 		public override bool DoGUI(Rect rect, bool colonistOrdering, FloatMenu floatMenu)
@@ -649,7 +652,7 @@ namespace TD_Find_Lib
 				return new FloatMenuOptionAndRefresh(DropdownNameFor(o), () => sel = o, this, tex == BaseContent.BadTex ? BaseContent.ClearTex : tex, IconColorFor(o));
 
 			if(IconDefFor(o) is ThingDef def)
-				return new FloatMenuOptionAndRefresh(DropdownNameFor(o), () => sel = o, this, def);
+				return new FloatMenuOptionAndRefresh(DropdownNameFor(o), () => sel = o, this, def, IconColorFor(o));
 
 			return new FloatMenuOptionAndRefresh(DropdownNameFor(o), () => sel = o, this);
 		}

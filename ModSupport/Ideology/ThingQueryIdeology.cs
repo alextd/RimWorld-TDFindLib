@@ -40,17 +40,27 @@ namespace TDFindLib_Ideology
 		}
 
 		public static readonly Dictionary<ThingStyleDef, string> styleNames = new();
+		public static readonly Dictionary<ThingStyleDef, ThingDef> baseDefForStyle = new();
 		static ThingQueryThingStyle()
 		{
 			foreach (StyleCategoryDef styleDef in DefDatabase<StyleCategoryDef>.AllDefsListForReading)
 				foreach (ThingDefStyle style in styleDef.thingDefStyles)
-					styleNames[style.StyleDef] = styleDef.LabelCap + " " + style.ThingDef.LabelCap;
+				{
+					baseDefForStyle[style.StyleDef] = style.ThingDef;
 
-			// Probably redundant since this seems to be overriden below:
-			foreach(ThingDef thingDef in DefDatabase<ThingDef>.AllDefsListForReading)
-				if(thingDef.randomStyle != null)
-					foreach(ThingStyleChance styleChance in thingDef.randomStyle)
+					styleNames[style.StyleDef] = styleDef.LabelCap + " " + style.ThingDef.LabelCap;
+				}
+
+			
+			foreach (ThingDef thingDef in DefDatabase<ThingDef>.AllDefsListForReading)
+				if (thingDef.randomStyle != null)
+					foreach (ThingStyleChance styleChance in thingDef.randomStyle)
+					{
+						baseDefForStyle[styleChance.StyleDef] = thingDef;
+
+						// Probably redundant since this seems to be overriden below:
 						styleNames[styleChance.StyleDef] = thingDef.LabelCap;
+					}
 
 			// overrides
 			foreach (ThingStyleDef styleDef in DefDatabase<ThingStyleDef>.AllDefsListForReading)
@@ -66,6 +76,16 @@ namespace TDFindLib_Ideology
 		public override StyleCategoryDef CategoryFor(ThingStyleDef def) => def.Category;
 
 		public override Texture2D IconTexFor(ThingStyleDef def) => def.UIIcon;
+		public override Color IconColorFor(ThingStyleDef def)
+		{
+			if (def.color != default)
+				return def.color; // though def.color is never set without mods..
+
+			ThingDef baseDef = baseDefForStyle[def];
+			if (baseDef.MadeFromStuff)
+				return baseDef.GetColorForStuff(GenStuff.DefaultStuffFor(baseDef));
+			return baseDef.uiIconColor;
+		}
 
 		public override IEnumerable<ThingStyleDef> Options() =>
 			TD_Find_Lib.Mod.settings.OnlyAvailable
