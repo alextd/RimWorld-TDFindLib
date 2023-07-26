@@ -682,14 +682,29 @@ namespace TD_Find_Lib
 		{
 			bool changeSelection = false;
 			bool changed = false;
-			string label = GetSelLabel();
 
+			WidgetRow row = new WidgetRow(rect.x, rect.y);
+
+			// Draw Filter label
+			row.Label(Label);
+
+			// Draw icon
+			if (sel != null)	//todo for other types?
+			{
+				GUI.color = IconColorFor(sel);
+				if (IconDefFor(sel) is ThingDef iconDef)
+					row.DefIcon(iconDef);
+				else if (IconTexFor(sel) is Texture2D iconTex)
+					row.Icon(iconTex);
+				GUI.color = Color.white;
+			}
+
+			// Handle selection + custom drawers
+			string selLabel = GetSelLabel();
 			if (HasCustom)
 			{
-				// Label, Selection option button on left, custom on the remaining rect
-				WidgetRow row = new WidgetRow(rect.x, rect.y);
-				row.Label(Label);
-				changeSelection = row.ButtonText(label);
+				// Selection option button on left, custom on the remaining rect
+				changeSelection = row.ButtonText(selLabel);
 
 				Rect customRect = rect;
 				customRect.xMin = row.FinalX;
@@ -697,10 +712,9 @@ namespace TD_Find_Lib
 			}
 			else
 			{
-				//Just the label on left, and selected option button on right
-				base.DrawMain(rect, locked, fullRect);
-				Rect buttRect = fullRect.RightPartClamped(0.4f, Text.CalcSize(Label).x);
-				changeSelection = Widgets.ButtonText(buttRect, label);
+				// selected option button on right
+				Rect buttRect = fullRect.RightPartClamped(0.4f, row.FinalX);
+				changeSelection = Widgets.ButtonText(buttRect, selLabel);
 			}
 			if (changeSelection)
 			{
