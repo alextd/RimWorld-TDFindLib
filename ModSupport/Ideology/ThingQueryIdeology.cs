@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TD_Find_Lib;
 using Verse;
+using RimWorld;
 using UnityEngine;
 
 namespace TDFindLib_Ideology
@@ -72,6 +73,38 @@ namespace TDFindLib_Ideology
 				: base.Options();
 	}
 
+
+	public class ThingQueryIdeoligion : ThingQueryDropDown<Ideo>
+	{
+		public ThingQueryIdeoligion() => extraOption = 1;
+
+		protected override Ideo ResolveRef(Map map) => 
+			Find.IdeoManager.ideos.First(i => NameFor(i) == selName);
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null) return false;
+
+			if(extraOption == 1)
+			{
+				return pawn.Ideo == Faction.OfPlayer.ideos.PrimaryIdeo;
+			}
+
+			return pawn.Ideo == sel;
+		}
+
+		public override IEnumerable<Ideo> Options()
+		{
+			if (Find.IdeoManager == null)
+				return Enumerable.Empty<Ideo>();
+
+			return Find.IdeoManager.IdeosInViewOrder;
+		}
+
+		public override int ExtraOptionsCount => 1;
+		public override string NameForExtra(int ex) => "Player's Ideoligion";
+	}
 
 
 	[StaticConstructorOnStartup]

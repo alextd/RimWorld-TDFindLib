@@ -12,5 +12,13 @@
 			<li>Category_ItemInfo</li>
 		</insertCategories>
 	</TD_Find_Lib.ThingQueryDef>
+	
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Ideoligion</defName>
+		<label>Ideoligion</label>
+		<queryClass>TDFindLib_Ideology.ThingQueryIdeoligion</queryClass>
+		<mod>Ludeon.RimWorld.Ideology</mod>
+		<insertCategory>Category_PawnProp</insertCategory>
+	</TD_Find_Lib.ThingQueryDef>
 
 </Defs>
