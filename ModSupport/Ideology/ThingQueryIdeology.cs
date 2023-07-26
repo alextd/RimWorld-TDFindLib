@@ -86,7 +86,10 @@ namespace TDFindLib_Ideology
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
 
-			if(extraOption == 1)
+			Ideo ideo = pawn.Ideo;
+			if (ideo == null) return false;
+
+			if (extraOption == 1)
 			{
 				return pawn.Ideo == Faction.OfPlayer.ideos.PrimaryIdeo;
 			}
@@ -102,8 +105,36 @@ namespace TDFindLib_Ideology
 			return Find.IdeoManager.IdeosInViewOrder;
 		}
 
+		public override Color IconColorFor(Ideo ideo) => ideo.Color;
+		public override Texture2D IconTexFor(Ideo ideo) => ideo.Icon;
+
 		public override int ExtraOptionsCount => 1;
 		public override string NameForExtra(int ex) => "Player's Ideoligion";
+	}
+
+	
+	//Non-structure memes.
+	public class ThingQueryMeme : ThingQueryDropDown<MemeDef>
+	{
+		public ThingQueryMeme() => sel = MemeDefOf.Transhumanist;
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null) return false;
+
+			Ideo ideo = pawn.Ideo;
+			if (ideo == null) return false;
+
+
+			return pawn.Ideo.memes.Contains(sel);
+		}
+
+		public override Texture2D IconTexFor(MemeDef d) => d.Icon;
+
+		public override IEnumerable<MemeDef> Options() =>
+			// Only Structore or Normal, ehhhh
+			DefDatabase<MemeDef>.AllDefs.Where(m => m.category != MemeCategory.Structure);
 	}
 
 

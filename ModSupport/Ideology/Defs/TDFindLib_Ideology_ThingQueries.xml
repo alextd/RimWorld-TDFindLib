@@ -4,7 +4,7 @@
 	<!-- queries in order -->
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Style</defName>
-		<label>Style</label>
+		<label>style</label>
 		<queryClass>TDFindLib_Ideology.ThingQueryThingStyle</queryClass>
 		<mod>Ludeon.RimWorld.Ideology</mod>
 		<insertCategories>
@@ -15,8 +15,16 @@
 	
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Ideoligion</defName>
-		<label>Ideoligion</label>
+		<label>ideoligion</label>
 		<queryClass>TDFindLib_Ideology.ThingQueryIdeoligion</queryClass>
+		<mod>Ludeon.RimWorld.Ideology</mod>
+		<insertCategory>Category_PawnProp</insertCategory>
+	</TD_Find_Lib.ThingQueryDef>
+	
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Meme</defName>
+		<label>meme</label>
+		<queryClass>TDFindLib_Ideology.ThingQueryMeme</queryClass>
 		<mod>Ludeon.RimWorld.Ideology</mod>
 		<insertCategory>Category_PawnProp</insertCategory>
 	</TD_Find_Lib.ThingQueryDef>

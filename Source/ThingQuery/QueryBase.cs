@@ -640,12 +640,13 @@ namespace TD_Find_Lib
 		// dropdown menu options
 		public virtual bool Ordered => false;
 		public virtual string DropdownNameFor(T o) => NameFor(o);
+		public virtual Color IconColorFor(T o) => Color.white;
 		public virtual Texture2D IconTexFor(T o) => null;
 		public virtual ThingDef IconDefFor(T o) => null;
 		protected FloatMenuOption FloatMenuFor(T o)
 		{
 			if (IconTexFor(o) is Texture2D tex)
-				return new FloatMenuOptionAndRefresh(DropdownNameFor(o), () => sel = o, this, tex == BaseContent.BadTex ? BaseContent.ClearTex : tex);
+				return new FloatMenuOptionAndRefresh(DropdownNameFor(o), () => sel = o, this, tex == BaseContent.BadTex ? BaseContent.ClearTex : tex, IconColorFor(o));
 
 			if(IconDefFor(o) is ThingDef def)
 				return new FloatMenuOptionAndRefresh(DropdownNameFor(o), () => sel = o, this, def);
