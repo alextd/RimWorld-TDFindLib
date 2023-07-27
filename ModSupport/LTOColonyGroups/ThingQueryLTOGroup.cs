@@ -22,7 +22,7 @@ namespace LTOColonyGroupsSupport
 
 		public override string NullOption() => "None".Translate();
 
-		public override IEnumerable<ColonistGroup> Options() =>
+		public override IEnumerable<ColonistGroup> AllOptions() =>
 			TacticUtils.AllPawnGroups;
 	}
 }

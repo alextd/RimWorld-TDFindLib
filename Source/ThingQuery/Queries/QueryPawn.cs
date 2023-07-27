@@ -188,10 +188,8 @@ namespace TD_Find_Lib
 				trait.Degree == traitDegree;
 		}
 
-		public override IEnumerable<TraitDef> Options() =>
-			Mod.settings.OnlyAvailable
-				? ContentsUtility.AvailableInGame(t => (t as Pawn)?.story?.traits.allTraits.Select(tr => tr.def) ?? Enumerable.Empty<TraitDef>())
-				: base.Options();
+		public override IEnumerable<TraitDef> AvailableOptions() =>
+			ContentsUtility.AvailableInGame(t => (t as Pawn)?.story?.traits.allTraits.Select(tr => tr.def));
 
 		public override bool Ordered => true;
 
@@ -308,10 +306,8 @@ namespace TD_Find_Lib
 			return ShowMultistage(def) ? label + "*" : label;
 		}
 
-		public override IEnumerable<ThoughtDef> Options() =>
-			Mod.settings.OnlyAvailable
-				? ContentsUtility.AvailableInGame(ThoughtsForThing)
-				: base.Options();
+		public override IEnumerable<ThoughtDef> AvailableOptions() =>
+			ContentsUtility.AvailableInGame(ThoughtsForThing);
 
 		public override bool Ordered => true;
 
@@ -472,10 +468,8 @@ namespace TD_Find_Lib
 		}
 
 		public override string NullOption() => "None".Translate();
-		public override IEnumerable<HediffDef> Options() =>
-			Mod.settings.OnlyAvailable
-				? ContentsUtility.AvailableInGame(t => (t as Pawn)?.health.hediffSet.hediffs.Select(h => h.def) ?? Enumerable.Empty<HediffDef>())
-				: base.Options();
+		public override IEnumerable<HediffDef> AvailableOptions() =>
+			ContentsUtility.AvailableInGame(t => (t as Pawn)?.health.hediffSet.hediffs.Select(h => h.def));
 
 		public override bool Ordered => true;
 
@@ -597,7 +591,10 @@ namespace TD_Find_Lib
 		}
 
 		public override string NullOption() => "NoAreaAllowed".Translate();
-		public override IEnumerable<Area> Options() => Find.CurrentMap?.areaManager.AllAreas.Where(a => a is Area_Allowed) ?? Enumerable.Empty<Area>();//a.AssignableAsAllowed());
+
+		public override IEnumerable<Area> AllOptions() =>
+			Find.CurrentMap?.areaManager.AllAreas.Where(a => a is Area_Allowed);//a.AssignableAsAllowed());
+
 		public override string NameFor(Area o) => o.Label;
 
 		public override int ExtraOptionsCount => 1;
@@ -618,10 +615,8 @@ namespace TD_Find_Lib
 				pawn.MentalState?.def is MentalStateDef sDef && sDef == sel;
 		}
 
-		public override IEnumerable<MentalStateDef> Options() =>
-			Mod.settings.OnlyAvailable
-				? ContentsUtility.AvailableInGame(t => (t as Pawn)?.MentalState?.def)
-				: base.Options();
+		public override IEnumerable<MentalStateDef> AvailableOptions() =>
+			ContentsUtility.AvailableInGame(t => (t as Pawn)?.MentalState?.def);
 
 		public override bool Ordered => true;
 
@@ -716,10 +711,9 @@ namespace TD_Find_Lib
 
 		public override string NullOption() => "None".Translate();
 
-		public override IEnumerable<JobDef> Options() =>
-			Mod.settings.OnlyAvailable
-				? ContentsUtility.AvailableInGame(t => (t as Pawn)?.CurJobDef)
-			: base.Options();
+		public override IEnumerable<JobDef> AvailableOptions() =>
+			ContentsUtility.AvailableInGame(t => (t as Pawn)?.CurJobDef);
+
 		public override bool Ordered => true;
 	}
 
@@ -850,8 +844,8 @@ namespace TD_Find_Lib
 		public override string NameFor(Outfit o) => o.label;
 		protected override string MakeSaveName() => sel.label;
 
-		public override IEnumerable<Outfit> Options() =>
-			Current.Game?.outfitDatabase?.AllOutfits ?? Enumerable.Empty<Outfit>();
+		public override IEnumerable<Outfit> AllOptions() =>
+			Current.Game?.outfitDatabase?.AllOutfits;
 	}
 
 
@@ -874,8 +868,8 @@ namespace TD_Find_Lib
 		public override string NameFor(FoodRestriction o) => o.label;
 		protected override string MakeSaveName() => sel.label;
 
-		public override IEnumerable<FoodRestriction> Options() =>
-			Current.Game?.foodRestrictionDatabase?.AllFoodRestrictions ?? Enumerable.Empty<FoodRestriction>();
+		public override IEnumerable<FoodRestriction> AllOptions() =>
+			Current.Game?.foodRestrictionDatabase?.AllFoodRestrictions;
 	}
 
 
@@ -898,8 +892,8 @@ namespace TD_Find_Lib
 		public override string NameFor(DrugPolicy o) => o.label;
 		protected override string MakeSaveName() => sel.label;
 
-		public override IEnumerable<DrugPolicy> Options() =>
-			Current.Game?.drugPolicyDatabase?.AllPolicies ?? Enumerable.Empty<DrugPolicy>();
+		public override IEnumerable<DrugPolicy> AllOptions() =>
+			Current.Game?.drugPolicyDatabase?.AllPolicies;
 	}
 
 
@@ -1020,10 +1014,9 @@ namespace TD_Find_Lib
 			.ThenBy(def => def.category?.displayOrder ?? 0) // (unseen category that is used only for gizmo ordering)
 			.ThenBy(def => def.label).ToList();
 
-		public override IEnumerable<AbilityDef> Options() => 
-			Mod.settings.OnlyAvailable
-				? orderedOptions.Intersect(ContentsUtility.AvailableInGame(t => (t as Pawn)?.abilities?.AllAbilitiesForReading.Select(a => a.def) ?? Enumerable.Empty<AbilityDef>()))
-				: orderedOptions;
+		public override IEnumerable<AbilityDef> AllOptions() => orderedOptions;
+		public override IEnumerable<AbilityDef> AvailableOptions() =>
+			ContentsUtility.AvailableInGame(t => (t as Pawn)?.abilities?.AllAbilitiesForReading.Select(a => a.def));
 
 
 		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)

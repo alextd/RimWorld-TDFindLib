@@ -125,8 +125,9 @@ namespace TDFindLib_Royalty
 		}
 
 
-		public override IEnumerable<Faction> Options() =>
-			Current.Game?.World?.factionManager.AllFactionsVisibleInViewOrder.Where(f => f.def.HasRoyalTitles) ?? Enumerable.Empty<Faction>();
+		public override IEnumerable<Faction> AllOptions() =>
+			Current.Game?.World?.factionManager.AllFactionsVisibleInViewOrder
+			.Where(f => f.def.HasRoyalTitles);
 
 
 		public override int ExtraOptionsCount => 1;
@@ -289,8 +290,9 @@ namespace TDFindLib_Royalty
 			return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref favorRange);
 		}
 
-		public override IEnumerable<Faction> Options() =>
-			Current.Game?.World?.factionManager.AllFactionsVisibleInViewOrder.Where(f => f.def.HasRoyalTitles) ?? Enumerable.Empty<Faction>();
+		public override IEnumerable<Faction> AllOptions() =>
+			Current.Game?.World?.factionManager.AllFactionsVisibleInViewOrder
+			.Where(f => f.def.HasRoyalTitles);
 
 
 		public override int ExtraOptionsCount => 1;

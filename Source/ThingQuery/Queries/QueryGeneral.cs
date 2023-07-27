@@ -177,10 +177,9 @@ namespace TD_Find_Lib
 			DefDatabase<ThingDef>.AllDefsListForReading
 			.SelectMany(def => LeavingsFor(def)).ToHashSet().ToList();
 
-		public override IEnumerable<ThingDef> Options() =>
-			Mod.settings.OnlyAvailable ?
-				leavingDefs.Intersect(ContentsUtility.AvailableInGame(LeavingsFor))
-				: leavingDefs;
+		public override IEnumerable<ThingDef> AllOptions() => leavingDefs;
+		public override IEnumerable<ThingDef> AvailableOptions() =>
+			ContentsUtility.AvailableInGame(LeavingsFor);
 
 		public override int ExtraOptionsCount => 1;
 		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
@@ -214,10 +213,8 @@ namespace TD_Find_Lib
 		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
 
 		public override bool Ordered => true;
-		public override IEnumerable<DesignationDef> Options() =>
-			Mod.settings.OnlyAvailable ?
-				Find.CurrentMap.designationManager.AllDesignations.Select(d => d.def).Distinct() :
-				base.Options();
+		public override IEnumerable<DesignationDef> AvailableOptions() =>
+			Find.CurrentMap.designationManager.AllDesignations.Select(d => d.def);
 
 		public override string NameFor(DesignationDef o) => o.defName; // no labels on Designation def
 	}
@@ -336,19 +333,17 @@ namespace TD_Find_Lib
 			}
 			allHarvests = singleDefs.OrderBy(d => d.label).ToList();
 		}
-		public override IEnumerable<ThingDef> Options()
-		{
-			if (Mod.settings.OnlyAvailable)
-			{
-				HashSet<ThingDef> available = new HashSet<ThingDef>();
-				foreach (Map map in Find.Maps)
-					foreach (Thing t in map.listerThings.ThingsInGroup(ThingRequestGroup.HarvestablePlant))
-						if ((t as Plant)?.def.plant.harvestedThingDef is ThingDef harvestDef)
-							available.Add(harvestDef);
 
-				return allHarvests.Intersect(available);
-			}
-			return allHarvests;
+		public override IEnumerable<ThingDef> AllOptions() => allHarvests;
+		public override IEnumerable<ThingDef> AvailableOptions()
+		{
+			HashSet<ThingDef> available = new HashSet<ThingDef>();
+			foreach (Map map in Find.Maps)
+				foreach (Thing t in map.listerThings.ThingsInGroup(ThingRequestGroup.HarvestablePlant))
+					if ((t as Plant)?.def.plant.harvestedThingDef is ThingDef harvestDef)
+						available.Add(harvestDef);
+
+			return available;
 		}
 
 		public override bool Ordered => true;
@@ -479,10 +474,8 @@ namespace TD_Find_Lib
 		public override bool AppliesDirectlyTo(Thing thing) =>
 			thing.def.IsWithinCategory(sel);
 
-		public override IEnumerable<ThingCategoryDef> Options() =>
-			Mod.settings.OnlyAvailable ?
-				base.Options().Intersect(ContentsUtility.AvailableInGame(ThingCategoryDefsOfThing)) :
-				base.Options();
+		public override IEnumerable<ThingCategoryDef> AvailableOptions() =>
+			ContentsUtility.AvailableInGame(ThingCategoryDefsOfThing);
 
 		public static IEnumerable<ThingCategoryDef> ThingCategoryDefsOfThing(Thing thing)
 		{
@@ -612,7 +605,8 @@ namespace TD_Find_Lib
 
 		public static readonly List<ThingDef> options = DefDatabase<ThingDef>.AllDefsListForReading
 			.Select(def => def.building?.mineableThing).Distinct().Where(d => d != null).ToList();
-		public override IEnumerable<ThingDef> Options() => options;
+		public override IEnumerable<ThingDef> AllOptions() => options;
+
 		public override ThingDef IconDefFor(ThingDef o) => o;//duh
 
 		public override int ExtraOptionsCount => 3;
@@ -675,11 +669,12 @@ namespace TD_Find_Lib
 		}
 
 		public override string NullOption() => "TD.NotMadeFromStuff".Translate();
+
 		private static List<ThingDef> stuffList = DefDatabase<ThingDef>.AllDefs.Where(d => d.IsStuff).ToList();
-		public override IEnumerable<ThingDef> Options() =>
-			Mod.settings.OnlyAvailable
-				? stuffList.Intersect(ContentsUtility.AvailableInGame(t => t.Stuff))
-				: stuffList;
+
+		public override IEnumerable<ThingDef> AllOptions() => stuffList;
+		public override IEnumerable<ThingDef> AvailableOptions() =>
+			ContentsUtility.AvailableInGame(t => t.Stuff);
 
 		public override int ExtraOptionsCount => DefDatabase<StuffCategoryDef>.DefCount + 1;
 		public override string NameForExtra(int ex) =>
@@ -703,11 +698,9 @@ namespace TD_Find_Lib
 		}
 
 		public override string NullOption() => "None".Translate();
-		public override IEnumerable<BodyPartDef> Options() =>
-			Mod.settings.OnlyAvailable
-				? base.Options().Intersect(ContentsUtility.AvailableInGame(
-					t => (t as Pawn)?.health.hediffSet.GetMissingPartsCommonAncestors().Select(h => h.Part.def) ?? Enumerable.Empty<BodyPartDef>()))
-				: base.Options();
+		public override IEnumerable<BodyPartDef> AvailableOptions() =>
+			ContentsUtility.AvailableInGame(
+					t => (t as Pawn)?.health.hediffSet.GetMissingPartsCommonAncestors().Select(h => h.Part.def));
 
 		public override string NameFor(BodyPartDef def)
 		{
@@ -756,7 +749,9 @@ namespace TD_Find_Lib
 			return false;
 		}
 
-		public override IEnumerable<Area> Options() => Find.CurrentMap?.areaManager.AllAreas.Where(a => a is Area_Allowed) ?? Enumerable.Empty<Area>();
+		public override IEnumerable<Area> AllOptions() =>
+			Find.CurrentMap?.areaManager.AllAreas.Where(a => a is Area_Allowed);
+
 		public override string NameFor(Area o) => o.Label;
 
 		public override int ExtraOptionsCount => 5;
@@ -793,7 +788,8 @@ namespace TD_Find_Lib
 				zoneAtPos == sel;
 		}
 
-		public override IEnumerable<Zone> Options() => Find.CurrentMap?.zoneManager.AllZones ?? Enumerable.Empty<Zone>();
+		public override IEnumerable<Zone> AllOptions() =>
+			Find.CurrentMap?.zoneManager.AllZones;
 
 		public override int ExtraOptionsCount => 2;
 		public override string NameForExtra(int ex) =>
@@ -944,11 +940,10 @@ namespace TD_Find_Lib
 
 		public override bool Ordered => true;
 
-		public override IEnumerable<ThingDef> Options() =>
-			(Mod.settings.OnlyAvailable ?
-				base.Options().Intersect(ContentsUtility.AvailableInGame(t => t.def)) :
-				base.Options())
-			.Where(def => ValidDef(def));
+		public override IEnumerable<ThingDef> AllOptions() =>
+			base.AllOptions().Where(ValidDef);
+		public override IEnumerable<ThingDef> AvailableOptions() =>
+			ContentsUtility.AvailableInGame(t => t.def);
 
 		public override ThingDef IconDefFor(ThingDef o) => o;//duh
 
@@ -986,7 +981,7 @@ namespace TD_Find_Lib
 		public override bool AppliesDirectlyTo(Thing thing) =>
 			sel == thing.ContentSource;
 
-		public override IEnumerable<ModContentPack> Options() =>
+		public override IEnumerable<ModContentPack> AllOptions() =>
 			LoadedModManager.RunningMods.Where(mod => mod.AllDefs.Any(d => d is ThingDef));
 
 		public override string NameFor(ModContentPack o) => o.Name;
@@ -1041,7 +1036,7 @@ namespace TD_Find_Lib
 			valueRange.Includes(t.GetStatValue(sel, cacheStaleAfterTicks: 1));
 
 
-		public override IEnumerable<StatDef> Options() =>
+		public override IEnumerable<StatDef> AllOptions() =>
 			base.Options().Where(d => !d.alwaysHide && (DebugSettings.godMode || d.CanShowWithLoadedMods()));
 
 
@@ -1140,7 +1135,7 @@ namespace TD_Find_Lib
 		public override bool AppliesDirectlyTo(Thing thing) =>
 			sel == thing.def.designationCategory;
 
-		public override IEnumerable<DesignationCategoryDef> Options() =>
+		public override IEnumerable<DesignationCategoryDef> AllOptions() =>
 			base.Options().Where(desCatDef => desCatDef.AllResolvedDesignators.Any(d => d is Designator_Build));
 	}
 

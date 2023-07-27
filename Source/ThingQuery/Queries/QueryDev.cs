@@ -15,10 +15,9 @@ namespace TD_Find_Lib
 			sel.IsAssignableFrom(thing.GetType());
 
 		public static List<Type> types = typeof(Thing).AllSubclassesNonAbstract().OrderBy(t => t.ToString()).ToList();
-		public override IEnumerable<Type> Options() =>
-			Mod.settings.OnlyAvailable ?
-				ContentsUtility.AvailableInGame(t => t.GetType()).OrderBy(NameFor).ToList() :
-				types;
+		public override IEnumerable<Type> AllOptions() => types;
+		public override IEnumerable<Type> AvailableOptions() =>
+			ContentsUtility.AvailableInGame(t => t.GetType());
 	}
 
 	public class ThingQueryDrawerType : ThingQueryDropDown<DrawerType>

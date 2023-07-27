@@ -629,7 +629,24 @@ namespace TD_Find_Lib
 		// Often overrides will use Mod.settings.OnlyAvailable to show a subset of options when shift is held
 		// That would also use ContentsUtility.AvailableInGame for ease of searching inside all things.
 		// This subset should be passed to base.Options().Intersect() so they have consistent ordering.
-		public virtual IEnumerable<T> Options()
+		protected IEnumerable<T> Options()
+		{
+			if (AllOptions() == null)
+				return Enumerable.Empty<T>();
+
+			// < 10 in AllOptions?, just use AllOptions. Count would count them all, this exits early.
+			if (!AllOptions().Skip(10).Any())
+				return AllOptions();
+
+			// when OnlyAvailable, use AvailableOptions but keep AllOptions ordering via Intersect()
+			if (Mod.settings.OnlyAvailable && AvailableOptions() is IEnumerable<T> availableOptions)
+				return AllOptions().Intersect(availableOptions);
+
+			// Or just.. all the options.
+			return AllOptions();
+		}
+
+		public virtual IEnumerable<T> AllOptions()
 		{
 			if (IsEnum)
 				return Enum.GetValues(typeof(T)).OfType<T>();
@@ -637,6 +654,8 @@ namespace TD_Find_Lib
 				return GenDefDatabase.GetAllDefsInDatabaseForDef(typeof(T)).Cast<T>();
 			throw new NotImplementedException();
 		}
+
+		public virtual IEnumerable<T> AvailableOptions() => null;
 
 		public virtual string NameFor(T o) => o is Def def ? def.LabelCap.RawText : typeof(T).IsEnum ? o.TranslateEnum() : o.ToString();
 

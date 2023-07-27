@@ -87,10 +87,8 @@ namespace TDFindLib_Ideology
 			return baseDef.uiIconColor;
 		}
 
-		public override IEnumerable<ThingStyleDef> Options() =>
-			TD_Find_Lib.Mod.settings.OnlyAvailable
-				? base.Options().Intersect(ContentsUtility.AvailableInGame(t => t.StyleDef))
-				: base.Options();
+		public override IEnumerable<ThingStyleDef> AvailableOptions() =>
+			ContentsUtility.AvailableInGame(t => t.StyleDef);
 	}
 
 
@@ -117,13 +115,8 @@ namespace TDFindLib_Ideology
 			return pawn.Ideo == sel;
 		}
 
-		public override IEnumerable<Ideo> Options()
-		{
-			if (Find.IdeoManager == null)
-				return Enumerable.Empty<Ideo>();
-
-			return Find.IdeoManager.IdeosInViewOrder;
-		}
+		public override IEnumerable<Ideo> AllOptions() =>
+			Find.IdeoManager?.IdeosInViewOrder;
 
 		public override Color IconColorFor(Ideo ideo) => ideo.Color;
 		public override Texture2D IconTexFor(Ideo ideo) => ideo.Icon;
@@ -152,9 +145,9 @@ namespace TDFindLib_Ideology
 
 		public override Texture2D IconTexFor(MemeDef d) => d.Icon;
 
-		public override IEnumerable<MemeDef> Options() =>
+		public override IEnumerable<MemeDef> AllOptions() =>
 			// Only Structore or Normal, ehhhh
-			DefDatabase<MemeDef>.AllDefs.Where(m => m.category != MemeCategory.Structure);
+			base.Options().Where(m => m.category != MemeCategory.Structure);
 	}
 
 

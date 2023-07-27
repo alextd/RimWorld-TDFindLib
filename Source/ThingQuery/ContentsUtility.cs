@@ -62,25 +62,26 @@ namespace TD_Find_Lib
 			return _allKnownThingsList;
 		}
 
-		public static HashSet<T> AvailableInGame<T>(Func<Thing, IEnumerable<T>> validGetter)
+		public static HashSet<T> AvailableInGame<T>(Func<Thing, IEnumerable<T>> availableOptionsGetter)
 		{
 			HashSet<T> ret = new HashSet<T>();
 			foreach(Map map in Find.Maps)
 				foreach (Thing t in AllKnownThings(map))
-					foreach (T tDef in validGetter(t))
-						ret.Add(tDef);
+					if(availableOptionsGetter(t) is IEnumerable<T> objs)
+						foreach (T o in objs)
+							ret.Add(o);
 
 			_allKnownThingsList.Clear();
 			return ret;
 		}
 
-		public static HashSet<T> AvailableInGame<T>(Func<Thing, T> validGetter)
+		public static HashSet<T> AvailableInGame<T>(Func<Thing, T> availableOptionGetter)
 		{
 			HashSet<T> ret = new HashSet<T>();
 			foreach (Map map in Find.Maps)
 				foreach (Thing t in AllKnownThings(map))
-					if(validGetter(t) is T def)
-						ret.Add(def);
+					if(availableOptionGetter(t) is T o)
+						ret.Add(o);
 
 			_allKnownThingsList.Clear();
 			return ret;
