@@ -634,7 +634,7 @@ namespace TD_Find_Lib
 			if (AllOptions() == null)
 				return Enumerable.Empty<T>();
 
-			// < 10 in AllOptions?, just use AllOptions. Count would count them all, this exits early.
+			// < 10 in AllOptions : just use AllOptions. Count would count them all, Skip exits early.
 			if (!AllOptions().Skip(10).Any())
 				return AllOptions();
 
