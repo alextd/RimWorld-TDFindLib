@@ -147,7 +147,7 @@ namespace TDFindLib_Ideology
 
 		public override IEnumerable<MemeDef> AllOptions() =>
 			// Only Structore or Normal, ehhhh
-			base.Options().Where(m => m.category != MemeCategory.Structure);
+			base.AllOptions().Where(m => m.category != MemeCategory.Structure);
 	}
 
 

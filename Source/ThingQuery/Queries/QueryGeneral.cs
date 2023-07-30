@@ -1053,7 +1053,7 @@ namespace TD_Find_Lib
 
 
 		public override IEnumerable<StatDef> AllOptions() =>
-			base.Options().Where(d => !d.alwaysHide && (DebugSettings.godMode || d.CanShowWithLoadedMods()));
+			base.AllOptions().Where(d => !d.alwaysHide && (DebugSettings.godMode || d.CanShowWithLoadedMods()));
 
 
 		//should be StatCategoryDef but they have multiple with same name
@@ -1152,7 +1152,7 @@ namespace TD_Find_Lib
 			sel == thing.def.designationCategory;
 
 		public override IEnumerable<DesignationCategoryDef> AllOptions() =>
-			base.Options().Where(desCatDef => desCatDef.AllResolvedDesignators.Any(d => d is Designator_Build));
+			base.AllOptions().Where(desCatDef => desCatDef.AllResolvedDesignators.Any(d => d is Designator_Build));
 	}
 
 	/*
