@@ -116,7 +116,7 @@ namespace TDFindLib_Ideology
 		}
 
 		public override IEnumerable<Ideo> AllOptions() =>
-			Find.IdeoManager?.IdeosInViewOrder;
+			Current.Game?.World?.ideoManager?.IdeosInViewOrder;
 
 		public override Color IconColorFor(Ideo ideo) => ideo.Color;
 		public override Texture2D IconTexFor(Ideo ideo) => ideo.Icon;
