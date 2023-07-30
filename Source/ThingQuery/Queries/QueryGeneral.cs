@@ -129,10 +129,12 @@ namespace TD_Find_Lib
 						yield return d.thingDef;
 			}
 
-			// Butchered. Actually this is for stone blocks only.
-			if (def.butcherProducts != null)
+			
+			// Butchered. Actually skip this for stone blocks.
+			if (def.butcherProducts != null && (def.thingCategories == null || !def.thingCategories.Contains( ThingCategoryDefOf.StoneChunks)))
 				foreach (var d in def.butcherProducts)
 					yield return d.thingDef;
+			
 
 			/*
 			 * Use Meat/Leather filters

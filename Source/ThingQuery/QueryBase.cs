@@ -13,6 +13,7 @@ namespace TD_Find_Lib
 	public class ThingQueryDef : ThingQuerySelectableDef
 	{
 		public Type queryClass;
+		public string tooltip;
 
 		public override IEnumerable<string> ConfigErrors()
 		{
@@ -218,6 +219,9 @@ namespace TD_Find_Lib
 			{
 				Widgets.DrawBoxSolid(usedRect, DisabledOverlayColor);
 			}
+
+			if (def.tooltip != null)
+				TooltipHandler.TipRegion(usedRect, def.tooltip);
 
 			listing.Gap(listing.verticalSpacing);
 			return (changed, delete);
