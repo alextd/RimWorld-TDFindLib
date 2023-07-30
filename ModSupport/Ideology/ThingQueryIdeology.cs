@@ -175,6 +175,7 @@ namespace TDFindLib_Ideology
 		public override Texture2D IconTexFor(PreceptDef d) => d.Icon;
 		public override string NameFor(PreceptDef d) => d.tipLabelOverride ?? ((string)(d.issue.LabelCap + ": " + d.LabelCap)); //Precept.TipLabel
 
+		public override bool Ordered => true;
 		public override IEnumerable<PreceptDef> AllOptions() =>
 			base.AllOptions().Where(p => p.visible && p.preceptClass == typeof(Precept));
 	}
