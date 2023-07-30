@@ -201,7 +201,7 @@ namespace TD_Find_Lib
 				return thing.MapHeld.designationManager.DesignationOn(thing) != null
 					|| thing.MapHeld.designationManager.AllDesignationsAt(thing.PositionHeld).Count() > 0;
 
-			if( sel == null)
+			if (sel == null)
 				return thing.MapHeld.designationManager.DesignationOn(thing) == null
 					&& thing.MapHeld.designationManager.AllDesignationsAt(thing.PositionHeld).Count() == 0;
 
@@ -218,7 +218,17 @@ namespace TD_Find_Lib
 		public override IEnumerable<DesignationDef> AvailableOptions() =>
 			Find.CurrentMap.designationManager.AllDesignations.Select(d => d.def);
 
-		public override string NameFor(DesignationDef o) => o.defName; // no labels on Designation def
+		public override string NameFor(DesignationDef o)
+		{
+			// no labels on Designation def
+			string tag = o.defName;
+
+			if ($"TD.Designation.{tag}".TryTranslate(out TaggedString result))
+				return result; 
+
+			// Just stupid add spaces before capital letters.
+			return string.Concat(tag.Select(x => Char.IsUpper(x) ? " " + x : x.ToString())).TrimStart(' ');
+		}
 	}
 
 	public class ThingQueryFreshness : ThingQueryDropDown<RotStage>

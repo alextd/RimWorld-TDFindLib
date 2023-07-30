@@ -139,4 +139,6 @@
 	<TD.Structures>Structures</TD.Structures>
 	<TD.AbilityLevel01>Level {0}: {1}</TD.AbilityLevel01>
 	
+	<TD.Designation.RemovePaintBuilding>Remove Paint From Building</TD.Designation.RemovePaintBuilding>
+	<TD.Designation.RemovePaintFloor>Remove Paint From Floor</TD.Designation.RemovePaintFloor>
 </LanguageData>
