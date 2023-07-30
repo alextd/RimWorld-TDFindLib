@@ -125,7 +125,7 @@ namespace TDFindLib_Ideology
 		public override string NameForExtra(int ex) => "Player's Ideoligion";
 	}
 
-	
+
 	//Non-structure memes.
 	public class ThingQueryMeme : ThingQueryDropDown<MemeDef>
 	{
@@ -146,13 +146,19 @@ namespace TDFindLib_Ideology
 		public override Texture2D IconTexFor(MemeDef d) => d.Icon;
 
 		public override IEnumerable<MemeDef> AllOptions() =>
-			// Only Structore or Normal, ehhhh
-			base.AllOptions().Where(m => m.category != MemeCategory.Structure);
+				// Only Structore or Normal, ehhhh
+				base.AllOptions().Where(m => m.category != MemeCategory.Structure);
 	}
 
-	public class ThingQueryPrecept : ThingQueryDropDown<PreceptDef>
+	public class ThingQueryPrecept : ThingQueryCategorizedDropdown <PreceptDef, IssueDef>
 	{
 		public ThingQueryPrecept() => sel = PreceptDefOf.Slavery_Honorable;
+
+		public override string NameForCat(IssueDef cat) => cat?.LabelCap ?? "TD.OtherCategory".Translate();
+
+		public static readonly HashSet<PreceptDef> singlePreceptIssues =
+			DefDatabase<PreceptDef>.AllDefs.Where(p => !DefDatabase<PreceptDef>.AllDefs.Any(other => p != other && other.issue == p.issue)).ToHashSet();
+		public override IssueDef CategoryFor(PreceptDef def) => singlePreceptIssues.Contains(def) ? null : def.issue;
 
 		public override bool AppliesDirectlyTo(Thing thing)
 		{
@@ -167,10 +173,10 @@ namespace TDFindLib_Ideology
 		}
 
 		public override Texture2D IconTexFor(PreceptDef d) => d.Icon;
+		public override string NameFor(PreceptDef d) => d.tipLabelOverride ?? ((string)(d.issue.LabelCap + ": " + d.LabelCap)); //Precept.TipLabel
 
 		public override IEnumerable<PreceptDef> AllOptions() =>
-			// Only Structore or Normal, ehhhh
-			base.AllOptions().Where(p => p.preceptClass == typeof(Precept));
+			base.AllOptions().Where(p => p.visible && p.preceptClass == typeof(Precept));
 	}
 
 
