@@ -11,7 +11,7 @@ namespace TD_Find_Lib
 	public class Settings : ModSettings, ISearchReceiver, ISearchGroupReceiver, ISearchProvider, ISearchStorageParent
 	{
 		private bool onlyAvailable = true;
-		public bool OnlyAvailable => onlyAvailable != Event.current.shift && Find.CurrentMap != null;
+		public bool OnlyAvailable => onlyAvailable != Event.current.shift && Current.Game != null;
 
 		public static string defaultGroupName = "TD.SavedSearches".Translate();
 
