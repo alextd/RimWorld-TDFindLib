@@ -347,7 +347,10 @@ namespace TD_Find_Lib
 		}
 
 		public override IEnumerable<ThingDef> AllOptions() => allHarvests;
-		public override IEnumerable<ThingDef> AvailableOptions()
+		public override IEnumerable<ThingDef> AvailableOptions() =>
+			ContentsUtility.AvailableInGame(t => (t as Plant)?.def.plant.harvestedThingDef);
+			/* This is marginally better but inconsistent and a bunch of repeated code
+			 * just to save time using ThingRequestGroup.HarvestablePlant instead of all items
 		{
 			HashSet<ThingDef> available = new HashSet<ThingDef>();
 			foreach (Map map in Find.Maps)
@@ -357,6 +360,7 @@ namespace TD_Find_Lib
 
 			return available;
 		}
+			*/
 
 		public override bool Ordered => true;
 		public override ThingDef IconDefFor(ThingDef def) => def;//duh;

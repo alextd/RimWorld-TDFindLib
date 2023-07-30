@@ -158,16 +158,20 @@ namespace TD_Find_Lib
 			return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref countRange);
 		}
 
-		public override IEnumerable<ThingDef> AvailableOptions()
-		{
-			HashSet<ThingDef> ret = new HashSet<ThingDef>();
-			foreach (Map map in Find.Maps)
-				foreach (Pawn p in map.mapPawns.AllPawns)
-					if (DefFor(p) is ThingDef def)
-						ret.Add(def);
+		public override IEnumerable<ThingDef> AvailableOptions() =>
+			ContentsUtility.AvailableInGame(t => t is Pawn pawn ? DefFor(pawn) : null);
+		/*
+	{
+		HashSet<ThingDef> ret = new HashSet<ThingDef>();
+		foreach (Map map in Find.Maps)
+			foreach (Pawn p in map.mapPawns.AllPawns)
+				if (DefFor(p) is ThingDef def)
+					ret.Add(def);
 
-			return ret;
-		}
+		return ret;
+	}
+		*/
+
 		public override bool Ordered => true;
 		public override ThingDef IconDefFor(ThingDef o) => o;
 
