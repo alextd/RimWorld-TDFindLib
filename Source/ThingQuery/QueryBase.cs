@@ -343,6 +343,11 @@ namespace TD_Find_Lib
 
 				ClearRefError();
 				if (SaveLoadByName) selName = MakeSaveName();
+				// Why Rebind map when selection set?
+				// when you are searching map #2 but are looking at map #1, your selections are from map #1.
+				// rebind properly to map #2 to see if the option from map #1 actually works on map #2.
+				// TODO: only do this in such a specific case.
+				// or maybe prevent it by changing use of Find.CurrentMap in AllOptions(), to use the search's map.
 				if (UsesResolveRef) RootHolder?.Root_NotifyRefUpdated();
 				PostProcess();
 				PostChosen();
