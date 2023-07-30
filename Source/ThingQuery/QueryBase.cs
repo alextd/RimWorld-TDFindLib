@@ -803,6 +803,10 @@ namespace TD_Find_Lib
 		public abstract string NameForCat(C cat);
 		private string NameForCatMenu(C cat) => cat == null ? "TD.OtherCategory".Translate() : NameForCat(cat);
 
+		public virtual Color IconColorForCat(C cat) => Color.white;
+		public virtual Texture2D IconTexForCat(C cat) => null;
+		public virtual ThingDef IconDefForCat(C cat) => null;
+
 		private Dictionary<C, List<T>> _catOptions = new();
 		private List<T> _nullOptions = new();
 		private (Dictionary<C, List<T>>, List<T>) OptionCategories()
@@ -847,7 +851,8 @@ namespace TD_Find_Lib
 
 		private FloatMenuOption FloatOptionForCat(C cat, List<T> options)
 		{
-			return new FloatMenuOption(NameForCatMenu(cat), () =>
+			string label = NameForCatMenu(cat);
+			Action action = () =>
 			{
 				List<FloatMenuOption> catOptions = new();
 
@@ -855,7 +860,16 @@ namespace TD_Find_Lib
 					catOptions.Add(catOption);
 
 				DoFloatOptions(catOptions);
-			});
+			};
+
+			if (IconTexForCat(cat) is Texture2D tex)
+				return new FloatMenuOption(label, action, tex == BaseContent.BadTex ? BaseContent.ClearTex : tex, IconColorForCat(cat));
+
+			if (IconDefForCat(cat) is ThingDef def)
+				return new FloatMenuOption(label, action, def)
+				{ iconColor = IconColorForCat(cat) }; // base doesn't take iconColor O_o
+
+			return new FloatMenuOption(label, action);
 		}
 
 		protected virtual IEnumerable<FloatMenuOption> FloatSubmenuOptionsFor(C cat, List<T> options)

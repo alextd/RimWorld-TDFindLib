@@ -160,6 +160,8 @@ namespace TDFindLib_Ideology
 			DefDatabase<PreceptDef>.AllDefs.Where(p => !DefDatabase<PreceptDef>.AllDefs.Any(other => p != other && other.issue == p.issue)).ToHashSet();
 		public override IssueDef CategoryFor(PreceptDef def) => singlePreceptIssues.Contains(def) ? null : def.issue;
 
+		public override Texture2D IconTexForCat(IssueDef cat) => cat?.Icon ?? null;
+
 		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
