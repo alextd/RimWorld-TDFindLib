@@ -217,6 +217,12 @@ namespace TD_Find_Lib
 
 
 		// Map shenanigans
+
+		public void NotifyMapChange()
+		{
+			UnbindMap();
+			children.ForEach((ThingQuery q) => q.Notify_NewMap());
+		}
 		public void SetSearchChosenMaps()
 		{
 			//Pretty much for inactive queries right?
@@ -230,6 +236,8 @@ namespace TD_Find_Lib
 			parameters.searchMaps.Clear();
 			parameters.searchMaps.Add(newMap);
 
+			NotifyMapChange();
+
 			if (remake) Changed();
 		}
 
@@ -239,6 +247,8 @@ namespace TD_Find_Lib
 			parameters.searchMaps.Clear();
 			parameters.searchMaps.AddRange(newMaps);
 
+			NotifyMapChange();
+
 			if (remake) Changed();
 		}
 
@@ -246,6 +256,8 @@ namespace TD_Find_Lib
 		{
 			parameters.mapType = SearchMapType.ChosenMaps;
 			parameters.searchMaps.Add(newMap);
+
+			NotifyMapChange();
 
 			if (remake) Changed();
 		}
@@ -255,6 +267,8 @@ namespace TD_Find_Lib
 			if (parameters.mapType != SearchMapType.ChosenMaps) return; //Huh?
 
 			parameters.searchMaps.Remove(oldMap);
+
+			NotifyMapChange();
 
 			if (remake) Changed();
 		}
@@ -277,6 +291,8 @@ namespace TD_Find_Lib
 			else
 				parameters.searchMaps.Add(toggleMap);
 
+			NotifyMapChange();
+
 			if (remake) Changed();
 		}
 
@@ -287,6 +303,8 @@ namespace TD_Find_Lib
 			parameters.mapType = SearchMapType.CurMap;
 			parameters.searchMaps.Clear();
 
+			NotifyMapChange();
+
 			if (remake) Changed();
 		}
 
@@ -296,6 +314,8 @@ namespace TD_Find_Lib
 
 			parameters.mapType = SearchMapType.AllMaps;
 			parameters.searchMaps.Clear();
+
+			NotifyMapChange();
 
 			if (remake) Changed();
 		}

@@ -78,6 +78,7 @@ namespace TD_Find_Lib
 
 		public virtual bool UsesResolveName => false;
 		public virtual bool UsesResolveRef => false;
+		public virtual void Notify_NewMap() { }
 
 		public virtual void ExposeData()
 		{
@@ -325,6 +326,7 @@ namespace TD_Find_Lib
 			selectionErrorCurMap = null;
 			refErrorOnAnyMap = false;
 		}
+		public override void Notify_NewMap() => ClearRefError();
 		// (It will not reset when you change the map selection though, only when you set the query selection again)
 
 		public override string DisableReason => selectionError;
