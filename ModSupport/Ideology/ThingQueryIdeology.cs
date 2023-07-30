@@ -97,7 +97,7 @@ namespace TDFindLib_Ideology
 		public ThingQueryIdeoligion() => extraOption = 1;
 
 		protected override Ideo ResolveRef(Map map) => 
-			Find.IdeoManager.ideos.First(i => NameFor(i) == selName);
+			Find.IdeoManager.ideos.FirstOrDefault(i => NameFor(i) == selName);
 
 		public override bool AppliesDirectlyTo(Thing thing)
 		{
