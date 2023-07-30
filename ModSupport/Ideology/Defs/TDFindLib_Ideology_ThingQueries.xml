@@ -28,5 +28,13 @@
 		<mod>Ludeon.RimWorld.Ideology</mod>
 		<insertCategory>Category_PawnProp</insertCategory>
 	</TD_Find_Lib.ThingQueryDef>
+	
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Precept</defName>
+		<label>precept</label>
+		<queryClass>TDFindLib_Ideology.ThingQueryPrecept</queryClass>
+		<mod>Ludeon.RimWorld.Ideology</mod>
+		<insertCategory>Category_PawnProp</insertCategory>
+	</TD_Find_Lib.ThingQueryDef>
 
 </Defs>

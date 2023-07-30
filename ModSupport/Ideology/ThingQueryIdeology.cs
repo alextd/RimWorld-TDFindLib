@@ -150,6 +150,29 @@ namespace TDFindLib_Ideology
 			base.AllOptions().Where(m => m.category != MemeCategory.Structure);
 	}
 
+	public class ThingQueryPrecept : ThingQueryDropDown<PreceptDef>
+	{
+		public ThingQueryPrecept() => sel = PreceptDefOf.Slavery_Honorable;
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null) return false;
+
+			Ideo ideo = pawn.Ideo;
+			if (ideo == null) return false;
+
+
+			return pawn.Ideo.precepts.Any(precept => precept.def == sel);
+		}
+
+		public override Texture2D IconTexFor(PreceptDef d) => d.Icon;
+
+		public override IEnumerable<PreceptDef> AllOptions() =>
+			// Only Structore or Normal, ehhhh
+			base.AllOptions().Where(p => p.preceptClass == typeof(Precept));
+	}
+
 
 	[StaticConstructorOnStartup]
 	public static class ExpansionHider
