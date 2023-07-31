@@ -21,6 +21,8 @@ namespace TDFindLib_Ideology
 
 		public override string NameFor(StyleCategoryDef cat) => cat.LabelCap;
 		public override string NullOption() => "TD.OtherCategory".Translate();
+
+		public override Texture2D IconTexFor(StyleCategoryDef cat) => cat?.Icon;
 	}
 
 	public class ThingQueryThingStyle : ThingQueryCategorizedDropdown<ThingStyleDef, StyleCategoryDef, ThingQueryThingStyle, ThingQueryStyleCategory>

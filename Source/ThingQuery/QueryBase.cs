@@ -719,15 +719,7 @@ namespace TD_Find_Lib
 			row.Label(Label);
 
 			// Draw icon
-			if (sel != null)	//todo for other types?
-			{
-				GUI.color = IconColorFor(sel);
-				if (IconDefFor(sel) is ThingDef iconDef)
-					row.DefIcon(iconDef);
-				else if (IconTexFor(sel) is Texture2D iconTex)
-					row.Icon(iconTex);
-				GUI.color = Color.white;
-			}
+			DrawIconLabel(row);
 
 			// Handle selection + custom drawers
 			string selLabel = GetSelLabel();
@@ -761,6 +753,19 @@ namespace TD_Find_Lib
 				DoFloatOptions(options);
 			}
 			return changed;
+		}
+
+		public virtual void DrawIconLabel(WidgetRow row)
+		{
+			if (sel != null)  //todo for other types?
+			{
+				GUI.color = IconColorFor(sel);
+				if (IconDefFor(sel) is ThingDef iconDef)
+					row.DefIcon(iconDef);
+				else if (IconTexFor(sel) is Texture2D iconTex)
+					row.Icon(iconTex);
+				GUI.color = Color.white;
+			}
 		}
 
 		// Subclass can override DrawCustom to draw anything custom
@@ -1034,8 +1039,21 @@ namespace TD_Find_Lib
 			yield return new FloatMenuOptionAndRefresh(NameForAnyCat(cat), () => SelCat = cat, this, Color.yellow);
 		}
 
-		//sealed this because the catQuery will handle it
+		//sealed because the catQuery will handle it
 		public override sealed string NameForCat(C cat) => catQuery.DropdownNameFor(cat);
+		public override sealed Color IconColorForCat(C cat) => catQuery.IconColorFor(cat);
+		public override sealed Texture2D IconTexForCat(C cat) => catQuery.IconTexFor(cat);
+		public override sealed ThingDef IconDefForCat(C cat) => catQuery.IconDefFor(cat);
+
+		public override void DrawIconLabel(WidgetRow row)
+		{
+			if (useCat)  
+				catQuery.DrawIconLabel(row);
+			else
+				base.DrawIconLabel(row);
+		}
+
+
 		public string NameForAnyCat(C cat)
 		{
 			string label = cat == null ? catQuery.NullOption() : NameForCat(cat);
