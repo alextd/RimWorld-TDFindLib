@@ -193,18 +193,6 @@ namespace TDFindLib_Ideology
 
 	public abstract class ThingQueryPreceptOther<T> : ThingQueryDropDown<PreceptDef>  where T : Precept
 	{
-		public override Texture2D IconTexFor(PreceptDef d) => d.Icon;
-		public override string NameFor(PreceptDef d) => d.tipLabelOverride ?? ((string)(d.issue.LabelCap + ": " + d.LabelCap)); //Precept.TipLabel
-
-		public override bool Ordered => true;
-		public override IEnumerable<PreceptDef> AllOptions() =>
-			base.AllOptions().Where(pdef => pdef.visible && typeof(T).IsAssignableFrom(pdef.preceptClass));
-	}
-
-	public class ThingQueryRole : ThingQueryPreceptOther<Precept_Role>
-	{
-		public ThingQueryRole() => sel = PreceptDefOf.IdeoRole_Leader;
-
 		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
@@ -213,9 +201,34 @@ namespace TDFindLib_Ideology
 			Ideo ideo = pawn.Ideo;
 			if (ideo == null) return false;
 
-
-			return pawn.Ideo.GetRole(pawn).def == sel;
+			return AppliesToIdeo(pawn, ideo);
 		}
+
+		public abstract bool AppliesToIdeo(Pawn pawn, Ideo ideo);
+
+		public override Texture2D IconTexFor(PreceptDef d) => d.Icon;
+		public override string NameFor(PreceptDef d) => d.tipLabelOverride ?? d.LabelCap;
+
+		public override IEnumerable<PreceptDef> AllOptions() =>
+			base.AllOptions().Where(pdef => pdef.visible && typeof(T).IsAssignableFrom(pdef.preceptClass));
+	}
+
+	public class ThingQueryRole : ThingQueryPreceptOther<Precept_Role>
+	{
+		public ThingQueryRole() => sel = PreceptDefOf.IdeoRole_Leader;
+
+		public override bool AppliesToIdeo(Pawn pawn, Ideo ideo)
+		{ 
+			var role = pawn.Ideo.GetRole(pawn);
+			if (extraOption == 1)
+				return role != null;
+
+			return role?.def == sel;
+		}
+
+		public override string NullOption() => "None".Translate();
+		public override int ExtraOptionsCount => 1;
+		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
 	}
 
 
