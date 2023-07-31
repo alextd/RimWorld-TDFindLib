@@ -14,9 +14,9 @@ namespace TD_Find_Lib
 			float xMin = Mathf.Max(rect.x + rect.width / 2f, leftPushingX);
 			return new Rect(xMin, rect.y, rect.xMax - xMin, rect.height);
 		}
-		public static Rect RightPartClamped(this Rect rect, float pct, float leftPushingX)
+		public static Rect RightPartClamped(this Rect rect, float pct, float leftPushingX, float desiredWidth = 0)
 		{
-			float xMin = Mathf.Max(rect.x * pct + rect.width * (1 - pct), leftPushingX);
+			float xMin = Mathf.Max(Mathf.Min(rect.xMax - desiredWidth, rect.x * pct + rect.width * (1 - pct)), leftPushingX);
 			return new Rect(xMin, rect.y, rect.xMax - xMin, rect.height);
 		}
 	}

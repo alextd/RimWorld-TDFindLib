@@ -294,16 +294,75 @@ namespace TD_Find_Lib
 			return false;
 		}
 
+		public static void AppendEffect(StringBuilder sb, ThoughtStage stage)
+		{
+			int mood = (int)stage.baseMoodEffect;
+			if (mood != 0)
+			{
+				sb.Append(" (");
+				if (mood > 0)
+					sb.Append("+");
+				sb.Append(mood);
+				sb.Append(" ");
+				sb.Append("mood");
+				sb.Append(")");
+			}
+
+			int opinion = (int)stage.baseOpinionOffset;
+			if (opinion != 0)
+			{
+				sb.Append(" (");
+				if (opinion > 0)
+					sb.Append("+");
+				sb.Append(opinion);
+				sb.Append(" ");
+				sb.Append("opinion");
+				sb.Append(")");
+			}
+		}
+
 		public override string NameFor(ThoughtDef def)
 		{
+			StringBuilder sb = new();
+			ThoughtStage stage = def.stages.FirstOrDefault(d => d?.label != null);
 			string label =
 				def.label?.CapitalizeFirst() ??
-				def.stages.FirstOrDefault(d => d?.label != null).label.CapitalizeFirst() ??
-				def.stages.FirstOrDefault(d => d?.labelSocial != null).labelSocial.CapitalizeFirst() ?? "???";
+				stage?.label.CapitalizeFirst() ??
+				"???";
 
 			label = label.Replace("{0}", "_").Replace("{1}", "_");
+			sb.Append(label);
 
-			return ShowMultistage(def) ? label + "*" : label;
+			if (ShowMultistage(def))
+				sb.Append("*");
+			else if (stage != null)
+				AppendEffect(sb, stage);
+
+			if(def.gender != Gender.None)
+			{
+				sb.Append(" (");
+				sb.Append(def.gender == Gender.Male ? "Male".Translate() : "Female".Translate());
+				sb.Append(")");
+			}
+
+			return sb.ToString();
+		}
+
+		public override string TipForSel()
+		{
+			StringBuilder sb = new();
+			if (!ShowMultistage(sel))
+			{
+				sb.AppendLine(GetSelLabel());
+
+				if (sel.stages?[0]?.description != null)
+					sb.AppendLine(sel.stages[0].description);
+			}
+			sb.Append("<color=#808080>(");
+			sb.Append(sel.defName);
+			sb.Append(")</color>");
+
+			return sb.ToString();
 		}
 
 		public override IEnumerable<ThoughtDef> AvailableOptions() =>
@@ -317,15 +376,12 @@ namespace TD_Find_Lib
 			if (stage == null || !stage.visible)
 				return "TD.Invisible".Translate();
 
-			StringBuilder str = new(stage.label.CapitalizeFirst().Replace("{0}", "_").Replace("{1}", "_"));
+			StringBuilder sb = new(stage.label.CapitalizeFirst());
+			sb.Replace("{0}", "_").Replace("{1}", "_");
 
-			if (stage.baseMoodEffect != 0)
-				str.Append($" : ({stage.baseMoodEffect})");
+			AppendEffect(sb, stage);
 
-			if (stage.baseOpinionOffset != 0)
-				str.Append($" : ({stage.baseOpinionOffset})");
-
-			return str.ToString();
+			return sb.ToString();
 		}
 
 		private string TipForStage(int stageI) =>

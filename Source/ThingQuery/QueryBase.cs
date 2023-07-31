@@ -636,6 +636,8 @@ namespace TD_Find_Lib
 			return NullOption() ?? "??Null selection??";
 		}
 
+		public virtual string TipForSel() => null;
+
 		// Subclass Options() don't need to handle simple enums or defs
 		// Often overrides will use Mod.settings.OnlyAvailable to show a subset of options when shift is held
 		// That would also use ContentsUtility.AvailableInGame for ease of searching inside all things.
@@ -726,7 +728,7 @@ namespace TD_Find_Lib
 			if (HasCustom)
 			{
 				// Selection option button on left, custom on the remaining rect
-				changeSelection = row.ButtonText(selLabel);
+				changeSelection = row.ButtonText(selLabel, TipForSel());
 
 				Rect customRect = rect;
 				customRect.xMin = row.FinalX;
@@ -735,8 +737,11 @@ namespace TD_Find_Lib
 			else
 			{
 				// selected option button on right
-				Rect buttRect = fullRect.RightPartClamped(0.4f, row.FinalX);
+				float labelSize = Text.CalcSize(selLabel).x + WidgetRow.ButtonExtraSpace;
+
+				Rect buttRect = fullRect.RightPartClamped(0.4f, row.FinalX, labelSize);
 				changeSelection = Widgets.ButtonText(buttRect, selLabel);
+				if (TipForSel() is string tip) TooltipHandler.TipRegion(buttRect, tip);
 			}
 			if (changeSelection)
 			{
