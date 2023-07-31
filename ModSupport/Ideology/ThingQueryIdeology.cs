@@ -180,7 +180,7 @@ namespace TDFindLib_Ideology
 			if (ideo == null) return false;
 
 
-			return pawn.Ideo.precepts.Any(precept => precept.def == sel);
+			return pawn.Ideo.HasPrecept(sel);
 		}
 
 		public override Texture2D IconTexFor(PreceptDef d) => d.Icon;
