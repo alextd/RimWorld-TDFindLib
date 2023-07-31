@@ -161,6 +161,7 @@ namespace TDFindLib_Ideology
 		public override IssueDef CategoryFor(PreceptDef def) => singlePreceptIssues.Contains(def) ? null : def.issue;
 
 		public override Texture2D IconTexForCat(IssueDef cat) => cat?.Icon ?? null;
+		public override Color IconColorFor(PreceptDef p) => IdeoUIUtility.GetIconAndLabelColor(p.impact);
 
 		public override bool OrderedCat => true;
 		//public override IComparable OrderByCat(IssueDef cat) => cat.order;
