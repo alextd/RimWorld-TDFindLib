@@ -220,6 +220,21 @@ namespace TDFindLib_Ideology
 		public override bool AppliesToIdeo(Pawn pawn, Ideo ideo)
 		{ 
 			var role = pawn.Ideo.GetRole(pawn);
+
+			if (extraOption == 2)
+			{
+				if (role == null || role.apparelRequirements.NullOrEmpty())
+					return false;
+
+				return role.apparelRequirements
+					.Select(r => r.requirement)
+					.Any(r => r.IsActive(pawn) && !r.IsMet(pawn));
+				// For multi-roles missing apparel, The -mood doesn't actually take effect
+				// But they'll still choose to qear required apparel over others it seems
+				// So whatever, even if there's no mood debuff, include them in this filter.
+				// Otherwise if role == single return false
+			}
+
 			if (extraOption == 1)
 				return role != null;
 
@@ -227,8 +242,14 @@ namespace TDFindLib_Ideology
 		}
 
 		public override string NullOption() => "None".Translate();
-		public override int ExtraOptionsCount => 1;
-		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
+		public override int ExtraOptionsCount => 2;
+		public override string NameForExtra(int ex) =>
+			ex switch
+			{
+				2 => "RoleRequiredApparelLabel".Translate(),
+				_ => "TD.AnyOption".Translate()
+			};
+				
 	}
 
 
