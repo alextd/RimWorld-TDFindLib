@@ -807,12 +807,18 @@ namespace TD_Find_Lib
 		public virtual Texture2D IconTexForCat(C cat) => null;
 		public virtual ThingDef IconDefForCat(C cat) => null;
 
-		private Dictionary<C, List<T>> _catOptions = new();
-		private List<T> _nullOptions = new();
-		private (Dictionary<C, List<T>>, List<T>) OptionCategories()
+		public virtual bool OrderedCat => false;
+		public virtual IComparable Comparable(C cat) => NameForCat(cat);
+
+		private readonly Dictionary<C, List<T>> catOptions = new();
+		private readonly List<KeyValuePair<C, List<T>>> orderedCatOptions = new();
+		private readonly List<T> nullOptions = new();
+		private void MakeOptionCategories()
 		{
-			_catOptions.Clear();
-			_nullOptions.Clear();
+			catOptions.Clear();
+			orderedCatOptions.Clear();
+			nullOptions.Clear();
+
 			int i = 0;
 			foreach (T def in Options())
 			{
@@ -821,28 +827,30 @@ namespace TD_Find_Lib
 
 				List<T> optionsForCat;
 				if (cat == null)
-					optionsForCat = _nullOptions;
-				else if (!_catOptions.TryGetValue(cat, out optionsForCat))
+					optionsForCat = nullOptions;
+				else if (!catOptions.TryGetValue(cat, out optionsForCat))
 				{
 					optionsForCat = new();
-					_catOptions[cat] = optionsForCat;
+					catOptions[cat] = optionsForCat;
 				}
 
 				optionsForCat.Add(def);
 			}
-			return (_catOptions, _nullOptions);
+			orderedCatOptions.AddRange(catOptions);
+			if (OrderedCat)
+				orderedCatOptions.Sort((a, b) => Comparable(a.Key).CompareTo(Comparable(b.Key)));
 		}
 
 		public override void MakeDropdownOptions(List<FloatMenuOption> floatOptions)
 		{
 			if (Options().Count() > 10)
 			{
-				(Dictionary<C, List<T>> catOptions, List<T> nullOptions) = OptionCategories();
+				MakeOptionCategories();
 
 				if (nullOptions.Count > 0)
 					floatOptions.Add(FloatOptionForCat(default, nullOptions));
 
-				foreach (var options in catOptions)
+				foreach (var options in orderedCatOptions)
 					floatOptions.Add(FloatOptionForCat(options.Key, options.Value));
 			}
 			else
