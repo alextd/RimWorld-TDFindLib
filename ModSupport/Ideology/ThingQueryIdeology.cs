@@ -191,6 +191,33 @@ namespace TDFindLib_Ideology
 			base.AllOptions().Where(p => p.visible && p.preceptClass == typeof(Precept));
 	}
 
+	public abstract class ThingQueryPreceptOther<T> : ThingQueryDropDown<PreceptDef>  where T : Precept
+	{
+		public override Texture2D IconTexFor(PreceptDef d) => d.Icon;
+		public override string NameFor(PreceptDef d) => d.tipLabelOverride ?? ((string)(d.issue.LabelCap + ": " + d.LabelCap)); //Precept.TipLabel
+
+		public override bool Ordered => true;
+		public override IEnumerable<PreceptDef> AllOptions() =>
+			base.AllOptions().Where(pdef => pdef.visible && typeof(T).IsAssignableFrom(pdef.preceptClass));
+	}
+
+	public class ThingQueryRole : ThingQueryPreceptOther<Precept_Role>
+	{
+		public ThingQueryRole() => sel = PreceptDefOf.IdeoRole_Leader;
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null) return false;
+
+			Ideo ideo = pawn.Ideo;
+			if (ideo == null) return false;
+
+
+			return pawn.Ideo.GetRole(pawn).def == sel;
+		}
+	}
+
 
 	[StaticConstructorOnStartup]
 	public static class ExpansionHider

@@ -36,5 +36,13 @@
 		<mod>Ludeon.RimWorld.Ideology</mod>
 		<insertCategory>Category_PawnProp</insertCategory>
 	</TD_Find_Lib.ThingQueryDef>
+	
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Role</defName>
+		<label>role</label>
+		<queryClass>TDFindLib_Ideology.ThingQueryRole</queryClass>
+		<mod>Ludeon.RimWorld.Ideology</mod>
+		<insertCategory>Category_PawnProp</insertCategory>
+	</TD_Find_Lib.ThingQueryDef>
 
 </Defs>
