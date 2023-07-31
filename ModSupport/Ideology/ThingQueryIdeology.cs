@@ -110,11 +110,12 @@ namespace TDFindLib_Ideology
 			if (ideo == null) return false;
 
 			if (extraOption == 1)
-			{
-				return pawn.Ideo == Faction.OfPlayer.ideos.PrimaryIdeo;
-			}
+				return ideo == Faction.OfPlayer.ideos.PrimaryIdeo;
 
-			return pawn.Ideo == sel;
+			if (extraOption == 2)
+				return ideo != Faction.OfPlayer.ideos.PrimaryIdeo;
+
+			return ideo == sel;
 		}
 
 		public override IEnumerable<Ideo> AllOptions() =>
@@ -123,8 +124,9 @@ namespace TDFindLib_Ideology
 		public override Color IconColorFor(Ideo ideo) => ideo.Color;
 		public override Texture2D IconTexFor(Ideo ideo) => ideo.Icon;
 
-		public override int ExtraOptionsCount => 1;
-		public override string NameForExtra(int ex) => "Player's Ideoligion";
+		public override int ExtraOptionsCount => 2;
+		public override string NameForExtra(int ex) =>
+			ex == 1 ? "Player's Ideoligion" : "Other Ideoligion";
 	}
 
 
