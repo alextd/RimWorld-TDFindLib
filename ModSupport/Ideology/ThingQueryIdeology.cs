@@ -246,7 +246,7 @@ namespace TDFindLib_Ideology
 		public override string NameForExtra(int ex) =>
 			ex switch
 			{
-				2 => "RoleRequiredApparelLabel".Translate(),
+				2 => "Wants apparel for role",
 				_ => "TD.AnyOption".Translate()
 			};
 				

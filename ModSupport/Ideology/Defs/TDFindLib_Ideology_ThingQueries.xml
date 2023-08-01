@@ -23,7 +23,7 @@
 	
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Meme</defName>
-		<label>meme</label>
+		<label>ideoligion has meme</label>
 		<queryClass>TDFindLib_Ideology.ThingQueryMeme</queryClass>
 		<mod>Ludeon.RimWorld.Ideology</mod>
 		<insertCategory>Category_PawnProp</insertCategory>
@@ -31,7 +31,7 @@
 	
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Precept</defName>
-		<label>precept</label>
+		<label>ideoligion has precept</label>
 		<queryClass>TDFindLib_Ideology.ThingQueryPrecept</queryClass>
 		<mod>Ludeon.RimWorld.Ideology</mod>
 		<insertCategory>Category_PawnProp</insertCategory>
@@ -39,7 +39,7 @@
 	
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Role</defName>
-		<label>role</label>
+		<label>ideoligion role</label>
 		<queryClass>TDFindLib_Ideology.ThingQueryRole</queryClass>
 		<mod>Ludeon.RimWorld.Ideology</mod>
 		<insertCategory>Category_PawnProp</insertCategory>
