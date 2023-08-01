@@ -252,6 +252,78 @@ namespace TDFindLib_Ideology
 				
 	}
 
+	/*
+	 * Aeh rituals got awfully complex with ... obligations and whatnot.
+	 * And it's awkard to have to target buildings that have rituals attached anyway
+	// Not PreceptOther, it doesn't target pawns ideo and it has invisible precepts
+	public enum RitualFilterType { Has, Available, InProgress}
+	public class ThingQueryRitual : ThingQueryDropDown<PreceptDef>
+	{
+		public RitualFilterType filterType;
+
+		public ThingQueryRitual() => sel = PreceptDefOf.RoleChange;
+
+		public override void ExposeData()
+		{
+			base.ExposeData();
+			Scribe_Values.Look(ref filterType, "filterType");
+		}
+
+		protected override ThingQuery Clone()
+		{
+			ThingQueryRitual clone = (ThingQueryRitual)base.Clone();
+			clone.filterType = filterType;
+			return clone;
+		}
+
+		public static IEnumerable<Precept_Ritual> RitualsAt(Building building)
+		{
+
+			foreach (Ideo ideo in Faction.OfPlayer.ideos.AllIdeos)
+			{
+				foreach (Precept precept in ideo.PreceptsListForReading)
+				{
+					if (precept is not Precept_Ritual ritual) continue;
+
+					if (!ritual.activeObligations.NullOrEmpty())
+						foreach (RitualObligation obl in ritual.activeObligations)
+							if (ritual.CanUseTarget(building, obl).canUse)
+								yield return ritual;
+				}
+			}
+		}
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Building building = thing as Building;
+			if (building == null) return false;
+
+			if(extraOption == 1)
+			{
+				return filterType switch
+				{
+					RitualFilterType.Has => RitualsAt(building).Any(),
+					RitualFilterType.Available => RitualsAt(building).Any(r => r.CanUseTarget(building, ,
+					RitualFilterType.InProgress=> building.TargetOfRitual() is LordJob_Ritual,
+					_ => false // I guess
+				}
+				return ;
+			}
+
+			return building.TargetOfRitual() is LordJob_Ritual lordjob && lordjob.Ritual.def == sel;
+		}
+
+		public override Texture2D IconTexFor(PreceptDef d) => d.Icon;
+		public override string NameFor(PreceptDef d) => d.tipLabelOverride ?? d.LabelCap;
+
+		public override IEnumerable<PreceptDef> AllOptions() =>
+			base.AllOptions().Where(pdef => typeof(Precept_Ritual).IsAssignableFrom(pdef.preceptClass));
+
+		public override int ExtraOptionsCount => 1;
+		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
+	}
+	*/
+
 
 	[StaticConstructorOnStartup]
 	public static class ExpansionHider
