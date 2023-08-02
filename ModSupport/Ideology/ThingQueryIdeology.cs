@@ -324,6 +324,60 @@ namespace TDFindLib_Ideology
 	}
 	*/
 
+	[DefOf]
+	public class ThingQueryWeaponClass : ThingQueryDropDown<WeaponClassDef>
+	{
+		public static WeaponClassDef Ultratech;
+		//public bool despised; // false means check noble
+
+		public ThingQueryWeaponClass() => sel = Ultratech;
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			ThingWithComps weapon =
+				thing is Pawn pawn ?
+				pawn.equipment?.Primary :
+				thing as ThingWithComps; //if it's not a weapon it won't pass check anyway
+
+			if (weapon == null)
+				return false;
+
+			return weapon.def.weaponClasses?.Contains(sel) ?? false;
+		}
+	}
+
+	//Check if item is noble to player ideo ; or held pawn's ideo. ; or pawn's held weapon
+	public class ThingQueryWeaponDisposition : ThingQueryDropDown<IdeoWeaponDisposition>
+	{
+		public ThingQueryWeaponDisposition() => sel = IdeoWeaponDisposition.Noble;
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			// The weapon itself, or the equipped weapon of a pawn.
+			ThingWithComps weapon =
+				thing is Pawn pawn
+				? pawn.equipment?.Primary
+				: thing as ThingWithComps; //if it's not a weapon it won't pass check anyway
+
+			if (weapon == null || !weapon.def.IsWeapon)
+				return false;
+
+			// The ideo of the person holding this item, or... I guess just the Player's ideo. Items don't have factions.
+			Ideo ideo =
+				weapon.ParentHolder is Pawn_EquipmentTracker tracker
+				? tracker.pawn.Ideo
+				: Faction.OfPlayer.ideos.PrimaryIdeo;
+
+			if (ideo == null)
+				return false;
+
+			return ideo.GetDispositionForWeapon(weapon.def) == sel;
+		}
+
+		public override string NameFor(IdeoWeaponDisposition o) =>
+			base.NameFor(o).CapitalizeFirst();
+	}
+
 
 	[StaticConstructorOnStartup]
 	public static class ExpansionHider

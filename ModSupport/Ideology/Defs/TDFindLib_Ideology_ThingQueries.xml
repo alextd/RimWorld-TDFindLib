@@ -44,5 +44,26 @@
 		<mod>Ludeon.RimWorld.Ideology</mod>
 		<insertCategory>Category_PawnProp</insertCategory>
 	</TD_Find_Lib.ThingQueryDef>
+	
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_WeaponClass</defName>
+		<label>weapon class</label>
+		<queryClass>TDFindLib_Ideology.ThingQueryWeaponClass</queryClass>
+		<mod>Ludeon.RimWorld.Ideology</mod>
+		<insertCategory>Category_ItemInfo</insertCategory>
+		<tooltip>The weapon class for an ideoligion's preferred weapons</tooltip>
+	</TD_Find_Lib.ThingQueryDef>
+	
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_WeaponDisposition</defName>
+		<label>weapon preference</label>
+		<queryClass>TDFindLib_Ideology.ThingQueryWeaponDisposition</queryClass>
+		<mod>Ludeon.RimWorld.Ideology</mod>
+		<insertCategories>
+			<li>Category_ItemInfo</li>
+			<li>Category_PawnProp</li>
+		</insertCategories>
+		<tooltip>If a weapon is preferred by your ideoligion; or the ideoligion of its wielder; or if a person is wielding a preferred weapon according to their ideoligion</tooltip>
+	</TD_Find_Lib.ThingQueryDef>
 
 </Defs>
