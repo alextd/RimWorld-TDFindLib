@@ -378,6 +378,31 @@ namespace TDFindLib_Ideology
 			base.NameFor(o).CapitalizeFirst();
 	}
 
+	public class ThingQueryVeneratedAnimal : ThingQueryIdeoligion // conveniently same options but different filter
+	{
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null) return false;
+
+			// Which ideo this animal is venerated for
+			Ideo ideo = sel; 
+
+			if (extraOption == 1)
+				ideo = pawn.Faction?.ideos?.PrimaryIdeo; // An animal's owner's faction.
+
+			if (extraOption == 2)
+				ideo = Faction.OfPlayer.ideos.PrimaryIdeo;
+
+			if (ideo == null) return false;
+
+			return ideo.VeneratedAnimals.Contains(thing.def);
+		}
+
+		public override string NameForExtra(int ex) =>
+			ex == 1 ? "Owner's Ideoligion" : "Player's Ideoligion";
+	}
+
 
 	[StaticConstructorOnStartup]
 	public static class ExpansionHider

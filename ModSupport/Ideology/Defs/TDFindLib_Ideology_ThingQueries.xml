@@ -46,6 +46,14 @@
 	</TD_Find_Lib.ThingQueryDef>
 	
 	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_VeneratedAnimal</defName>
+		<label>venerated animal</label>
+		<queryClass>TDFindLib_Ideology.ThingQueryVeneratedAnimal</queryClass>
+		<mod>Ludeon.RimWorld.Ideology</mod>
+		<insertCategory>Category_AnimalProp</insertCategory>
+	</TD_Find_Lib.ThingQueryDef>
+	
+	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_WeaponClass</defName>
 		<label>weapon class</label>
 		<queryClass>TDFindLib_Ideology.ThingQueryWeaponClass</queryClass>
