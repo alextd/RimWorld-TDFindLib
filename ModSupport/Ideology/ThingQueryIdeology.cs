@@ -215,13 +215,24 @@ namespace TDFindLib_Ideology
 
 	public class ThingQueryRole : ThingQueryPreceptOther<Precept_Role>
 	{
+		public bool canBe; // default checks "is role"
+
 		public ThingQueryRole() => sel = PreceptDefOf.IdeoRole_Leader;
+
+		public bool RoleFitsSel(Precept_Role role) =>
+			extraOption switch
+			{
+				3 => role is Precept_RoleMulti,
+				2 => role is Precept_RoleSingle,
+				1 => role != null, //aka role is Precept_Role
+				_ => role?.def == sel
+			};
 
 		public override bool AppliesToIdeo(Pawn pawn, Ideo ideo)
 		{ 
-			var role = pawn.Ideo.GetRole(pawn);
+			var role = ideo.GetRole(pawn);
 
-			if (extraOption == 2)
+			if (extraOption == 4)
 			{
 				if (role == null || role.apparelRequirements.NullOrEmpty())
 					return false;
@@ -235,18 +246,47 @@ namespace TDFindLib_Ideology
 				// Otherwise if role == single return false
 			}
 
-			if (extraOption == 1)
-				return role != null;
+			if(canBe)
+				return ideo.RolesListForReading.Where(RoleFitsSel).Any(r => r.RequirementsMet(pawn));
 
-			return role?.def == sel;
+			return RoleFitsSel(role);
+		}
+
+		public override void ExposeData()
+		{
+			base.ExposeData();
+			Scribe_Values.Look(ref canBe, "canBe");
+		}
+
+		protected override ThingQuery Clone()
+		{
+			ThingQueryRole clone = (ThingQueryRole)base.Clone();
+			clone.canBe = canBe;
+			return clone;
+		}
+
+		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		{
+			bool changed = base.DrawMain(rect, locked, fullRect);
+
+			if(extraOption != 4)
+				if(row.ButtonText(canBe ? "Can Be" : "Has Role"))
+				{
+					canBe = !canBe;
+					changed = true;
+				}
+
+			return changed;
 		}
 
 		public override string NullOption() => "None".Translate();
-		public override int ExtraOptionsCount => 2;
+		public override int ExtraOptionsCount => 4;
 		public override string NameForExtra(int ex) =>
 			ex switch
 			{
-				2 => "Wants apparel for role",
+				4 => "Wants apparel for role",
+				3 => "Any non-leader role",
+				2 => "Any leader role",
 				_ => "TD.AnyOption".Translate()
 			};
 				
