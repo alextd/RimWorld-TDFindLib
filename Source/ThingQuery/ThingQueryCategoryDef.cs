@@ -12,12 +12,17 @@ namespace TD_Find_Lib
 	{
 		public bool devOnly; //only shown in menu when godmode is on
 		public bool obsolete; //not shown in menus ; only kept for backcompat.
-		public string mod;	//lowercase even though it's capitalized in about.xml
+		public string mod;	//lowercased even though it's capitalized in about.xml
 		public bool topLevelSelectable;// Even if it's in a category, show it in main menu too.
 
 		// For modded Queries to use:
 		public ThingQueryCategoryDef insertCategory;
 		public List<ThingQueryCategoryDef> insertCategories;
+
+		public override void PostLoad()
+		{
+			mod = mod?.ToLower();
+		}
 	}
 
 	// There are too many query subclasses to globally list them

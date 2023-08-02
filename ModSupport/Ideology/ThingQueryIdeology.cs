@@ -451,7 +451,7 @@ namespace TDFindLib_Ideology
 		{
 			if (!ModsConfig.IdeologyActive)
 				foreach (ThingQuerySelectableDef def in DefDatabase<ThingQuerySelectableDef>.AllDefsListForReading)
-					if (def.mod.EqualsIgnoreCase("ludeon.rimworld.ideology"))
+					if (def.mod == ModContentPack.IdeologyModPackageId)
 						def.devOnly = true;
 		}
 	}

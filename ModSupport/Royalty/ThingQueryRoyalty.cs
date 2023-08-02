@@ -422,7 +422,7 @@ namespace TDFindLib_Royalty
 		{
 			if (!ModsConfig.RoyaltyActive)
 				foreach (ThingQuerySelectableDef def in DefDatabase<ThingQuerySelectableDef>.AllDefsListForReading)
-					if (def.mod.EqualsIgnoreCase("Ludeon.Rimworld.Royalty"))
+					if (def.mod == ModContentPack.RoyaltyModPackageId)
 						def.devOnly = true;
 		}
 	}
