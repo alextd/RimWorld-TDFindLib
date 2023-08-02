@@ -24,7 +24,7 @@ namespace TD_Find_Lib
 		public ThingQueryAndOrGroup()
 		{
 			children = new HeldQueries(this);
-			children.matchAllQueries = false; //default match any in sub-group. Otherwise it's just more ANDing...
+			children.matchAllQueries = false; //override HeldQueries default "any". Otherwise it's just more ANDing...
 		}
 		public override bool AppliesDirectlyTo(Thing t) =>
 			children.AppliesTo(t);
@@ -46,12 +46,31 @@ namespace TD_Find_Lib
 
 		protected bool ButtonToggleAny()
 		{
+			bool changed = false;
 			if (row.ButtonTextNoGap(children.matchAllQueries ? "TD.AllOptions".Translate() : "TD.AnyOption".Translate()))
 			{
-				children.matchAllQueries = !children.matchAllQueries;
-				return true;
+				changed = true;
+
+				//Cycle All => Any => any X of => All
+				if (children.matchAllQueries) // All
+				{
+					children.matchAllQueries = false; // Any
+				}
+				else if(children.anyMin == 0) // Any
+				{
+					children.anyMin = 2; // any X of
+				}
+				else // Any X of
+				{
+					children.matchAllQueries = true; // All
+					children.anyMin = 0;
+				}
 			}
-			return false;
+			if (children.anyMin >= 1)
+			{
+				changed |= TDWidgets.Slider(row.GetRect(40), ref children.anyMin, 1, children.queries.Count > 3 ? children.queries.Count - 1 : 3, label: children.anyMin.ToString());
+			}
+			return changed;
 		}
 
 		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)

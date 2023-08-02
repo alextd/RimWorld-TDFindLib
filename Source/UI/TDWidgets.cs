@@ -10,6 +10,28 @@ namespace TD_Find_Lib
 {
 	public static class TDWidgets
 	{
+		//public static float HorizontalSlider_NewTemp(Rect rect, float value, float min, float max, bool middleAlignment = false, string label = null, string leftAlignedLabel = null, string rightAlignedLabel = null, float roundTo = -1f)
+		public static bool Slider(Rect rect, ref float value, float min = 0, float max = 1, bool middleAlignment = false, string label = null, string leftAlignedLabel = null, string rightAlignedLabel = null, float roundTo = -1f)
+		{
+			float newVal = Widgets.HorizontalSlider_NewTemp(rect, value, min, max, middleAlignment, label, leftAlignedLabel, rightAlignedLabel, roundTo);
+			if(newVal != value)
+			{
+				value = newVal;
+				return true;
+			}
+			return false;
+		}
+		public static bool Slider(Rect rect, ref int value, int min, int max, bool middleAlignment = false, string label = null, string leftAlignedLabel = null, string rightAlignedLabel = null)
+		{
+			int newVal = (int)Widgets.HorizontalSlider_NewTemp(rect, value, min, max, middleAlignment, label, leftAlignedLabel, rightAlignedLabel, 1);
+			if (newVal != value)
+			{
+				value = newVal;
+				return true;
+			}
+			return false;
+		}
+
 		public static bool FloatRange(Rect rect, int id, ref FloatRange range, float min = 0f, float max = 1f, string labelKey = null, ToStringStyle valueStyle = ToStringStyle.FloatTwo, float gap = 0f, GameFont sliderLabelFont = GameFont.Tiny, Color? sliderLabelColor = null)
 		{
 			FloatRange newRange = range;

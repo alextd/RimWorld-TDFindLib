@@ -125,8 +125,9 @@ namespace TD_Find_Lib
 	{
 		private IQueryHolder parent;
 		public List<ThingQuery> queries = new ();
-		public bool matchAllQueries = true;	// or ANY
-
+		public bool matchAllQueries = true; // or ANY
+		public int anyMin;
+		
 		public HeldQueries(IQueryHolder p)
 		{
 			parent = p;
@@ -136,6 +137,7 @@ namespace TD_Find_Lib
 		{
 			Scribe_Collections.Look(ref queries, "queries");
 			Scribe_Values.Look(ref matchAllQueries, "matchAllQueries", forceSave: true);  //Force save because the default is different in different contexts
+			Scribe_Values.Look(ref anyMin, "anyMin");
 
 			if (Scribe.mode == LoadSaveMode.LoadingVars)
 			{
@@ -159,6 +161,7 @@ namespace TD_Find_Lib
 				clone.Add(f.MakeClone(), remake: false);
 
 			clone.matchAllQueries = matchAllQueries;
+			clone.anyMin = anyMin;
 
 			return clone;
 		}
@@ -167,6 +170,7 @@ namespace TD_Find_Lib
 		{
 			queries = otherHolder.queries;
 			matchAllQueries = otherHolder.matchAllQueries;
+			anyMin = otherHolder.anyMin;
 
 			foreach (var f in queries)
 				f.parent = parent;
@@ -477,7 +481,7 @@ namespace TD_Find_Lib
 		// APPLY THE QUERIES!
 		public bool AppliesTo(Thing t) =>
 			matchAllQueries ? queries.All(f => !f.Enabled || f.AppliesTo(t)) :
-				queries.Any(f => f.Enabled && f.AppliesTo(t));
+				queries.AnyX(f => f.Enabled && f.AppliesTo(t), anyMin);
 
 
 		// Apply to a list of things
@@ -502,7 +506,7 @@ namespace TD_Find_Lib
 				// ANY
 				newFilteredThings.Clear();
 				foreach (Thing thing in newListedThings)
-					if (usedQueries.Any(f => f.AppliesTo(thing)))
+					if (usedQueries.AnyX(f => f.AppliesTo(thing), anyMin))
 						newFilteredThings.Add(thing);
 
 				(newListedThings, newFilteredThings) = (newFilteredThings, newListedThings);
