@@ -137,7 +137,7 @@ namespace TD_Find_Lib
 			 (int)rec.passion == passion);
 
 
-		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
+		public override bool DrawCustom(Rect fullRect)
 		{
 			if (row.ButtonText(GetPassionText(passion)))
 			{
@@ -193,7 +193,7 @@ namespace TD_Find_Lib
 
 		public override bool Ordered => true;
 
-		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
+		public override bool DrawCustom(Rect fullRect)
 		{
 			if (sel == null) return false;
 
@@ -400,21 +400,21 @@ namespace TD_Find_Lib
 			Rect nextRect = listing.GetRect(Text.LineHeight);
 			listing.NestedOutdent();
 
-			WidgetRow row = new WidgetRow(nextRect.x, nextRect.y);
+			WidgetRow underRow = new WidgetRow(nextRect.x, nextRect.y);
 			
-			row.Label("TD.From".Translate());
-			DoStageDropdown(row, stageRange.min, i => stageRange.min = i);
+			underRow.Label("TD.From".Translate());
+			DoStageDropdown(underRow, stageRange.min, i => stageRange.min = i);
 
-			row.Label("RangeTo".Translate());
-			DoStageDropdown(row, stageRange.max, i => stageRange.max = i);
+			underRow.Label("RangeTo".Translate());
+			DoStageDropdown(underRow, stageRange.max, i => stageRange.max = i);
 			
 			return false;
 		}
 
-		private void DoStageDropdown(WidgetRow row, int setI, Action<int> selectedAction)
+		private void DoStageDropdown(WidgetRow stageRow, int setI, Action<int> selectedAction)
 		{
 			int setStageI = orderedStages[setI];
-			if (row.ButtonTextNoGap(NameForStage(setStageI), TipForStage(setStageI)))
+			if (stageRow.ButtonTextNoGap(NameForStage(setStageI), TipForStage(setStageI)))
 			{
 				List<FloatMenuOption> options = new List<FloatMenuOption>();
 				foreach (int stageI in SelectableStages)
@@ -467,7 +467,7 @@ namespace TD_Find_Lib
 			(!pawn.RaceProps.Animal || pawn.Faction != null || DebugSettings.godMode) &&
 				pawn.needs?.TryGetNeed(sel) is Need need && needRange.Includes(need.CurLevelPercentage);
 
-		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
+		public override bool DrawCustom(Rect fullRect)
 		{
 			return TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref needRange, valueStyle: ToStringStyle.PercentOne);
 		}
@@ -538,7 +538,7 @@ namespace TD_Find_Lib
 				_ => "CanTendNow".Translate()
 			};
 
-		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
+		public override bool DrawCustom(Rect fullRect)
 		{
 			if (sel == null || !usesSeverity) return false;
 
@@ -867,7 +867,7 @@ namespace TD_Find_Lib
 			return Includes(pawn, sel);
 		}
 
-		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
+		public override bool DrawCustom(Rect fullRect)
 		{
 			if(TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref capacityRange, valueStyle: ToStringStyle.PercentZero))
 			{
@@ -1075,7 +1075,7 @@ namespace TD_Find_Lib
 			ContentsUtility.AvailableInGame(t => (t as Pawn)?.abilities?.AllAbilitiesForReading.Select(a => a.def));
 
 
-		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
+		public override bool DrawCustom(Rect fullRect)
 		{
 			if (row.ButtonTextNoGap(filterType.TranslateEnum()))
 			{
@@ -1105,6 +1105,76 @@ namespace TD_Find_Lib
 				return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref chargeRange);
 			}
 			return false;
+		}
+	}
+
+
+	public class ThingQueryAge : ThingQueryFloatRange
+	{
+		public bool chronological; //default biological
+
+		const float maxBio = 200;
+		const float maxChrono = 1000;
+
+		public override float Max => chronological ? maxChrono : maxBio;
+		public override ToStringStyle Style => ToStringStyle.Integer;
+
+		public ThingQueryAge() => sel = new(Min, Max, Min, Max / 4);
+
+		protected override void PostProcess()
+		{
+			//selByRef.absRange.min = Min;//for good measure.
+			selByRef.absRange.max = Max;
+		}
+
+		protected override void PostChosen()
+		{
+			if (chronological)
+			{
+				if (selByRef.range.max == maxBio)
+					selByRef.range.max = maxChrono;
+			}
+			else
+			{
+				selByRef.range.min = Mathf.Min(selByRef.range.min, Max); // Bounded by new max. Already would be <= range.max
+				selByRef.range.max = Mathf.Min(selByRef.range.max, Max);
+			}
+		}
+
+		public override void ExposeData()
+		{
+			base.ExposeData();
+			Scribe_Values.Look(ref chronological, "chronological");
+		}
+
+		protected override ThingQuery Clone()
+		{
+			ThingQueryAge clone = (ThingQueryAge)base.Clone();
+			clone.chronological = chronological;
+			return clone;
+		}
+
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null) return false;
+
+			return sel.Includes(chronological ? pawn.ageTracker.AgeChronologicalYearsFloat : pawn.ageTracker.AgeBiologicalYearsFloat);
+		}
+
+		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		{
+			bool changed = base.DrawMain(rect, locked, fullRect);
+
+			if (row.ButtonText(chronological ? "Chronological" : "Biological"))
+			{
+				chronological = !chronological;
+				PostProcess();
+				PostChosen();
+			}
+
+			return changed;
 		}
 	}
 }

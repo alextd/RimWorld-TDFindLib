@@ -57,6 +57,7 @@
 			<li>Query_Incapable</li>
 			<li>Query_Gender</li>
 			<li>Query_ThingQueryDevelopmentalStage</li>
+			<li>Query_ThingQueryAge</li>
 		</subQueries>
 	</TD_Find_Lib.ThingQueryCategoryDef>
 
@@ -240,9 +241,16 @@
 
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_ThingQueryDevelopmentalStage</defName>
-		<label>age</label>
+		<label>age group</label>
 		<queryClass>TD_Find_Lib.ThingQueryDevelopmentalStage</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_ThingQueryAge</defName>
+		<label>age</label>
+		<queryClass>TD_Find_Lib.ThingQueryAge</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
+	
 
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Gender</defName>

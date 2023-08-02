@@ -73,7 +73,7 @@ namespace TD_Find_Lib
 			return false;
 		}
 
-		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
+		public override bool DrawCustom(Rect fullRect)
 		{
 			List<FloatMenuOption> options = new List<FloatMenuOption>();
 			switch (sel)
@@ -150,7 +150,7 @@ namespace TD_Find_Lib
 		}
 
 		public abstract int Max { get; }
-		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
+		public override bool DrawCustom(Rect fullRect)
 		{
 			//TODO: write 'IsNull' method to handle confusing extraOption == 1 but Sel == null
 			if (extraOption == 0 && sel == null) return false;
@@ -325,7 +325,7 @@ namespace TD_Find_Lib
 				return progressRange.Includes(progress);
 		}
 
-		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
+		public override bool DrawCustom(Rect fullRect)
 		{
 			if (sel == ProgressType.Milkable || sel == ProgressType.Shearable)
 				return false;
@@ -373,7 +373,7 @@ namespace TD_Find_Lib
 			return stepRange.Includes(training.GetSteps(sel));
 		}
 
-		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
+		public override bool DrawCustom(Rect fullRect)
 		{
 			if (sel == null) return false;
 

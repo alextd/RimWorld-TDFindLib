@@ -44,7 +44,7 @@ namespace TD_Find_Lib
 		}
 
 
-		protected bool ButtonToggleAny(WidgetRow row)
+		protected bool ButtonToggleAny()
 		{
 			if (row.ButtonTextNoGap(children.matchAllQueries ? "TD.AllOptions".Translate() : "TD.AnyOption".Translate()))
 			{
@@ -56,10 +56,9 @@ namespace TD_Find_Lib
 
 		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
-			WidgetRow row = new WidgetRow(rect.x, rect.y);
-
+			// no base.DrawMain, don't want label in the filter row
 			row.Label("TD.IncludeThingsThatMatch".Translate());
-			bool changed = ButtonToggleAny(row);
+			bool changed = ButtonToggleAny();
 			row.Label("TD.OfTheseQueries".Translate());
 
 			return changed;
@@ -124,14 +123,13 @@ namespace TD_Find_Lib
 		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			bool changed = false;
-			WidgetRow row = new WidgetRow(rect.x, rect.y);
 			if (row.ButtonTextNoGap(holdingThis ? "TD.TheThingHoldingThis".Translate() : "TD.AnythingThisIsHolding".Translate()))
 			{
 				changed = true;
 				holdingThis = !holdingThis;
 			}
 			row.Label("TD.Matches".Translate());
-			changed |= ButtonToggleAny(row);
+			changed |= ButtonToggleAny();
 			row.Label("TD.Of".Translate());
 			return changed;
 		}
@@ -166,12 +164,12 @@ namespace TD_Find_Lib
 
 		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
-			WidgetRow row = new WidgetRow(rect.x, rect.y);
+			row.Label("TD.AnythingXStepsNearbyMatchesPre".Translate());
+			Rect rangeRect = row.GetRect(80);
+			row.Label("TD.AnythingXStepsNearbyMatchesPost".Translate());
+			bool changed = ButtonToggleAny();
 
-			row.Label("TD.AnythingXStepsNearbyMatches".Translate());
-			bool changed = ButtonToggleAny(row);
-
-			changed |= TDWidgets.IntRange(fullRect.RightHalfClamped(row.FinalX), id, ref range, max: 10);
+			changed |= TDWidgets.IntRange(rangeRect, id, ref range, max: 10);
 			range.min = 0; // sorry we're not looking in a ring but we do want the slider UI
 
 			return changed;

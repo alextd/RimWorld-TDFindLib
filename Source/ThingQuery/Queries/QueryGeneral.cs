@@ -967,7 +967,7 @@ namespace TD_Find_Lib
 		public override string CategoryFor(ThingDef def) => ThingQueryThingDefCategory.CategoryFor(def);
 
 
-		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
+		public override bool DrawCustom(Rect fullRect)
 		{
 			if (sel == null) return false;
 
@@ -1067,7 +1067,7 @@ namespace TD_Find_Lib
 			def.LabelForFullStatListCap;
 
 
-		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
+		public override bool DrawCustom(Rect fullRect)
 		{
 			if (sel == null) return false;
 

@@ -70,6 +70,9 @@ namespace TD_Find_Lib
 		}
 
 
+		// The main row WidgetRow drawer.
+		protected WidgetRow row = new();
+
 
 		// Okay, save/load. The basic gist here is:
 		// During ExposeData loading, ResolveName is called for globally named things (defs)
@@ -160,7 +163,7 @@ namespace TD_Find_Lib
 				Widgets.DrawLineHorizontal(rowRect.x + 2, rowRect.y + Text.LineHeight / 2, rowRect.width - 4);
 				GUI.color = Color.white;
 			}
-			WidgetRow row = new WidgetRow(rowRect.xMax, rowRect.y, UIDirection.LeftThenDown, rowRect.width);
+			WidgetRow iconRow = new (rowRect.xMax, rowRect.y, UIDirection.LeftThenDown, rowRect.width);
 
 			bool changed = false;
 			bool delete = false;
@@ -168,21 +171,21 @@ namespace TD_Find_Lib
 			if (!locked)
 			{
 				//Clear button
-				if (row.ButtonIcon(TexCommand.ClearPrioritizedWork, "TD.DeleteThisQuery".Translate()))
+				if (iconRow.ButtonIcon(TexCommand.ClearPrioritizedWork, "TD.DeleteThisQuery".Translate()))
 				{
 					delete = true;
 					changed = true;
 				}
 
 				//Toggle button
-				if (row.ButtonIcon(enabled ? Widgets.CheckboxOnTex : Widgets.CheckboxOffTex, "TD.EnableThisQuery".Translate()))
+				if (iconRow.ButtonIcon(enabled ? Widgets.CheckboxOnTex : Widgets.CheckboxOffTex, "TD.EnableThisQuery".Translate()))
 				{
 					enabled = !enabled;
 					changed = true;
 				}
 
 				//Include/Exclude
-				if (row.ButtonText(include ? "TD.IncludeShort".Translate() : "TD.ExcludeShort".Translate(),
+				if (iconRow.ButtonText(include ? "TD.IncludeShort".Translate() : "TD.ExcludeShort".Translate(),
 					"TD.IncludeOrExcludeThingsMatchingThisQuery".Translate(),
 					fixedWidth: IncExcWidth))
 				{
@@ -193,9 +196,12 @@ namespace TD_Find_Lib
 
 
 			//Draw option row
-			rowRect.width -= (rowRect.xMax - row.FinalX);
+			rowRect.width -= (rowRect.xMax - iconRow.FinalX);
 			Rect fullRect = rowRect;
-			fullRect.xMin = 0;//Since it's in a listing group, left side is 0. TODO with 2 colunmns??
+			fullRect.xMin = 0; // If it's in an indented listing group, set "full" left to 0. TODO with 2 colunmns??
+
+			row.Init(rowRect.x, rowRect.y);
+
 			changed |= DrawMain(rowRect, locked, fullRect);
 			changed |= DrawUnder(listing, locked);
 			if (shouldFocus)
@@ -231,7 +237,7 @@ namespace TD_Find_Lib
 
 		public virtual bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
-			Widgets.Label(rect, Label);
+			row.Label(Label);
 			return false;
 		}
 		protected virtual bool DrawUnder(Listing_StandardIndent listing, bool locked) => false;
@@ -327,13 +333,11 @@ namespace TD_Find_Lib
 			refErrorOnAnyMap = false;
 		}
 		public override void Notify_NewMap() => ClearRefError();
-		// (It will not reset when you change the map selection though, only when you set the query selection again)
 
 		public override string DisableReason => selectionError;
 		public override string DisableReasonCurMap => selectionErrorCurMap;
 
-		// would like this to be T const * sel;
-		// TODO: Is this needed? was _sel private?
+
 		public ref T selByRef => ref _sel;
 		public virtual T sel
 		{
@@ -715,28 +719,27 @@ namespace TD_Find_Lib
 			bool changeSelection = false;
 			bool changed = false;
 
-			WidgetRow row = new WidgetRow(rect.x, rect.y);
-
 			// Draw Filter label
-			row.Label(Label);
+			base.DrawMain(rect, locked, fullRect);
 
 			// Draw icon
-			DrawIconLabel(row);
+			DrawIconLabel();
 
 			// Handle selection + custom drawers
 			string selLabel = GetSelLabel();
 			if (HasCustom)
 			{
-				// Selection option button on left, custom on the remaining rect
+				// Selection option button on left, custom on the remaining row
+				// TODO: this looks inconsistent with button on right like most do. but custom wants space, right?
 				changeSelection = row.ButtonText(selLabel, TipForSel());
 
-				Rect customRect = rect;
-				customRect.xMin = row.FinalX;
-				changed = DrawCustom(customRect, row, fullRect);
+				// Rect customRect = rect;
+				// customRect.xMin = row.FinalX;
+				changed = DrawCustom(fullRect); //this used to pass customRect but no one needed it ; they can recreate it anyway
 			}
 			else
 			{
-				// selected option button on right
+				// selected option button on right. 
 				float labelSize = Text.CalcSize(selLabel).x + WidgetRow.ButtonExtraSpace;
 
 				Rect buttRect = fullRect.RightPartClamped(0.4f, row.FinalX, labelSize);
@@ -760,7 +763,7 @@ namespace TD_Find_Lib
 			return changed;
 		}
 
-		public virtual void DrawIconLabel(WidgetRow row)
+		public virtual void DrawIconLabel()
 		{
 			if (sel != null)  //todo for other types?
 			{
@@ -776,7 +779,7 @@ namespace TD_Find_Lib
 		// Subclass can override DrawCustom to draw anything custom
 		// (otherwise it's just label and option selection button)
 		// Use either rect or WidgetRow in the implementation
-		public virtual bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect) => throw new NotImplementedException();
+		public virtual bool DrawCustom(Rect fullRect) => throw new NotImplementedException();
 
 		// Auto detection of subclasses that use DrawCustom:
 		private static readonly HashSet<Type> customDrawers = null;
@@ -1050,12 +1053,12 @@ namespace TD_Find_Lib
 		public override sealed Texture2D IconTexForCat(C cat) => catQuery.IconTexFor(cat);
 		public override sealed ThingDef IconDefForCat(C cat) => catQuery.IconDefFor(cat);
 
-		public override void DrawIconLabel(WidgetRow row)
+		public override void DrawIconLabel()
 		{
 			if (useCat)  
-				catQuery.DrawIconLabel(row);
+				catQuery.DrawIconLabel();
 			else
-				base.DrawIconLabel(row);
+				base.DrawIconLabel();
 		}
 
 

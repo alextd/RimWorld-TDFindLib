@@ -98,7 +98,7 @@ namespace TDFindLib_Royalty
 
 			return false;
 		}
-		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
+		public override bool DrawCustom(Rect fullRect)
 		{
 			Rect buttonRect = fullRect.RightHalfClamped(row.FinalX);
 			DoSeniorityDropdown(buttonRect.LeftHalf(), seniorityRange.min, s => seniorityRange.min = s, max: seniorityRange.max);
@@ -285,7 +285,7 @@ namespace TDFindLib_Royalty
 
 			return favorRange.Includes(pawn.royalty.GetFavor(sel));
 		}
-		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
+		public override bool DrawCustom(Rect fullRect)
 		{
 			return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref favorRange);
 		}
@@ -367,7 +367,7 @@ namespace TDFindLib_Royalty
 			return pawn.royalty.GetPermit(sel, faction) is FactionPermit p && Applies(p);
 		}
 
-		public override bool DrawCustom(Rect rect, WidgetRow row, Rect fullRect)
+		public override bool DrawCustom(Rect fullRect)
 		{
 			if(row.ButtonText(faction?.Name ?? "TD.AnyOption".Translate()))
 			{

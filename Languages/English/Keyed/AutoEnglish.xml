@@ -32,7 +32,8 @@
 	<TD.AnythingThisIsHolding>Anything this is holding</TD.AnythingThisIsHolding>
 	<TD.Matches>matches</TD.Matches>
 	<TD.Of>of:</TD.Of>
-	<TD.AnythingXStepsNearbyMatches>Anything X steps nearby matches</TD.AnythingXStepsNearbyMatches>
+	<TD.AnythingXStepsNearbyMatchesPre>Anything</TD.AnythingXStepsNearbyMatchesPre>
+	<TD.AnythingXStepsNearbyMatchesPost>steps nearby matches</TD.AnythingXStepsNearbyMatchesPost>
 	<TD.From>From</TD.From>
 	<TD.Invisible>(invisible)</TD.Invisible>
 	<TD.Cold>Cold</TD.Cold>
