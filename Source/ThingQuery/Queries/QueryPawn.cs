@@ -1004,7 +1004,7 @@ namespace TD_Find_Lib
 		}
 
 
-		public enum FilterType { Has, Cooldown, CanCast, Charges}
+		public enum FilterType { Has, Cooldown, CanCast, Active, Charges}
 		public FilterType filterType;	
 		public IntRangeUB chargeRange = new(0,5,1,5);
 
@@ -1026,16 +1026,28 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-
-		public IEnumerable<Ability> AbilitiesInQuestion(Pawn pawn) => pawn.abilities.AllAbilitiesForReading.Where(a =>
-			filterType switch
+		public IEnumerable<Ability> AbilitiesInQuestion(Pawn pawn)
+		{
+			if (filterType == FilterType.Active)
 			{
-				FilterType.Cooldown => a.CooldownTicksRemaining > 0,
-				FilterType.CanCast => a.CanCast,
-				FilterType.Charges => chargeRange.Includes(a.charges),
+				foreach (Ability ability in pawn.abilities.AllAbilitiesForReading)
+					foreach (AbilityCompProperties props in ability.def.comps)
+						if (props is CompProperties_AbilityGiveHediff propsHediff)
+							if (pawn.health.hediffSet.HasHediff(propsHediff.hediffDef))
+								yield return ability;
+			}
+			else
+				foreach (Ability a in pawn.abilities.AllAbilitiesForReading.Where(a =>
+			 filterType switch
+			 {
+				 FilterType.Cooldown => a.CooldownTicksRemaining > 0,
+				 FilterType.CanCast => a.CanCast,
+				 FilterType.Charges => chargeRange.Includes(a.charges),
 
-				_ => true // FilterType.Has 
-			});
+				 _ => true // FilterType.Has 
+			 }))
+					yield return a;
+		}
 
 		public override bool AppliesDirectly2(Thing thing)
 		{

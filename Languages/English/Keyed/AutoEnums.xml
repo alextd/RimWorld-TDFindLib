@@ -61,6 +61,7 @@
 	<TD.FilterType.Has>Known</TD.FilterType.Has>
 	<TD.FilterType.Cooldown>On Cooldown</TD.FilterType.Cooldown>
 	<TD.FilterType.CanCast>Available</TD.FilterType.CanCast>
+	<TD.FilterType.Active>Active</TD.FilterType.Active>
 	<TD.FilterType.Charges>Charges Available</TD.FilterType.Charges>
 
 </LanguageData>
