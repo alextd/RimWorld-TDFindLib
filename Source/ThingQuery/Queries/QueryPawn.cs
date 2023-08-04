@@ -1004,8 +1004,8 @@ namespace TD_Find_Lib
 		}
 
 
-		public enum FilterType { Has, Cooldown, CanCast, Active, Charges}
-		public FilterType filterType;	
+		public enum AbilityFilterType { Has, Cooldown, CanCast, Active, Charges}
+		public AbilityFilterType filterType;	
 		public IntRangeUB chargeRange = new(0,5,1,5);
 
 		public ThingQueryAbility() => extraOption = 1;
@@ -1028,7 +1028,7 @@ namespace TD_Find_Lib
 
 		public IEnumerable<Ability> AbilitiesInQuestion(Pawn pawn)
 		{
-			if (filterType == FilterType.Active)
+			if (filterType == AbilityFilterType.Active)
 			{
 				foreach (Ability ability in pawn.abilities.AllAbilitiesForReading)
 					foreach (AbilityCompProperties props in ability.def.comps)
@@ -1040,9 +1040,9 @@ namespace TD_Find_Lib
 				foreach (Ability a in pawn.abilities.AllAbilitiesForReading.Where(a =>
 			 filterType switch
 			 {
-				 FilterType.Cooldown => a.CooldownTicksRemaining > 0,
-				 FilterType.CanCast => a.CanCast,
-				 FilterType.Charges => chargeRange.Includes(a.charges),
+				 AbilityFilterType.Cooldown => a.CooldownTicksRemaining > 0,
+				 AbilityFilterType.CanCast => a.CanCast,
+				 AbilityFilterType.Charges => chargeRange.Includes(a.charges),
 
 				 _ => true // FilterType.Has 
 			 }))
@@ -1093,14 +1093,14 @@ namespace TD_Find_Lib
 			{
 				List<FloatMenuOption> options = new();
 
-				foreach (FilterType type in Enum.GetValues(typeof(FilterType)))
+				foreach (AbilityFilterType type in Enum.GetValues(typeof(AbilityFilterType)))
 				{
-					if (type == FilterType.Charges && sel != null && sel.charges == 1)
+					if (type == AbilityFilterType.Charges && sel != null && sel.charges == 1)
 					{
 						continue;
 					}
 
-					if (type == FilterType.Cooldown && sel != null &&
+					if (type == AbilityFilterType.Cooldown && sel != null &&
 						sel.cooldownTicksRange == default && (sel.groupDef?.cooldownTicks ?? 0) == 0)
 					{
 						continue;
@@ -1112,7 +1112,7 @@ namespace TD_Find_Lib
 				DoFloatOptions(options);
 			}
 
-			if(filterType == FilterType.Charges)
+			if(filterType == AbilityFilterType.Charges)
 			{
 				return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref chargeRange);
 			}
@@ -1187,6 +1187,154 @@ namespace TD_Find_Lib
 			}
 
 			return changed;
+		}
+	}
+
+	// This would be better to be ThingQueryDropDown<PawnRelationDef> if people modded PawnRelationDef
+	// So it can handle saving that by name. But using ThingQueryAndOrGroup is easier for UI.
+	public enum RelationFilterType { Has, Any, All}
+	public class ThingQueryRelation : ThingQueryAndOrGroup
+	{
+		public PawnRelationDef relation;
+		public Gender gender; // Def is "Parent" with labels "father" and "mother". There seems to be no translation string for "parent" so I'm gonna not do that filter.
+		public RelationFilterType filterType;
+		// "the related pawn matches these filters" : default "this pawn has this relation"
+		// "ANY related pawn matches" : default "ALL"
+
+		public ThingQueryRelation()
+		{
+			relation = PawnRelationDefOf.Parent;
+			gender = Gender.Male;
+		}
+
+		public bool ShouldShow(Pawn pawn, Pawn otherPawn) =>
+			(gender == Gender.None || otherPawn.gender == gender) &&
+			(DebugSettings.godMode || SocialCardUtility.ShouldShowPawnRelations(otherPawn, pawn));
+
+		public IEnumerable<Pawn> RelationsFor(Pawn pawn)
+		{
+			if (pawn.relations == null)
+				yield break;
+
+			// Direct relations that are directly stored
+			if (!relation.implied)
+			{
+				foreach (var rel in pawn.relations.DirectRelations)
+				{
+					if (rel.def == relation && ShouldShow(pawn, rel.otherPawn))
+						yield return rel.otherPawn;
+				}
+			}
+			else
+			{
+				// Backwards relations, <implied>true
+				// Computed via PawnRelationWorker , given another pawn's relation back to us... yea that's how it works.
+				foreach (var otherPawn in pawn.relations.PotentiallyRelatedPawns)
+				{
+					if (relation.Worker.InRelation(pawn, otherPawn) && ShouldShow(pawn, otherPawn))
+						yield return otherPawn;
+				}
+			}
+
+		}
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null) return false;
+
+			if(filterType == RelationFilterType.Has)
+				return RelationsFor(pawn).Any();
+
+			else if (filterType == RelationFilterType.Any)
+				return RelationsFor(pawn).Any(otherPawn => children.AppliesTo(otherPawn));
+
+			//else if (filterType == RelationFilterType.All)
+			// Just list.All() here would return true for anyone without a father. 
+			// This filter checks 1) you have at least one father 1) all those fathers match the filters.
+			return RelationsFor(pawn).Count() > 0 && RelationsFor(pawn).All(otherPawn => children.AppliesTo(otherPawn));
+
+		}
+		public override void ExposeData()
+		{
+			base.ExposeData();
+			Scribe_Defs.Look(ref relation, "relation");
+			Scribe_Values.Look(ref gender, "gender");
+			Scribe_Values.Look(ref filterType, "filterType");
+		}
+
+		protected override ThingQuery Clone()
+		{
+			ThingQueryRelation clone = (ThingQueryRelation)base.Clone();
+			clone.relation = relation;
+			clone.gender = gender;
+			clone.filterType = filterType;
+			return clone;
+		}
+
+
+		private bool ButtonToggleType()
+		{
+			if (row.ButtonTextNoGap(filterType.TranslateEnum()))
+			{
+				filterType++;
+				if (filterType > RelationFilterType.All)
+					filterType = 0;
+					return true;
+			}
+			return false;
+		}
+
+		public static string NameFor(PawnRelationDef def, Gender gender) =>
+			gender == Gender.Female 
+			? (def.labelFemale?.CapitalizeFirst() ?? def.LabelCap)
+			: def.LabelCap;
+
+		private void ButtonOptions()
+		{
+			if (row.ButtonTextNoGap(NameFor(relation, gender)))
+			{
+				var options = new List<FloatMenuOption>();
+				foreach (PawnRelationDef def in DefDatabase<PawnRelationDef>.AllDefsListForReading)
+				{
+					if(def.labelFemale == null)
+						options.Add(new FloatMenuOptionAndRefresh(NameFor(def, Gender.None), () => { relation = def; gender = Gender.None; }, this));
+					else
+					{
+						options.Add(new FloatMenuOptionAndRefresh(NameFor(def, Gender.Male), () => { relation = def; gender = Gender.Male; }, this));
+						options.Add(new FloatMenuOptionAndRefresh(NameFor(def, Gender.Female), () => { relation = def; gender = Gender.Female; }, this));
+					}
+				}
+
+				Find.WindowStack.Add(new FloatMenu(options));
+			}
+		}
+
+		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		{
+			row.Label(Label); // "Relation"
+
+			bool changed = ButtonToggleType(); // "Has"
+			ButtonOptions(); // "Parent"
+
+			if (filterType == RelationFilterType.Has)
+				return changed;
+
+			// "Relation Any/All Parent Matches Any/All of these filters:"
+
+			row.Label("matches");
+			changed |= ButtonToggleAny();
+			row.Label("TD.OfTheseQueries".Translate());
+
+			return changed;
+		}
+
+		protected override bool DrawUnder(Listing_StandardIndent listing, bool locked)
+		{
+			if (filterType == RelationFilterType.Has)
+				return false;
+
+			return base.DrawUnder(listing, locked);
 		}
 	}
 }

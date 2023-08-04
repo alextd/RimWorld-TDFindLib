@@ -58,6 +58,7 @@
 			<li>Query_Gender</li>
 			<li>Query_ThingQueryDevelopmentalStage</li>
 			<li>Query_ThingQueryAge</li>
+			<li>Query_ThingQueryRelation</li>
 		</subQueries>
 	</TD_Find_Lib.ThingQueryCategoryDef>
 
@@ -249,6 +250,12 @@
 		<defName>Query_ThingQueryAge</defName>
 		<label>age</label>
 		<queryClass>TD_Find_Lib.ThingQueryAge</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_ThingQueryRelation</defName>
+		<label>relation</label>
+		<queryClass>TD_Find_Lib.ThingQueryRelation</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 	
 
