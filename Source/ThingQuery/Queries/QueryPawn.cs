@@ -1343,7 +1343,7 @@ namespace TD_Find_Lib
 	{
 		public List<TimeAssignmentDef> timetable;
 		private TimeAssignmentDef newAssignment; //To be dragg-assigned to others
-		private static Texture2D nullTexture = SolidColorMaterials.NewSolidColorTexture(Color.black);
+		private static Texture2D nullTexture = SolidColorMaterials.NewSolidColorTexture(new Color(0,0,0,0.8f));
 
 		public ThingQuerySchedule()
 		{
@@ -1487,6 +1487,7 @@ namespace TD_Find_Lib
 
 		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
+			rect.xMin += 24; // Room to drag
 			var var = DrawRow(rect);
 
 			//Draw hours # INSIDE the box
