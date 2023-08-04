@@ -1337,4 +1337,162 @@ namespace TD_Find_Lib
 			return base.DrawUnder(listing, locked);
 		}
 	}
-}
+
+	[StaticConstructorOnStartup]
+	public class ThingQuerySchedule : ThingQuery
+	{
+		public List<TimeAssignmentDef> timetable;
+		private TimeAssignmentDef newAssignment; //To be dragg-assigned to others
+		private static Texture2D nullTexture = SolidColorMaterials.NewSolidColorTexture(Color.black);
+
+		public ThingQuerySchedule()
+		{
+			timetable = Enumerable.Repeat<TimeAssignmentDef>(null, GenDate.HoursPerDay).ToList();
+		}
+
+		public override void ExposeData()
+		{
+			base.ExposeData();
+			//TODO consider modded TimeAssignmentDef ehh.
+
+			if (Scribe.mode == LoadSaveMode.Saving)
+			{
+				List<string> timetableDummy = new(timetable.Select(def => def?.defName ?? "null"));
+				Scribe_Collections.Look(ref timetableDummy, "timetable");
+			}
+			else
+			{
+				Scribe_Collections.Look(ref timetable, "timetable");
+			}
+		}
+
+		protected override ThingQuery Clone()
+		{
+			ThingQuerySchedule clone = (ThingQuerySchedule)base.Clone();
+			clone.timetable = timetable.ListFullCopy();
+			return clone;
+		}
+
+
+		// How to cycle the assignment options
+		private static List<TimeAssignmentDef> assignmentOptions;
+		static ThingQuerySchedule()
+		{
+			assignmentOptions = new();
+			assignmentOptions.Add(null);
+
+			assignmentOptions.AddRange(DefDatabase<TimeAssignmentDef>.AllDefs);
+		}
+
+		private TimeAssignmentDef NextAssignment(TimeAssignmentDef assignment) =>
+			assignmentOptions[(assignmentOptions.IndexOf(assignment) + 1) % assignmentOptions.Count];
+		private TimeAssignmentDef PrevAssignment(TimeAssignmentDef assignment) =>
+			assignmentOptions[(assignmentOptions.IndexOf(assignment) - 1 + assignmentOptions.Count) % assignmentOptions.Count];
+
+
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null) return false;
+
+			var time = pawn.timetable;
+			if (time == null) return false;
+
+
+			for (int hour = 0; hour < GenDate.HoursPerDay; hour++)
+			{
+				if (timetable[hour] == null)
+					continue;
+
+				if (time.GetAssignment(hour) != timetable[hour])
+					return false;
+			}
+
+			return true;
+		}
+
+
+		// Drawing methods adjusted from PawnColumnWorker_Timetable
+		private bool DrawRow(Rect rect)
+		{
+			float curX = rect.x;
+			float slotWidth = rect.width / GenDate.HoursPerDay;
+
+			bool changed = false;
+			for (int hour = 0; hour < GenDate.HoursPerDay; hour++)
+			{
+				changed |= DrawTimeAssignment(new Rect(curX, rect.y, slotWidth, rect.height), hour);
+				curX += slotWidth;
+			}
+			GUI.color = Color.white;
+
+			return changed;
+		}
+
+		private void DrawHeader(Rect rect)
+		{
+			float curX = rect.x;
+			float slotWidth = rect.width / GenDate.HoursPerDay;
+
+			Text.Font = GameFont.Tiny;
+			Text.Anchor = TextAnchor.UpperCenter;
+			for (int hour = 0; hour < GenDate.HoursPerDay; hour++)
+			{
+				Widgets.Label(new Rect(curX, rect.y, slotWidth, rect.height + 3f), hour.ToString());
+				curX += slotWidth;
+			}
+			Text.Font = GameFont.Small;
+			Text.Anchor = TextAnchor.UpperLeft;
+		}
+
+		private bool DrawTimeAssignment(Rect rect, int hour)
+		{
+			bool mouseButton = Input.GetMouseButton(0) || Input.GetMouseButton(1);
+
+			TimeAssignmentDef assignment = timetable[hour];
+			GUI.DrawTexture(rect, assignment?.ColorTexture ?? nullTexture);
+			if (!Mouse.IsOver(rect))
+			{
+				return false;
+			}
+
+			Widgets.DrawBox(rect, 2);//highlight mouseover
+			if(assignment?.LabelCap is TaggedString label)	// nothing for null option
+				TooltipHandler.TipRegion(rect, label);
+
+			if (Event.current.type == EventType.MouseDown)
+			{
+				if (Event.current.button == 0 || Event.current.button == 1)
+				{
+					newAssignment = Event.current.button == 0 ? NextAssignment(assignment) : PrevAssignment(assignment);
+
+					Event.current.Use();
+					timetable[hour] = newAssignment;
+					return true;
+				}
+			}
+
+			else if (Event.current.type == EventType.MouseDrag)
+			{
+				if (assignment != newAssignment)
+				{
+					timetable[hour] = newAssignment;
+					Event.current.Use();
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		{
+			var var = DrawRow(rect);
+
+			//Draw hours # INSIDE the box
+			DrawHeader(rect);
+
+			return var;
+		}
+	}
+}	

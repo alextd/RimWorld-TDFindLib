@@ -69,6 +69,7 @@
 			<li>Query_Thought</li>
 			<li>Query_Need</li>
 			<li>Query_Job</li>
+			<li>Query_Schedule</li>
 			<li>Query_Health</li>
 			<li>Query_HP</li>
 			<li>Query_PawnDying</li>
@@ -188,6 +189,12 @@
 		<defName>Query_Job</defName>
 		<label>current action</label>
 		<queryClass>TD_Find_Lib.ThingQueryJob</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Schedule</defName>
+		<label>current schedule</label>
+		<queryClass>TD_Find_Lib.ThingQuerySchedule</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 
 	<TD_Find_Lib.ThingQueryDef>
