@@ -1277,9 +1277,7 @@ namespace TD_Find_Lib
 		{
 			if (row.ButtonTextNoGap(filterType.TranslateEnum()))
 			{
-				filterType++;
-				if (filterType > RelationFilterType.All)
-					filterType = 0;
+				filterType = filterType.Next();
 					return true;
 			}
 			return false;
