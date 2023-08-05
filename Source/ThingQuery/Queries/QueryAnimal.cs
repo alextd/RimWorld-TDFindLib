@@ -79,7 +79,7 @@ namespace TD_Find_Lib
 			switch (sel)
 			{
 				case RacePropsQuery.Intelligence:
-					if (row.ButtonTextNoGap(intelligence.TranslateEnum()))
+					if (row.ButtonText(intelligence.TranslateEnum()))
 					{
 						foreach (Intelligence intel in Enum.GetValues(typeof(Intelligence)))
 						{
@@ -94,7 +94,7 @@ namespace TD_Find_Lib
 					return TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref valueRange, valueStyle: ToStringStyle.PercentZero);
 
 				case RacePropsQuery.Trainability:
-					if (row.ButtonTextNoGap(trainability.LabelCap))
+					if (row.ButtonText(trainability.LabelCap))
 					{
 						foreach (TrainabilityDef def in DefDatabase<TrainabilityDef>.AllDefs)
 						{

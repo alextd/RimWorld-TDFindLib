@@ -198,7 +198,7 @@ namespace TD_Find_Lib
 			if (sel == null) return false;
 
 			if (sel.degreeDatas.Count > 1 &&
-				row.ButtonTextNoGap(sel.DataAtDegree(traitDegree).label.CapitalizeFirst()))
+				row.ButtonText(sel.DataAtDegree(traitDegree).label.CapitalizeFirst()))
 			{
 				List<FloatMenuOption> options = new List<FloatMenuOption>();
 				foreach (TraitDegreeData deg in sel.degreeDatas)
@@ -1089,7 +1089,7 @@ namespace TD_Find_Lib
 
 		public override bool DrawCustom(Rect fullRect)
 		{
-			if (row.ButtonTextNoGap(filterType.TranslateEnum()))
+			if (row.ButtonText(filterType.TranslateEnum()))
 			{
 				List<FloatMenuOption> options = new();
 
@@ -1275,10 +1275,10 @@ namespace TD_Find_Lib
 
 		private bool ButtonToggleType()
 		{
-			if (row.ButtonTextNoGap(filterType.TranslateEnum()))
+			if (row.ButtonText(filterType.TranslateEnum()))
 			{
 				filterType = filterType.Next();
-					return true;
+				return true;
 			}
 			return false;
 		}
