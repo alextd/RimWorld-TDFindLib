@@ -1188,10 +1188,10 @@ namespace TD_Find_Lib
 			base.DrawMain(rect, locked, fullRect);
 			if (Widgets.ButtonText(fullRect.RightPart(.7f), label))
 			{
-				List<FloatMenuOption> layerOption = new List<FloatMenuOption>();
+				List<FloatMenuOption> layerOptions = new();
 				foreach (T option in Options)
 				{
-					layerOption.Add(new FloatMenuOptionAndRefresh(
+					layerOptions.Add(new FloatMenuOptionAndRefresh(
 						GetOptionLabel(option),
 						() => {
 							if (Event.current.button == 1)
@@ -1223,7 +1223,7 @@ namespace TD_Find_Lib
 						: Widgets.CheckboxPartialTex));
 				}
 
-				Find.WindowStack.Add(new FloatMenu(layerOption));
+				DoFloatOptions(layerOptions);
 			}
 			return false;
 		}

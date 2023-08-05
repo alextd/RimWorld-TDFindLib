@@ -1292,19 +1292,19 @@ namespace TD_Find_Lib
 		{
 			if (row.ButtonTextNoGap(NameFor(relation, gender)))
 			{
-				var options = new List<FloatMenuOption>();
+				List<FloatMenuOption> relationOptions = new();
 				foreach (PawnRelationDef def in DefDatabase<PawnRelationDef>.AllDefsListForReading)
 				{
 					if(def.labelFemale == null)
-						options.Add(new FloatMenuOptionAndRefresh(NameFor(def, Gender.None), () => { relation = def; gender = Gender.None; }, this));
+						relationOptions.Add(new FloatMenuOptionAndRefresh(NameFor(def, Gender.None), () => { relation = def; gender = Gender.None; }, this));
 					else
 					{
-						options.Add(new FloatMenuOptionAndRefresh(NameFor(def, Gender.Male), () => { relation = def; gender = Gender.Male; }, this));
-						options.Add(new FloatMenuOptionAndRefresh(NameFor(def, Gender.Female), () => { relation = def; gender = Gender.Female; }, this));
+						relationOptions.Add(new FloatMenuOptionAndRefresh(NameFor(def, Gender.Male), () => { relation = def; gender = Gender.Male; }, this));
+						relationOptions.Add(new FloatMenuOptionAndRefresh(NameFor(def, Gender.Female), () => { relation = def; gender = Gender.Female; }, this));
 					}
 				}
 
-				Find.WindowStack.Add(new FloatMenu(options));
+				DoFloatOptions(relationOptions);
 			}
 		}
 
