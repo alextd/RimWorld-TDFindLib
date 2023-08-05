@@ -1338,15 +1338,18 @@ namespace TD_Find_Lib
 		}
 	}
 
+	public enum ScheduleFilterType { Current, AllScheduleIs, AnyScheduleNot}
 	[StaticConstructorOnStartup]
 	public class ThingQuerySchedule : ThingQuery
 	{
-		public List<TimeAssignmentDef> timetable;
-		private TimeAssignmentDef newAssignment; //To be dragg-assigned to others
-		private static Texture2D nullTexture = SolidColorMaterials.NewSolidColorTexture(new Color(0,0,0,0.8f));
+		public ScheduleFilterType filterType;
+		public TimeAssignmentDef assignment; //For "current" type
+		public List<TimeAssignmentDef> timetable; // For "Has" type, "has this schedule"
+
 
 		public ThingQuerySchedule()
 		{
+			assignment = TimeAssignmentDefOf.Work;
 			timetable = Enumerable.Repeat<TimeAssignmentDef>(null, GenDate.HoursPerDay).ToList();
 		}
 
@@ -1354,6 +1357,8 @@ namespace TD_Find_Lib
 		{
 			base.ExposeData();
 			//TODO consider modded TimeAssignmentDef ehh.
+			Scribe_Values.Look(ref filterType, "filterType");
+			Scribe_Defs.Look(ref assignment, "assignment");
 
 			if (Scribe.mode == LoadSaveMode.Saving)
 			{
@@ -1369,25 +1374,27 @@ namespace TD_Find_Lib
 		protected override ThingQuery Clone()
 		{
 			ThingQuerySchedule clone = (ThingQuerySchedule)base.Clone();
+			clone.filterType = filterType;
+			clone.assignment = assignment;
 			clone.timetable = timetable.ListFullCopy();
 			return clone;
 		}
 
 
 		// How to cycle the assignment options
-		private static List<TimeAssignmentDef> assignmentOptions;
+		private static List<TimeAssignmentDef> scheduleOptions;
 		static ThingQuerySchedule()
 		{
-			assignmentOptions = new();
-			assignmentOptions.Add(null);
+			scheduleOptions = new();
+			scheduleOptions.Add(null);
 
-			assignmentOptions.AddRange(DefDatabase<TimeAssignmentDef>.AllDefs);
+			scheduleOptions.AddRange(DefDatabase<TimeAssignmentDef>.AllDefs);
 		}
 
 		private TimeAssignmentDef NextAssignment(TimeAssignmentDef assignment) =>
-			assignmentOptions[(assignmentOptions.IndexOf(assignment) + 1) % assignmentOptions.Count];
+			scheduleOptions[(scheduleOptions.IndexOf(assignment) + 1) % scheduleOptions.Count];
 		private TimeAssignmentDef PrevAssignment(TimeAssignmentDef assignment) =>
-			assignmentOptions[(assignmentOptions.IndexOf(assignment) - 1 + assignmentOptions.Count) % assignmentOptions.Count];
+			scheduleOptions[(scheduleOptions.IndexOf(assignment) - 1 + scheduleOptions.Count) % scheduleOptions.Count];
 
 
 
@@ -1399,22 +1406,33 @@ namespace TD_Find_Lib
 			var time = pawn.timetable;
 			if (time == null) return false;
 
+			if (filterType == ScheduleFilterType.Current)
+				return time.CurrentAssignment == assignment;
+
 
 			for (int hour = 0; hour < GenDate.HoursPerDay; hour++)
 			{
 				if (timetable[hour] == null)
 					continue;
 
-				if (time.GetAssignment(hour) != timetable[hour])
-					return false;
+				if (filterType == ScheduleFilterType.AllScheduleIs)
+				{
+					if (time.GetAssignment(hour) != timetable[hour])
+						return false;
+				}
+				else // if (filterType == ScheduleFilterType.AnyScheduleNot)
+				{
+					if (time.GetAssignment(hour) != timetable[hour])
+						return true;
+				}
 			}
 
-			return true;
+			return filterType == ScheduleFilterType.AllScheduleIs;
 		}
 
 
 		// Drawing methods adjusted from PawnColumnWorker_Timetable
-		private bool DrawRow(Rect rect)
+		private bool DrawHours(Rect rect)
 		{
 			float curX = rect.x;
 			float slotWidth = rect.width / GenDate.HoursPerDay;
@@ -1446,19 +1464,23 @@ namespace TD_Find_Lib
 			Text.Anchor = TextAnchor.UpperLeft;
 		}
 
+
+		private TimeAssignmentDef newAssignment; //To be drag-assigned to others
+		private static Texture2D nullTexture = SolidColorMaterials.NewSolidColorTexture(new Color(0, 0, 0, 0.8f));
 		private bool DrawTimeAssignment(Rect rect, int hour)
 		{
-			bool mouseButton = Input.GetMouseButton(0) || Input.GetMouseButton(1);
-
 			TimeAssignmentDef assignment = timetable[hour];
 			GUI.DrawTexture(rect, assignment?.ColorTexture ?? nullTexture);
+			GUI.color = Color.gray;
+			Widgets.DrawBox(rect, 1);//highlight mouseover
+			GUI.color = Color.white;
 			if (!Mouse.IsOver(rect))
 			{
 				return false;
 			}
 
 			Widgets.DrawBox(rect, 2);//highlight mouseover
-			if(assignment?.LabelCap is TaggedString label)	// nothing for null option
+			if (assignment?.LabelCap is TaggedString label) // nothing for null option
 				TooltipHandler.TipRegion(rect, label);
 
 			if (Event.current.type == EventType.MouseDown)
@@ -1487,8 +1509,35 @@ namespace TD_Find_Lib
 
 		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
-			rect.xMin += 24; // Room to drag
-			var var = DrawRow(rect);
+			base.DrawMain(rect, locked, fullRect);
+
+			bool changed = false;
+			if(row.ButtonText(filterType.TranslateEnum()))
+			{
+				changed = true;
+				filterType = filterType.Next();
+			}
+
+			if (filterType == ScheduleFilterType.Current)
+			{
+				if (row.ButtonText(assignment.LabelCap))
+				{
+					DoFloatOptions(new List<FloatMenuOption>(
+						DefDatabase<TimeAssignmentDef>.AllDefs
+						.Select(d => new FloatMenuOptionAndRefresh(d.LabelCap, () => assignment = d, this))));
+				}
+			}
+
+			return changed;
+		}
+
+		protected override bool DrawUnder(Listing_StandardIndent listing, bool locked)
+		{
+			if (filterType == ScheduleFilterType.Current)
+				return false;
+
+			Rect rect = listing.GetRect(Text.LineHeight);
+			var var = DrawHours(rect);
 
 			//Draw hours # INSIDE the box
 			DrawHeader(rect);
