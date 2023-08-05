@@ -11,7 +11,10 @@ namespace TD_Find_Lib
 	{
 		private static Dictionary<object, string> _enumStringCache = new();
 
-		public static string TranslateEnum(this object e)
+		public static string TranslateEnum(this object e) =>
+			TranslateEnum(e as System.Enum);
+
+		public static string TranslateEnum<TEnum>(this TEnum e) where TEnum : System.Enum
 		{
 			if (_enumStringCache.TryGetValue(e, out string tr))
 				return tr;

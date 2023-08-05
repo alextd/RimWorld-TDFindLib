@@ -254,47 +254,31 @@ namespace TD_Find_Lib
 
 		// Float menu helpers
 		private static readonly List<FloatMenuOption> floatOptions = new();
-		public void RowButtonFloatMenuEnum<TEnum>(TEnum value, Action<TEnum> setAction) where TEnum : System.Enum
-		{
-			if (row.ButtonText(value.TranslateEnum()))
-				DoFloatOptionsEnum(setAction);
-		}
-		public void DoFloatOptionsEnum<TEnum>(Action<TEnum> setAction) where TEnum : System.Enum
-		{
-			floatOptions.Clear();
+		public void RowButtonFloatMenuEnum<TEnum>(TEnum value, Action<TEnum> setAction, Func<TEnum, bool> filter = null) where TEnum : System.Enum =>
+			RowButtonFloatMenu(value, Enum.GetValues(typeof(TEnum)) as IEnumerable<TEnum>, TranslateEnumEx.TranslateEnum, setAction, filter);
 
-			foreach (TEnum newValue in Enum.GetValues(typeof(TEnum)))
-				floatOptions.Add(new FloatMenuOptionAndRefresh(newValue.TranslateEnum(), () => setAction(newValue), this));
+		public void DoFloatOptionsEnum<TEnum>(Action<TEnum> setAction, Func<TEnum, bool> filter = null) where TEnum : System.Enum => 
+			DoFloatOptions(Enum.GetValues(typeof(TEnum)) as IEnumerable<TEnum>, TranslateEnumEx.TranslateEnum, setAction, filter);
 
-			DoFloatOptions(floatOptions);
-		}
+		public void RowButtonFloatMenuDef<TDef>(TDef value, Action<TDef> setAction, Func<TDef, bool> filter = null) where TDef : Def => 
+			RowButtonFloatMenu(value, DefDatabase<TDef>.AllDefs, LabelByDefName.GetLabel, setAction, filter);
 
-		public void RowButtonFloatMenuDef<TDef>(TDef value, Action<TDef> setAction) where TDef : Def
-		{
-			if (row.ButtonText(value.GetLabel()))
-				DoFloatOptionsDef(setAction);
-		}
-		public void DoFloatOptionsDef<TDef>(Action<TDef> setAction) where TDef : Def
-		{
-			floatOptions.Clear();
+		public void DoFloatOptionsDef<TDef>(Action<TDef> setAction, Func<TDef, bool> filter = null) where TDef : Def =>
+			DoFloatOptions(DefDatabase<TDef>.AllDefs, LabelByDefName.GetLabel, setAction, filter);
 
-			foreach (TDef newValue in DefDatabase<TDef>.AllDefs)
-				floatOptions.Add(new FloatMenuOptionAndRefresh(newValue.GetLabel(), () => setAction(newValue), this));
-
-			DoFloatOptions(floatOptions);
-		}
-
-		public void RowButtonFloatMenu<T>(T value, List<T> values, Func<T, string> nameFor, Action<T> setAction)
+		public void RowButtonFloatMenu<T>(T value, IEnumerable<T> values, Func<T, string> nameFor, Action<T> setAction, Func<T, bool> filter = null)
 		{
 			if (row.ButtonText(nameFor(value)))
-				DoFloatOptions(values, nameFor, setAction);
+				DoFloatOptions(values, nameFor, setAction, filter);
 		}
-		public void DoFloatOptions<T>(List<T> values, Func<T, string> nameFor, Action<T> setValue)
+
+		public void DoFloatOptions<T>(IEnumerable<T> values, Func<T, string> nameFor, Action<T> setAction, Func<T, bool> filter = null)
 		{
 			floatOptions.Clear();
 
 			foreach (T newValue in values)
-				floatOptions.Add(new FloatMenuOptionAndRefresh(nameFor(newValue), () => setValue(newValue), this));
+				if (filter == null || filter(newValue))
+					floatOptions.Add(new FloatMenuOptionAndRefresh(nameFor(newValue), () => setAction(newValue), this));
 
 			DoFloatOptions(floatOptions);
 		}

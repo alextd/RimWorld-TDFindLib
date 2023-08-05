@@ -1096,30 +1096,22 @@ namespace TD_Find_Lib
 
 		public override bool DrawCustom(Rect fullRect)
 		{
-			if (row.ButtonText(filterType.TranslateEnum()))
-			{
-				List<FloatMenuOption> options = new();
+			RowButtonFloatMenuEnum(filterType, newValue => filterType = newValue, 
+				filter: newValue =>
+					(!(newValue == AbilityFilterType.Charges // Can't select charges if one charge
+					&& sel != null
+					&& sel.charges == 1)) 
+					&&
+					(!(newValue == AbilityFilterType.Active // Can't select active if gives no active hediff
+					&& sel != null
+					&& sel.comps.All(prop => prop is not CompProperties_AbilityGiveHediff))) 
+					&&
+					(!(newValue == AbilityFilterType.Cooldown // Can't select Cooldown if there's no cooldown
+					&& sel != null
+					&& sel.cooldownTicksRange == default && (sel.groupDef?.cooldownTicks ?? 0) == 0)));
 
-				foreach (AbilityFilterType type in Enum.GetValues(typeof(AbilityFilterType)))
-				{
-					if (type == AbilityFilterType.Charges && sel != null && sel.charges == 1)
-					{
-						continue;
-					}
 
-					if (type == AbilityFilterType.Cooldown && sel != null &&
-						sel.cooldownTicksRange == default && (sel.groupDef?.cooldownTicks ?? 0) == 0)
-					{
-						continue;
-					}
-
-					options.Add(new FloatMenuOptionAndRefresh(type.TranslateEnum(), () => filterType = type, this));
-				}
-
-				DoFloatOptions(options);
-			}
-
-			if(filterType == AbilityFilterType.Charges)
+			if (filterType == AbilityFilterType.Charges)
 			{
 				return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref chargeRange);
 			}
