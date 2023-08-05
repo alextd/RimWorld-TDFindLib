@@ -96,8 +96,11 @@ namespace TD_Find_Lib
 		int passion = 4;
 
 		static string[] passionText = new string[]
-		{ "PassionNone", "PassionMinor", "PassionMajor", "TD.EitherOption", "TD.AnyOption" };//notranslate
-		public static string GetPassionText(int x) => passionText[x].Translate().ToString().Split(' ')[0];
+		{ "PassionNone", "PassionMinor", "PassionMajor", "TD.AnyPassion", "TD.IgnorePassion" };//notranslate
+		public static string GetPassionText(int x) => passionText[x].Translate();
+		public static Color GetPassionFloatColor(int x) =>
+			x switch { 0 => Color.red, 3 => Color.yellow, _ => Color.white };
+
 
 		public ThingQuerySkill()
 		{
@@ -142,7 +145,7 @@ namespace TD_Find_Lib
 			if (row.ButtonText(GetPassionText(passion)))
 			{
 				DoFloatOptions(Enumerable.Range(0, 5).Select(
-					p => new FloatMenuOptionAndRefresh(GetPassionText(p), () => passion = p, this)).Cast<FloatMenuOption>().ToList());
+					p => new FloatMenuOptionAndRefresh(GetPassionText(p), () => passion = p, this, GetPassionFloatColor(p)) as FloatMenuOption).ToList());
 			}
 
 			return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref skillRange);
