@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using Verse;
 
 namespace TD_Find_Lib
@@ -51,5 +52,49 @@ namespace TD_Find_Lib
 
 			return name;
 		}
+	}
+
+
+	public static class LabelByDefName
+	{
+		private static Dictionary<Def, string> _defLabelCache = new();
+
+		public static string GetLabel(this Def def)
+		{
+			if (_defLabelCache.TryGetValue(def, out string tr))
+				return tr;
+
+			string translated = DoGetLabel(def);
+			_defLabelCache[def] = translated;
+			return translated;
+		}
+
+		private static string DoGetLabel(Def def)
+		{
+			Log.Message($"GetLabel({def})");
+			{
+				if (def.LabelCap is TaggedString label && label != TaggedString.empty)
+				{
+					Log.Message($"def.LabelCap = {label}");
+					return label;
+				}
+			}
+			{
+				if ($"TD.DefLabel.{def.defName}".TryTranslate(out TaggedString label))
+				{
+					Log.Message($"TD.DefLabel.{def.defName} => {label}");
+					return label;
+				}
+			}
+
+			// Just stupid add spaces before capital letters.
+			Log.Message($"SplitCamelCase() => {def.defName.SplitCamelCase()}");
+			return def.defName.SplitCamelCase();
+		}
+
+		public static string SplitCamelCase(this string str) =>
+			//GenText with added (?<!_) lookbehind for no _ to create "A_String" not "A_ String"
+			// this also adds in nbsp, so the resulting string is still grouped as one chunk.
+			Regex.Replace(str, "(\\B(?<!_)[A-Z]+?(?=[A-Z][^A-Z])|\\B(?<!_)[A-Z]+?(?=[^A-Z]))", " $1"); 
 	}
 }

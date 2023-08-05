@@ -167,8 +167,8 @@ namespace TD_Find_Lib
 
 		public override string NameFor(TraitDef def) =>
 			def.degreeDatas.Count == 1
-				? def.degreeDatas.First().label.CapitalizeFirst()
-				: def.defName + "*";//TraitDefs don't have labels
+				? def.degreeDatas.First().LabelCap
+				: def.GetLabel() + "*";//TraitDefs don't have labels
 
 		public override void ExposeData()
 		{
@@ -200,15 +200,12 @@ namespace TD_Find_Lib
 		{
 			if (sel == null) return false;
 
-			if (sel.degreeDatas.Count > 1 &&
-				row.ButtonText(sel.DataAtDegree(traitDegree).label.CapitalizeFirst()))
-			{
-				List<FloatMenuOption> options = new();
-				foreach (TraitDegreeData deg in sel.degreeDatas)
-				{
-					options.Add(new FloatMenuOptionAndRefresh(deg.label.CapitalizeFirst(), () => traitDegree = deg.degree, this));
-				}
-				DoFloatOptions(options);
+			if (sel.degreeDatas.Count > 1)
+			{ 
+				RowButtonFloatMenu(sel.DataAtDegree(traitDegree),
+					sel.degreeDatas,
+					deg => deg.LabelCap,
+					newValue => traitDegree = newValue.degree);
 			}
 			return false;
 		}
@@ -247,8 +244,8 @@ namespace TD_Find_Lib
 		public static bool ShowMultistage(ThoughtDef def) =>
 			def.stages.Count(VisibleStage) > 1;
 
-		public IEnumerable<int> SelectableStages =>
-			orderedStages.Where(i => VisibleStage(sel.stages[i]));
+		public List<int> SelectableStages =>
+			orderedStages.Where(i => VisibleStage(sel.stages[i])).ToList();
 
 		protected override void PostProcess()
 		{
@@ -261,7 +258,7 @@ namespace TD_Find_Lib
 
 		protected override void PostChosen()
 		{
-			stageRange = new IntRange(0, SelectableStages.Count() - 1);
+			stageRange = new IntRange(0, SelectableStages.Count - 1);
 		}
 
 		public override void ExposeData()
@@ -297,23 +294,36 @@ namespace TD_Find_Lib
 			return false;
 		}
 
+		const string goodColor = "#d0ffd0", badColor ="#ffd0d0";
 		public static void AppendEffect(StringBuilder sb, ThoughtStage stage)
 		{
 			int mood = (int)stage.baseMoodEffect;
 			if (mood != 0)
 			{
+				bool good = mood > 0;
+				sb.Append("<color=");
+				sb.Append(good ? goodColor : badColor);
+				sb.Append(">");
+
 				sb.Append(" (");
-				if (mood > 0)
+				if (good)
 					sb.Append("+");
 				sb.Append(mood);
 				sb.Append(" ");
 				sb.Append("mood");
 				sb.Append(")");
+
+				sb.Append("</color>");
 			}
 
 			int opinion = (int)stage.baseOpinionOffset;
 			if (opinion != 0)
 			{
+				bool good = opinion > 0;
+				sb.Append("<color=");
+				sb.Append(good ? goodColor : badColor);
+				sb.Append(">");
+
 				sb.Append(" (");
 				if (opinion > 0)
 					sb.Append("+");
@@ -321,6 +331,8 @@ namespace TD_Find_Lib
 				sb.Append(" ");
 				sb.Append("opinion");
 				sb.Append(")");
+
+				sb.Append("</color>");
 			}
 		}
 
@@ -333,7 +345,7 @@ namespace TD_Find_Lib
 				stage?.label.CapitalizeFirst() ??
 				"???";
 
-			label = label.Replace("{0}", "_").Replace("{1}", "_");
+			label = Regex.Replace(label, "{\\d}", "_");
 			sb.Append(label);
 
 			if (ShowMultistage(def))
@@ -362,7 +374,7 @@ namespace TD_Find_Lib
 					sb.AppendLine(sel.stages[0].description);
 			}
 			sb.Append("<color=#808080>(");
-			sb.Append(sel.defName);
+			sb.Append(sel.defName); // .SplitCamelCase()); actually looks worse 
 			sb.Append(")</color>");
 
 			return sb.ToString();
@@ -379,8 +391,7 @@ namespace TD_Find_Lib
 			if (stage == null || !stage.visible)
 				return "TD.Invisible".Translate();
 
-			StringBuilder sb = new(stage.label.CapitalizeFirst());
-			sb.Replace("{0}", "_").Replace("{1}", "_");
+			StringBuilder sb = new(Regex.Replace(stage.label, "{\\d}", "_").CapitalizeFirst());
 
 			AppendEffect(sb, stage);
 
@@ -419,14 +430,7 @@ namespace TD_Find_Lib
 			int setStageI = orderedStages[setI];
 			if (stageRow.ButtonTextNoGap(NameForStage(setStageI), TipForStage(setStageI)))
 			{
-				List<FloatMenuOption> options = new();
-				foreach (int stageI in SelectableStages)
-				{
-					int localI = OrderedIndex(stageI);
-					options.Add(new FloatMenuOptionAndRefresh(NameForStage(stageI), () => selectedAction(localI), this));
-				}
-
-				DoFloatOptions(options);
+				DoFloatOptions(SelectableStages, NameForStage, newValue => selectedAction(OrderedIndex(newValue)));
 			}
 		}
 
@@ -1363,6 +1367,10 @@ namespace TD_Find_Lib
 
 			if (Scribe.mode == LoadSaveMode.Saving)
 			{
+				// Scribe_Collections calls Scribe_Def which valls Scribe_Value,
+				// but Scribe_Def explicitly sets args so that a null def means NO written tag, 
+				// (it doesn't have a forceSave option)
+				// meaning NO <li>null</li>, meaning null defs in a list can't be save-scribed directly.
 				List<string> timetableDummy = new(timetable.Select(def => def?.defName ?? "null"));
 				Scribe_Collections.Look(ref timetableDummy, "timetable");
 			}

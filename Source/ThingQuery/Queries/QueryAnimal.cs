@@ -79,14 +79,7 @@ namespace TD_Find_Lib
 			switch (sel)
 			{
 				case RacePropsQuery.Intelligence:
-					if (row.ButtonText(intelligence.TranslateEnum()))
-					{
-						foreach (Intelligence intel in Enum.GetValues(typeof(Intelligence)))
-						{
-							options.Add(new FloatMenuOptionAndRefresh(intel.TranslateEnum(), () => intelligence = intel, this));
-						}
-						DoFloatOptions(options);
-					}
+					RowButtonFloatMenuEnum(intelligence, newValue => intelligence = newValue);
 					break;
 
 				case RacePropsQuery.Wildness:
@@ -94,14 +87,7 @@ namespace TD_Find_Lib
 					return TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref valueRange, valueStyle: ToStringStyle.PercentZero);
 
 				case RacePropsQuery.Trainability:
-					if (row.ButtonText(trainability.LabelCap))
-					{
-						foreach (TrainabilityDef def in DefDatabase<TrainabilityDef>.AllDefs)
-						{
-							options.Add(new FloatMenuOptionAndRefresh(def.LabelCap, () => trainability = def, this));
-						}
-						DoFloatOptions(options);
-					}
+					RowButtonFloatMenuDef(trainability, newValue => trainability = newValue);
 					break;
 			}
 			return false;

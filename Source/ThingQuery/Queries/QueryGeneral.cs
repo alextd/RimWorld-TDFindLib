@@ -215,20 +215,9 @@ namespace TD_Find_Lib
 		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
 
 		public override bool Ordered => true;
-		public override IEnumerable<DesignationDef> AvailableOptions() =>
-			Find.CurrentMap.designationManager.AllDesignations.Select(d => d.def);
-
-		public override string NameFor(DesignationDef o)
-		{
-			// no labels on Designation def
-			string tag = o.defName;
-
-			if ($"TD.Designation.{tag}".TryTranslate(out TaggedString result))
-				return result; 
-
-			// Just stupid add spaces before capital letters.
-			return string.Concat(tag.Select(x => Char.IsUpper(x) ? " " + x : x.ToString())).TrimStart(' ');
-		}
+		//There really aren't too many designations to filter them down
+		//public override IEnumerable<DesignationDef> AvailableOptions() =>
+		//	Find.CurrentMap.designationManager.AllDesignations.Select(d => d.def);
 	}
 
 	public class ThingQueryFreshness : ThingQueryDropDown<RotStage>
@@ -720,8 +709,8 @@ namespace TD_Find_Lib
 
 		public override string NameFor(BodyPartDef def)
 		{
-			string name = def.LabelCap;
-			string special = def.defName; //best we got
+			string name = def.GetLabel();
+			string special = def.defName.SplitCamelCase(); //best we got
 			if (name == special)
 				return name;
 

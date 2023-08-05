@@ -251,6 +251,55 @@ namespace TD_Find_Lib
 		public virtual string DisableReasonCurMap => null;
 		public static readonly Color DisabledBecauseReasonOverlayColor = new(0.5f, 0, 0, 0.25f);
 
+
+		// Float menu helpers
+		private static readonly List<FloatMenuOption> floatOptions = new();
+		public void RowButtonFloatMenuEnum<TEnum>(TEnum value, Action<TEnum> setAction) where TEnum : System.Enum
+		{
+			if (row.ButtonText(value.TranslateEnum()))
+				DoFloatOptionsEnum(setAction);
+		}
+		public void DoFloatOptionsEnum<TEnum>(Action<TEnum> setAction) where TEnum : System.Enum
+		{
+			floatOptions.Clear();
+
+			foreach (TEnum newValue in Enum.GetValues(typeof(TEnum)))
+				floatOptions.Add(new FloatMenuOptionAndRefresh(newValue.TranslateEnum(), () => setAction(newValue), this));
+
+			DoFloatOptions(floatOptions);
+		}
+
+		public void RowButtonFloatMenuDef<TDef>(TDef value, Action<TDef> setAction) where TDef : Def
+		{
+			if (row.ButtonText(value.GetLabel()))
+				DoFloatOptionsDef(setAction);
+		}
+		public void DoFloatOptionsDef<TDef>(Action<TDef> setAction) where TDef : Def
+		{
+			floatOptions.Clear();
+
+			foreach (TDef newValue in DefDatabase<TDef>.AllDefs)
+				floatOptions.Add(new FloatMenuOptionAndRefresh(newValue.GetLabel(), () => setAction(newValue), this));
+
+			DoFloatOptions(floatOptions);
+		}
+
+		public void RowButtonFloatMenu<T>(T value, List<T> values, Func<T, string> nameFor, Action<T> setAction)
+		{
+			if (row.ButtonText(nameFor(value)))
+				DoFloatOptions(values, nameFor, setAction);
+		}
+		public void DoFloatOptions<T>(List<T> values, Func<T, string> nameFor, Action<T> setValue)
+		{
+			floatOptions.Clear();
+
+			foreach (T newValue in values)
+				floatOptions.Add(new FloatMenuOptionAndRefresh(nameFor(newValue), () => setValue(newValue), this));
+
+			DoFloatOptions(floatOptions);
+		}
+
+		// And the above is passed along to:
 		public static void DoFloatOptions(List<FloatMenuOption> options)
 		{
 			if (options.NullOrEmpty())
@@ -258,6 +307,7 @@ namespace TD_Find_Lib
 			else
 				Find.WindowStack.Add(new FloatMenu(options));
 		}
+
 
 		//Probably a good filter
 		public static bool ValidDef(ThingDef def) =>
@@ -674,7 +724,7 @@ namespace TD_Find_Lib
 
 		public virtual IEnumerable<T> AvailableOptions() => null;
 
-		public virtual string NameFor(T o) => o is Def def ? def.LabelCap.RawText : typeof(T).IsEnum ? o.TranslateEnum() : o.ToString();
+		public virtual string NameFor(T o) => o is Def def ? def.GetLabel() : typeof(T).IsEnum ? o.TranslateEnum() : o.ToString();
 
 		// dropdown menu options
 		public virtual bool Ordered => false;
