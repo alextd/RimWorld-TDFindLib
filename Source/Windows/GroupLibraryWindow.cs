@@ -86,7 +86,7 @@ namespace TD_Find_Lib
 			fillRect.yMin = titleRect.yMax;
 
 			Listing_StandardIndent listing = new();
-			Rect viewRect = new Rect(0f, 0f, fillRect.width - 16f, scrollViewHeight);
+			Rect viewRect = new(0f, 0f, fillRect.width - 16f, scrollViewHeight);
 			listing.BeginScrollView(fillRect, ref scrollPosition, viewRect);
 
 
@@ -94,7 +94,7 @@ namespace TD_Find_Lib
 			// Reorder group rect
 			if (Event.current.type == EventType.Repaint)
 			{
-				Rect reorderRect = new Rect(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight);
+				Rect reorderRect = new(0f, listing.CurHeight, listing.ColumnWidth, reorderRectHeight);
 				reorderID = ReorderableWidget.NewGroup(
 					DoReorderGroup,
 					ReorderableDirection.Vertical,
@@ -126,7 +126,7 @@ namespace TD_Find_Lib
 			Rect newGroupRect = listing.GetRect(Text.LineHeight);
 			if (!ReorderableWidget.Dragging)
 			{
-				WidgetRow newGroupRow = new WidgetRow(newGroupRect.x, newGroupRect.y);
+				WidgetRow newGroupRow = new(newGroupRect.x, newGroupRect.y);
 				Text.Font = GameFont.Medium;
 
 
@@ -187,7 +187,7 @@ namespace TD_Find_Lib
 		public static void DrawMouseAttachedSearchGroup(SearchGroup group, float width)
 		{
 			Vector2 mousePositionOffset = Event.current.mousePosition + Vector2.one * 12;
-			Rect dragRect = new Rect(mousePositionOffset, new(width, Text.LineHeight));
+			Rect dragRect = new(mousePositionOffset, new(width, Text.LineHeight));
 
 			//Same id 34003428 as GenUI.DrawMouseAttachment
 			Find.WindowStack.ImmediateWindow(34003428, dragRect, WindowLayer.Super,
@@ -245,7 +245,7 @@ namespace TD_Find_Lib
 			// Reorder Search rect
 			if (Event.current.type == EventType.Repaint)
 			{
-				Rect reorderRect = new Rect(0f, startHeight, listing.ColumnWidth, reorderRectHeight);
+				Rect reorderRect = new(0f, startHeight, listing.ColumnWidth, reorderRectHeight);
 				reorderID = ReorderableWidget.NewGroup(
 					DoReorderSearch,
 					ReorderableDirection.Vertical,
@@ -263,7 +263,7 @@ namespace TD_Find_Lib
 				QuerySearch search = item.Search;
 				Rect rowRect = listing.GetRect(RowHeight);
 
-				WidgetRow row = new WidgetRow(rowRect.x, rowRect.y, UIDirection.RightThenDown, rowRect.width);
+				WidgetRow row = new(rowRect.x, rowRect.y, UIDirection.RightThenDown, rowRect.width);
 
 				// Buttons
 				DrawRowButtons(row, item, i);
@@ -290,7 +290,7 @@ namespace TD_Find_Lib
 		public static void DrawMouseAttachedQuerySearch(QuerySearch search, float width)
 		{
 			Vector2 mousePositionOffset = Event.current.mousePosition + Vector2.one * 12;
-			Rect dragRect = new Rect(mousePositionOffset, new(width, Text.LineHeight));
+			Rect dragRect = new(mousePositionOffset, new(width, Text.LineHeight));
 
 			//Same id 34003428 as GenUI.DrawMouseAttachment
 			Find.WindowStack.ImmediateWindow(34003428, dragRect, WindowLayer.Super,
@@ -356,7 +356,7 @@ namespace TD_Find_Lib
 
 		public override void DrawExtraHeader(Rect headerRect)
 		{
-			WidgetRow headerRow = new WidgetRow(headerRect.xMax, headerRect.y, UIDirection.LeftThenDown);
+			WidgetRow headerRow = new(headerRect.xMax, headerRect.y, UIDirection.LeftThenDown);
 
 			// Delete Group button
 			if (headerRow.ButtonIcon(FindTex.Trash))

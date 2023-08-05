@@ -64,7 +64,7 @@ namespace TD_Find_Lib
 
 		public static HashSet<T> AvailableInGame<T>(Func<Thing, IEnumerable<T>> availableOptionsGetter)
 		{
-			HashSet<T> ret = new HashSet<T>();
+			HashSet<T> ret = new();
 			foreach(Map map in Find.Maps)
 				foreach (Thing t in AllKnownThings(map))
 					if(availableOptionsGetter(t) is IEnumerable<T> objs)
@@ -77,7 +77,7 @@ namespace TD_Find_Lib
 
 		public static HashSet<T> AvailableInGame<T>(Func<Thing, T> availableOptionGetter)
 		{
-			HashSet<T> ret = new HashSet<T>();
+			HashSet<T> ret = new();
 			foreach (Map map in Find.Maps)
 				foreach (Thing t in AllKnownThings(map))
 					if(availableOptionGetter(t) is T o)

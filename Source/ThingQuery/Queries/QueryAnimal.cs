@@ -75,7 +75,7 @@ namespace TD_Find_Lib
 
 		public override bool DrawCustom(Rect fullRect)
 		{
-			List<FloatMenuOption> options = new List<FloatMenuOption>();
+			List<FloatMenuOption> options = new();
 			switch (sel)
 			{
 				case RacePropsQuery.Intelligence:
@@ -266,7 +266,7 @@ namespace TD_Find_Lib
 	public enum ProgressType { Milkable, Shearable, MilkFullness, WoolGrowth, EggProgress, EggHatch }
 	public class ThingQueryProductProgress : ThingQueryDropDown<ProgressType>
 	{
-		protected FloatRangeUB progressRange = new FloatRangeUB(0, 1);
+		protected FloatRangeUB progressRange = new(0, 1);
 
 		public override void ExposeData()
 		{

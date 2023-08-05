@@ -11,7 +11,7 @@ namespace TD_Find_Lib
 	{
 		public static Rect GetRect(this WidgetRow row, float width, float gap = WidgetRow.DefaultGap)
 		{
-			Rect result = new Rect(row.LeftX(width), row.curY, width, WidgetRow.IconSize + gap);
+			Rect result = new(row.LeftX(width), row.curY, width, WidgetRow.IconSize + gap);
 			row.IncrementPosition(width);
 			return result;
 		}

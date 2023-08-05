@@ -249,7 +249,7 @@ namespace TD_Find_Lib
 		// This handles multi-map filters that work for one map but not another (eg zone names)
 		public virtual string DisableReason => null;
 		public virtual string DisableReasonCurMap => null;
-		public static readonly Color DisabledBecauseReasonOverlayColor = new Color(0.5f, 0, 0, 0.25f);
+		public static readonly Color DisabledBecauseReasonOverlayColor = new(0.5f, 0, 0, 0.25f);
 
 		public static void DoFloatOptions(List<FloatMenuOption> options)
 		{

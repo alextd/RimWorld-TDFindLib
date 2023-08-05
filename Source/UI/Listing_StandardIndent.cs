@@ -146,7 +146,7 @@ namespace TD_Find_Lib
 		public Rect GetRemainingRect(float widthPct = 1f)
 		{
 			float remaining = listingRect.height - curY;
-			Rect result = new Rect(curX, curY, ColumnWidth * widthPct, remaining);
+			Rect result = new(curX, curY, ColumnWidth * widthPct, remaining);
 			curY = listingRect.height;
 			return result;
 		}

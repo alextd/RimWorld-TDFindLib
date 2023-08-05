@@ -165,7 +165,7 @@ namespace TD_Find_Lib
 			}
 		}
 
-		public override Vector2 InitialSize => new Vector2(600, 600);
+		public override Vector2 InitialSize => new(600, 600);
 
 		public override void SetInitialSizeAndPosition()
 		{
@@ -215,7 +215,7 @@ namespace TD_Find_Lib
 				Widgets.DrawHighlightIfMouseover(typeRect);
 				if (Widgets.ButtonInvisible(typeRect))
 				{
-					List<FloatMenuOption> types = new List<FloatMenuOption>();
+					List<FloatMenuOption> types = new();
 					foreach (SearchListType type in DebugSettings.godMode ? Enum.GetValues(typeof(SearchListType)) : SearchListNormalTypes.normalTypes)
 					{
 						if (!DebugSettings.godMode && type >= SearchListType.Haulables)
@@ -267,7 +267,7 @@ namespace TD_Find_Lib
 				Widgets.DrawHighlightIfMouseover(mapTypeRect);
 				if(Widgets.ButtonInvisible(mapTypeRect))
 				{
-					List<FloatMenuOption> mapOptions = new List<FloatMenuOption>();
+					List<FloatMenuOption> mapOptions = new();
 
 					//Current Map
 					mapOptions.Add(new FloatMenuOption("TD.SearchCurrentMapOnly".Translate(), () => search.SetSearchCurrentMap()));
@@ -350,7 +350,7 @@ namespace TD_Find_Lib
 
 		public void DrawQuerySearch(Rect rect)
 		{
-			Listing_StandardIndent listing = new Listing_StandardIndent()
+			Listing_StandardIndent listing = new()
 			{ maxOneColumn = true };
 
 			listing.Begin(rect);

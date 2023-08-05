@@ -98,7 +98,7 @@ namespace TD_Find_Lib
 					//Popup warning.
 					//TODO: Save to separate file.
 
-					Dialog_MessageBox dialog_MessageBox = new Dialog_MessageBox("");
+					Dialog_MessageBox dialog_MessageBox = new("");
 					dialog_MessageBox.image = ContentFinder<Texture2D>.Get("TDbadtime");
 					Find.WindowStack.Add(dialog_MessageBox);
 

@@ -445,7 +445,7 @@ namespace TD_Find_Lib
 
 		public QuerySearch CloneInactive(string newName = null)
 		{
-			QuerySearch newSearch = new QuerySearch()
+			QuerySearch newSearch = new()
 			{
 				name = newName ?? name,
 				active = false,
@@ -466,7 +466,7 @@ namespace TD_Find_Lib
 
 		public QuerySearch CloneForUse(List<Map> newMaps = null, string newName = null)
 		{
-			QuerySearch newSearch = new QuerySearch()
+			QuerySearch newSearch = new()
 			{
 				name = newName ?? name,
 				active = true,

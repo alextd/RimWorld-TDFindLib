@@ -155,7 +155,7 @@ namespace TD_Find_Lib
 
 		public HeldQueries Clone(IQueryHolder newParent)
 		{
-			HeldQueries clone = new HeldQueries(newParent);
+			HeldQueries clone = new(newParent);
 
 			foreach (var f in queries)
 				clone.Add(f.MakeClone(), remake: false);
@@ -331,13 +331,13 @@ namespace TD_Find_Lib
 		//Draw queries completely, in a rect
 		public bool DrawQueriesInRect(Rect listRect, bool locked, ref Vector2 scrollPositionFilt, ref float scrollHeight)
 		{
-			Listing_StandardIndent listing = new Listing_StandardIndent()
+			Listing_StandardIndent listing = new()
 				{ maxOneColumn = true };
 
 			float viewWidth = listRect.width;
 			if (scrollHeight > listRect.height)
 				viewWidth -= 16f;
-			Rect viewRect = new Rect(0f, 0f, viewWidth, scrollHeight);
+			Rect viewRect = new(0f, 0f, viewWidth, scrollHeight);
 
 			listing.BeginScrollView(listRect, ref scrollPositionFilt, viewRect);
 
@@ -363,7 +363,7 @@ namespace TD_Find_Lib
 
 			if (Event.current.type == EventType.Repaint)
 			{
-				Rect reorderRect = new Rect(0f, startHeight, listing.ColumnWidth, reorderRectHeight);
+				Rect reorderRect = new(0f, startHeight, listing.ColumnWidth, reorderRectHeight);
 				reorderID = ReorderableWidget.NewGroup(
 					(int from, int to) => DoReorderQuery(from, to, true),
 					ReorderableDirection.Vertical,
@@ -423,7 +423,7 @@ namespace TD_Find_Lib
 		public static void DrawMouseAttachedQuery(ThingQuery dragQuery, float width)
 		{
 			Vector2 mousePositionOffset = Event.current.mousePosition + Vector2.one * 12;
-			Rect dragRect = new Rect(mousePositionOffset, new(width, Text.LineHeight + 2));//not sure where the constant for listing.verticalSpacing is
+			Rect dragRect = new(mousePositionOffset, new(width, Text.LineHeight + 2));//not sure where the constant for listing.verticalSpacing is
 
 			//Same id 34003428 as GenUI.DrawMouseAttachment
 			Find.WindowStack.ImmediateWindow(34003428, dragRect, WindowLayer.Super,
@@ -460,7 +460,7 @@ namespace TD_Find_Lib
 
 		public void DoFloatAllQueries(IEnumerable<ThingQuerySelectableDef> defs)
 		{
-			List<FloatMenuOption> options = new List<FloatMenuOption>();
+			List<FloatMenuOption> options = new();
 			foreach (ThingQuerySelectableDef def in defs.Where(d => !d.obsolete && (DebugSettings.godMode || !d.devOnly)))
 			{
 				if (def is ThingQueryDef fDef)

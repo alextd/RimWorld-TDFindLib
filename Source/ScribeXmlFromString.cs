@@ -69,7 +69,7 @@ namespace TD_Find_Lib
 			}
 			try
 			{
-				XmlDocument xmlDocument = new XmlDocument();
+				XmlDocument xmlDocument = new();
 				xmlDocument.LoadXml(xmlText);
 				Scribe.loader.curXmlParent = xmlDocument.DocumentElement;
 				Scribe.mode = LoadSaveMode.LoadingVars;

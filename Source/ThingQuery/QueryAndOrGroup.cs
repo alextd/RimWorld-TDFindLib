@@ -163,7 +163,7 @@ namespace TD_Find_Lib
 			IntVec3 pos = t.PositionHeld;
 			Map map = t.MapHeld;
 
-			CellRect cells = new CellRect(pos.x - range.max, pos.z - range.max, range.max * 2 + 1, range.max * 2 + 1);
+			CellRect cells = new(pos.x - range.max, pos.z - range.max, range.max * 2 + 1, range.max * 2 + 1);
 			foreach (IntVec3 p in cells)
 				if (map.thingGrid.ThingsAt(p).Any(child => base.AppliesDirectlyTo(child)))
 					return true;

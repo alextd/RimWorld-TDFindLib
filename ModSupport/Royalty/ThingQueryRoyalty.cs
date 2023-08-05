@@ -113,7 +113,7 @@ namespace TDFindLib_Royalty
 
 			if (Widgets.ButtonText(rect, selectedDef?.LabelCap ?? "???"))
 			{
-				List<FloatMenuOption> options = new List<FloatMenuOption>();
+				List<FloatMenuOption> options = new();
 				foreach (RoyalTitleDef def in titles)
 				{
 					if(def.seniority >= min && def.seniority <= max)
@@ -328,7 +328,7 @@ namespace TDFindLib_Royalty
 
 	public class ThingQueryPermit : ThingQueryDropDown<RoyalTitlePermitDef>
 	{
-		public Faction faction; //null = Any!
+		public Faction faction; //null = Any! Sorry this doesn't match extraOption==1 like usual!
 		public static RoyalTitlePermitDef TradeSettlement = DefDatabase<RoyalTitlePermitDef>.GetNamedSilentFail("TradeSettlement");
 		public bool onlyReady;	// filter only if ready 
 
@@ -371,7 +371,7 @@ namespace TDFindLib_Royalty
 		{
 			if(row.ButtonText(faction?.Name ?? "TD.AnyOption".Translate()))
 			{
-				List<FloatMenuOption> options = new List<FloatMenuOption>();
+				List<FloatMenuOption> options = new();
 
 				if (Current.Game?.World is RimWorld.Planet.World world)
 					foreach (Faction fac in world.factionManager.AllFactionsVisibleInViewOrder.Where(f => f.def.HasRoyalTitles))

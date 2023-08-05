@@ -25,7 +25,7 @@ namespace TD_Find_Lib
 		}
 
 
-		public override Vector2 InitialSize => new Vector2(360, 800);
+		public override Vector2 InitialSize => new(360, 800);
 
 
 		public override void SetInitialSizeAndPosition()
@@ -68,7 +68,7 @@ namespace TD_Find_Lib
 			Text.Font = GameFont.Small;
 
 			//Top-row buttons
-			WidgetRow row = new WidgetRow(inRect.x, inRect.y, UIDirection.RightThenDown, inRect.width);
+			WidgetRow row = new(inRect.x, inRect.y, UIDirection.RightThenDown, inRect.width);
 
 			DrawIconButtons(row);
 
@@ -118,14 +118,14 @@ namespace TD_Find_Lib
 				viewWidth -= 16f;
 
 			//Draw Scrolling list:
-			Rect viewRect = new Rect(0f, 0f, viewWidth, scrollViewListHeight);
+			Rect viewRect = new(0f, 0f, viewWidth, scrollViewListHeight);
 			Widgets.BeginScrollView(listRect, ref scrollPositionList, viewRect);
 
 			//Be smart about drawing only what's visible.
 			//For: Set up 3 starting variables woahwoahwoah
 			int i = (int)scrollPositionList.y / RowHeight;
 			int iMax = Math.Min(1 + (int)(scrollPositionList.y+listRect.height) / RowHeight, search.result.allThings.Count);
-			Rect thingRect = new Rect(viewRect.x, i*RowHeight, viewRect.width, 32);
+			Rect thingRect = new(viewRect.x, i*RowHeight, viewRect.width, 32);
 			for (; i < iMax; thingRect.y += RowHeight, i++)
 				DrawThingRow(search.result.allThings[i], thingRect);
 
@@ -249,7 +249,7 @@ namespace TD_Find_Lib
 			else if (def.graphic is Graphic_Linked && def.uiIconPath.NullOrEmpty())
 			{
 				Material iconMat = def.graphic.MatSingle;
-				Rect texCoords = new Rect(iconMat.mainTextureOffset, iconMat.mainTextureScale);
+				Rect texCoords = new(iconMat.mainTextureOffset, iconMat.mainTextureScale);
 				GUI.color = thing.DrawColor;
 				Widgets.DrawTextureFitted(iconRect, def.uiIcon, 1f, Vector2.one, texCoords);
 				GUI.color = Color.white;

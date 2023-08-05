@@ -92,7 +92,7 @@ namespace TD_Find_Lib
 
 	public class ThingQuerySkill : ThingQueryDropDown<SkillDef>
 	{
-		IntRangeUB skillRange = new IntRangeUB(SkillRecord.MinLevel, SkillRecord.MaxLevel);
+		IntRangeUB skillRange = new(SkillRecord.MinLevel, SkillRecord.MaxLevel);
 		int passion = 4;
 
 		static string[] passionText = new string[]
@@ -203,7 +203,7 @@ namespace TD_Find_Lib
 			if (sel.degreeDatas.Count > 1 &&
 				row.ButtonText(sel.DataAtDegree(traitDegree).label.CapitalizeFirst()))
 			{
-				List<FloatMenuOption> options = new List<FloatMenuOption>();
+				List<FloatMenuOption> options = new();
 				foreach (TraitDegreeData deg in sel.degreeDatas)
 				{
 					options.Add(new FloatMenuOptionAndRefresh(deg.label.CapitalizeFirst(), () => traitDegree = deg.degree, this));
@@ -289,7 +289,7 @@ namespace TD_Find_Lib
 					return true;
 
 				//situational
-				List<Thought> thoughts = new List<Thought>();
+				List<Thought> thoughts = new();
 				mood.thoughts.situational.AppendMoodThoughts(thoughts);
 				if (thoughts.Any(t => t.def == sel && Includes(t.CurStageIndex)))
 					return true;
@@ -403,7 +403,7 @@ namespace TD_Find_Lib
 			Rect nextRect = listing.GetRect(Text.LineHeight);
 			listing.NestedOutdent();
 
-			WidgetRow underRow = new WidgetRow(nextRect.x, nextRect.y);
+			WidgetRow underRow = new(nextRect.x, nextRect.y);
 			
 			underRow.Label("TD.From".Translate());
 			DoStageDropdown(underRow, stageRange.min, i => stageRange.min = i);
@@ -419,7 +419,7 @@ namespace TD_Find_Lib
 			int setStageI = orderedStages[setI];
 			if (stageRow.ButtonTextNoGap(NameForStage(setStageI), TipForStage(setStageI)))
 			{
-				List<FloatMenuOption> options = new List<FloatMenuOption>();
+				List<FloatMenuOption> options = new();
 				foreach (int stageI in SelectableStages)
 				{
 					int localI = OrderedIndex(stageI);
@@ -440,7 +440,7 @@ namespace TD_Find_Lib
 				foreach (ThoughtDef def in memories)
 					yield return def;
 
-			List<Thought> thoughts = new List<Thought>();
+			List<Thought> thoughts = new();
 			pawn.needs?.TryGetNeed<Need_Mood>()?.thoughts.situational.AppendMoodThoughts(thoughts);
 			foreach (Thought thought in thoughts.Where(th => VisibleStage(th.CurStage)))
 				yield return thought.def;
@@ -449,7 +449,7 @@ namespace TD_Find_Lib
 
 	public class ThingQueryNeed : ThingQueryDropDown<NeedDef>
 	{
-		FloatRangeUB needRange = new FloatRangeUB(0, 1, 0, 0.5f);
+		FloatRangeUB needRange = new(0, 1, 0, 0.5f);
 
 		public ThingQueryNeed() => sel = NeedDefOf.Food;
 
@@ -832,7 +832,7 @@ namespace TD_Find_Lib
 	public class ThingQueryCapacity : ThingQueryDropDown<PawnCapacityDef>
 	{
 		public const float MaxReasonable = 4;
-		FloatRangeUB capacityRange = new FloatRangeUB(0, MaxReasonable, 1, 1);
+		FloatRangeUB capacityRange = new(0, MaxReasonable, 1, 1);
 
 		public ThingQueryCapacity()
 		{
