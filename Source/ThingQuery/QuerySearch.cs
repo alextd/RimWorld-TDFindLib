@@ -423,9 +423,9 @@ namespace TD_Find_Lib
 			public List<Map> maps;
 			public string newName;
 
-			public static CloneArgs save = new CloneArgs();
-			public static CloneArgs edit = new CloneArgs() { type = CloneType.Edit };
-			public static CloneArgs use = new CloneArgs() { type = CloneType.Use };
+			public static readonly CloneArgs save = new();
+			public static readonly CloneArgs edit = new() { type = CloneType.Edit };
+			public static readonly CloneArgs use = new() { type = CloneType.Use };
 		}
 		public QuerySearch Clone(CloneArgs args)
 		{
