@@ -193,7 +193,7 @@
 
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Schedule</defName>
-		<label>current schedule</label>
+		<label>schedule</label>
 		<queryClass>TD_Find_Lib.ThingQuerySchedule</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 

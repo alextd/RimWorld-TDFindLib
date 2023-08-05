@@ -67,5 +67,9 @@
 	<TD.RelationFilterType.Has>Has a</TD.RelationFilterType.Has>
 	<TD.RelationFilterType.Any>Any</TD.RelationFilterType.Any>
 	<TD.RelationFilterType.All>All</TD.RelationFilterType.All>
+	
+	<TD.ScheduleFilterType.Current>Current is</TD.ScheduleFilterType.Current>
+	<TD.ScheduleFilterType.AllScheduleIs>Schedule matches</TD.ScheduleFilterType.AllScheduleIs>
+	<TD.ScheduleFilterType.AnyScheduleNot>Schedule doesn't match</TD.ScheduleFilterType.AnyScheduleNot>
 
 </LanguageData>
