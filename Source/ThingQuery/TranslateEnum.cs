@@ -64,8 +64,15 @@ namespace TD_Find_Lib
 
 		public static string GetLabel(this Def def)
 		{
-			if (_defLabelCache.TryGetValue(def, out string tr))
-				return tr;
+			try
+			{
+				if (_defLabelCache.TryGetValue(def, out string tr))
+					return tr;
+			}
+			catch(ArgumentNullException)
+			{
+				return "???Null def???";
+			}
 
 			string translated = DoGetLabel(def);
 			_defLabelCache[def] = translated;
