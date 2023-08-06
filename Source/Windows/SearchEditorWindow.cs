@@ -90,6 +90,8 @@ namespace TD_Find_Lib
 			destSearch.parameters.listType = sourceSeach.parameters.listType;
 			destSearch.Children.Import(sourceSeach.Children);
 
+			destSearch.UnbindMap();
+
 			destSearch.changedSinceRemake = true;
 			destSearch.changed = true;
 		}
