@@ -95,6 +95,6 @@ namespace TD_Find_Lib
 		public static string SplitCamelCase(this string str) =>
 			//GenText with added (?<!_) lookbehind for no _ to create "A_String" not "A_ String"
 			// this also adds in nbsp, so the resulting string is still grouped as one chunk.
-			Regex.Replace(str, "(\\B(?<!_)[A-Z]+?(?=[A-Z][^A-Z])|\\B(?<!_)[A-Z]+?(?=[^A-Z]))", " $1"); 
+			Regex.Replace(str, "(\\B(?<!_)[A-Z]+?(?=[A-Z][^A-Z])|\\B(?<!_)[A-Z]+?(?=[^A-Z]))", " $1"); //yup that " $1" is actually nbsp ASCI 255
 	}
 }
