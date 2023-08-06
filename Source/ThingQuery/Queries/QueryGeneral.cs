@@ -97,7 +97,24 @@ namespace TD_Find_Lib
 
 
 		// Hey this is basically CacheAccessibleThings
-		public static IEnumerable<ThingDef> LeavingsFor(Thing thing) => LeavingsFor(thing.def, thing.Stuff);
+		// Plus MedicalRecipesUtility.SpawnThingsFromHediffs
+		private static List<Hediff_AddedPart> _hediffAdded = new();
+		public static IEnumerable<ThingDef> LeavingsFor(Thing thing)
+		{ 
+			// Surgery removable (don't bother with harvest as those are expected to stay)
+			if(thing is Pawn pawn)
+			{
+				pawn.health.hediffSet.GetHediffs(ref _hediffAdded, h => h.def.spawnThingOnRemoved is ThingDef);
+
+				foreach (Hediff_AddedPart hediff in _hediffAdded)
+			// presumably there's a recipe to access this spawnThingOnRemoved 		{
+					yield return hediff.def.spawnThingOnRemoved;
+			}
+
+
+			foreach (var leftDef in LeavingsFor(thing.def, thing.Stuff))
+				yield return leftDef;
+		}
 		public static IEnumerable<ThingDef> LeavingsFor(ThingDef def, ThingDef stuff = null)
 		{
 			/*
@@ -175,10 +192,19 @@ namespace TD_Find_Lib
 		}
 
 
-		public static readonly List<ThingDef> leavingDefs =
+		public static readonly List<ThingDef> leavingDefs;
+
+		static ThingQueryAccessible()
+		{
+			leavingDefs =
 			DefDatabase<ThingDef>.AllDefsListForReading
 			.SelectMany(def => LeavingsFor(def)).ToHashSet().ToList();
 
+			leavingDefs.AddRange(
+				DefDatabase<HediffDef>.AllDefsListForReading
+				.Where(def => def.hediffClass == typeof(Hediff_AddedPart) && def.spawnThingOnRemoved is ThingDef)
+				.Select(def =>  def.spawnThingOnRemoved));
+		}
 		public override IEnumerable<ThingDef> AllOptions() => leavingDefs;
 		public override IEnumerable<ThingDef> AvailableOptions() =>
 			ContentsUtility.AvailableInGame(LeavingsFor);

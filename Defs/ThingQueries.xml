@@ -352,7 +352,6 @@
 			<li>Query_ItemCategory</li>
 			<li>Query_Quality</li>
 			<li>Query_Stuff</li>
-			<li>Query_Accessible</li>
 			<li>Query_SpecialFilter</li>
 			<li>Query_ApparelLayer</li>
 			<li>Query_ApparelCoverage</li>
@@ -403,13 +402,6 @@
 		<queryClass>TD_Find_Lib.ThingQueryForbidden</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 
-	<TD_Find_Lib.ThingQueryDef>
-		<defName>Query_Accessible</defName>
-		<label>Accessible materials</label>
-		<queryClass>TD_Find_Lib.ThingQueryAccessible</queryClass>
-		<tooltip>Materials that you can potentially get, by smelting / deconstructing / killing</tooltip>
-	</TD_Find_Lib.ThingQueryDef>
-
 
 	<!--Building queries-->
 	<TD_Find_Lib.ThingQueryCategoryDef>
@@ -421,7 +413,6 @@
 			<li>Query_Quality</li>
 			<li>Query_Designation</li>
 			<li>Query_HP</li>
-			<li>Query_Accessible</li>
 			<li>Query_MineableDef</li>
 			<li>Query_Door</li>
 		</subQueries>
@@ -590,6 +581,13 @@
 		<label>faction</label>
 		<queryClass>TD_Find_Lib.ThingQueryFaction</queryClass>
 		<topLevelSelectable>true</topLevelSelectable>
+	</TD_Find_Lib.ThingQueryDef>
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Accessible</defName>
+		<label>Accessible materials</label>
+		<queryClass>TD_Find_Lib.ThingQueryAccessible</queryClass>
+		<tooltip>Materials that you can potentially get, by smelting / deconstructing / killing</tooltip>
 	</TD_Find_Lib.ThingQueryDef>
 	
 	
