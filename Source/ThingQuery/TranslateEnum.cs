@@ -62,6 +62,7 @@ namespace TD_Find_Lib
 	{
 		private static Dictionary<Def, string> _defLabelCache = new();
 
+		//Don't use GetLabel if you're sure the def has labels. Then just LabelCap.
 		public static string GetLabel(this Def def)
 		{
 			try
@@ -81,24 +82,13 @@ namespace TD_Find_Lib
 
 		private static string DoGetLabel(Def def)
 		{
-			Log.Message($"GetLabel({def})");
-			{
-				if (def.LabelCap is TaggedString label && label != TaggedString.empty)
-				{
-					Log.Message($"def.LabelCap = {label}");
-					return label;
-				}
-			}
-			{
-				if ($"TD.DefLabel.{def.defName}".TryTranslate(out TaggedString label))
-				{
-					Log.Message($"TD.DefLabel.{def.defName} => {label}");
-					return label;
-				}
-			}
+			if (def.LabelCap is TaggedString labelCap && labelCap != TaggedString.empty)
+				return labelCap;
+
+			if ($"TD.DefLabel.{def.defName}".TryTranslate(out TaggedString labelOverride))
+				return labelOverride;
 
 			// Just stupid add spaces before capital letters.
-			Log.Message($"SplitCamelCase() => {def.defName.SplitCamelCase()}");
 			return def.defName.SplitCamelCase();
 		}
 
