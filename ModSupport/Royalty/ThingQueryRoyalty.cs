@@ -113,14 +113,9 @@ namespace TDFindLib_Royalty
 
 			if (Widgets.ButtonText(rect, selectedDef?.LabelCap ?? "???"))
 			{
-				List<FloatMenuOption> options = new();
-				foreach (RoyalTitleDef def in titles)
-				{
-					if(def.seniority >= min && def.seniority <= max)
-						options.Add(new FloatMenuOptionAndRefresh(def.LabelCap, () => selectedAction(def.seniority), this));
-				}
-
-				DoFloatOptions(options);
+				DoFloatOptions(titles, def => def.LabelCap,
+					newValue => selectedAction(newValue.seniority),
+					optionValue => optionValue.seniority >= min && optionValue.seniority <= max);
 			}
 		}
 
@@ -371,15 +366,15 @@ namespace TDFindLib_Royalty
 		{
 			if(row.ButtonText(faction?.Name ?? "TD.AnyOption".Translate()))
 			{
-				List<FloatMenuOption> options = new();
+				List<FloatMenuOption> factionOptions = new();
 
 				if (Current.Game?.World is RimWorld.Planet.World world)
 					foreach (Faction fac in world.factionManager.AllFactionsVisibleInViewOrder.Where(f => f.def.HasRoyalTitles))
-						options.Add(new FloatMenuOptionAndRefresh(fac.Name, () => faction = fac, this));
+						factionOptions.Add(new FloatMenuOptionAndRefresh(fac.Name, () => faction = fac, this));
 
-				options.Add(new FloatMenuOptionAndRefresh("TD.AnyOption".Translate(), () => faction = null, this, Color.yellow));
+				factionOptions.Add(new FloatMenuOptionAndRefresh("TD.AnyOption".Translate(), () => faction = null, this, Color.yellow));
 
-				DoFloatOptions(options);
+				DoFloatOptions(factionOptions);
 			}
 			if(row.ButtonText(onlyReady ? "TD.PermitIsReady".Translate() : "TD.HoldsPermit".Translate()))
 			{

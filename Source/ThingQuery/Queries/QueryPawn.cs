@@ -1205,6 +1205,22 @@ namespace TD_Find_Lib
 			relation = PawnRelationDefOf.Parent;
 			gender = Gender.Male;
 		}
+		public override void ExposeData()
+		{
+			base.ExposeData();
+			Scribe_Defs.Look(ref relation, "relation");
+			Scribe_Values.Look(ref gender, "gender");
+			Scribe_Values.Look(ref filterType, "filterType");
+		}
+		protected override ThingQuery Clone()
+		{
+			ThingQueryRelation clone = (ThingQueryRelation)base.Clone();
+			clone.relation = relation;
+			clone.gender = gender;
+			clone.filterType = filterType;
+			return clone;
+		}
+
 
 		public bool ShouldShow(Pawn pawn, Pawn otherPawn) =>
 			(gender == Gender.None || otherPawn.gender == gender) &&
@@ -1216,6 +1232,7 @@ namespace TD_Find_Lib
 				yield break;
 
 			// Direct relations that are directly stored
+			// Only some relations are here even if they seem they should be...
 			if (!relation.implied)
 			{
 				foreach (var rel in pawn.relations.DirectRelations)
@@ -1226,15 +1243,17 @@ namespace TD_Find_Lib
 			}
 			else
 			{
-				// Backwards relations, <implied>true
-				// Computed via PawnRelationWorker , given another pawn's relation back to us... yea that's how it works.
+				// Backwards relations, with <implied>true
+				// are computed via PawnRelationWorker.InRelation, given another pawn's relation back to us...
+				// e.g. "A person who has me as a father is my son"
+				// yea that's how it works.
 				foreach (var otherPawn in pawn.relations.PotentiallyRelatedPawns)
 				{
 					if (relation.Worker.InRelation(pawn, otherPawn) && ShouldShow(pawn, otherPawn))
 						yield return otherPawn;
 				}
 			}
-
+			// And this can't use the cache because that only applies when you open the social tab . . 
 		}
 
 		public override bool AppliesDirectlyTo(Thing thing)
@@ -1253,22 +1272,6 @@ namespace TD_Find_Lib
 			// This filter checks 1) you have at least one father 1) all those fathers match the filters.
 			return RelationsFor(pawn).Count() > 0 && RelationsFor(pawn).All(otherPawn => children.AppliesTo(otherPawn));
 
-		}
-		public override void ExposeData()
-		{
-			base.ExposeData();
-			Scribe_Defs.Look(ref relation, "relation");
-			Scribe_Values.Look(ref gender, "gender");
-			Scribe_Values.Look(ref filterType, "filterType");
-		}
-
-		protected override ThingQuery Clone()
-		{
-			ThingQueryRelation clone = (ThingQueryRelation)base.Clone();
-			clone.relation = relation;
-			clone.gender = gender;
-			clone.filterType = filterType;
-			return clone;
 		}
 
 
@@ -1520,14 +1523,7 @@ namespace TD_Find_Lib
 			}
 
 			if (filterType == ScheduleFilterType.Current)
-			{
-				if (row.ButtonText(assignment.LabelCap))
-				{
-					DoFloatOptions(new List<FloatMenuOption>(
-						DefDatabase<TimeAssignmentDef>.AllDefs
-						.Select(d => new FloatMenuOptionAndRefresh(d.LabelCap, () => assignment = d, this))));
-				}
-			}
+				RowButtonFloatMenuDef(assignment, newValue => assignment = newValue);
 
 			return changed;
 		}

@@ -782,17 +782,17 @@ namespace TD_Find_Lib
 			}
 			if (changeSelection)
 			{
-				List<FloatMenuOption> options = new();
+				List<FloatMenuOption> selOptions = new();
 
 				if (NullOption() is string nullOption)
-					options.Add(new FloatMenuOptionAndRefresh(nullOption, () => sel = default, this, Color.red)); //can't null because T isn't bound as reftype
+					selOptions.Add(new FloatMenuOptionAndRefresh(nullOption, () => sel = default, this, Color.red)); //can't null because T isn't bound as reftype
 
-				MakeDropdownOptions(options);
+				MakeDropdownOptions(selOptions);
 
 				foreach (int ex in ExtraOptions())
-					options.Add(new FloatMenuOptionAndRefresh(NameForExtra(ex), () => extraOption = ex, this, Color.yellow));
+					selOptions.Add(new FloatMenuOptionAndRefresh(NameForExtra(ex), () => extraOption = ex, this, Color.yellow));
 
-				DoFloatOptions(options);
+				DoFloatOptions(selOptions);
 			}
 			return changed;
 		}
