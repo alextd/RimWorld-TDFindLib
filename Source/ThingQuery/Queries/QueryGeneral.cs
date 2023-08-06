@@ -87,11 +87,47 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class ThingQueryAccessible : ThingQueryDropDown<ThingDef>
+	//ThingQueryThingDef helper class for category
+	public class ThingQueryAccessibleCategory : ThingQueryCategorizedDropdownHelper<ThingDef, ThingCategoryDef, ThingQueryAccessible, ThingQueryAccessibleCategory>
+	{
+
+		public override bool AppliesDirectlyTo(Thing thing) =>
+			ThingQueryAccessible.LeavingsFor(thing).Any(leftDef => CategoryFor(leftDef) == sel);
+
+
+		public static ThingCategoryDef CategoryFor(ThingDef leftDef)
+		{
+			// Textiles
+			if (ThingCategoryDefOf.Textiles.ContainedInThisOrDescendant(leftDef))
+				return ThingCategoryDefOf.Textiles;
+
+			// Raw Resources
+			if (ThingCategoryDefOf.ResourcesRaw.ContainedInThisOrDescendant(leftDef))
+				return ThingCategoryDefOf.ResourcesRaw;
+			
+			// Manufactured
+			if (ThingCategoryDefOf.Manufactured.ContainedInThisOrDescendant(leftDef))
+				return ThingCategoryDefOf.Manufactured;
+
+			// Body Parts
+			if (ThingCategoryDefOf.BodyParts.ContainedInThisOrDescendant(leftDef))
+				return ThingCategoryDefOf.BodyParts;
+
+			// (Other)
+			return null;
+		}
+
+		public override string NullOption() => "TD.OtherCategory".Translate();
+	}
+
+	public class ThingQueryAccessible : ThingQueryCategorizedDropdown<ThingDef, ThingCategoryDef, ThingQueryAccessible, ThingQueryAccessibleCategory>
 	{
 		public ThingQueryAccessible() => sel = ThingDefOf.Steel;
 
-		public override bool AppliesDirectlyTo(Thing thing) =>
+		public override ThingCategoryDef CategoryFor(ThingDef def) =>
+			ThingQueryAccessibleCategory.CategoryFor(def);
+
+		public override bool AppliesDirectly2(Thing thing) =>
 			extraOption == 1 ? LeavingsFor(thing).Any() : 
 			LeavingsFor(thing).Any(def => def == sel);
 

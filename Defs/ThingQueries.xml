@@ -585,9 +585,9 @@
 
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Accessible</defName>
-		<label>Accessible materials</label>
+		<label>Accessible parts</label>
 		<queryClass>TD_Find_Lib.ThingQueryAccessible</queryClass>
-		<tooltip>Materials that you can potentially get, by smelting / deconstructing / killing</tooltip>
+		<tooltip>Materials or parts that you can potentially get, by smelting / deconstructing / operation / killing</tooltip>
 	</TD_Find_Lib.ThingQueryDef>
 	
 	
