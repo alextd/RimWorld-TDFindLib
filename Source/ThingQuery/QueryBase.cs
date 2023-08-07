@@ -29,7 +29,7 @@ namespace TD_Find_Lib
 		public IQueryHolder parent;
 		public IQueryHolder Parent => parent;
 
-		public IQueryHolder RootHolder => parent?.RootHolder;
+		public IQueryHolderRoot RootHolder => parent?.RootHolder;
 
 
 		protected int id; //For Widgets.draggingId purposes
@@ -374,7 +374,7 @@ namespace TD_Find_Lib
 			GUI.color = oldColor;
 
 			if (result)
-				owner.RootHolder.Root_NotifyUpdated();
+				owner.RootHolder.NotifyUpdated();
 
 			return result;
 		}
@@ -425,7 +425,7 @@ namespace TD_Find_Lib
 				// rebind properly to map #2 to see if the option from map #1 actually works on map #2.
 				// TODO: only do this in such a specific case.
 				// or maybe prevent it by changing use of Find.CurrentMap in AllOptions(), to use the search's map.
-				if (UsesResolveRef) RootHolder?.Root_NotifyRefUpdated();
+				if (UsesResolveRef) RootHolder?.NotifyRefUpdated();
 				PostProcess();
 				PostChosen();
 			}
@@ -705,7 +705,7 @@ namespace TD_Find_Lib
 			if (sel != null)
 				return NameFor(sel);
 
-			if (UsesResolveRef && !RootHolder.Root_Active && selName != SaveLoadXmlConstants.IsNullAttributeName)
+			if (UsesResolveRef && !RootHolder.Active && selName != SaveLoadXmlConstants.IsNullAttributeName)
 				return selName;
 
 			return NullOption() ?? "??Null selection??";
@@ -1007,11 +1007,6 @@ namespace TD_Find_Lib
 		// IQueryHolder 
 		protected HeldQueries children;
 		public HeldQueries Children => children;
-
-		public void Root_NotifyUpdated() { }
-		public void Root_NotifyRefUpdated() { }
-		public bool Root_Active => false;
-		public string Name => "??QueryAndOrGroup??";  //Should not be used.
 		// Parent and RootHolder handled by ThingQuery
 		
 

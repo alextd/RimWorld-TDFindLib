@@ -8,17 +8,13 @@ using RimWorld;
 
 namespace TD_Find_Lib
 {
-	public class ThingQueryAndOrGroup : ThingQuery, IQueryHolder
+	public class ThingQueryAndOrGroup : ThingQuery, IQueryHolderDroppable
 	{
 		// IQueryHolder 
 		protected HeldQueries children;
 		public HeldQueries Children => children;
-
-		public void Root_NotifyUpdated() { }
-		public void Root_NotifyRefUpdated() { }
-		public bool Root_Active => false;
-		public string Name => "??QueryAndOrGroup??";  //Should not be used.
 		//Parent and RootHolder handled by ThingQuery
+
 
 		// ThingQueryAndOrGroup
 		public ThingQueryAndOrGroup()

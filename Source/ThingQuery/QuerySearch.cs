@@ -122,12 +122,12 @@ namespace TD_Find_Lib
 
 
 		// QueryHolder overrides
-		public override void Root_NotifyUpdated()
+		public override void NotifyUpdated()
 		{
 			RebindMap();
 			Changed();
 		}
-		public override bool Root_Active => active;
+		public override bool Active => active;
 
 
 

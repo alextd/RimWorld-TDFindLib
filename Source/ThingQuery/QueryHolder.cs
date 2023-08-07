@@ -11,20 +11,27 @@ namespace TD_Find_Lib
 {
 	public interface IQueryHolder
 	{
-		public string Name { get; }
 		public HeldQueries Children { get; }
 		public IQueryHolder Parent { get; }
-		public IQueryHolder RootHolder { get; }	//Either return this or a parent
-		public void Root_NotifyUpdated();
-		public void Root_NotifyRefUpdated();
-		public bool Root_Active { get; }
+		public IQueryHolderRoot RootHolder { get; }	//Either return this or a parent
+	}
+	public interface IQueryHolderDroppable : IQueryHolder
+	{
+		//literally for the type check
+	}
+	public interface IQueryHolderRoot : IQueryHolderDroppable	//presumably roots will be droppable right?
+	{
+		public string Name { get; }
+		public void NotifyUpdated();
+		public void NotifyRefUpdated();
+		public bool Active { get; }
 	}
 
 	// QueryHolder is actually one of the latest untested additions.
 	// Everything went through QuerySearch which search on all things in a map
 	//  Then I thought "Hey, maybe I should open this up to any list of things"
 	// So that's QueryHolder, it simply holds and applies queries to given things.
-	public class QueryHolder : IQueryHolder, IExposable
+	public class QueryHolder : IQueryHolderRoot, IExposable
 	{
 		public string name = "Query Holder";
 		public String Name => name;
@@ -39,11 +46,11 @@ namespace TD_Find_Lib
 
 		// from IQueryHolder:
 		public IQueryHolder Parent => null;
-		public virtual IQueryHolder RootHolder => this;
+		public virtual IQueryHolderRoot RootHolder => this;
 		public HeldQueries Children => children;
-		public virtual void Root_NotifyUpdated() { }
-		public virtual void Root_NotifyRefUpdated() => RebindMap();
-		public virtual bool Root_Active => false;
+		public virtual void NotifyUpdated() { }
+		public virtual void NotifyRefUpdated() => RebindMap();
+		public virtual bool Active => false;
 
 		public QueryHolder()
 		{
@@ -193,7 +200,7 @@ namespace TD_Find_Lib
 				queries.Insert(index, newQuery);
 
 			if (focus) newQuery.Focus();
-			if (remake) parent.RootHolder?.Root_NotifyUpdated();
+			if (remake) parent.RootHolder?.NotifyUpdated();
 		}
 
 		public void Clear()
@@ -303,7 +310,7 @@ namespace TD_Find_Lib
 			IQueryHolder newHolder = null;
 			ForEach(delegate (IQueryHolder holder)
 			{
-				if (holder.Children.reorderID == toGroup)
+				if (holder.Children.reorderID == toGroup && holder is IQueryHolderDroppable)
 				{
 					// Hold up, don't drop inside yourself or any of your sacred lineage
 					for(IQueryHolder ancestor = holder; ancestor != null; ancestor = ancestor.Parent)
