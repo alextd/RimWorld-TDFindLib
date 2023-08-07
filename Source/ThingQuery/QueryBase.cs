@@ -150,12 +150,18 @@ namespace TD_Find_Lib
 			incExcWidth.HasValue ? incExcWidth.Value :
 			(incExcWidth = Mathf.Max(Text.CalcSize("TD.IncludeShort".Translate()).x, Text.CalcSize("TD.ExcludeShort".Translate()).x)).Value;
 
-		public Rect usedRect;
+		public Rect queryRect;
+
+		WidgetRow iconRow = new();
+		bool changed = false;
+		bool delete = false;
 		public (bool, bool) Listing(Listing_StandardIndent listing, bool locked)
 		{
+			// Set up the first row rect to draw. (DrawUnder if more space needed)
 			Rect rowRect = listing.GetRect(Text.LineHeight + listing.verticalSpacing); //ends up being 22 which is height of Text.CalcSize 
 
 
+			// Red crossthough line
 			if (!include)
 			{
 				Widgets.DrawBoxSolid(rowRect.ContractedBy(2), new Color(1, 0, 0, 0.1f));
@@ -163,11 +169,81 @@ namespace TD_Find_Lib
 				Widgets.DrawLineHorizontal(rowRect.x + 2, rowRect.y + Text.LineHeight / 2, rowRect.width - 4);
 				GUI.color = Color.white;
 			}
-			WidgetRow iconRow = new (rowRect.xMax, rowRect.y, UIDirection.LeftThenDown, rowRect.width);
 
-			bool changed = false;
-			bool delete = false;
 
+			changed = false;
+			delete = false;
+
+
+			// Layout icons now for width / events.
+			// Now that I've written this, it seems like this should be precomputed.
+			if(Event.current.type != EventType.Repaint)
+				DrawIcons(locked, rowRect);
+
+
+			// Draw Query
+			Rect drawRect = rowRect;
+
+			// Make room for icons
+			drawRect.width -= (drawRect.xMax - iconRow.FinalX);
+
+			row.Init(drawRect.x, drawRect.y);
+
+			// If it's in an indented listing group, "left" might not be 0.
+			Rect fullRect = drawRect;
+			fullRect.xMin = 0;
+
+			// Draw Query Main
+			changed |= DrawMain(drawRect, locked, fullRect);
+
+			// Highlight if something loaded wrong (missing mod / no name in game)
+			if (DisableReason is string reason)
+			{
+				Widgets.DrawBoxSolidWithOutline(drawRect, DisabledBecauseReasonOverlayColor, Color.red);
+
+				TooltipHandler.TipRegion(drawRect, reason);
+			}
+			// Tooltip for explanation
+			if (def.tooltip != null)
+			{
+				TooltipHandler.TipRegion(drawRect, def.tooltip);
+			}
+
+			// Draw Query second row with extra-special options
+			changed |= DrawUnder(listing, locked);
+
+			queryRect = rowRect;
+			queryRect.yMax = listing.CurHeight;
+
+			// For the occasional text input
+			if (shouldFocus)
+			{
+				DoFocus();
+				shouldFocus = false;
+			}
+
+			// Dim disabled queries
+			if (!enabled)
+			{
+				Widgets.DrawBoxSolid(queryRect, DisabledOverlayColor);
+			}
+			// Highlight the queries that pass for selected objects (useful for "any" queries)
+			else  if (!(this is ThingQueryAndOrGroup) && Find.UIRoot is UIRoot_Play && Find.Selector.SelectedObjects.Any(o => o is Thing t && AppliesTo(t)))
+			{
+				Widgets.DrawHighlight(queryRect);
+			}
+
+			// Draw icons AFTER highlights though.
+			if (Event.current.type == EventType.Repaint)
+				DrawIcons(locked, rowRect);
+
+			listing.Gap(listing.verticalSpacing);
+			return (changed, delete);
+		}
+
+		private void DrawIcons(bool locked, Rect rowRect)
+		{
+			iconRow.Init(rowRect.xMax, rowRect.y, UIDirection.LeftThenDown, rowRect.width);
 			if (!locked)
 			{
 				//Clear button
@@ -193,45 +269,6 @@ namespace TD_Find_Lib
 					changed = true;
 				}
 			}
-
-
-			//Draw option row
-			rowRect.width -= (rowRect.xMax - iconRow.FinalX);
-			Rect fullRect = rowRect;
-			fullRect.xMin = 0; // If it's in an indented listing group, set "full" left to 0. TODO with 2 colunmns??
-
-			row.Init(rowRect.x, rowRect.y);
-
-			changed |= DrawMain(rowRect, locked, fullRect);
-			changed |= DrawUnder(listing, locked);
-			if (shouldFocus)
-			{
-				DoFocus();
-				shouldFocus = false;
-			}
-
-			if (DisableReason is string reason)
-			{
-				Widgets.DrawBoxSolidWithOutline(rowRect, DisabledBecauseReasonOverlayColor, Color.red);
-
-				TooltipHandler.TipRegion(rowRect, reason);
-			}
-
-			if (Event.current.type == EventType.Layout)
-			{
-				usedRect = rowRect;
-				usedRect.yMax = listing.CurHeight;
-			}
-			if (!enabled)
-			{
-				Widgets.DrawBoxSolid(usedRect, DisabledOverlayColor);
-			}
-
-			if (def.tooltip != null)
-				TooltipHandler.TipRegion(usedRect, def.tooltip);
-
-			listing.Gap(listing.verticalSpacing);
-			return (changed, delete);
 		}
 
 

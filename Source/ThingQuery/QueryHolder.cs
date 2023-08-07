@@ -386,14 +386,8 @@ namespace TD_Find_Lib
 				// We'd like the reorderable of the parent has to come before children
 				// so children will be last in the list, and will override the selected clicked rect
 				// But events in the children should be caught and used before dragging is allowed, so it has to go after.
-				ReorderableWidget.Reorderable(reorderID, query.usedRect);
+				ReorderableWidget.Reorderable(reorderID, query.queryRect);
 
-
-				// Highlight the queries that pass for selected objects (useful for "any" queries)
-				if (!(query is ThingQueryAndOrGroup) && Find.UIRoot is UIRoot_Play && Find.Selector.SelectedObjects.Any(o => o is Thing t && query.AppliesTo(t)))
-				{
-					Widgets.DrawHighlight(query.usedRect);
-				}
 				if(first)
 				{
 					first = false;
