@@ -92,7 +92,10 @@ namespace TD_Find_Lib
 				dragDeselect = false;
 			}
 			if (!Input.GetMouseButton(1))
+			{
 				dragJump = false;
+				jumpThing = null;
+			}
 
 			selectAllDef = null;
 
@@ -152,6 +155,7 @@ namespace TD_Find_Lib
 		bool dragSelect = false;
 		bool dragDeselect = false;
 		bool dragJump = false;
+		Thing jumpThing;
 		private void DrawThingRow(Thing thing, Rect rect)
 		{
 			//Highlight selected
@@ -199,6 +203,7 @@ namespace TD_Find_Lib
 						{
 							CameraJumper.TryJump(thing);
 							dragJump = true;
+							jumpThing = thing;
 						}
 						else if (Find.Selector.IsSelected(thing))
 						{
@@ -220,7 +225,14 @@ namespace TD_Find_Lib
 					if (!thing.def.selectable || !thing.Spawned)
 						CameraJumper.TryJump(thing);
 					else if (dragJump)
-						CameraJumper.TryJump(thing);
+					{
+						// Doing TryJump again on same thing is jittery
+						if (jumpThing != thing)
+						{
+							CameraJumper.TryJump(thing);
+							jumpThing = thing;
+						}
+					}
 					else if (dragSelect)
 					{
 						if (thing.Map == Find.CurrentMap)
