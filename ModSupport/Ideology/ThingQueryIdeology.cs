@@ -53,7 +53,7 @@ namespace TDFindLib_Ideology
 					styleNames[style.StyleDef] = styleDef.LabelCap + " " + style.ThingDef.LabelCap;
 				}
 
-			
+
 			foreach (ThingDef thingDef in DefDatabase<ThingDef>.AllDefsListForReading)
 				if (thingDef.randomStyle != null)
 					foreach (ThingStyleChance styleChance in thingDef.randomStyle)
@@ -98,7 +98,7 @@ namespace TDFindLib_Ideology
 	{
 		public ThingQueryIdeoligion() => extraOption = 1;
 
-		protected override Ideo ResolveRef(Map map) => 
+		protected override Ideo ResolveRef(Map map) =>
 			Find.IdeoManager.ideos.FirstOrDefault(i => NameFor(i) == selName);
 
 		public override bool AppliesDirectlyTo(Thing thing)
@@ -154,7 +154,7 @@ namespace TDFindLib_Ideology
 				base.AllOptions().Where(m => m.category != MemeCategory.Structure);
 	}
 
-	public class ThingQueryPrecept : ThingQueryCategorizedDropdown <PreceptDef, IssueDef>
+	public class ThingQueryPrecept : ThingQueryCategorizedDropdown<PreceptDef, IssueDef>
 	{
 		public ThingQueryPrecept() => sel = PreceptDefOf.Slavery_Honorable;
 
@@ -191,7 +191,7 @@ namespace TDFindLib_Ideology
 			base.AllOptions().Where(p => p.visible && p.preceptClass == typeof(Precept));
 	}
 
-	public abstract class ThingQueryPreceptOther<T> : ThingQueryDropDown<PreceptDef>  where T : Precept
+	public abstract class ThingQueryPreceptOther<T> : ThingQueryDropDown<PreceptDef> where T : Precept
 	{
 		public override bool AppliesDirectlyTo(Thing thing)
 		{
@@ -229,7 +229,7 @@ namespace TDFindLib_Ideology
 			};
 
 		public override bool AppliesToIdeo(Pawn pawn, Ideo ideo)
-		{ 
+		{
 			var role = ideo.GetRole(pawn);
 
 			if (extraOption == 4)
@@ -246,7 +246,7 @@ namespace TDFindLib_Ideology
 				// Otherwise if role == single return false
 			}
 
-			if(canBe)
+			if (canBe)
 				return ideo.RolesListForReading.Where(RoleFitsSel).Any(r => r.RequirementsMet(pawn));
 
 			return RoleFitsSel(role);
@@ -269,8 +269,8 @@ namespace TDFindLib_Ideology
 		{
 			bool changed = base.DrawMain(rect, locked, fullRect);
 
-			if(extraOption != 4)
-				if(row.ButtonText(canBe ? "Can Be" : "Has Role"))
+			if (extraOption != 4)
+				if (row.ButtonText(canBe ? "Can Be" : "Has Role"))
 				{
 					canBe = !canBe;
 					changed = true;
@@ -289,7 +289,7 @@ namespace TDFindLib_Ideology
 				2 => "Any leader role",
 				_ => "TD.AnyOption".Translate()
 			};
-				
+
 	}
 
 	/*
@@ -426,7 +426,7 @@ namespace TDFindLib_Ideology
 			if (pawn == null) return false;
 
 			// Which ideo this animal is venerated for
-			Ideo ideo = sel; 
+			Ideo ideo = sel;
 
 			if (extraOption == 1)
 				ideo = pawn.Faction?.ideos?.PrimaryIdeo; // An animal's owner's faction.
@@ -442,6 +442,112 @@ namespace TDFindLib_Ideology
 		public override string NameForExtra(int ex) =>
 			ex == 1 ? "Owner's Ideoligion" : "Player's Ideoligion";
 	}
+
+
+	public enum GuaranlenFilterType { Connection, Mode, Strength, StrengthDesired, MaxDryads, CurDryads, TimeToDryad }
+	public class ThingQueryGuaranlen : ThingQueryDropDown<GuaranlenFilterType>
+	{
+		public GauranlenTreeModeDef modeDef;
+		public FloatRangeUB strength;
+		public IntRangeUB numDryads;
+		public IntRangeUB timeToDryad; // ticks, shown as days
+
+		public ThingQueryGuaranlen()
+		{
+			modeDef = GauranlenTreeModeDefOf.Gaumaker;
+			strength = new(0, 1, .5f, 1); // todo find consts
+			numDryads = new(0, 4, 1, 2);
+			timeToDryad = new(0, 8*GenDate.TicksPerDay, 0, GenDate.TicksPerDay);
+		}
+		public override void ExposeData()
+		{
+			base.ExposeData();
+
+			switch (sel)
+			{
+				//				case GuaranlenFilterType.Connection:
+				//					break;
+				case GuaranlenFilterType.Mode:
+					Scribe_Values.Look(ref modeDef, "modeDef");
+					break;
+				case GuaranlenFilterType.Strength:
+				case GuaranlenFilterType.StrengthDesired:
+					Scribe_Values.Look(ref strength.range, "strength");
+					break;
+				case GuaranlenFilterType.MaxDryads:
+				case GuaranlenFilterType.CurDryads:
+					Scribe_Values.Look(ref numDryads.range, "numDryads");
+					break;
+				case GuaranlenFilterType.TimeToDryad:
+					Scribe_Values.Look(ref timeToDryad.range, "timeToDryad");
+					break;
+			}
+		}
+		protected override ThingQuery Clone()
+		{
+			ThingQueryGuaranlen clone = (ThingQueryGuaranlen)base.Clone();
+			clone.modeDef = modeDef;
+			clone.strength = strength;
+			clone.numDryads = numDryads;
+			clone.timeToDryad = timeToDryad;
+			return clone;
+		}
+
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			if (thing is not Plant tree ||
+				tree.GetComp<CompTreeConnection>() is not CompTreeConnection connection)
+				return false;
+
+			switch (sel)
+			{
+				case GuaranlenFilterType.Connection:
+					return connection.Connected;
+				case GuaranlenFilterType.Mode:
+					return connection.Mode == modeDef;
+				case GuaranlenFilterType.Strength:
+					return strength.Includes(connection.ConnectionStrength);
+				case GuaranlenFilterType.StrengthDesired:
+					return strength.Includes(connection.DesiredConnectionStrength);
+				case GuaranlenFilterType.MaxDryads:
+					return numDryads.Includes(connection.MaxDryads);
+				case GuaranlenFilterType.CurDryads:
+					return numDryads.Includes(connection.dryads.Count);
+				case GuaranlenFilterType.TimeToDryad:
+					return timeToDryad.Includes(connection.spawnTick - Find.TickManager.TicksGame);
+			}
+
+			return false;
+		}
+
+		public override bool DrawCustom(Rect fullRect)
+		{
+			switch (sel)
+			{
+				case GuaranlenFilterType.Connection:
+					return false;
+
+				case GuaranlenFilterType.Mode:
+					RowButtonFloatMenuDef(modeDef, newValue => modeDef = newValue);
+					return false;
+
+				case GuaranlenFilterType.Strength:
+				case GuaranlenFilterType.StrengthDesired:
+					return TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref strength, ToStringStyle.PercentZero);
+
+				case GuaranlenFilterType.MaxDryads:
+				case GuaranlenFilterType.CurDryads:
+					return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref numDryads);
+
+				case GuaranlenFilterType.TimeToDryad:
+					return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref timeToDryad, ticks => $"{ticks * 1f / GenDate.TicksPerDay:0.0}");
+			}
+
+			return false;
+		}
+	}
+
 
 
 	[StaticConstructorOnStartup]
