@@ -582,6 +582,12 @@
 		<queryClass>TD_Find_Lib.ThingQueryFaction</queryClass>
 		<topLevelSelectable>true</topLevelSelectable>
 	</TD_Find_Lib.ThingQueryDef>
+	
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Reserved</defName>
+		<label>reserved</label>
+		<queryClass>TD_Find_Lib.ThingQueryReserved</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
 
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Accessible</defName>

@@ -1290,4 +1290,27 @@ namespace TD_Find_Lib
 		}		
 		// Alert_ActionDelay are silly alerts, let's not go there (and their labels give nullrefs when inactive)
 	}*/
+
+	public class ThingQueryReserved : ThingQueryAndOrGroup
+	{
+		public bool checkReserver;
+
+		public override void ExposeData()
+		{
+			base.ExposeData();  // please don't have a lot of filters when checkReserver == false
+			Scribe_Values.Look(ref checkReserver, "checkReserver");
+		}
+		protected override ThingQuery Clone()
+		{
+			ThingQueryReserved clone = (ThingQueryReserved)base.Clone();
+			clone.checkReserver = checkReserver;
+			return clone;
+		}
+
+
+		public override bool AppliesDirectlyTo(Thing t)
+		{
+			return t.MapHeld?.reservationManager.IsReservedByAnyoneOf(t, Faction.OfPlayer) ?? false;
+		}
+	}
 }
