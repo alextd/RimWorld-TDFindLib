@@ -2,6 +2,20 @@
 <Defs>
 
 	<!-- queries in order -->
+	<TD_Find_Lib.ThingQueryCategoryDef>
+		<mod>Ludeon.Rimworld.Ideology</mod>
+		<defName>Category_IdeoPawn</defName>
+		<label>ideoligion</label>
+		<insertCategory>Category_PawnProp</insertCategory>
+		<subQueries>
+			<li>Query_Ideoligion</li>
+			<li>Query_Meme</li>
+			<li>Query_Precept</li>
+			<li>Query_Role</li>
+			<li>Query_WeaponDisposition</li>
+		</subQueries>
+	</TD_Find_Lib.ThingQueryCategoryDef>
+		
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Style</defName>
 		<label>style</label>
@@ -18,7 +32,6 @@
 		<label>ideoligion</label>
 		<queryClass>TDFindLib_Ideology.ThingQueryIdeoligion</queryClass>
 		<mod>Ludeon.RimWorld.Ideology</mod>
-		<insertCategory>Category_PawnProp</insertCategory>
 	</TD_Find_Lib.ThingQueryDef>
 	
 	<TD_Find_Lib.ThingQueryDef>
@@ -26,7 +39,6 @@
 		<label>ideoligion has meme</label>
 		<queryClass>TDFindLib_Ideology.ThingQueryMeme</queryClass>
 		<mod>Ludeon.RimWorld.Ideology</mod>
-		<insertCategory>Category_PawnProp</insertCategory>
 	</TD_Find_Lib.ThingQueryDef>
 	
 	<TD_Find_Lib.ThingQueryDef>
@@ -34,7 +46,6 @@
 		<label>ideoligion has precept</label>
 		<queryClass>TDFindLib_Ideology.ThingQueryPrecept</queryClass>
 		<mod>Ludeon.RimWorld.Ideology</mod>
-		<insertCategory>Category_PawnProp</insertCategory>
 	</TD_Find_Lib.ThingQueryDef>
 	
 	<TD_Find_Lib.ThingQueryDef>
@@ -42,7 +53,6 @@
 		<label>ideoligion role</label>
 		<queryClass>TDFindLib_Ideology.ThingQueryRole</queryClass>
 		<mod>Ludeon.RimWorld.Ideology</mod>
-		<insertCategory>Category_PawnProp</insertCategory>
 	</TD_Find_Lib.ThingQueryDef>
 	
 	<TD_Find_Lib.ThingQueryDef>
@@ -67,10 +77,7 @@
 		<label>weapon preference</label>
 		<queryClass>TDFindLib_Ideology.ThingQueryWeaponDisposition</queryClass>
 		<mod>Ludeon.RimWorld.Ideology</mod>
-		<insertCategories>
-			<li>Category_ItemInfo</li>
-			<li>Category_PawnProp</li>
-		</insertCategories>
+		<insertCategory>Category_ItemInfo</insertCategory>
 		<tooltip>If a weapon is preferred by your ideoligion; or the ideoligion of its wielder; or if a person is wielding a preferred weapon according to their ideoligion</tooltip>
 	</TD_Find_Lib.ThingQueryDef>
 	
