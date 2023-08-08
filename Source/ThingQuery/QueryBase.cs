@@ -794,7 +794,7 @@ namespace TD_Find_Lib
 			base.DrawMain(rect, locked, fullRect);
 
 			// Draw icon
-			DrawIconLabel();
+			DrawIconLabel(row);
 
 			// Handle selection + custom drawers
 			string selLabel = GetSelLabel();
@@ -834,15 +834,15 @@ namespace TD_Find_Lib
 			return changed;
 		}
 
-		public virtual void DrawIconLabel()
+		public virtual void DrawIconLabel(WidgetRow queryRow)
 		{
 			if (sel != null)  //todo for other types?
 			{
 				GUI.color = IconColorFor(sel);
 				if (IconDefFor(sel) is ThingDef iconDef)
-					row.DefIcon(iconDef);
+					queryRow.DefIcon(iconDef);
 				else if (IconTexFor(sel) is Texture2D iconTex)
-					row.Icon(iconTex);
+					queryRow.Icon(iconTex);
 				GUI.color = Color.white;
 			}
 		}
@@ -1119,12 +1119,12 @@ namespace TD_Find_Lib
 		public override sealed Texture2D IconTexForCat(C cat) => catQuery.IconTexFor(cat);
 		public override sealed ThingDef IconDefForCat(C cat) => catQuery.IconDefFor(cat);
 
-		public override void DrawIconLabel()
+		public override void DrawIconLabel(WidgetRow queryRow)
 		{
 			if (useCat)  
-				catQuery.DrawIconLabel();
+				catQuery.DrawIconLabel(queryRow);
 			else
-				base.DrawIconLabel();
+				base.DrawIconLabel(queryRow);
 		}
 
 
