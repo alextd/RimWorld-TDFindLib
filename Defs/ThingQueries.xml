@@ -585,7 +585,7 @@
 	
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Reserved</defName>
-		<label>reserved</label>
+		<label>reservation</label>
 		<queryClass>TD_Find_Lib.ThingQueryReserved</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 

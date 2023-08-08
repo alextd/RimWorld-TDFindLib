@@ -1310,7 +1310,62 @@ namespace TD_Find_Lib
 
 		public override bool AppliesDirectlyTo(Thing t)
 		{
-			return t.MapHeld?.reservationManager.IsReservedByAnyoneOf(t, Faction.OfPlayer) ?? false;
+			var reservations = t.MapHeld?.reservationManager.ReservationsReadOnly;
+			if (reservations == null)	return false;
+
+
+			foreach (var res in reservations)
+			{
+				if (res.Target != t) continue;
+
+				if (res.Faction != Faction.OfPlayer) continue;
+
+				if (!checkReserver) return true;
+
+
+				// Possibly multiple reservers
+				// this filter will only do "any" since it's usually just 1 person
+				if (Children.AppliesTo(res.Claimant))
+					return true;
+			}
+			return false;
+		}
+
+
+
+
+		private bool ButtonToggleType()
+		{
+			if (row.ButtonText(checkReserver ? "Reserver matches " : "Is Reserved"))
+			{
+				checkReserver = !checkReserver;
+				return true;
+			}
+			return false;
+		}
+
+		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		{
+			row.Label(Label); // "Reservation"
+
+			bool changed = ButtonToggleType(); // "Is Reservered" / "Reserver matches"
+
+			if (!checkReserver)
+				return changed;
+
+			// "Any/All of these filters"
+			changed |= ButtonToggleAny();
+			row.Label("TD.OfTheseQueries".Translate());
+
+			return changed;
+		}
+
+		protected override bool DrawUnder(Listing_StandardIndent listing, bool locked)
+		{
+			if (!checkReserver)
+				return false;
+
+			return base.DrawUnder(listing, locked);
 		}
 	}
 }
