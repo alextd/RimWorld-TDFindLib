@@ -144,4 +144,20 @@
 	
 	<TD.DefLabel.RemovePaintBuilding>Remove Paint From Building</TD.DefLabel.RemovePaintBuilding>
 	<TD.DefLabel.RemovePaintFloor>Remove Paint From Floor</TD.DefLabel.RemovePaintFloor>
+	
+	<TD.PlayersIdeoligion>Player's Ideoligion</TD.PlayersIdeoligion>
+	<TD.OtherIdeoligion>Other Ideoligion</TD.OtherIdeoligion>
+	<TD.CanBe>Can Be</TD.CanBe>
+	<TD.HasRole>Has Role</TD.HasRole>
+	<TD.WantsApparelForRole>Wants apparel for role</TD.WantsApparelForRole>
+	<TD.AnyNonLeaderRole>Any non-leader role</TD.AnyNonLeaderRole>
+	<TD.AnyLeaderRole>Any leader role</TD.AnyLeaderRole>
+	<TD.OwnersIdeoligion>Owner's Ideoligion</TD.OwnersIdeoligion>
+	<TD.Mood>mood</TD.Mood>
+	<TD.Opinion>opinion</TD.Opinion>
+	<TD.Level01>Level {0}: {1}</TD.Level01>
+	<TD.Chronological>Chronological</TD.Chronological>
+	<TD.Biological>Biological</TD.Biological>
+	<TD.Matches>matches</TD.Matches>
+	
 </LanguageData>

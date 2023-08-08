@@ -310,7 +310,7 @@ namespace TD_Find_Lib
 					sb.Append("+");
 				sb.Append(mood);
 				sb.Append(" ");
-				sb.Append("mood");
+				sb.Append("TD.Mood".Translate());
 				sb.Append(")");
 
 				sb.Append("</color>");
@@ -329,7 +329,7 @@ namespace TD_Find_Lib
 					sb.Append("+");
 				sb.Append(opinion);
 				sb.Append(" ");
-				sb.Append("opinion");
+				sb.Append("TD.Opinion".Translate());
 				sb.Append(")");
 
 				sb.Append("</color>");
@@ -1080,7 +1080,7 @@ namespace TD_Find_Lib
 		public override ModContentPack CategoryFor(AbilityDef def) => ThingQueryAbiltyCategory.CategoryFor(def);
 
 		public override string DropdownNameFor(AbilityDef def) =>
-			def.level == 0 ? NameFor(def) : $"Level {def.level}: {NameFor(def)}";
+			def.level == 0 ? NameFor(def) : "TD.Level01".Translate(def.level, NameFor(def));
 		public override Texture2D IconTexFor(AbilityDef def) => def.uiIcon;
 
 		private readonly List<AbilityDef> orderedOptions =
@@ -1178,7 +1178,7 @@ namespace TD_Find_Lib
 		{
 			bool changed = base.DrawMain(rect, locked, fullRect);
 
-			if (row.ButtonText(chronological ? "Chronological" : "Biological"))
+			if (row.ButtonText(chronological ? "TD.Chronological".Translate() : "TD.Biological".Translate()))
 			{
 				chronological = !chronological;
 				PostProcess();
@@ -1322,7 +1322,7 @@ namespace TD_Find_Lib
 
 			// "Relation Any/All Parent Matches Any/All of these filters:"
 
-			row.Label("matches");
+			row.Label("TD.Matches".Translate());
 			changed |= ButtonToggleAny();
 			row.Label("TD.OfTheseQueries".Translate());
 

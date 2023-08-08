@@ -126,7 +126,7 @@ namespace TDFindLib_Ideology
 
 		public override int ExtraOptionsCount => 2;
 		public override string NameForExtra(int ex) =>
-			ex == 1 ? "Player's Ideoligion" : "Other Ideoligion";
+			ex == 1 ? "TD.PlayersIdeoligion".Translate() : "TD.OtherIdeoligion".Translate();
 	}
 
 
@@ -270,7 +270,7 @@ namespace TDFindLib_Ideology
 			bool changed = base.DrawMain(rect, locked, fullRect);
 
 			if (extraOption != 4)
-				if (row.ButtonText(canBe ? "Can Be" : "Has Role"))
+				if (row.ButtonText(canBe ? "TD.CanBe".Translate() : "TD.HasRole".Translate()))
 				{
 					canBe = !canBe;
 					changed = true;
@@ -284,9 +284,9 @@ namespace TDFindLib_Ideology
 		public override string NameForExtra(int ex) =>
 			ex switch
 			{
-				4 => "Wants apparel for role",
-				3 => "Any non-leader role",
-				2 => "Any leader role",
+				4 => "TD.WantsApparelForRole".Translate(),
+				3 => "TD.AnyNonLeaderRole".Translate(),
+				2 => "TD.AnyLeaderRole".Translate(),
 				_ => "TD.AnyOption".Translate()
 			};
 
@@ -440,7 +440,7 @@ namespace TDFindLib_Ideology
 		}
 
 		public override string NameForExtra(int ex) =>
-			ex == 1 ? "Owner's Ideoligion" : "Player's Ideoligion";
+			ex == 1 ? "TD.OwnersIdeoligion".Translate() : "TD.PlayersIdeoligion".Translate();
 	}
 
 
