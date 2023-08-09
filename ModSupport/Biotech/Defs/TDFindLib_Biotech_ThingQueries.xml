@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+	<!-- queries in order -->
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Biotech</defName>
+		<label>Biotech Filter</label>
+		<queryClass>TDFindLib_Biotech.ThingQueryBiotech</queryClass>
+		<mod>Ludeon.Rimworld.Biotech</mod>
+	</TD_Find_Lib.ThingQueryDef>
+
+</Defs>
