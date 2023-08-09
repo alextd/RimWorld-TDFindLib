@@ -480,7 +480,51 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public class ThingQueryHealth : ThingQueryDropDown<HediffDef>
+
+
+	public class ThingQueryHealthCategory : ThingQueryCategorizedDropdownHelper<HediffDef, string, ThingQueryHealth, ThingQueryHealthCategory>
+	{
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null) return false;
+
+			return pawn.health.hediffSet.hediffs.Any(h => CategoryFor(h.def) == sel);
+		}
+
+
+		public static string CategoryFor(HediffDef def)
+		{
+			//Not a good category
+//			if (def.hediffClass == typeof(Hediff))
+//				return "Basic";
+
+			if (typeof(Hediff_Addiction).IsAssignableFrom(def.hediffClass))
+				return "Addiction";
+
+			if (typeof(Hediff_Implant).IsAssignableFrom(def.hediffClass))
+				return "Implant";
+
+			if (typeof(Hediff_Injury).IsAssignableFrom(def.hediffClass))
+				return "Injury";
+
+			if (typeof(Hediff_High).IsAssignableFrom(def.hediffClass))
+				return "High";
+
+			if (def.comps != null 
+				&& def.comps.Any(compProp => compProp is HediffCompProperties_Immunizable)
+				&& def.comps.Any(compProp => compProp is HediffCompProperties_TendDuration))
+				return "Sickness";	// Tend till immune Seems a reliable definition of sickness
+
+			if(!def.modContentPack.IsCoreMod)
+				return def.modContentPack.Name;
+
+			return "TD.OtherCategory".Translate();
+		}
+
+	}
+
+	public class ThingQueryHealth : ThingQueryCategorizedDropdown<HediffDef, string, ThingQueryHealth, ThingQueryHealthCategory>
 	{
 		FloatRangeUB severityRange;//unknown until sel set
 		bool usesSeverity;
@@ -516,7 +560,12 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		public override bool AppliesDirectlyTo(Thing thing)
+
+		public override string CategoryFor(HediffDef def) =>
+			ThingQueryHealthCategory.CategoryFor(def);
+
+
+		public override bool AppliesDirectly2(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
@@ -547,7 +596,7 @@ namespace TD_Find_Lib
 
 		public override bool DrawCustom(Rect fullRect)
 		{
-			if (sel == null || !usesSeverity) return false;
+			if (sel == null || useCat || !usesSeverity) return false;
 
 
 			//<initialSeverity>1</initialSeverity> <!-- Severity is bound to level of implant -->
