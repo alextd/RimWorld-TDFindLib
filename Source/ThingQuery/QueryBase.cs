@@ -711,7 +711,13 @@ namespace TD_Find_Lib
 			return NullOption() ?? "??Null selection??";
 		}
 
-		public virtual string TipForSel() => null;
+		public virtual string TipForSel()
+		{
+			if (sel is Def def)
+				return $"<color=#808080>({def.defName})</color>";
+
+			return null;
+		}
 
 		// Subclass Options() don't need to handle simple enums or defs
 		// Often overrides will use Mod.settings.OnlyAvailable to show a subset of options when shift is held
