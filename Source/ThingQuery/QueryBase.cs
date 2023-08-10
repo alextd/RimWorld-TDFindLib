@@ -22,6 +22,24 @@ namespace TD_Find_Lib
 		}
 	}
 
+	public class ThingQueryPreselectDef : ThingQuerySelectableDef
+	{
+		public class KVP { public string key, value; }
+
+		public ThingQueryDef queryDef;
+		public List<KVP> defaultValues = new();
+
+		public override IEnumerable<string> ConfigErrors()
+		{
+			if (queryDef == null)
+				yield return "ThingQueryPreselectDef needs queryDef set";
+
+			if(defaultValues.Count == 0)
+				yield return "ThingQueryPreselectDef needs some defaultValues otherwise why was it set?";
+		}
+	}
+
+
 	public abstract class ThingQuery : IExposable
 	{
 		public ThingQueryDef def;

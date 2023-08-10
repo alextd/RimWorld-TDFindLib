@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -28,6 +29,22 @@ namespace TD_Find_Lib
 		{
 			ThingQuery query = (ThingQuery)Activator.CreateInstance(def.queryClass);
 			query.def = def;
+			return query;
+		}
+
+		public static ThingQuery MakeQuery(ThingQueryPreselectDef preDef)
+		{
+			ThingQuery query = MakeQuery(preDef.queryDef);
+			Log.Message($" Making PreQuery {preDef}, with Query={preDef.queryDef}:");
+
+			foreach (var kvp in preDef.defaultValues)
+			{
+				FieldInfo field = DirectXmlToObject.GetFieldInfoForType(preDef.queryDef.queryClass, kvp.key, null);
+				object obj = ConvertHelper.Convert(kvp.value, field.FieldType);
+				Log.Message($" ({kvp.key}, {kvp.value}) => field = {field}, object = {obj}");
+				field.SetValue(query, obj);
+			}
+
 			return query;
 		}
 

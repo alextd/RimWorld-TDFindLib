@@ -14,6 +14,7 @@
 			<li>Query_MechBandwidthCost</li>
 			<li>Query_MechWorkMode</li>
 			<li>Query_MechUncontrolled</li>
+			<li>Query_MechEnergy</li>
 		</subQueries>
 	</TD_Find_Lib.ThingQueryCategoryDef>
 	
@@ -58,5 +59,18 @@
 		<queryClass>TDFindLib_Biotech.ThingQueryMechFeral</queryClass>
 		<mod>Ludeon.Rimworld.Biotech</mod>
 	</TD_Find_Lib.ThingQueryDef>
+
+	<TD_Find_Lib.ThingQueryPreselectDef>
+		<defName>Query_MechEnergy</defName>
+		<label>mech energy</label>
+		<queryDef>Query_Need</queryDef>
+		<mod>Ludeon.Rimworld.Biotech</mod>
+		<defaultValues>
+			<li>
+				<key>_sel</key>
+				<value>MechEnergy</value>
+			</li>
+		</defaultValues>
+	</TD_Find_Lib.ThingQueryPreselectDef>
 
 </Defs>

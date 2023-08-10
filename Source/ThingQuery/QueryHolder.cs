@@ -469,6 +469,11 @@ namespace TD_Find_Lib
 						fDef.LabelCap,
 						() => Add(ThingQueryMaker.MakeQuery(fDef), focus: true)
 					));
+				else if (def is ThingQueryPreselectDef pDef)
+					options.Add(new FloatMenuOption(
+						pDef.LabelCap,
+						() => Add(ThingQueryMaker.MakeQuery(pDef), focus: true)
+					));
 				else if (def is ThingQueryCategoryDef cDef)
 					options.Add(new FloatMenuOption(
 						"+ " + cDef.LabelCap,
