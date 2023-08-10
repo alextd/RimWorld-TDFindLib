@@ -2,10 +2,20 @@
 <Defs>
 
 	<!-- queries in order -->
+	<TD_Find_Lib.ThingQueryCategoryDef>
+		<mod>Ludeon.Rimworld.Biotech</mod>
+		<defName>Category_Biotech</defName>
+		<label>biotech</label>
+		<insertCategory>Category_PawnProp</insertCategory>
+		<subQueries>
+			<li>Query_MechanitorBandwidth</li>
+		</subQueries>
+	</TD_Find_Lib.ThingQueryCategoryDef>
+	
 	<TD_Find_Lib.ThingQueryDef>
-		<defName>Query_Biotech</defName>
-		<label>Biotech Filter</label>
-		<queryClass>TDFindLib_Biotech.ThingQueryBiotech</queryClass>
+		<defName>Query_MechanitorBandwidth</defName>
+		<label>Mechanitor Bandwidth</label>
+		<queryClass>TDFindLib_Biotech.ThingQueryMechanitorBandwidth</queryClass>
 		<mod>Ludeon.Rimworld.Biotech</mod>
 	</TD_Find_Lib.ThingQueryDef>
 
