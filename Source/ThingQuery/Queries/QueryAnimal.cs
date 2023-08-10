@@ -126,13 +126,13 @@ namespace TD_Find_Lib
 
 			ThingDef productDef = DefFor(pawn);
 
-			if (extraOption == 1 ? productDef != null : sel == productDef)
-				return countRange.Includes(CountFor(pawn));
+			if (extraOption == 1)
+				return productDef != null && countRange.Includes(CountFor(pawn));
 
 			if (sel == null)
 				return productDef == null;
-
-			return false;
+			
+			return sel == productDef && countRange.Includes(CountFor(pawn));
 		}
 
 		public abstract int Max { get; }
