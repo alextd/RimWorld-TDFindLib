@@ -26,5 +26,21 @@ namespace TD_Find_Lib
 
 			return false;
 		}
+
+		// Because list foreach is better than ienumerable foreach
+		public static bool AnyX<TSource>(this List<TSource> source, Func<TSource, bool> predicate, int countMin)
+		{
+			// 0 means default means check 1.
+			if (countMin == 0) return source.Any(predicate);
+
+			// yes countMin could be 1 and we'd do this redundantly but why would you do that.
+			int count = 0;
+			foreach (TSource element in source)
+				if (predicate(element))
+					if (++count == countMin)
+						return true;
+
+			return false;
+		}
 	}
 }
