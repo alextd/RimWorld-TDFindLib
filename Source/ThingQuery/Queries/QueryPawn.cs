@@ -1591,4 +1591,12 @@ namespace TD_Find_Lib
 			return var;
 		}
 	}
+
+	public class ThingQueryUnrecruitable : ThingQuery
+	{
+		public override bool AppliesDirectlyTo(Thing thing) =>
+			thing is Pawn pawn
+			&& pawn.guest != null
+			&& !pawn.guest.Recruitable;
+	}
 }	
