@@ -158,4 +158,36 @@ namespace TDFindLib_Biotech
 			return pawn.GetMechWorkMode() == sel;
 		}
 	}
+
+	public class ThingQueryMechFeral : ThingQueryIntRange
+	{
+		public static int _maxCost = DefDatabase<ThingDef>.AllDefs
+			.Max(def => def.comps?.Select(p => (p as CompProperties_OverseerSubject)?.delayUntilFeralCheck ?? 0).MaxByWithFallback(x => x, 0) ?? 0);
+
+		public override int Max => _maxCost;
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null) return false;
+
+			if (!pawn.RaceProps.IsMechanoid) return false;
+			if (pawn.Faction != Faction.OfPlayer) return false;
+
+			CompOverseerSubject comp = pawn.overseerSubject;  // lowercase o : don't create it if it doesn't exist.
+			if (comp == null) return false;
+			if (comp.State == OverseerSubjectState.Overseen) return false;
+
+			int ticksUncontrolled = comp.Props.delayUntilFeralCheck - comp.delayUntilFeralCheck;
+
+			return sel.Includes(ticksUncontrolled);
+		}
+
+		/*
+		 * Flippin Widgets.IntRange takes a translation key, not a string itself.
+		public override Func<int, string> Writer => (int ticks) =>
+			ticks.ToStringTicksToPeriod(allowSeconds: true, shortForm: true);
+		*/
+		public override Func<int, string> Writer => ticks => $"{ticks * 1f / GenDate.TicksPerHour:0.0}";
+	}
 }
