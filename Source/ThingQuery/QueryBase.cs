@@ -227,7 +227,10 @@ namespace TD_Find_Lib
 				Widgets.DrawBoxSolid(queryRect, DisabledOverlayColor);
 			}
 			// Highlight the queries that pass for selected objects (useful for "any" queries)
-			else  if (!(this is ThingQueryAndOrGroup) && Find.UIRoot is UIRoot_Play && Find.Selector.SelectedObjects.Any(o => o is Thing t && AppliesTo(t)))
+			else  if (!(this is ThingQueryAndOrGroup) 
+				&& Find.UIRoot is UIRoot_Play
+				&& Find.Selector.SelectedObjects
+					.Any(o => o is Thing t && Enabled && AppliesTo(t)))
 			{
 				Widgets.DrawHighlight(queryRect);
 			}
