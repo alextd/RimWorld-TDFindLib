@@ -41,11 +41,11 @@ namespace TD_Find_Lib
 				// fallback on translation in vanilla. Sometimes I plan for this, it gets translations so that's nice.
 				else if (name.TryTranslate(out result))
 				{
-					Verse.Log.Warning($"TD here! Enum {e} Translated to {result} because no key ({key}) was found but {name} was a normal translation");
+					Log.Message($"TD here! Enum {e} Translated to {result} because no key ({key}) was found but {name} was a normal translation");
 					flagNames.Add(result);
 				}
 			}
-			//return key.Translate(); //And get markings on letters, nah.
+			// return key.Translate(); //And get markings on letters, nah.
 			
 			if(!flagNames.NullOrEmpty())
 			{
