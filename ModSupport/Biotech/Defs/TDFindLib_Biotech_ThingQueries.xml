@@ -9,6 +9,7 @@
 		<insertCategory>Category_PawnProp</insertCategory>
 		<subQueries>
 			<li>Query_MechanitorBandwidth</li>
+			<li>Query_MechOverseer</li>
 		</subQueries>
 	</TD_Find_Lib.ThingQueryCategoryDef>
 	
@@ -16,6 +17,13 @@
 		<defName>Query_MechanitorBandwidth</defName>
 		<label>Mechanitor Bandwidth</label>
 		<queryClass>TDFindLib_Biotech.ThingQueryMechanitorBandwidth</queryClass>
+		<mod>Ludeon.Rimworld.Biotech</mod>
+	</TD_Find_Lib.ThingQueryDef>
+	
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_MechOverseer</defName>
+		<label>Controlled mech/Overseer</label>
+		<queryClass>TDFindLib_Biotech.ThingQueryMechOverseer</queryClass>
 		<mod>Ludeon.Rimworld.Biotech</mod>
 	</TD_Find_Lib.ThingQueryDef>
 

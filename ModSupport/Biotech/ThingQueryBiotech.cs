@@ -54,4 +54,69 @@ namespace TDFindLib_Biotech
 			return changed;
 		}
 	}
+
+	public class ThingQueryMechOverseer : ThingQueryAndOrGroup
+	{
+		protected bool overseer;//or controlled mechs
+		protected bool allMechs;// or any mech
+
+		public override void ExposeData()
+		{
+			base.ExposeData();
+			Scribe_Values.Look(ref overseer, "overseer", true);
+			Scribe_Values.Look(ref allMechs, "all", true);
+		}
+		protected override ThingQuery Clone()
+		{
+			ThingQueryMechOverseer clone = (ThingQueryMechOverseer)base.Clone();
+			clone.overseer = overseer;
+			clone.allMechs = allMechs;
+			return clone;
+		}
+
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			if (overseer)
+			{
+				if ((thing as Pawn)?.OverseerSubject?.Overseer is Pawn overseer)
+					return Children.AppliesTo(overseer);
+			}
+			else
+			{
+				if ((thing as Pawn)?.mechanitor?.ControlledPawns is List<Pawn> mechs)
+					return allMechs ?
+						mechs.All(m => Children.AppliesTo(m)) :
+						mechs.Any(m => Children.AppliesTo(m));
+			}
+			return false;
+		}
+
+		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		{
+			bool changed = false;
+
+			if (!overseer)
+			{
+				if (row.ButtonTextNoGap(allMechs ? "TD.AllOptions".Translate() : "TD.AnyOption".Translate()))
+				{
+					changed = true;
+					allMechs = !allMechs;
+				}
+			}
+
+			if(row.ButtonTextNoGap(overseer ? "Mech's overseer" : "Mechanitor's mechs"))
+			{
+				changed = true;
+				overseer = !overseer;
+			}
+
+
+			row.Label("TD.Matches".Translate());
+			changed |= ButtonToggleAny();
+			row.Label("TD.Of".Translate());
+
+			return changed;
+		}
+	}
 }
