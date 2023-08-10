@@ -97,19 +97,9 @@ namespace TDFindLib_Biotech
 			bool changed = false;
 
 			if (!overseer)
-			{
-				if (row.ButtonTextNoGap(allMechs ? "TD.AllOptions".Translate() : "TD.AnyOption".Translate()))
-				{
-					changed = true;
-					allMechs = !allMechs;
-				}
-			}
+				changed |= row.ButtonTextToggleBool(ref allMechs, "TD.AllOptions".Translate(), "TD.AnyOption".Translate());
 
-			if(row.ButtonTextNoGap(overseer ? "Mech's overseer" : "Mechanitor's mechs"))
-			{
-				changed = true;
-				overseer = !overseer;
-			}
+			changed |= row.ButtonTextToggleBool(ref overseer, "Mech's overseer", "Mechanitor's mechs");
 
 
 			row.Label("TD.Matches".Translate());

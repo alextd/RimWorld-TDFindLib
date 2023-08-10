@@ -270,11 +270,7 @@ namespace TDFindLib_Ideology
 			bool changed = base.DrawMain(rect, locked, fullRect);
 
 			if (extraOption != 4)
-				if (row.ButtonText(canBe ? "TD.CanBe".Translate() : "TD.HasRole".Translate()))
-				{
-					canBe = !canBe;
-					changed = true;
-				}
+				changed |= row.ButtonTextToggleBool(ref canBe, "TD.CanBe".Translate(), "TD.HasRole".Translate());
 
 			return changed;
 		}

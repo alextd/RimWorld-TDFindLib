@@ -414,7 +414,7 @@ namespace TD_Find_Lib
 			Rect nextRect = listing.GetRect(Text.LineHeight);
 			listing.NestedOutdent();
 
-			WidgetRow underRow = new(nextRect.x, nextRect.y);
+			WidgetRow underRow = new(nextRect.x, nextRect.y, gap: 0);
 			
 			underRow.Label("TD.From".Translate());
 			DoStageDropdown(underRow, stageRange.min, i => stageRange.min = i);
@@ -428,7 +428,7 @@ namespace TD_Find_Lib
 		private void DoStageDropdown(WidgetRow stageRow, int setI, Action<int> selectedAction)
 		{
 			int setStageI = orderedStages[setI];
-			if (stageRow.ButtonTextNoGap(NameForStage(setStageI), TipForStage(setStageI)))
+			if (stageRow.ButtonText(NameForStage(setStageI), TipForStage(setStageI)))
 			{
 				DoFloatOptions(SelectableStages, NameForStage, newValue => selectedAction(OrderedIndex(newValue)));
 			}
@@ -1227,11 +1227,12 @@ namespace TD_Find_Lib
 		{
 			bool changed = base.DrawMain(rect, locked, fullRect);
 
-			if (row.ButtonText(chronological ? "TD.Chronological".Translate() : "TD.Biological".Translate()))
+			if(row.ButtonTextToggleBool(ref chronological, "TD.Chronological".Translate(), "TD.Biological".Translate()))
 			{
-				chronological = !chronological;
 				PostProcess();
 				PostChosen();
+
+				changed = true;
 			}
 
 			return changed;
@@ -1341,7 +1342,7 @@ namespace TD_Find_Lib
 
 		private void ButtonOptions()
 		{
-			if (row.ButtonTextNoGap(NameFor(relation, gender)))
+			if (row.ButtonText(NameFor(relation, gender)))
 			{
 				List<FloatMenuOption> relationOptions = new();
 				foreach (PawnRelationDef def in DefDatabase<PawnRelationDef>.AllDefsListForReading)

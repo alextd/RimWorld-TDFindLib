@@ -1333,22 +1333,11 @@ namespace TD_Find_Lib
 
 
 
-
-		private bool ButtonToggleType()
-		{
-			if (row.ButtonText(checkReserver ? "Reserver matches " : "Is Reserved"))
-			{
-				checkReserver = !checkReserver;
-				return true;
-			}
-			return false;
-		}
-
 		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			row.Label(Label); // "Reservation"
 
-			bool changed = ButtonToggleType(); // "Is Reservered" / "Reserver matches"
+			bool changed = row.ButtonTextToggleBool(ref checkReserver, "Reserver matches", "Is Reserved"); // "Is Reservered" / "Reserver matches"
 
 			if (!checkReserver)
 				return changed;

@@ -26,11 +26,14 @@ namespace TD_Find_Lib
 		}
 
 		//Same as buttonText but with no gap.
-		public static bool ButtonTextNoGap(this WidgetRow row, string label, string tooltip = null, bool drawBackground = true, bool doMouseoverSound = true, bool active = true, float? fixedWidth = null)
+		public static bool ButtonTextToggleBool(this WidgetRow row, ref bool value, string labelOn, string labelOff, string tooltip = null, bool drawBackground = true, bool doMouseoverSound = true, bool active = true, float? fixedWidth = null)
 		{
-			bool result = row.ButtonText(label, tooltip, drawBackground, doMouseoverSound, active, fixedWidth);
-			row.IncrementPosition(-row.gap);
-			return result;
+			if(row.ButtonText(value?labelOn:labelOff, tooltip, drawBackground, doMouseoverSound, active, fixedWidth))
+			{
+				value = !value;
+				return true;
+			}
+			return false;
 		}
 	}
 }

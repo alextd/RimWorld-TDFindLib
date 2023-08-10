@@ -376,12 +376,8 @@ namespace TDFindLib_Royalty
 
 				DoFloatOptions(factionOptions);
 			}
-			if(row.ButtonText(onlyReady ? "TD.PermitIsReady".Translate() : "TD.HoldsPermit".Translate()))
-			{
-				onlyReady = !onlyReady;
-				return true;
-			}
-			return false;
+
+			return row.ButtonTextToggleBool(ref onlyReady, "TD.PermitIsReady".Translate(), "TD.HoldsPermit".Translate());
 		}
 
 		public override int ExtraOptionsCount => 1;

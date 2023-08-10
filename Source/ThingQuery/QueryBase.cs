@@ -70,10 +70,6 @@ namespace TD_Find_Lib
 		}
 
 
-		// The main row WidgetRow drawer.
-		protected WidgetRow row = new();
-
-
 		// Okay, save/load. The basic gist here is:
 		// During ExposeData loading, ResolveName is called for globally named things (defs)
 		// But anything with a local reference (Zones) needs to resolve that ref on a map, or a game (Factions)
@@ -151,10 +147,13 @@ namespace TD_Find_Lib
 			(incExcWidth = Mathf.Max(Text.CalcSize("TD.IncludeShort".Translate()).x, Text.CalcSize("TD.ExcludeShort".Translate()).x)).Value;
 
 		public Rect queryRect;
+		
 
-		WidgetRow iconRow = new();
-		bool changed = false;
-		bool delete = false;
+
+		// The main row WidgetRow drawer.
+		protected static WidgetRow row = new();
+		private static WidgetRow iconRow = new();
+		protected virtual float RowGap => WidgetRow.DefaultGap;
 		public (bool, bool) Listing(Listing_StandardIndent listing, bool locked)
 		{
 			// Set up the first row rect to draw. (DrawUnder if more space needed)
@@ -171,14 +170,14 @@ namespace TD_Find_Lib
 			}
 
 
-			changed = false;
-			delete = false;
+			bool changed = false;
+			bool delete = false;
 
 
 			// Layout icons now for width / events.
 			// Now that I've written this, it seems like this should be precomputed.
-			if(Event.current.type != EventType.Repaint)
-				DrawIcons(locked, rowRect);
+			if (Event.current.type != EventType.Repaint)
+				DrawIcons(locked, rowRect, ref changed, ref delete);
 
 
 			// Draw Query
@@ -187,7 +186,7 @@ namespace TD_Find_Lib
 			// Make room for icons
 			drawRect.width -= (drawRect.xMax - iconRow.FinalX);
 
-			row.Init(drawRect.x, drawRect.y);
+			row.Init(drawRect.x, drawRect.y, gap: RowGap);
 
 			// If it's in an indented listing group, "left" might not be 0.
 			Rect fullRect = drawRect;
@@ -235,13 +234,13 @@ namespace TD_Find_Lib
 
 			// Draw icons AFTER highlights though.
 			if (Event.current.type == EventType.Repaint)
-				DrawIcons(locked, rowRect);
+				DrawIcons(locked, rowRect, ref changed, ref delete);
 
 			listing.Gap(listing.verticalSpacing);
 			return (changed, delete);
 		}
 
-		private void DrawIcons(bool locked, Rect rowRect)
+		private void DrawIcons(bool locked, Rect rowRect, ref bool changed, ref bool delete)
 		{
 			iconRow.Init(rowRect.xMax, rowRect.y, UIDirection.LeftThenDown, rowRect.width);
 			if (!locked)
@@ -261,11 +260,13 @@ namespace TD_Find_Lib
 				}
 
 				//Include/Exclude
-				if (iconRow.ButtonText(include ? "TD.IncludeShort".Translate() : "TD.ExcludeShort".Translate(),
+
+				if (iconRow.ButtonTextToggleBool(ref _include,
+					"TD.IncludeShort".Translate(),
+					"TD.ExcludeShort".Translate(),
 					"TD.IncludeOrExcludeThingsMatchingThisQuery".Translate(),
 					fixedWidth: IncExcWidth))
 				{
-					include = !include;
 					changed = true;
 				}
 			}

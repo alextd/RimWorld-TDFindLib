@@ -43,7 +43,7 @@ namespace TD_Find_Lib
 		protected bool ButtonToggleAny()
 		{
 			bool changed = false;
-			if (row.ButtonTextNoGap(children.matchAllQueries ? "TD.AllOptions".Translate() : "TD.AnyOption".Translate()))
+			if (row.ButtonText(children.matchAllQueries ? "TD.AllOptions".Translate() : "TD.AnyOption".Translate()))
 			{
 				changed = true;
 
@@ -69,6 +69,7 @@ namespace TD_Find_Lib
 			return changed;
 		}
 
+		protected override float RowGap => 0;
 		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			// no base.DrawMain, don't want label in the filter row
@@ -137,12 +138,8 @@ namespace TD_Find_Lib
 
 		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
-			bool changed = false;
-			if (row.ButtonTextNoGap(holdingThis ? "TD.TheThingHoldingThis".Translate() : "TD.AnythingThisIsHolding".Translate()))
-			{
-				changed = true;
-				holdingThis = !holdingThis;
-			}
+			bool changed = row.ButtonTextToggleBool(ref holdingThis, "TD.TheThingHoldingThis".Translate(), "TD.AnythingThisIsHolding".Translate());
+
 			row.Label("TD.Matches".Translate());
 			changed |= ButtonToggleAny();
 			row.Label("TD.Of".Translate());
