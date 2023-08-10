@@ -124,4 +124,23 @@ namespace TDFindLib_Biotech
 
 		public override string NameFor(MechWeightClass w) => w.ToStringHuman().CapitalizeFirst();
 	}
+
+	public class ThingQueryMechBandwidthCost : ThingQueryIntRange
+	{
+		public static int _maxCost = DefDatabase<ThingDef>.AllDefs
+			.Max(def => (int)def.GetStatValueAbstract(StatDefOf.BandwidthCost));
+
+		public override int Min => 1;
+		public override int Max => _maxCost;
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null) return false;
+
+			if (!pawn.RaceProps.IsMechanoid) return false;
+
+			return sel.Includes((int)pawn.def.GetStatValueAbstract(StatDefOf.BandwidthCost));
+		}
+	}
 }

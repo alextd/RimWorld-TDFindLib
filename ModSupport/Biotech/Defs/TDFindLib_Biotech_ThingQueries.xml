@@ -11,6 +11,7 @@
 			<li>Query_MechanitorBandwidth</li>
 			<li>Query_MechOverseer</li>
 			<li>Query_MechWeightClass</li>
+			<li>Query_MechBandwidthCost</li>
 		</subQueries>
 	</TD_Find_Lib.ThingQueryCategoryDef>
 	
@@ -32,6 +33,13 @@
 		<defName>Query_MechWeightClass</defName>
 		<label>mechanoid weight class</label>
 		<queryClass>TDFindLib_Biotech.ThingQueryMechWeightClass</queryClass>
+		<mod>Ludeon.Rimworld.Biotech</mod>
+	</TD_Find_Lib.ThingQueryDef>
+	
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_MechBandwidthCost</defName>
+		<label>mechanoid bandwidth cost</label>
+		<queryClass>TDFindLib_Biotech.ThingQueryMechBandwidthCost</queryClass>
 		<mod>Ludeon.Rimworld.Biotech</mod>
 	</TD_Find_Lib.ThingQueryDef>
 
