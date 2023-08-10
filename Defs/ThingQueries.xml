@@ -69,7 +69,6 @@
 			<li>Query_Thought</li>
 			<li>Query_Need</li>
 			<li>Query_Job</li>
-			<li>Query_Schedule</li>
 			<li>Query_Health</li>
 			<li>Query_HP</li>
 			<li>Query_PawnDying</li>
@@ -95,6 +94,7 @@
 		<defName>Category_PawnAssign</defName>
 		<label>assign</label>
 		<subQueries>
+			<li>Query_Schedule</li>
 			<li>Query_Work</li>
 			<li>Query_AssignOutfit</li>
 			<li>Query_AssignFood</li>

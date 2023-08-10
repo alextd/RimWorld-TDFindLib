@@ -1490,31 +1490,21 @@ namespace TD_Find_Lib
 			float curX = rect.x;
 			float slotWidth = rect.width / GenDate.HoursPerDay;
 
+			Text.Font = GameFont.Tiny;
+			Text.Anchor = TextAnchor.UpperCenter;
+
 			bool changed = false;
 			for (int hour = 0; hour < GenDate.HoursPerDay; hour++)
 			{
 				changed |= DrawTimeAssignment(new Rect(curX, rect.y, slotWidth, rect.height), hour);
-				curX += slotWidth;
-			}
-			GUI.color = Color.white;
-
-			return changed;
-		}
-
-		private void DrawHeader(Rect rect)
-		{
-			float curX = rect.x;
-			float slotWidth = rect.width / GenDate.HoursPerDay;
-
-			Text.Font = GameFont.Tiny;
-			Text.Anchor = TextAnchor.UpperCenter;
-			for (int hour = 0; hour < GenDate.HoursPerDay; hour++)
-			{
 				Widgets.Label(new Rect(curX, rect.y, slotWidth, rect.height + 3f), hour.ToString());
 				curX += slotWidth;
 			}
+
 			Text.Font = GameFont.Small;
 			Text.Anchor = TextAnchor.UpperLeft;
+
+			return changed;
 		}
 
 
@@ -1584,9 +1574,6 @@ namespace TD_Find_Lib
 
 			Rect rect = listing.GetRect(Text.LineHeight);
 			var var = DrawHours(rect);
-
-			//Draw hours # INSIDE the box
-			DrawHeader(rect);
 
 			return var;
 		}
