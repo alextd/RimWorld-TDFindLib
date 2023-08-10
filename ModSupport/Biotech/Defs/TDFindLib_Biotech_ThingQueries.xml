@@ -66,10 +66,7 @@
 		<queryDef>Query_Need</queryDef>
 		<mod>Ludeon.Rimworld.Biotech</mod>
 		<defaultValues>
-			<li>
-				<key>_sel</key>
-				<value>MechEnergy</value>
-			</li>
+			<li><sel>MechEnergy</sel></li>
 		</defaultValues>
 	</TD_Find_Lib.ThingQueryPreselectDef>
 

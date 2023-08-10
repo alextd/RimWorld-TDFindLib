@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Xml;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +25,19 @@ namespace TD_Find_Lib
 
 	public class ThingQueryPreselectDef : ThingQuerySelectableDef
 	{
-		public class KVP { public string key, value; }
+		public class KVP {
+			public string key, value;
+
+			public void LoadDataFromXmlCustom(XmlNode xmlRoot)
+			{
+				//skip the <li>
+				xmlRoot = xmlRoot.FirstChild;
+				if (xmlRoot.ChildNodes.Count != 1)
+					Verse.Log.Error("Misconfigured ThingQueryPreselectDef: " + xmlRoot.OuterXml);
+				key = xmlRoot.Name;
+				value = xmlRoot.FirstChild.Value;
+			}
+		}
 
 		public ThingQueryDef queryDef;
 		public List<KVP> defaultValues = new();

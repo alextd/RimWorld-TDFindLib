@@ -35,14 +35,26 @@ namespace TD_Find_Lib
 		public static ThingQuery MakeQuery(ThingQueryPreselectDef preDef)
 		{
 			ThingQuery query = MakeQuery(preDef.queryDef);
-			Log.Message($" Making PreQuery {preDef}, with Query={preDef.queryDef}:");
 
 			foreach (var kvp in preDef.defaultValues)
 			{
-				FieldInfo field = DirectXmlToObject.GetFieldInfoForType(preDef.queryDef.queryClass, kvp.key, null);
-				object obj = ConvertHelper.Convert(kvp.value, field.FieldType);
-				Log.Message($" ({kvp.key}, {kvp.value}) => field = {field}, object = {obj}");
-				field.SetValue(query, obj);
+				if (DirectXmlToObject.GetFieldInfoForType(preDef.queryDef.queryClass, kvp.key, null) is FieldInfo field)
+				{
+					object obj = ConvertHelper.Convert(kvp.value, field.FieldType);
+					field.SetValue(query, obj);
+					continue;
+				}
+
+				//todo: store/save these for speed. meh.
+				if (preDef.queryDef.queryClass.GetProperty(kvp.key, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.SetProperty) is PropertyInfo prop)
+				{
+					object obj = ConvertHelper.Convert(kvp.value, prop.PropertyType);
+					prop.SetMethod.Invoke(query, new object[] { obj });
+					continue;
+				}
+
+
+				Verse.Log.Error($"Couldn't find how to set {preDef.queryDef.queryClass}.{kvp.key}");
 			}
 
 			return query;
