@@ -10,6 +10,7 @@
 		<subQueries>
 			<li>Query_MechanitorBandwidth</li>
 			<li>Query_MechOverseer</li>
+			<li>Query_MechWeightClass</li>
 		</subQueries>
 	</TD_Find_Lib.ThingQueryCategoryDef>
 	
@@ -24,6 +25,13 @@
 		<defName>Query_MechOverseer</defName>
 		<label>Controlled mech/Overseer</label>
 		<queryClass>TDFindLib_Biotech.ThingQueryMechOverseer</queryClass>
+		<mod>Ludeon.Rimworld.Biotech</mod>
+	</TD_Find_Lib.ThingQueryDef>
+	
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_MechWeightClass</defName>
+		<label>mechanoid weight class</label>
+		<queryClass>TDFindLib_Biotech.ThingQueryMechWeightClass</queryClass>
 		<mod>Ludeon.Rimworld.Biotech</mod>
 	</TD_Find_Lib.ThingQueryDef>
 

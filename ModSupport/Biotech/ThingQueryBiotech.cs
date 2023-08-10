@@ -109,4 +109,19 @@ namespace TDFindLib_Biotech
 			return changed;
 		}
 	}
+
+	public class ThingQueryMechWeightClass : ThingQueryDropDown<MechWeightClass>
+	{
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null) return false;
+
+			if (!pawn.RaceProps.IsMechanoid) return false;
+
+			return pawn.RaceProps.mechWeightClass == sel;
+		}
+
+		public override string NameFor(MechWeightClass w) => w.ToStringHuman().CapitalizeFirst();
+	}
 }
