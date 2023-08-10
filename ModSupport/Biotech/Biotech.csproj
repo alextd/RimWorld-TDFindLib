@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{6F86326B-B5B9-48FA-9E5A-C0DF2FDACCF6}</ProjectGuid>
+    <ProjectGuid>{5A9A7037-630D-4C09-AFE3-9BA55B5035F3}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TDFindLib_Biotech</RootNamespace>
