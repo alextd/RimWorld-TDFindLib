@@ -486,34 +486,37 @@ namespace TD_Find_Lib
 
 
 		// Apply to a list of things
-		private List<Thing> newFilteredThings = new();
+		private static List<Thing> _newFilteredThings = new();
+		private static List<ThingQuery> _enabledQueries = new();
 		public void Filter(ref List<Thing> newListedThings)
 		{
-			var usedQueries = queries.FindAll(f => f.Enabled);
+			_enabledQueries.AddRange(queries.Where(q => q.Enabled));
+
 			if (matchAllQueries)
 			{
 				// ALL
-				foreach (ThingQuery query in usedQueries)
+				foreach (ThingQuery query in _enabledQueries)
 				{
 					// Clears newQueriedThings, fills with newListedThings which pass the query.
-					query.Apply(newListedThings, newFilteredThings);
+					query.Apply(newListedThings, _newFilteredThings);
 
 					// newQueriedThings is now the list of things ; swap them
-					(newListedThings, newFilteredThings) = (newFilteredThings, newListedThings);
+					(newListedThings, _newFilteredThings) = (_newFilteredThings, newListedThings);
 				}
 			}
 			else
 			{
 				// ANY
-				newFilteredThings.Clear();
+				_newFilteredThings.Clear();
 				foreach (Thing thing in newListedThings)
-					if (usedQueries.AnyX(f => f.AppliesTo(thing), anyMin))
-						newFilteredThings.Add(thing);
+					if (_enabledQueries.AnyX(f => f.AppliesTo(thing), anyMin))
+						_newFilteredThings.Add(thing);
 
-				(newListedThings, newFilteredThings) = (newFilteredThings, newListedThings);
+				(newListedThings, _newFilteredThings) = (_newFilteredThings, newListedThings);
 			}
 
-			newFilteredThings.Clear();
+			_enabledQueries.Clear();
+			_newFilteredThings.Clear();
 		}
 	}
 }
