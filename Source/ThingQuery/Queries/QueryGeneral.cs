@@ -948,7 +948,17 @@ namespace TD_Find_Lib
 			}
 
 			if (typeof(Pawn).IsAssignableFrom(def.thingClass))
+			{
+				if (def.race?.FleshType == FleshTypeDefOf.Mechanoid)
+				{
+					if(def.race.IsWorkMech)
+						return "Work Mechanoid";
+					else
+						return "MechsSection".Translate();
+				}
+
 				return "TD.LivingCategory".Translate();
+			}
 
 			if (typeof(Mineable).IsAssignableFrom(def.thingClass))
 				return "TD.MineableCategory".Translate();
