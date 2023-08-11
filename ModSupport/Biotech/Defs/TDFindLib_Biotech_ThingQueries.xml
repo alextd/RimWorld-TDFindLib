@@ -10,6 +10,7 @@
 		<subQueries>
 			<li>Query_MechanitorBandwidth</li>
 			<li>Query_MechOverseer</li>
+			<li>Query_IsWorkMech</li>
 			<li>Query_MechWeightClass</li>
 			<li>Query_MechBandwidthCost</li>
 			<li>Query_MechWorkMode</li>
@@ -32,7 +33,17 @@
 		<queryClass>TDFindLib_Biotech.ThingQueryMechOverseer</queryClass>
 		<mod>Ludeon.Rimworld.Biotech</mod>
 	</TD_Find_Lib.ThingQueryDef>
-	
+
+	<TD_Find_Lib.ThingQueryPreselectDef>
+		<defName>Query_IsWorkMech</defName>
+		<label>is work mech</label>
+		<queryDef>Query_Def</queryDef>
+		<mod>Ludeon.Rimworld.Biotech</mod>
+		<defaultValues>
+			<li><SelCat>Work Mechanoid</SelCat></li>
+		</defaultValues>
+	</TD_Find_Lib.ThingQueryPreselectDef>Work Mechanoid
+
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_MechWeightClass</defName>
 		<label>mechanoid weight class</label>
@@ -70,9 +81,9 @@
 			<li><sel>MechEnergy</sel></li>
 		</defaultValues>
 	</TD_Find_Lib.ThingQueryPreselectDef>
-	
-	
-	
+
+
+
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Xenotype</defName>
 		<label>xenotype</label>
