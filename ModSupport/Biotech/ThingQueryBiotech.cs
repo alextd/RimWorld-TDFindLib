@@ -190,4 +190,17 @@ namespace TDFindLib_Biotech
 		*/
 		public override Func<int, string> Writer => ticks => $"{ticks * 1f / GenDate.TicksPerHour:0.0}";
 	}
+
+	public class ThingQueryXenotype : ThingQueryDropDown<XenotypeDef>
+	{
+		public ThingQueryXenotype() => sel = XenotypeDefOf.Baseliner;
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null) return false;
+
+			return pawn.genes?.xenotype == sel;
+		}
+	}
 }

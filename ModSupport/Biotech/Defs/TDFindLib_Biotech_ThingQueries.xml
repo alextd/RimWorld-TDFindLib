@@ -15,6 +15,7 @@
 			<li>Query_MechWorkMode</li>
 			<li>Query_MechUncontrolled</li>
 			<li>Query_MechEnergy</li>
+			<li>Query_Xenotype</li>
 		</subQueries>
 	</TD_Find_Lib.ThingQueryCategoryDef>
 	
@@ -69,5 +70,14 @@
 			<li><sel>MechEnergy</sel></li>
 		</defaultValues>
 	</TD_Find_Lib.ThingQueryPreselectDef>
+	
+	
+	
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Xenotype</defName>
+		<label>xenotype</label>
+		<queryClass>TDFindLib_Biotech.ThingQueryXenotype</queryClass>
+		<mod>Ludeon.Rimworld.Biotech</mod>
+	</TD_Find_Lib.ThingQueryDef>
 
 </Defs>
