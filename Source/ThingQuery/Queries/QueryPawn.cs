@@ -754,15 +754,23 @@ namespace TD_Find_Lib
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
 
+			if (extraOption == 3)
+				return pawn.guest != null && !pawn.guest.Recruitable;
+
 			if (extraOption == 1)
 				return pawn.IsPrisoner;
 
 			return pawn.IsPrisoner && pawn.guest?.interactionMode == sel;
 		}
 		
-		public override int ExtraOptionsCount => 2;
+		public override int ExtraOptionsCount => 3;
 		public override string NameForExtra(int ex) =>
-			ex == 1 ? "TD.IsPrisoner".Translate() : "TD.InCell".Translate();
+			ex switch
+			{
+				1 => "TD.IsPrisoner".Translate(),
+				2 => "TD.InCell".Translate(),
+				_ => "NonRecruitable".Translate()
+			};
 	}
 
 	// the option here is default true = "Lodger", true= "Helper"
@@ -1578,13 +1586,5 @@ namespace TD_Find_Lib
 
 			return var;
 		}
-	}
-
-	public class ThingQueryUnrecruitable : ThingQuery
-	{
-		public override bool AppliesDirectlyTo(Thing thing) =>
-			thing is Pawn pawn
-			&& pawn.guest != null
-			&& !pawn.guest.Recruitable;
 	}
 }	

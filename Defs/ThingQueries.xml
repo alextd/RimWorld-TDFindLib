@@ -86,7 +86,6 @@
 			<li>Query_Guest</li>
 			<li>Query_Prisoner</li>
 			<li>Query_Quest</li>
-			<li>Query_Unrecruitable</li>
 		</subQueries>
 	</TD_Find_Lib.ThingQueryCategoryDef>
 
@@ -220,12 +219,6 @@
 		<defName>Query_Quest</defName>
 		<label>quest status</label>
 		<queryClass>TD_Find_Lib.ThingQueryQuest</queryClass>
-	</TD_Find_Lib.ThingQueryDef>
-
-	<TD_Find_Lib.ThingQueryDef>
-		<defName>Query_Unrecruitable</defName>
-		<label>unwaveringly loyal</label>
-		<queryClass>TD_Find_Lib.ThingQueryUnrecruitable</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 	
 
