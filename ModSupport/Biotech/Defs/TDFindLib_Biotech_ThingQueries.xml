@@ -42,7 +42,7 @@
 		<defaultValues>
 			<li><SelCat>Work Mechanoid</SelCat></li>
 		</defaultValues>
-	</TD_Find_Lib.ThingQueryPreselectDef>Work Mechanoid
+	</TD_Find_Lib.ThingQueryPreselectDef>
 
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_MechWeightClass</defName>

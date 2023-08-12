@@ -86,6 +86,7 @@
 			<li>Query_Guest</li>
 			<li>Query_Prisoner</li>
 			<li>Query_Quest</li>
+			<li>Query_MarketValue</li>
 		</subQueries>
 	</TD_Find_Lib.ThingQueryCategoryDef>
 
@@ -220,6 +221,20 @@
 		<label>quest status</label>
 		<queryClass>TD_Find_Lib.ThingQueryQuest</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
+
+	<TD_Find_Lib.ThingQueryPreselectDef>
+		<defName>Query_MarketValue</defName>
+		<label>market value</label>
+		<queryDef>Query_Stat</queryDef>
+		<defaultValues>
+			<li>
+				<sel>MarketValue</sel>
+			</li>
+			<li>
+				<valueRange>1000~2000</valueRange>
+			</li>
+		</defaultValues>
+	</TD_Find_Lib.ThingQueryPreselectDef>
 	
 
 	<TD_Find_Lib.ThingQueryDef>
