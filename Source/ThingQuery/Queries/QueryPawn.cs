@@ -741,9 +741,33 @@ namespace TD_Find_Lib
 
 	public class ThingQueryPrisoner : ThingQueryDropDown<PrisonerInteractionModeDef>
 	{
+		public FloatRangeUB breakRange = new(0, PrisonBreakUtility.BaseInitiatePrisonBreakMtbDays * 2);
+		public FloatRangeUB resistRange = new(0, 50);
+		public FloatRangeUB willRange = new(0, 10);
+
 		public ThingQueryPrisoner()
 		{
 			sel = PrisonerInteractionModeDefOf.NoInteraction;
+		}
+
+		public override void ExposeData()
+		{
+			base.ExposeData();
+
+			if(extraOption == 4)
+				Scribe_Values.Look(ref breakRange.range, "breakRange");
+			if(extraOption == 5)
+				Scribe_Values.Look(ref resistRange.range, "resistRange");
+			if(extraOption == 6)
+				Scribe_Values.Look(ref willRange.range, "willRange");
+		}
+		protected override ThingQuery Clone()
+		{
+			ThingQueryPrisoner clone = (ThingQueryPrisoner)base.Clone();
+			clone.breakRange = breakRange;
+			clone.resistRange = resistRange;
+			clone.willRange = willRange;
+			return clone;
 		}
 
 		public override bool AppliesDirectlyTo(Thing thing)
@@ -754,11 +778,23 @@ namespace TD_Find_Lib
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
 
-			if (extraOption == 3)
-				return pawn.guest != null && !pawn.guest.Recruitable;
-
 			if (extraOption == 1)
 				return pawn.IsPrisoner;
+
+			if (extraOption == 3)
+				return pawn.IsPrisoner && PrisonBreakUtility.IsPrisonBreaking(pawn);
+
+			if (extraOption == 4)
+				return pawn.IsPrisoner && breakRange.Includes(PrisonBreakUtility.InitiatePrisonBreakMtbDays(pawn, ignoreAsleep: true));
+
+			if (extraOption == 5)
+				return pawn.IsPrisoner && resistRange.Includes(pawn.guest.resistance);
+
+			if (extraOption == 6)
+				return pawn.IsPrisoner && willRange.Includes(pawn.guest.will);
+
+			if (extraOption == 7) //unwavering
+				return pawn.guest != null && !pawn.guest.Recruitable;
 
 			return pawn.IsPrisoner && pawn.guest?.interactionMode == sel;
 		}
@@ -767,14 +803,40 @@ namespace TD_Find_Lib
 		public override IEnumerable<PrisonerInteractionModeDef> OrderedOptions =>
 			base.Options().OrderBy(mode => mode.listOrder);
 
-		public override int ExtraOptionsCount => 3;
+		public override int ExtraOptionsCount => 7;
 		public override string NameForExtra(int ex) =>
 			ex switch
 			{
 				1 => "TD.IsPrisoner".Translate(),
 				2 => "TD.InCell".Translate(),
+				3 => "CurrentlyPrisonBreaking".Translate(),
+				4 => "PrisonBreakMTBDays".Translate(),
+				5 => "RecruitmentResistance".Translate(),
+				6 => "WillLevel".Translate(),
 				_ => "NonRecruitable".Translate()
 			};
+
+		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		{
+			bool changed = base.DrawMain(rect, locked, fullRect);
+
+			if (extraOption is 4 or 5 or 6)
+			{
+				Rect rangeRect = fullRect.LeftPart(0.59f);
+				rangeRect.xMin = rangeRect.xMax - 150;
+
+				if (extraOption == 4)
+					changed |= TDWidgets.FloatRangeUB(rangeRect, id, ref breakRange, valueStyle: ToStringStyle.FloatOne);
+
+				if (extraOption == 5)
+					changed |= TDWidgets.FloatRangeUB(rangeRect, id, ref resistRange, valueStyle: ToStringStyle.FloatOne);
+
+				if (extraOption == 6)
+					changed |= TDWidgets.FloatRangeUB(rangeRect, id, ref willRange, valueStyle: ToStringStyle.FloatOne);
+			}
+
+			return changed;
+		}
 	}
 
 	// the option here is default true = "Lodger", true= "Helper"
