@@ -313,16 +313,105 @@ namespace TDFindLib_Biotech
 
 	public class ThingQueryGene : ThingQueryDropDown<GeneDef>
 	{
+		public enum GeneType { Either, Endogene, Xenogene }
+		public GeneType geneType;
+		public enum GeneHavingType { Active, Inactive, Has}
+		public GeneHavingType haveType;
+
 		public ThingQueryGene() => sel = GeneDefOf.Inbred;
 
+		public override void ExposeData()
+		{
+			base.ExposeData();
+			Scribe_Values.Look(ref geneType, "geneType");
+			Scribe_Values.Look(ref haveType, "haveType");
+		}
+		protected override ThingQuery Clone()
+		{
+			ThingQueryGene clone = (ThingQueryGene)base.Clone();
+			clone.geneType = geneType;
+			clone.haveType = haveType;
+			return clone;
+		}
+
+		private List<GeneSetHolderBase> _geneHolders = new();
 		public override bool AppliesDirectlyTo(Thing thing)
 		{
-			if(thing is Pawn pawn && pawn.genes != null)
+			if (thing is Pawn pawn)
 			{
-				return pawn.genes.HasGene(sel);
+				if (pawn.genes == null) return false;
+
+				if (geneType == GeneType.Xenogene && !pawn.genes.HasXenogene(sel))
+					return false;
+				if (geneType == GeneType.Endogene && !pawn.genes.HasEndogene(sel))
+					return false;
+
+				Gene gene = pawn.genes.GetGene(sel);
+				if (gene == null) return false;
+
+				return haveType switch
+				{
+					GeneHavingType.Active => gene.Active,
+					GeneHavingType.Inactive => !gene.Active,
+					_ => gene != null
+				};
 			}
 
+			// If not in a pawn, it'll be in GeneSetHolderBase
+			_geneHolders.Clear();
+
+			if (thing is GeneSetHolderBase holder)
+				_geneHolders.Add(holder);
+
+			// some GeneSetHolderBase might be contained in a genebank
+			if (geneType != GeneType.Endogene &&
+				thing.TryGetComp<CompGenepackContainer>() is CompGenepackContainer comp)
+			{
+				// gene bank, aka CompGenepackContainer
+				_geneHolders.AddRange(comp.ContainedGenepacks);
+			}
+
+			// Or an attached facility to a gene assembler
+			if (geneType != GeneType.Endogene &&
+				thing is Building_GeneAssembler geneAss)
+			{
+				_geneHolders.AddRange(geneAss.GetGenepacks(true, true));
+			}
+
+			// Okay we got a lot of genes or contained/connected genes
+			foreach(var geneHolder in _geneHolders)
+			{
+				// babies have necesarilly only endogenes
+				if (geneType == GeneType.Xenogene && geneHolder is HumanEmbryo) 
+					continue;
+
+				// genepacks and xenogerms are the other GeneSetHolderBase types
+				// and are necessarily xenogenes as they are not people
+				if (geneType == GeneType.Endogene && geneHolder is not HumanEmbryo) 
+					continue;
+
+				if (!geneHolder.geneSet.genes.Contains(sel))
+					continue;
+
+
+				if (haveType == GeneHavingType.Active ? !geneHolder.geneSet.IsOverridden(sel) :
+					haveType == GeneHavingType.Inactive ? geneHolder.geneSet.IsOverridden(sel) : true)
+				{
+					return true;
+				}
+			}
+
+
 			return false;
+		}
+		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		{
+			bool changed = base.DrawMain(rect, locked, fullRect);
+
+			RowButtonFloatMenuEnum(geneType, newValue => geneType = newValue);
+			RowButtonFloatMenuEnum(haveType, newValue => haveType = newValue);
+
+			return changed;
 		}
 	}
 }
