@@ -762,7 +762,11 @@ namespace TD_Find_Lib
 
 			return pawn.IsPrisoner && pawn.guest?.interactionMode == sel;
 		}
-		
+
+		public override bool Ordered => true;
+		public override IEnumerable<PrisonerInteractionModeDef> OrderedOptions =>
+			base.Options().OrderBy(mode => mode.listOrder);
+
 		public override int ExtraOptionsCount => 3;
 		public override string NameForExtra(int ex) =>
 			ex switch

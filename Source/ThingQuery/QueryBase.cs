@@ -790,6 +790,7 @@ namespace TD_Find_Lib
 
 		// dropdown menu options
 		public virtual bool Ordered => false;
+		public virtual IEnumerable<T> OrderedOptions => Options().OrderBy(o => NameFor(o));
 		public virtual string DropdownNameFor(T o) => NameFor(o);
 		public virtual Color IconColorFor(T o) => Color.white;
 		public virtual Texture2D IconTexFor(T o) => null;
@@ -822,7 +823,7 @@ namespace TD_Find_Lib
 
 		public virtual void MakeDropdownOptions(List<FloatMenuOption> options)
 		{
-			foreach (T o in Ordered ? Options().OrderBy(o => NameFor(o)) : Options())
+			foreach (T o in Ordered ? OrderedOptions : Options())
 				options.Add(FloatMenuFor(o));
 		}
 
