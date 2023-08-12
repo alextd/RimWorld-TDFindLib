@@ -308,4 +308,21 @@ namespace TDFindLib_Biotech
 			return changed;// it'll be false but who knows
 		}
 	}
+
+	// public class ThingQueryXenogerm // Is this needed? Is this just "Unique"?
+
+	public class ThingQueryGene : ThingQueryDropDown<GeneDef>
+	{
+		public ThingQueryGene() => sel = GeneDefOf.Inbred;
+
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			if(thing is Pawn pawn && pawn.genes != null)
+			{
+				return pawn.genes.HasGene(sel);
+			}
+
+			return false;
+		}
+	}
 }

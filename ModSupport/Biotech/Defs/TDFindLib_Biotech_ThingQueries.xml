@@ -8,15 +8,16 @@
 		<label>biotech</label>
 		<insertCategory>Category_PawnProp</insertCategory>
 		<subQueries>
+			<li>Query_Xenotype</li>
+			<li>Query_Gene</li>
 			<li>Query_MechanitorBandwidth</li>
 			<li>Query_MechOverseer</li>
 			<li>Query_IsWorkMech</li>
-			<li>Query_MechWeightClass</li>
-			<li>Query_MechBandwidthCost</li>
 			<li>Query_MechWorkMode</li>
-			<li>Query_MechUncontrolled</li>
 			<li>Query_MechEnergy</li>
-			<li>Query_Xenotype</li>
+			<li>Query_MechBandwidthCost</li>
+			<li>Query_MechWeightClass</li>
+			<li>Query_MechUncontrolled</li>
 		</subQueries>
 	</TD_Find_Lib.ThingQueryCategoryDef>
 	
@@ -88,6 +89,13 @@
 		<defName>Query_Xenotype</defName>
 		<label>xenotype</label>
 		<queryClass>TDFindLib_Biotech.ThingQueryXenotype</queryClass>
+		<mod>Ludeon.Rimworld.Biotech</mod>
+	</TD_Find_Lib.ThingQueryDef>
+	
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Gene</defName>
+		<label>gene</label>
+		<queryClass>TDFindLib_Biotech.ThingQueryGene</queryClass>
 		<mod>Ludeon.Rimworld.Biotech</mod>
 	</TD_Find_Lib.ThingQueryDef>
 
