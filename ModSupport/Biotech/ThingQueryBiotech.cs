@@ -10,7 +10,7 @@ using RimWorld;
 
 namespace TDFindLib_Biotech
 {
-	public enum BandwidthFilterType { Total, Used, Available}
+	public enum BandwidthFilterType { Total, Used, Available }
 	public class ThingQueryMechanitorBandwidth : ThingQueryIntRange
 	{
 		public override int Max => 40;
@@ -193,14 +193,119 @@ namespace TDFindLib_Biotech
 
 	public class ThingQueryXenotype : ThingQueryDropDown<XenotypeDef>
 	{
+		public string xenotypeName;
+
 		public ThingQueryXenotype() => sel = XenotypeDefOf.Baseliner;
+
+		public override int extraOption {
+			set
+			{
+				base.extraOption = value;
+				if (value == 4)
+					xenotypeName = CustomXenotypes().FirstOrFallback("???");
+			}
+		}
+
+		public override void ExposeData()
+		{
+			base.ExposeData();
+			Scribe_Values.Look(ref xenotypeName, "xenotypeName");
+		}
+		protected override ThingQuery Clone()
+		{
+			ThingQueryXenotype clone = (ThingQueryXenotype)base.Clone();
+			clone.xenotypeName = xenotypeName;
+			return clone;
+		}
 
 		public override bool AppliesDirectlyTo(Thing thing)
 		{
-			Pawn pawn = thing as Pawn;
-			if (pawn == null) return false;
+			switch (extraOption)
+			{
+				case 1: // Any Common
+					{
+						if (thing is Pawn pawn)
+							return pawn.genes != null && pawn.genes.xenotypeName == null;
+					}
+					break;
+				case 2: // Unique
+					{
+						if (thing is Pawn pawn)
+							return pawn.genes?.UniqueXenotype ?? false;
+						//if (thing is HumanEmbryo emb)
+						//	return emb.GeneSet.xenp // Hey the xenotype is not set yet.
+					}
+					break;
+				case 3: // Hybrid
+					{
+						if (thing is Pawn pawn)
+							return pawn.genes?.hybrid ?? false;
+					}
+					break;
+				case 4: // Named Custom
+					{
+						if (thing is Pawn pawn)
+							return pawn.genes?.xenotypeName == xenotypeName;
+						if (thing is Building_GeneAssembler ass)
+							return ass.xenotypeName == xenotypeName;
+						if (thing is Xenogerm xenog)
+							return xenog.xenotypeName == xenotypeName;
+					}
+					break;
+				default: // By Def
+					{
+						if (thing is Pawn pawn)
+							return pawn.genes?.xenotype == sel;
+					}
+					break;
+			}
 
-			return pawn.genes?.xenotype == sel;
+			return false;
+		}
+
+		public override int ExtraOptionsCount => 4;
+		public override string NameForExtra(int ex) =>
+			ex switch
+			{
+				1 => "Any Common",
+				2 => "Unique".Translate().CapitalizeFirst(),
+				3 => "Hybrid".Translate().CapitalizeFirst(),
+				_ => "Custom".Translate().CapitalizeFirst()
+			};
+
+		public static IEnumerable<string> CustomXenotypes()
+		{
+			foreach (string xenot in ContentsUtility.AvailableInGame<string>(
+				t => (t as Pawn)?.genes?.xenotypeName 
+				?? (t as Building_GeneAssembler)?.xenotypeName
+				?? (t as Xenogerm)?.xenotypeName))
+			{
+				if(xenot != "")
+					yield return xenot;
+			}
+
+			if (Current.Game?.customXenogermDatabase != null)
+				foreach (var custo in Current.Game.customXenogermDatabase.CustomXenogermsForReading)
+					yield return custo.name;
+		}
+
+		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		{
+			bool changed = base.DrawMain(rect, locked, fullRect);
+
+			if (extraOption != 4) return false;
+
+			if (row.ButtonText(xenotypeName))
+			{
+				floatOptions.Clear();
+
+				foreach (string xenoOption in CustomXenotypes().Distinct())
+					floatOptions.Add(new FloatMenuOptionAndRefresh(xenoOption, () => xenotypeName = xenoOption, this));
+
+				DoFloatOptions(floatOptions);
+			}
+
+			return changed;// it'll be false but who knows
 		}
 	}
 }

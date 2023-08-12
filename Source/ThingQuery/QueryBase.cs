@@ -325,7 +325,7 @@ namespace TD_Find_Lib
 
 
 		// Float menu helpers
-		private static readonly List<FloatMenuOption> floatOptions = new();
+		protected static readonly List<FloatMenuOption> floatOptions = new();
 		public void RowButtonFloatMenuEnum<TEnum>(TEnum value, Action<TEnum> setAction, Func<TEnum, bool> filter = null) where TEnum : System.Enum =>
 			RowButtonFloatMenu(value, Enum.GetValues(typeof(TEnum)) as IEnumerable<TEnum>, TranslateEnumEx.TranslateEnum, setAction, filter);
 
