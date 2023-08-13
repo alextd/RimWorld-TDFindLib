@@ -351,7 +351,7 @@ namespace TDFindLib_Biotech
 
 		public enum GeneType { Either, Endogene, Xenogene }
 		public GeneType geneType;
-		public enum GeneHavingType { Active, Inactive, Has }
+		public enum GeneHavingType { Has, Active, Inactive }
 		public GeneHavingType haveType;
 
 
@@ -372,10 +372,10 @@ namespace TDFindLib_Biotech
 		}
 
 
-		public override string NullOption() => "None".Translate();
+		public override string NullOption() => "No gene";
 
 		public override int ExtraOptionsCount => 1;
-		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
+		public override string NameForExtra(int ex) => "Any gene";
 
 
 		private static List<GeneSetHolderBase> _geneHolders = new();
@@ -539,15 +539,17 @@ namespace TDFindLib_Biotech
 				GetGeneholdersFrom(thing).SelectMany(holder => holder.GeneSet.genes));
 		*/
 
-
-		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		protected override float RowGap => 0;
+		public override bool DrawCustom(Rect fullRect)
 		{
-			bool changed = base.DrawMain(rect, locked, fullRect);
-
-			RowButtonFloatMenuEnum(geneType, newValue => geneType = newValue);
+			row.Label("is");
+			row.Gap(RowGap);
 			RowButtonFloatMenuEnum(haveType, newValue => haveType = newValue);
+			row.Label("as");
+			row.Gap(RowGap);
+			RowButtonFloatMenuEnum(geneType, newValue => geneType = newValue);
 
-			return changed;
+			return false;
 		}
 
 		public override Texture2D IconTexFor(GeneDef def) => def.Icon;
