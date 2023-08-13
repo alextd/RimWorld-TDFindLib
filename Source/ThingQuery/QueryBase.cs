@@ -1037,7 +1037,10 @@ namespace TD_Find_Lib
 		where TQCH : ThingQueryCategorizedDropdownHelper<T, C, TQCD, TQCH>
 		where TQCD : ThingQueryCategorizedDropdown<T, C, TQCD, TQCH>
 	{
-		public TQCD ParentQuery => parent as TQCD;	//that was a lot of effort for this here reference
+		public TQCD ParentQuery => parent as TQCD;  //that was a lot of effort for this here reference
+
+		public override string GetSelLabel() => 
+			$"{base.GetSelLabel()} ({"TD.AnyOption".Translate()})";
 	}
 
 	// TODO: doubly nested categories e.g. Items => Weapon => longsword
