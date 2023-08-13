@@ -529,6 +529,7 @@ namespace TDFindLib_Biotech
 			return false;
 		}
 
+
 		/*
 		 * So many genes are ingame that each category is used but each category is nearly empty.
 		 * 
@@ -551,5 +552,13 @@ namespace TDFindLib_Biotech
 
 		public override Texture2D IconTexFor(GeneDef def) => def.Icon;
 		public override Color IconColorFor(GeneDef def) => def.IconColor;
+
+		// GeneUtility.GenesInOrder but include melanin
+		private static List<GeneDef> _options = DefDatabase<GeneDef>.AllDefs
+			.OrderBy((GeneDef x) => 0f - x.displayCategory.displayPriorityInXenotype)
+			.ThenBy((GeneDef x) => x.displayCategory.label)
+			.ThenBy((GeneDef x) => x.displayOrderInCategory)
+			.ToList();
+		public override IEnumerable<GeneDef> AllOptions() => _options;
 	}
 }
