@@ -311,12 +311,49 @@ namespace TDFindLib_Biotech
 
 	// public class ThingQueryXenogerm // Is this needed? Is this just "Unique"?
 
-	public class ThingQueryGene : ThingQueryDropDown<GeneDef>
+
+	public class ThingQueryGene : ThingQueryCategorizedDropdown<GeneDef, GeneCategoryDef, ThingQueryGene, ThingQueryGene.ThingQueryGeneCategory>
 	{
+		public class ThingQueryGeneCategory : ThingQueryCategorizedDropdownHelper<GeneDef, GeneCategoryDef, ThingQueryGene, ThingQueryGeneCategory>
+		{
+			private static Dictionary<GeneCategoryDef, List<GeneDef>> categoryGenes;
+			static ThingQueryGeneCategory()
+			{
+				categoryGenes = new();
+
+				foreach (var val in DefDatabase<GeneDef>.AllDefsListForReading)
+				{
+					var key = val.displayCategory;
+					if (!categoryGenes.TryGetValue(key, out List<GeneDef> genes))
+					{
+						genes = new();
+						categoryGenes[key] = genes;
+					}
+					genes.Add(val);
+				}
+			}
+
+			public override bool AppliesDirectlyTo(Thing thing)
+			{
+				foreach (GeneDef geneDef in categoryGenes[sel])
+				{
+					ParentQuery._sel = geneDef;
+					if (ParentQuery.AppliesDirectly2(thing))
+						return true;
+				}
+
+				return false;
+			}
+		}
+
+
+		public override GeneCategoryDef CategoryFor(GeneDef def) => def.displayCategory;
+
 		public enum GeneType { Either, Endogene, Xenogene }
 		public GeneType geneType;
 		public enum GeneHavingType { Active, Inactive, Has}
 		public GeneHavingType haveType;
+
 
 		public ThingQueryGene() => sel = GeneDefOf.Inbred;
 
@@ -334,8 +371,9 @@ namespace TDFindLib_Biotech
 			return clone;
 		}
 
+
 		private List<GeneSetHolderBase> _geneHolders = new();
-		public override bool AppliesDirectlyTo(Thing thing)
+		public override bool AppliesDirectly2(Thing thing)
 		{
 			if (thing is Pawn pawn)
 			{
@@ -404,6 +442,8 @@ namespace TDFindLib_Biotech
 
 			return false;
 		}
+
+
 		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			bool changed = base.DrawMain(rect, locked, fullRect);
