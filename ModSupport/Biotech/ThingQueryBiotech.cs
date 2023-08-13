@@ -276,11 +276,11 @@ namespace TDFindLib_Biotech
 		public static IEnumerable<string> CustomXenotypes()
 		{
 			foreach (string xenot in ContentsUtility.AvailableInGame<string>(
-				t => (t as Pawn)?.genes?.xenotypeName 
+				t => (t as Pawn)?.genes?.xenotypeName
 				?? (t as Building_GeneAssembler)?.xenotypeName
 				?? (t as Xenogerm)?.xenotypeName))
 			{
-				if(xenot != "")
+				if (xenot != "")
 					yield return xenot;
 			}
 
@@ -351,7 +351,7 @@ namespace TDFindLib_Biotech
 
 		public enum GeneType { Either, Endogene, Xenogene }
 		public GeneType geneType;
-		public enum GeneHavingType { Active, Inactive, Has}
+		public enum GeneHavingType { Active, Inactive, Has }
 		public GeneHavingType haveType;
 
 
@@ -372,12 +372,19 @@ namespace TDFindLib_Biotech
 		}
 
 
+		public override string NullOption() => "None".Translate();
+
+		public override int ExtraOptionsCount => 1;
+		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
+
+
 		private static List<GeneSetHolderBase> _geneHolders = new();
 		public static List<GeneSetHolderBase> GetGeneholdersFrom(Thing thing, GeneType geneType = default)
 		{
 			// If not in a pawn, genes will be in a GeneSetHolderBase
 			_geneHolders.Clear();
 
+			// A genepack or xenogerm (or embryo but that case is handled earlier in Applies)
 			if (thing is GeneSetHolderBase holder)
 				_geneHolders.Add(holder);
 
@@ -389,7 +396,7 @@ namespace TDFindLib_Biotech
 				_geneHolders.AddRange(comp.ContainedGenepacks);
 			}
 
-			// Or an attached facility to a gene assembler
+			// Some genebanks may be an attached facility to a gene assembler
 			if (geneType != GeneType.Endogene &&
 				thing is Building_GeneAssembler geneAss)
 			{
@@ -400,47 +407,122 @@ namespace TDFindLib_Biotech
 		}
 		public override bool AppliesDirectly2(Thing thing)
 		{
+			// Check pawns genes, easy:
 			if (thing is Pawn pawn)
 			{
 				if (pawn.genes == null) return false;
 
-				if (geneType == GeneType.Xenogene && !pawn.genes.HasXenogene(sel))
-					return false;
-				if (geneType == GeneType.Endogene && !pawn.genes.HasEndogene(sel))
-					return false;
-
-				Gene gene = pawn.genes.GetGene(sel);
-				if (gene == null) return false;
-
-				return haveType switch
+				List<Gene> geneList = geneType switch
 				{
-					GeneHavingType.Active => gene.Active,
-					GeneHavingType.Inactive => !gene.Active,
-					_ => gene != null
+					GeneType.Xenogene => pawn.genes.Xenogenes,
+					GeneType.Endogene => pawn.genes.Endogenes,
+					_ => pawn.genes.GenesListForReading
 				};
+
+				Predicate<Gene> pawnGeneFilter = haveType switch
+				{
+					GeneHavingType.Active => g => g.Active,
+					GeneHavingType.Inactive => g => !g.Active,
+					_ => g => true
+				};
+
+				// Find if Any gene matches
+				if (extraOption == 1)
+					return geneList.Any(pawnGeneFilter);
+
+				// Find if no gene matches
+				// But, when searching active/inactive, don't report "Yes, you have no inactive genes"
+				// If you have genes at all.
+				if (sel == null)
+					return (haveType == GeneHavingType.Has || geneList.Any()) && !geneList.Any(pawnGeneFilter);
+
+				// find GeneDef sel
+				return geneList.Any(g => g.def == sel && pawnGeneFilter(g));
 			}
 
 
-			foreach (var geneHolder in GetGeneholdersFrom(thing, geneType))
+
+			// Bebe
+			if (thing is HumanEmbryo emb)
 			{
-				// babies have necesarilly only endogenes
-				if (geneType == GeneType.Xenogene && geneHolder is HumanEmbryo) 
-					continue;
-
-				// genepacks and xenogerms are the other GeneSetHolderBase types
-				// and are necessarily xenogenes as they are not people
-				if (geneType == GeneType.Endogene && geneHolder is not HumanEmbryo) 
-					continue;
-
-				if (!geneHolder.geneSet.genes.Contains(sel))
-					continue;
+				if (geneType == GeneType.Xenogene)
+					return false; // Xenogenes are N/A for bebe
 
 
-				if (haveType == GeneHavingType.Active ? !geneHolder.geneSet.IsOverridden(sel) :
-					haveType == GeneHavingType.Inactive ? geneHolder.geneSet.IsOverridden(sel) : true)
+				Predicate<GeneSetHolderBase, GeneDef> geneFilter = (holder, gene) =>
+				haveType switch
 				{
-					return true;
+					GeneHavingType.Active => !holder.geneSet.IsOverridden(gene),
+					GeneHavingType.Inactive => holder.geneSet.IsOverridden(gene),
+					_ => true
+				};
+
+				// Find if Any gene matches
+				if (extraOption == 1)
+					return emb.geneSet.genes.Any(geneDef => geneFilter(emb, geneDef));
+
+				// Find if any gene matches, and abort!
+				if (sel == null)
+					return !emb.geneSet.genes.Any(geneDef => geneFilter(emb, geneDef));
+
+				// Check for GeneDef sel
+				return emb.geneSet.genes.Contains(sel) && geneFilter(emb, sel);
+			}
+
+
+			// Remaining geneholders are Genepacks, Genebanks, Gene Assembers, Xenogenes
+			// All of which will be xenogenes as they are not people
+			if (geneType == GeneType.Endogene)
+				return false;
+
+			var holders = GetGeneholdersFrom(thing, geneType);
+
+			// No geneholders means skip this thing, it might be a wall or something
+			if (holders.Any())
+			{
+				// Copied from above hnnng
+				Predicate<GeneSetHolderBase, GeneDef> geneFilter = (holder, gene) =>
+				haveType switch
+				{
+					GeneHavingType.Active => !holder.geneSet.IsOverridden(gene),
+					GeneHavingType.Inactive => holder.geneSet.IsOverridden(gene),
+					_ => true
+				};
+
+				foreach (var geneHolder in holders)
+				{
+					if (extraOption == 1)
+					{
+						// Find if Any gene matches
+						if (geneHolder.geneSet.genes.Any(geneDef => geneFilter(geneHolder, geneDef)))
+							return true;
+					}
+					else if (sel == null)
+					{
+						// Find if any gene matches, and abort!
+						if (geneHolder.geneSet.genes.Any(geneDef => geneFilter(geneHolder, geneDef)))
+							return false;
+					}
+					else
+					{
+						// Check for GeneDef sel
+						if (geneHolder.geneSet.genes.Contains(sel) && geneFilter(geneHolder, sel))
+						{
+							return true;
+						}
+					}
 				}
+
+				// false: we don't have "any"
+				if (extraOption == 1)
+					return false;
+
+				// true: we have "none"
+				if (sel == null)
+					return true;
+
+				// false: we don't have "sel"
+				return false;
 			}
 
 
