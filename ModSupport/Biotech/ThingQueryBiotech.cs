@@ -531,6 +531,7 @@ namespace TDFindLib_Biotech
 
 		/*
 		 * So many genes are ingame that each category is used but each category is nearly empty.
+		 * 
 		public override IEnumerable<GeneDef> AvailableOptions() => 
 			ContentsUtility.AvailableInGame(thing =>
 				thing is Pawn pawn ? pawn.genes?.GenesListForReading.Select(g => g.def) :
@@ -547,5 +548,8 @@ namespace TDFindLib_Biotech
 
 			return changed;
 		}
+
+		public override Texture2D IconTexFor(GeneDef def) => def.Icon;
+		public override Color IconColorFor(GeneDef def) => def.IconColor;
 	}
 }
