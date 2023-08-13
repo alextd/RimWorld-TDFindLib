@@ -372,7 +372,32 @@ namespace TDFindLib_Biotech
 		}
 
 
-		private List<GeneSetHolderBase> _geneHolders = new();
+		private static List<GeneSetHolderBase> _geneHolders = new();
+		public static List<GeneSetHolderBase> GetGeneholdersFrom(Thing thing, GeneType geneType = default)
+		{
+			// If not in a pawn, genes will be in a GeneSetHolderBase
+			_geneHolders.Clear();
+
+			if (thing is GeneSetHolderBase holder)
+				_geneHolders.Add(holder);
+
+			// some GeneSetHolderBase might be contained in a genebank
+			if (geneType != GeneType.Endogene &&
+				thing.TryGetComp<CompGenepackContainer>() is CompGenepackContainer comp)
+			{
+				// gene bank, aka CompGenepackContainer
+				_geneHolders.AddRange(comp.ContainedGenepacks);
+			}
+
+			// Or an attached facility to a gene assembler
+			if (geneType != GeneType.Endogene &&
+				thing is Building_GeneAssembler geneAss)
+			{
+				_geneHolders.AddRange(geneAss.GetGenepacks(true, true));
+			}
+
+			return _geneHolders;
+		}
 		public override bool AppliesDirectly2(Thing thing)
 		{
 			if (thing is Pawn pawn)
@@ -395,29 +420,8 @@ namespace TDFindLib_Biotech
 				};
 			}
 
-			// If not in a pawn, it'll be in GeneSetHolderBase
-			_geneHolders.Clear();
 
-			if (thing is GeneSetHolderBase holder)
-				_geneHolders.Add(holder);
-
-			// some GeneSetHolderBase might be contained in a genebank
-			if (geneType != GeneType.Endogene &&
-				thing.TryGetComp<CompGenepackContainer>() is CompGenepackContainer comp)
-			{
-				// gene bank, aka CompGenepackContainer
-				_geneHolders.AddRange(comp.ContainedGenepacks);
-			}
-
-			// Or an attached facility to a gene assembler
-			if (geneType != GeneType.Endogene &&
-				thing is Building_GeneAssembler geneAss)
-			{
-				_geneHolders.AddRange(geneAss.GetGenepacks(true, true));
-			}
-
-			// Okay we got a lot of genes or contained/connected genes
-			foreach(var geneHolder in _geneHolders)
+			foreach (var geneHolder in GetGeneholdersFrom(thing, geneType))
 			{
 				// babies have necesarilly only endogenes
 				if (geneType == GeneType.Xenogene && geneHolder is HumanEmbryo) 
@@ -442,6 +446,14 @@ namespace TDFindLib_Biotech
 
 			return false;
 		}
+
+		/*
+		 * So many genes are ingame that each category is used but each category is nearly empty.
+		public override IEnumerable<GeneDef> AvailableOptions() => 
+			ContentsUtility.AvailableInGame(thing =>
+				thing is Pawn pawn ? pawn.genes?.GenesListForReading.Select(g => g.def) :
+				GetGeneholdersFrom(thing).SelectMany(holder => holder.GeneSet.genes));
+		*/
 
 
 		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
