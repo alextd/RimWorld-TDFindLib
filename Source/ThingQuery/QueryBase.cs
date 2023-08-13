@@ -294,13 +294,12 @@ namespace TD_Find_Lib
 				}
 
 				//Include/Exclude
-
-				if (iconRow.ButtonTextToggleBool(ref _include,
-					"TD.IncludeShort".Translate(),
-					"TD.ExcludeShort".Translate(),
+				if (iconRow.ButtonText(
+					include ? "TD.IncludeShort".Translate() : "TD.ExcludeShort".Translate(),
 					"TD.IncludeOrExcludeThingsMatchingThisQuery".Translate(),
-					fixedWidth: IncExcWidth))
+					fixedWidth : IncExcWidth))
 				{
+					include = !include;
 					changed = true;
 				}
 			}
