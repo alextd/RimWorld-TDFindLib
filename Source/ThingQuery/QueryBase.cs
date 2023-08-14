@@ -508,34 +508,35 @@ namespace TD_Find_Lib
 			}
 		}
 
-		//Okay, so, references.
-		//A simple query e.g. string search is usable everywhere.
-		//In-game, as an alert, in a saved search to load in, saved to file to load into another game, etc.
-		//ExposeData and Clone can just copy that string, because a string is the same everywhere.
-		//But a query that references in-game things can't be used universally.
-		//Queries can be saved outside a running world, so even things like defs might not exist when loaded with different mods.
-		//When such a query is run in-game, it does of course set 'sel' and reference it like normal
-		//But when such a query is saved, it cannot be bound to an instance or even an ILoadReferencable id
-		//So ExposeData saves and loads 'string selName' instead of the 'T sel'
-		//When editing that query when inactive, that's fine, sel isn't set but selName is - so selName should be readable.
-		//TODO: allow editing of selName: e.g. You can't add a "Stockpile Zone 1" query without that zone existing in-game.
+		//	Okay, so, references.
+		//	A simple query e.g. string search is usable everywhere.
+		//	In-game, as an alert, in a saved search to load in, saved to file to load into another game, etc.
+		//	ExposeData and Clone can just copy that string, because a string is the same everywhere.
+		//	But a query that references in-game things can't be used universally.
+		//	Queries can be saved outside a running world, so even things like defs might not exist when loaded with different mods.
+		//	When such a query is run in-game, it does of course set 'sel' and reference it like normal
+		//	But when such a query is saved, it cannot be bound to an instance or even an ILoadReferencable id
+		//	So ExposeData saves and loads 'string selName' instead of the 'T sel'
+		//	When lookng at that query when inactive, sel isn't set but selName is - so selName should be somewhat readable.
+		//	TODO: allow editing of selName: e.g. You can't add a "Stockpile Zone 1" query without that zone existing in-game.
 
-		//ThingQuerys have 3 levels of saving, sort of like ExposeData's 3 passes.
-		//Raw values can be saved/loaded by value easily in ExposeData.
-		//Then there's UsesResolveName, and UsesResolveRef, which both SaveLoadByName
-		//All SaveLoadByName queries are simply saved by a string name in ExposeData
-		// - So it can be loaded into another game
-		// - if that name cannot be resolved, the name is still kept instead of writing null
-		//For loading, there's two different times to load:
-		//Queries that UsesResolveName can be resolved after the game starts up (e.g. defs),
-		// - ResolveName is called from ExposeData, ResolvingCrossRefs
-		// - Queries that fail to resolve name are disabled until reset (at least, the DropDown subclasses)
-		//Queries that UsesResolveRef must be resolved in-game on a map (e.g. Zones, ILoadReferenceable, Factions)
-		// - Queries that are loaded and inactive do not call ResolveRef and only have selName set.
-		// - Queries need their refs resolved when a search is performed - e.g. when QuerySearch calls BindToMap()
-		// - BindToMap will remember it's bound to that map and not bother to re-bind
-		// - A Search that runs on multiple maps will bind to each map and resolve query refs dynamically.
-		// - This of course will produce error messages if those can't be resolved on all maps
+		//	ThingQuerys have 3 levels of saving, sort of like ExposeData's 3 passes though they only use one.
+		//	1. Raw values can be saved/loaded by value easily in ExposeData.
+		//	Then there's 2. UsesResolveName, and 3. UsesResolveRef (which both SaveLoadByName)
+		//	For saving, All SaveLoadByName queries are simply saved as their string selName in ExposeData
+		//	 - So it can be loaded into another game
+		//	 - if that name cannot be resolved when loading, the name is kept around and saved again instead of writing null
+		//	For loading, there's two different times to load:
+		//	Queries that UsesResolveName can be resolved after the game starts up (e.g. defs),
+		//	 - ResolveName is called from ExposeData, ResolvingCrossRefs
+		//	 - Queries that fail to resolve name are disabled until reset (at least, the DropDown subclasses)
+		//	Queries that UsesResolveRef must be resolved in-game on a map (e.g. Zones, ILoadReferenceable, Factions)
+		//	 - Queries that are loaded and inactive do not call ResolveRef and only have selName set.
+		//	 - Queries need their refs resolved when a search is performed - e.g. when QuerySearch calls BindToMap()
+		//	 - BindToMap will remember it's bound to that map and not bother to re-bind
+		//	 - A Search that runs on multiple maps will bind to each map and resolve query refs dynamically.
+		//	 - This of course will produce error messages if those can't be resolved on all maps
+		//	 - (Could be more granular: e.g. Resolve faction ref by game vs resolve zone ref by map, but not much to gain there)
 
 		protected readonly static bool IsDef = typeof(Def).IsAssignableFrom(typeof(T));
 		protected readonly static bool IsRef = typeof(ILoadReferenceable).IsAssignableFrom(typeof(T));
@@ -643,9 +644,9 @@ namespace TD_Find_Lib
 
 				if(_sel == null)
 				{
-					selectionError = "TD.Missing01".Translate(def.LabelCap, selName);
+					selectionError = "TD.Missing01".Translate(def.GetLabel(), selName);
 					selectionErrorCurMap = selectionError; // Sort of redundant to use "curmap" here but it does apply to whatever the current map is because it always applies
-					Verse.Log.Warning("TD.SearchTriedToLoad".Translate(RootHolder.Name, def.LabelCap, selName));
+					Verse.Log.Warning("TD.SearchTriedToLoad".Translate(RootHolder.Name, def.GetLabel(), selName));
 				}
 				else
 					selectionError = null;
