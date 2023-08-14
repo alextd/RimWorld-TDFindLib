@@ -227,12 +227,8 @@
 		<label>market value</label>
 		<queryDef>Query_Stat</queryDef>
 		<defaultValues>
-			<li>
-				<sel>MarketValue</sel>
-			</li>
-			<li>
-				<valueRange>1000~2000</valueRange>
-			</li>
+			<sel>MarketValue</sel>
+			<valueRange>1000~2000</valueRange>
 		</defaultValues>
 	</TD_Find_Lib.ThingQueryPreselectDef>
 	

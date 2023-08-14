@@ -36,25 +36,28 @@ namespace TD_Find_Lib
 		{
 			ThingQuery query = MakeQuery(preDef.queryDef);
 
-			foreach (var kvp in preDef.defaultValues)
-			{
-				if (DirectXmlToObject.GetFieldInfoForType(preDef.queryDef.queryClass, kvp.key, null) is FieldInfo field)
+			Log.Message($"Making Prequery {preDef}");
+			foreach ((string key, string value) in preDef.defaultValues.values)
+			{ 
+				//todo: store/save these Reflections calls for speed. meh.
+
+				Log.Message($" Setting {key} = {value}");
+				if (DirectXmlToObject.GetFieldInfoForType(preDef.queryDef.queryClass, key, null) is FieldInfo field)
 				{
-					object obj = ConvertHelper.Convert(kvp.value, field.FieldType);
+					object obj = ConvertHelper.Convert(value, field.FieldType);
 					field.SetValue(query, obj);
 					continue;
 				}
 
-				//todo: store/save these for speed. meh.
-				if (preDef.queryDef.queryClass.GetProperty(kvp.key, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.SetProperty) is PropertyInfo prop)
+				if (preDef.queryDef.queryClass.GetProperty(key, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.SetProperty) is PropertyInfo prop)
 				{
-					object obj = ConvertHelper.Convert(kvp.value, prop.PropertyType);
+					object obj = ConvertHelper.Convert(value, prop.PropertyType);
 					prop.SetMethod.Invoke(query, new object[] { obj });
 					continue;
 				}
 
 
-				Verse.Log.Error($"Couldn't find how to set {preDef.queryDef.queryClass}.{kvp.key}");
+				Verse.Log.Error($"ThingQueryPreselectDef '{preDef}' Couldn't find how to set {preDef.queryDef.queryClass}.{key}");
 			}
 
 			return query;

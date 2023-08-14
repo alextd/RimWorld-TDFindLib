@@ -25,29 +25,27 @@ namespace TD_Find_Lib
 
 	public class ThingQueryPreselectDef : ThingQuerySelectableDef
 	{
-		public class KVP {
-			public string key, value;
+		public class DefaultValues {
+			public List<(string, string)> values;
 
 			public void LoadDataFromXmlCustom(XmlNode xmlRoot)
 			{
-				//skip the <li>
-				xmlRoot = xmlRoot.FirstChild;
-				if (xmlRoot.ChildNodes.Count != 1)
-					Verse.Log.Error("Misconfigured ThingQueryPreselectDef: " + xmlRoot.OuterXml);
-				key = xmlRoot.Name;
-				value = xmlRoot.FirstChild.Value;
+				values = new();
+
+				foreach(XmlNode node in xmlRoot.ChildNodes)
+					values.Add((node.Name, node.FirstChild?.Value));
 			}
 		}
 
 		public ThingQueryDef queryDef;
-		public List<KVP> defaultValues = new();
+		public DefaultValues defaultValues = new();
 
 		public override IEnumerable<string> ConfigErrors()
 		{
 			if (queryDef == null)
 				yield return "ThingQueryPreselectDef needs queryDef set";
 
-			if(defaultValues.Count == 0)
+			if(defaultValues.values.Count == 0)
 				yield return "ThingQueryPreselectDef needs some defaultValues otherwise why was it set?";
 		}
 	}
