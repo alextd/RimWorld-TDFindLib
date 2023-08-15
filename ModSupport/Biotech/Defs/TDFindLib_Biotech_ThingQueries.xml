@@ -3,7 +3,7 @@
 
 	<!-- queries in order -->
 	<TD_Find_Lib.ThingQueryCategoryDef>
-		<mod>Ludeon.Rimworld.Biotech</mod>
+		<mod>Ludeon.RimWorld.Biotech</mod>
 		<defName>Category_Biotech</defName>
 		<label>biotech</label>
 		<insertCategory>Category_PawnProp</insertCategory>
@@ -26,21 +26,21 @@
 		<defName>Query_MechanitorBandwidth</defName>
 		<label>Mechanitor Bandwidth</label>
 		<queryClass>TDFindLib_Biotech.ThingQueryMechanitorBandwidth</queryClass>
-		<mod>Ludeon.Rimworld.Biotech</mod>
+		<mod>Ludeon.RimWorld.Biotech</mod>
 	</TD_Find_Lib.ThingQueryDef>
 	
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_MechOverseer</defName>
 		<label>Controlled mech/Overseer</label>
 		<queryClass>TDFindLib_Biotech.ThingQueryMechOverseer</queryClass>
-		<mod>Ludeon.Rimworld.Biotech</mod>
+		<mod>Ludeon.RimWorld.Biotech</mod>
 	</TD_Find_Lib.ThingQueryDef>
 
 	<TD_Find_Lib.ThingQueryPreselectDef>
 		<defName>Query_IsWorkMech</defName>
 		<label>is work mech</label>
 		<queryDef>Query_Def</queryDef>
-		<mod>Ludeon.Rimworld.Biotech</mod>
+		<mod>Ludeon.RimWorld.Biotech</mod>
 		<defaultValues>
 			<SelCat>Work Mechanoid</SelCat>
 		</defaultValues>
@@ -50,35 +50,35 @@
 		<defName>Query_MechWeightClass</defName>
 		<label>mechanoid weight class</label>
 		<queryClass>TDFindLib_Biotech.ThingQueryMechWeightClass</queryClass>
-		<mod>Ludeon.Rimworld.Biotech</mod>
+		<mod>Ludeon.RimWorld.Biotech</mod>
 	</TD_Find_Lib.ThingQueryDef>
 	
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_MechBandwidthCost</defName>
 		<label>mechanoid bandwidth cost</label>
 		<queryClass>TDFindLib_Biotech.ThingQueryMechBandwidthCost</queryClass>
-		<mod>Ludeon.Rimworld.Biotech</mod>
+		<mod>Ludeon.RimWorld.Biotech</mod>
 	</TD_Find_Lib.ThingQueryDef>
 	
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_MechWorkMode</defName>
 		<label>mechanoid work mode</label>
 		<queryClass>TDFindLib_Biotech.ThingQueryMechWorkMode</queryClass>
-		<mod>Ludeon.Rimworld.Biotech</mod>
+		<mod>Ludeon.RimWorld.Biotech</mod>
 	</TD_Find_Lib.ThingQueryDef>
 	
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_MechUncontrolled</defName>
 		<label>mechanoid uncontrolled</label>
 		<queryClass>TDFindLib_Biotech.ThingQueryMechFeral</queryClass>
-		<mod>Ludeon.Rimworld.Biotech</mod>
+		<mod>Ludeon.RimWorld.Biotech</mod>
 	</TD_Find_Lib.ThingQueryDef>
 
 	<TD_Find_Lib.ThingQueryPreselectDef>
 		<defName>Query_MechEnergy</defName>
 		<label>mech energy</label>
 		<queryDef>Query_Need</queryDef>
-		<mod>Ludeon.Rimworld.Biotech</mod>
+		<mod>Ludeon.RimWorld.Biotech</mod>
 		<defaultValues>
 			<sel>MechEnergy</sel>
 		</defaultValues>
@@ -90,14 +90,14 @@
 		<defName>Query_Xenotype</defName>
 		<label>xenotype</label>
 		<queryClass>TDFindLib_Biotech.ThingQueryXenotype</queryClass>
-		<mod>Ludeon.Rimworld.Biotech</mod>
+		<mod>Ludeon.RimWorld.Biotech</mod>
 	</TD_Find_Lib.ThingQueryDef>
 
 	<TD_Find_Lib.ThingQueryPreselectDef>
 		<defName>Query_Xenogerm</defName>
 		<label>has no xenogenes</label>
 		<queryDef>Query_Gene</queryDef>
-		<mod>Ludeon.Rimworld.Biotech</mod>
+		<mod>Ludeon.RimWorld.Biotech</mod>
 		<defaultValues>
 			<sel /><!--null for "no genes"-->
 			<geneType>Xenogene</geneType>
@@ -109,7 +109,7 @@
 		<defName>Query_Gene</defName>
 		<label>gene</label>
 		<queryClass>TDFindLib_Biotech.ThingQueryGene</queryClass>
-		<mod>Ludeon.Rimworld.Biotech</mod>
+		<mod>Ludeon.RimWorld.Biotech</mod>
 	</TD_Find_Lib.ThingQueryDef>
 
 </Defs>

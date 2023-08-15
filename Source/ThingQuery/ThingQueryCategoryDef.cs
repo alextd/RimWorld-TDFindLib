@@ -10,10 +10,10 @@ namespace TD_Find_Lib
 	//Both ThingQueryDef and ThingQueryCategoryDef extend ThingQuerySelectableDef, so they show up in the main list alongside each other in order of the xml
 	public abstract class ThingQuerySelectableDef : Def
 	{
-		public bool devOnly; //only shown in menu when godmode is on
-		public bool obsolete; //not shown in menus ; only kept for backcompat.
-		public string mod;	//lowercased even though it's capitalized in about.xml
-		public bool topLevelSelectable;// Even if it's in a category, show it in main menu too.
+		public bool devOnly; // Only shown in menu when godmode is on
+		public bool obsolete; // Not shown in menus ; only kept for backcompat.
+		public string mod; // Mod packageid from about.xml that this query works with
+		public bool topLevelSelectable; // Even if it's in a category, show it in main menu too.
 
 		// For modded Queries to use:
 		public ThingQueryCategoryDef insertCategory;
@@ -21,8 +21,11 @@ namespace TD_Find_Lib
 
 		public override void PostLoad()
 		{
-			mod = mod?.ToLower();
+			mod = mod?.ToLower(); // internal use is lowercased even though it's capitalized in about.xml
 		}
+
+		public bool Visible() => 
+			!obsolete && (DebugSettings.godMode || !devOnly);
 	}
 
 	// There are too many query subclasses to globally list them
@@ -31,9 +34,7 @@ namespace TD_Find_Lib
 	// subqueries pop up when the category is selected
 	public class ThingQueryCategoryDef : ThingQuerySelectableDef
 	{ 
-		public List<ThingQuerySelectableDef> subQueries = null;
-		public IEnumerable<ThingQuerySelectableDef> SubQueries =>
-			subQueries ?? Enumerable.Empty<ThingQuerySelectableDef>();
+		public List<ThingQuerySelectableDef> subQueries = new();
 
 		public override IEnumerable<string> ConfigErrors()
 		{

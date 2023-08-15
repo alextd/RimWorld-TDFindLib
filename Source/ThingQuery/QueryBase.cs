@@ -646,7 +646,7 @@ namespace TD_Find_Lib
 				{
 					selectionError = "TD.Missing01".Translate(def.GetLabel(), selName);
 					selectionErrorCurMap = selectionError; // Sort of redundant to use "curmap" here but it does apply to whatever the current map is because it always applies
-					Verse.Log.Warning("TD.SearchTriedToLoad".Translate(RootHolder.Name, def.GetLabel(), selName));
+					//Verse.Log.Warning("TD.SearchTriedToLoad".Translate(RootHolder.Name, def.GetLabel(), selName));
 				}
 				else
 					selectionError = null;

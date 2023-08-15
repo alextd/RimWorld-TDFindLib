@@ -551,6 +551,8 @@ namespace TDFindLib_Ideology
 	{
 		static ExpansionHider()
 		{
+			ThingQueryMaker.EnsureStaticInit();
+
 			if (!ModsConfig.IdeologyActive)
 				foreach (ThingQuerySelectableDef def in DefDatabase<ThingQuerySelectableDef>.AllDefsListForReading)
 					if (def.mod == ModContentPack.IdeologyModPackageId)

@@ -462,25 +462,47 @@ namespace TD_Find_Lib
 		public void DoFloatAllQueries(IEnumerable<ThingQuerySelectableDef> defs)
 		{
 			List<FloatMenuOption> options = new();
-			foreach (ThingQuerySelectableDef def in defs.Where(d => !d.obsolete && (DebugSettings.godMode || !d.devOnly)))
-			{
-				if (def is ThingQueryDef fDef)
-					options.Add(new FloatMenuOption(
-						fDef.LabelCap,
-						() => Add(ThingQueryMaker.MakeQuery(fDef), focus: true)
-					));
-				else if (def is ThingQueryPreselectDef pDef)
-					options.Add(new FloatMenuOption(
-						pDef.LabelCap,
-						() => Add(ThingQueryMaker.MakeQuery(pDef), focus: true)
-					));
-				else if (def is ThingQueryCategoryDef cDef)
-					options.Add(new FloatMenuOption(
-						"+ " + cDef.LabelCap,
-						() => DoFloatAllQueries(cDef.SubQueries)
-					));
-			}
+
+			foreach (ThingQuerySelectableDef def in defs.Where(d => d.Visible()))
+				if(FloatFor(def) is FloatMenuOption opt)
+					options.Add(opt);
+
 			Find.WindowStack.Add(new FloatMenu(options));
+		}
+
+		public FloatMenuOption FloatFor(ThingQuerySelectableDef def)
+		{
+			if (def is ThingQueryDef fDef)
+				return new FloatMenuOption(
+					fDef.LabelCap,
+					() => Add(ThingQueryMaker.MakeQuery(fDef), focus: true)
+				);
+			else if (def is ThingQueryPreselectDef pDef)
+				return new FloatMenuOption(
+					pDef.LabelCap,
+					() => Add(ThingQueryMaker.MakeQuery(pDef), focus: true)
+				);
+			else if (def is ThingQueryCategoryDef cDef)
+			{
+				int count = cDef.subQueries.Count(d => d.Visible());
+				if (count == 0)
+				{
+					return null; // whoops my mistake I'll let myself out (this gonna be mod category with no mods)
+				}
+				if (count == 1)
+				{
+					return FloatFor(cDef.subQueries.First());
+				}
+				else
+				{
+					return new FloatMenuOption(
+						"+ " + cDef.LabelCap,
+						() => DoFloatAllQueries(cDef.subQueries)
+					);
+				}
+			}
+
+			return null; //don't do this though
 		}
 
 

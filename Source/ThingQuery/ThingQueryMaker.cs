@@ -69,6 +69,7 @@ namespace TD_Find_Lib
 		// moddedQueiries was gonna be used to smart save them. But that never happened.
 		public static readonly List<ThingQueryDef> moddedQueries;
 
+		public static void EnsureStaticInit() { }
 		static ThingQueryMaker()
 		{
 			rootSelectableQueries = DefDatabase<ThingQuerySelectableDef>.AllDefs.ToList();
@@ -76,7 +77,7 @@ namespace TD_Find_Lib
 
 			// Remove any query that's in a subcategory from the main menu
 			foreach (var listDef in DefDatabase<ThingQueryCategoryDef>.AllDefs)
-				foreach (ThingQuerySelectableDef subDef in listDef.SubQueries)
+				foreach (ThingQuerySelectableDef subDef in listDef.subQueries)
 					if(!subDef.topLevelSelectable)
 						rootSelectableQueries.Remove(subDef);
 
@@ -117,11 +118,16 @@ namespace TD_Find_Lib
 						modMenu.AddRange(defs);
 					else
 					{
-						ThingQueryCategoryDef catMenuSelectable = new() { mod = packageId };
-						catMenuSelectable.label = LoadedModManager.RunningMods.FirstOrDefault(mod => mod.PackageId == packageId)?.Name ?? packageId;
-						catMenuSelectable.subQueries = new();
+						ThingQueryCategoryDef catMenuSelectable = new();
+						//catMenuSelectable.modContentPack = Other mods potentially, no big deal to omit this
+						catMenuSelectable.mod = packageId;
+						catMenuSelectable.label = ModLister.AllInstalledMods.FirstOrDefault(mod => mod.PackageId == packageId)?.Name ?? packageId;
 						catMenuSelectable.subQueries.AddRange(defs);
+
 						modMenu.Add(catMenuSelectable);
+
+						DefDatabase<ThingQuerySelectableDef>.Add(catMenuSelectable);
+						DefDatabase<ThingQueryCategoryDef>.Add(catMenuSelectable);// for good measure.
 					}
 				}
 

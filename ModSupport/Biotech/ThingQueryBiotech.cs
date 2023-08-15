@@ -197,7 +197,8 @@ namespace TDFindLib_Biotech
 
 		public ThingQueryXenotype() => sel = XenotypeDefOf.Baseliner;
 
-		public override int extraOption {
+		public override int extraOption
+		{
 			set
 			{
 				base.extraOption = value;
@@ -562,5 +563,21 @@ namespace TDFindLib_Biotech
 			.ThenBy((GeneDef x) => x.displayOrderInCategory)
 			.ToList();
 		public override IEnumerable<GeneDef> AllOptions() => _options;
+	}
+
+
+
+	[StaticConstructorOnStartup]
+	public static class ExpansionHider
+	{
+		static ExpansionHider()
+		{
+			ThingQueryMaker.EnsureStaticInit();
+
+			if (!ModsConfig.BiotechActive)
+				foreach (ThingQuerySelectableDef def in DefDatabase<ThingQuerySelectableDef>.AllDefsListForReading)
+					if (def.mod == ModContentPack.BiotechModPackageId)
+						def.devOnly = true;
+		}
 	}
 }

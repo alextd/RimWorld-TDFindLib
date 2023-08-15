@@ -3,7 +3,7 @@
 
 	<!-- queries in order -->
 	<TD_Find_Lib.ThingQueryCategoryDef>
-		<mod>Ludeon.Rimworld.Ideology</mod>
+		<mod>Ludeon.RimWorld.Ideology</mod>
 		<defName>Category_IdeoPawn</defName>
 		<label>ideoligion</label>
 		<insertCategory>Category_PawnProp</insertCategory>

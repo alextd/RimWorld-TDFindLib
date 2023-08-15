@@ -411,6 +411,8 @@ namespace TDFindLib_Royalty
 	{
 		static ExpansionHider()
 		{
+			ThingQueryMaker.EnsureStaticInit();
+
 			if (!ModsConfig.RoyaltyActive)
 				foreach (ThingQuerySelectableDef def in DefDatabase<ThingQuerySelectableDef>.AllDefsListForReading)
 					if (def.mod == ModContentPack.RoyaltyModPackageId)

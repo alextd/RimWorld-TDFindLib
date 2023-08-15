@@ -1039,7 +1039,7 @@ namespace TD_Find_Lib
 		}
 	}
 
-
+	[StaticConstructorOnStartup]
 	public class ThingQueryModded : ThingQueryDropDown<ModContentPack>
 	{
 		public ThingQueryModded()
@@ -1058,10 +1058,18 @@ namespace TD_Find_Lib
 		public override bool AppliesDirectlyTo(Thing thing) =>
 			sel == thing.ContentSource;
 
-		public override IEnumerable<ModContentPack> AllOptions() =>
-			LoadedModManager.RunningMods.Where(mod => mod.AllDefs.Any(d => d is ThingDef));
+		public static List<ModContentPack> _runningModsWithThings =
+			LoadedModManager.RunningMods.Where(mod => mod.AllDefs.Any(d => d is ThingDef)).ToList();
+		public override IEnumerable<ModContentPack> AllOptions() => _runningModsWithThings;
 
 		public override string NameFor(ModContentPack o) => o.Name;
+
+
+		static ThingQueryModded()
+		{
+			if (_runningModsWithThings.Count <= 1) //only core
+				ThingQueryDefOf.Query_Mod.devOnly = true;
+		}
 	}
 
 
