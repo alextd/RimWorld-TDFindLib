@@ -6,6 +6,42 @@
 	</HugsLib.UpdateFeatureDef>
 	
 	<HugsLib.UpdateFeatureDef ParentName="TDFindLibUpdateFeatureBase">
+		<defName>TDFindLib_1_2_0</defName>
+		<assemblyVersion>1.2.0</assemblyVersion>
+		<content>TD Find Library now has &lt;size=20&gt;&lt;b&gt;expansion filters&lt;/b&gt;&lt;/size&gt; AND MORE!
+		
+- &lt;b&gt;Royalty&lt;/b&gt;, including:
+-- Titles
+-- Permits
+-- Psyfocus
+
+- &lt;b&gt;Ideology&lt;/b&gt;, including:
+-- Precepts
+-- Styles
+-- Guaranlen tree 
+
+- &lt;b&gt;Biotech&lt;/b&gt;, including:
+-- Mechanitor details
+-- Xenotype
+-- Genes
+
+- Other filters:
+-- Abilities (e.g. on cooldown)
+-- Time to bleed out
+-- Accessible materials via smelting/surgery/etc
+-- Prisoner filter has new options
+-- Grouping can check if "Any 2+" of these filters match 
+-- Relation
+-- Schedule
+-- Reservation
+
+- Other junk:
+-- Icons for some filters, which look nice
+-- Some filters can match "Any" of an entire category so you can now check ANY bionic implant easier
+</content>
+	</HugsLib.UpdateFeatureDef>
+	
+	<HugsLib.UpdateFeatureDef ParentName="TDFindLibUpdateFeatureBase">
 		<defName>TDFindLib_1_1_0</defName>
 		<assemblyVersion>1.1.0</assemblyVersion>
 		<content>TD Find Library has many new filters since release!
