@@ -140,7 +140,7 @@
 
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Health</defName>
-		<label>health</label>
+		<label>health condition</label>
 		<queryClass>TD_Find_Lib.ThingQueryHealth</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 
