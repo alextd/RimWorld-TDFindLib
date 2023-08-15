@@ -78,7 +78,7 @@ namespace TD_Find_Lib
 			// Remove any query that's in a subcategory from the main menu
 			foreach (var listDef in DefDatabase<ThingQueryCategoryDef>.AllDefs)
 				foreach (ThingQuerySelectableDef subDef in listDef.subQueries)
-					if(!subDef.topLevelSelectable)
+					if (!subDef.topLevelSelectable)
 						rootSelectableQueries.Remove(subDef);
 
 
@@ -86,10 +86,27 @@ namespace TD_Find_Lib
 			var basePack = LoadedModManager.GetMod<Mod>().Content;
 			List<ThingQuerySelectableDef> moddedSelections = rootSelectableQueries.FindAll(
 				def => def.modContentPack != basePack || def.mod != null);
-			moddedQueries = moddedSelections.Where(tq => tq is ThingQueryDef).Cast<ThingQueryDef>().ToList();
 
-//			TODO:
-//			moddedQueries = moddedSelections.Where(def => def is ThingQueryDef && def.modContentPack != basePack).Cast<ThingQueryDef>().ToList();
+
+			// Queries that depend on other mods (not expansions that are included here)
+			bool FromMod(ThingQuerySelectableDef sDef)
+			{
+				// if (sDef is not ThingQueryDef qDef) return false;
+
+				// Eventually someone will make a mod that defines a ThingQueryDef
+				if (sDef.modContentPack != basePack) return true;
+
+				// Until then, queries that depend on mods are defined with the string mod field
+				if(sDef.mod != null)
+				{
+					// But skip expansions: their code is in vanilla DLL, whether installed or not
+					// (They might not load into a game because of missing defs, but at least they can be saved to library)
+					return !ModContentPack.ProductPackageIDs.Contains(sDef.mod);
+				}
+
+				return false;
+			}
+			moddedQueries = moddedSelections.Where(FromMod).Cast<ThingQueryDef>().ToList();
 
 
 			// Remove the mod category if there's no modded filters
