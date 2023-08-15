@@ -516,7 +516,7 @@ namespace TDFindLib_Ideology
 				//				case GuaranlenFilterType.Connection:
 				//					break;
 				case GuaranlenFilterType.Mode:
-					Scribe_Values.Look(ref modeDef, "modeDef");
+					Scribe_Defs.Look(ref modeDef, "modeDef");
 					break;
 				case GuaranlenFilterType.Strength:
 				case GuaranlenFilterType.StrengthDesired:
