@@ -49,6 +49,32 @@ namespace TD_Find_Lib
 			return target;
 		}
 
+		public static List<T> LoadListFromString<T>(string xmlText, params object[] ctorArgs) where T : IExposable
+		{
+			List<T> target = default;
+			try
+			{
+				// the first <tag> is just passed over . . . so no need to pass in string tag to LoadFromString.
+				InitLoadingFromString(xmlText);
+				try
+				{
+					// name "saveable" from ScribeSaver.DebugOutputFor
+					// They didn't bother to write a ScribeLoader.DebugInputFrom!
+					Scribe_Collections.Look(ref target, "saveable", default, ctorArgs);
+				}
+				finally
+				{
+					Scribe.loader.FinalizeLoading();
+				}
+			}
+			catch (Exception ex)
+			{
+				Verse.Log.Warning($"Caught exception while loading XML string {xmlText}. The exception was: {ex.ToString()}");
+				target = default;
+			}
+			return target;
+		}
+
 		//ScribeLoader.InitLoading but with xml string instead of reading a file
 		public static void InitLoadingFromString(string xmlText)
 		{

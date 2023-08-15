@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 using System.Linq;
 using System.IO;
 using Verse;
@@ -19,18 +21,18 @@ namespace TD_Find_Lib
 
 				if (settings.firstUse)
 				{
-					SearchGroup group =
-						ScribeXmlFromString.LoadFromString<SearchGroup>(
+					List<SearchGroup> groups =
+						ScribeXmlFromString.LoadListFromString<SearchGroup>(
 							File.ReadAllText(
 								GenFile.ResolveCaseInsensitiveFilePath(
 									Content.ModMetaData.RootDir.FullName + Path.DirectorySeparatorChar + "About", "DefaultSearches.xml")),
 							null, null);
 
-					if (group != null)
+					if (groups != null)
 					{
 						settings.firstUse = false;
-
-						settings.Add(group);
+						foreach(var group in groups)
+							settings.Add(group);
 						settings.Write();
 					}
 				}
