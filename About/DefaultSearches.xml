@@ -683,15 +683,8 @@
 			<listType>Plants</listType>
 			<searchMaps />
 			<queries>
-				<li Class="TD_Find_Lib.ThingQueryNearby">
-					<def>Query_Nearby</def>
-					<queries>
-						<li Class="TD_Find_Lib.ThingQueryThingDef">
-							<def>Query_Def</def>
-							<refName>Blight</refName>
-						</li>
-					</queries>
-					<matchAllQueries>False</matchAllQueries>
+				<li Class="TD_Find_Lib.ThingQueryPlantBlighted">
+					<def>Query_Blighted</def>
 				</li>
 			</queries>
 			<matchAllQueries>True</matchAllQueries>

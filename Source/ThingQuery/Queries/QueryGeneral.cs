@@ -441,6 +441,12 @@ namespace TD_Find_Lib
 			thing is Plant plant && (plant.def.plant?.dieIfLeafless ?? false);
 	}
 
+	public class ThingQueryPlantBlighted : ThingQuery
+	{
+		public override bool AppliesDirectlyTo(Thing thing) =>
+			thing is Plant plant && plant.Blighted;
+	}
+
 	public class ThingQueryFaction : ThingQueryDropDown<FactionRelationKind>
 	{
 		public bool host; // compare host faction instead of thing's faction

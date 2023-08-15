@@ -467,6 +467,7 @@
 			<li>Query_Freshness</li>
 			<li>Query_TimeToRot</li>
 			<li>Query_Crop</li>
+			<li>Query_Blighted</li>
 			<li>Query_DiesLeafless</li>
 		</subQueries>
 	</TD_Find_Lib.ThingQueryCategoryDef>
@@ -517,6 +518,12 @@
 		<defName>Query_DiesLeafless</defName>
 		<label>dies to cold</label>
 		<queryClass>TD_Find_Lib.ThingQueryPlantDies</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Blighted</defName>
+		<label>blighted</label>
+		<queryClass>TD_Find_Lib.ThingQueryPlantBlighted</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 
 
