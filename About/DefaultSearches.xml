@@ -1,4 +1,4 @@
-<dummyTagdurdur>
+<List_TD_Find_Lib.SearchGroup>
 <saveable>
 <li>
 	<name>Sample Searches</name>
@@ -197,6 +197,23 @@
 				<li Class="TD_Find_Lib.ThingQueryArea">
 					<def>Query_Area</def>
 					<ex>1</ex>
+				</li>
+			</queries>
+			<matchAllQueries>True</matchAllQueries>
+		</li>
+		<li>
+			<name>Enemy Gear</name>
+			<listType>Inventory</listType>
+			<searchMaps />
+			<queries>
+				<li Class="TD_Find_Lib.ThingQueryInventory">
+					<def>Query_Inventory</def>
+					<queries>
+						<li Class="TD_Find_Lib.ThingQueryFaction">
+							<def>Query_Faction</def>
+						</li>
+					</queries>
+					<matchAllQueries>False</matchAllQueries>
 				</li>
 			</queries>
 			<matchAllQueries>True</matchAllQueries>
@@ -936,7 +953,79 @@
 			</queries>
 			<matchAllQueries>True</matchAllQueries>
 		</li>
+		<li>
+			<name>Guarenlen low</name>
+			<listType>Selectable</listType>
+			<searchMaps />
+			<queries>
+				<li Class="TD_Find_Lib.ThingQueryAndOrGroup">
+					<def>Query_AndOrGroup</def>
+					<queries>
+						<li Class="TDFindLib_Ideology.ThingQueryGuaranlen">
+							<def>Query_Guaranlen</def>
+							<sel>CurDryads</sel>
+							<numDryads>4~4</numDryads>
+						</li>
+						<li Class="TDFindLib_Ideology.ThingQueryGuaranlen">
+							<def>Query_Guaranlen</def>
+							<sel>Strength</sel>
+							<strength>0~0.7692308</strength>
+						</li>
+					</queries>
+					<matchAllQueries>True</matchAllQueries>
+				</li>
+				<li Class="TD_Find_Lib.ThingQueryAndOrGroup">
+					<def>Query_AndOrGroup</def>
+					<queries>
+						<li Class="TDFindLib_Ideology.ThingQueryGuaranlen">
+							<def>Query_Guaranlen</def>
+							<sel>CurDryads</sel>
+							<numDryads>3~4</numDryads>
+						</li>
+						<li Class="TDFindLib_Ideology.ThingQueryGuaranlen">
+							<def>Query_Guaranlen</def>
+							<sel>Strength</sel>
+							<strength>0~0.5192308</strength>
+						</li>
+					</queries>
+					<matchAllQueries>True</matchAllQueries>
+				</li>
+				<li Class="TD_Find_Lib.ThingQueryAndOrGroup">
+					<def>Query_AndOrGroup</def>
+					<queries>
+						<li Class="TDFindLib_Ideology.ThingQueryGuaranlen">
+							<def>Query_Guaranlen</def>
+							<sel>CurDryads</sel>
+							<numDryads>2~4</numDryads>
+						</li>
+						<li Class="TDFindLib_Ideology.ThingQueryGuaranlen">
+							<def>Query_Guaranlen</def>
+							<sel>Strength</sel>
+							<strength>0~0.2692308</strength>
+						</li>
+					</queries>
+					<matchAllQueries>True</matchAllQueries>
+				</li>
+			</queries>
+			<matchAllQueries>False</matchAllQueries>
+		</li>
+		<li>
+			<name>To Convert</name>
+			<listType>Everyone</listType>
+			<searchMaps />
+			<queries>
+				<li Class="TD_Find_Lib.ThingQueryFaction">
+					<def>Query_Faction</def>
+					<ex>1</ex>
+				</li>
+				<li Class="TDFindLib_Ideology.ThingQueryIdeoligion">
+					<def>Query_Ideoligion</def>
+					<ex>2</ex>
+				</li>
+			</queries>
+			<matchAllQueries>True</matchAllQueries>
+		</li>
 	</searches>
 </li>
 </saveable>
-</dummyTagdurdur>
+</List_TD_Find_Lib.SearchGroup>
