@@ -503,7 +503,16 @@ namespace TD_Find_Lib
 				return "TD.Addiction".Translate();
 
 			if (typeof(Hediff_Implant).IsAssignableFrom(def.hediffClass))
+			{
+				ThingDef removedThing = def.spawnThingOnRemoved;
+				if(removedThing?.FirstThingCategory is ThingCategoryDef catDef 
+					&& catDef != ThingCategoryDefOf.ResourcesRaw)
+				{
+					return "TD.Implant".Translate() + " (" + catDef.LabelCap + ")";
+				}
+
 				return "TD.Implant".Translate();
+			}
 
 			if (typeof(Hediff_Injury).IsAssignableFrom(def.hediffClass))
 				return "TD.Injury".Translate();
@@ -521,7 +530,6 @@ namespace TD_Find_Lib
 
 			return "TD.OtherCategory".Translate();
 		}
-
 	}
 
 	public class ThingQueryHealth : ThingQueryCategorizedDropdown<HediffDef, string, ThingQueryHealth, ThingQueryHealthCategory>
