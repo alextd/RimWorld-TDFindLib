@@ -23,13 +23,10 @@ namespace TD_Find_Lib
 				{
 					List<SearchGroup> groups = DefaultSearches.CopyLibrary;
 
-					if (groups != null)
-					{
-						settings.firstUse = false;
-						foreach(var group in groups)
-							settings.Add(group);
-						settings.Write();
-					}
+					settings.firstUse = false;
+					foreach(var group in groups)
+						settings.Add(group);
+					settings.Write();
 				}
 
 				if (!settings.warnedAnyNull)
