@@ -500,21 +500,21 @@ namespace TD_Find_Lib
 //				return "Basic";
 
 			if (typeof(Hediff_Addiction).IsAssignableFrom(def.hediffClass))
-				return "Addiction";
+				return "TD.Addiction".Translate();
 
 			if (typeof(Hediff_Implant).IsAssignableFrom(def.hediffClass))
-				return "Implant";
+				return "TD.Implant".Translate();
 
 			if (typeof(Hediff_Injury).IsAssignableFrom(def.hediffClass))
-				return "Injury";
+				return "TD.Injury".Translate();
 
 			if (typeof(Hediff_High).IsAssignableFrom(def.hediffClass))
-				return "High";
+				return "TD.High".Translate();
 
 			if (def.comps != null 
 				&& def.comps.Any(compProp => compProp is HediffCompProperties_Immunizable)
 				&& def.comps.Any(compProp => compProp is HediffCompProperties_TendDuration))
-				return "Sickness";	// Tend till immune Seems a reliable definition of sickness
+				return "TD.Sickness".Translate();	// Tend till immune Seems a reliable definition of sickness
 
 			if(!def.modContentPack.IsCoreMod)
 				return def.modContentPack.Name;

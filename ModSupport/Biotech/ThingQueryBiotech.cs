@@ -99,7 +99,7 @@ namespace TDFindLib_Biotech
 			if (!overseer)
 				changed |= row.ButtonTextToggleBool(ref allMechs, "TD.AllOptions".Translate(), "TD.AnyOption".Translate());
 
-			changed |= row.ButtonTextToggleBool(ref overseer, "Mech's overseer", "Mechanitor's mechs");
+			changed |= row.ButtonTextToggleBool(ref overseer, "TD.MechsOverseer".Translate(), "TD.MechanitorsMechs".Translate());
 
 
 			row.Label("TD.Matches".Translate());
@@ -268,7 +268,7 @@ namespace TDFindLib_Biotech
 		public override string NameForExtra(int ex) =>
 			ex switch
 			{
-				1 => "Any Common",
+				1 => "TD.AnyCommon".Translate(),
 				2 => "Unique".Translate().CapitalizeFirst(),
 				3 => "Hybrid".Translate().CapitalizeFirst(),
 				_ => "Custom".Translate().CapitalizeFirst()
@@ -373,10 +373,10 @@ namespace TDFindLib_Biotech
 		}
 
 
-		public override string NullOption() => "No gene";
+		public override string NullOption() => "TD.NoGene".Translate();
 
 		public override int ExtraOptionsCount => 1;
-		public override string NameForExtra(int ex) => "Any gene";
+		public override string NameForExtra(int ex) => "TD.AnyGene".Translate();
 
 
 		private static List<GeneSetHolderBase> _geneHolders = new();
@@ -543,10 +543,10 @@ namespace TDFindLib_Biotech
 		protected override float RowGap => 0;
 		public override bool DrawCustom(Rect fullRect)
 		{
-			row.Label("is");
+			row.Label("TD.Is".Translate());
 			row.Gap(RowGap);
 			RowButtonFloatMenuEnum(haveType, newValue => haveType = newValue);
-			row.Label("as");
+			row.Label("TD.As".Translate());
 			row.Gap(RowGap);
 			RowButtonFloatMenuEnum(geneType, newValue => geneType = newValue);
 

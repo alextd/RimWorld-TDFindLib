@@ -160,5 +160,20 @@
 	<TD.Chronological>Chronological</TD.Chronological>
 	<TD.Biological>Biological</TD.Biological>
 	
-
+	<TD.MechsOverseer>Mech's overseer</TD.MechsOverseer>
+	<TD.MechanitorsMechs>Mechanitor's mechs</TD.MechanitorsMechs>
+	<TD.AnyCommon>Any Common</TD.AnyCommon>
+	<TD.NoGene>No gene</TD.NoGene>
+	<TD.AnyGene>Any gene</TD.AnyGene>
+	<TD.Is>is</TD.Is>
+	<TD.As>as</TD.As>
+	<TD.WorkMechanoid>Work Mechanoid</TD.WorkMechanoid>
+	<TD.ReserverMatches>Reserver matches</TD.ReserverMatches>
+	<TD.IsReserved>Is Reserved</TD.IsReserved>
+	<TD.Addiction>Addiction</TD.Addiction>
+	<TD.Implant>Implant</TD.Implant>
+	<TD.Injury>Injury</TD.Injury>
+	<TD.High>High</TD.High>
+	<TD.Sickness>Sickness</TD.Sickness>
+	
 </LanguageData>

@@ -952,7 +952,7 @@ namespace TD_Find_Lib
 				if (def.race?.FleshType == FleshTypeDefOf.Mechanoid)
 				{
 					if(def.race.IsWorkMech)
-						return "Work Mechanoid";
+						return "TD.WorkMechanoid".Translate();
 					else
 						return "MechsSection".Translate();
 				}
@@ -1355,7 +1355,7 @@ namespace TD_Find_Lib
 		{
 			row.Label(Label); // "Reservation"
 
-			bool changed = row.ButtonTextToggleBool(ref checkReserver, "Reserver matches", "Is Reserved"); // "Is Reservered" / "Reserver matches"
+			bool changed = row.ButtonTextToggleBool(ref checkReserver, "TD.ReserverMatches".Translate(), "TD.IsReserved".Translate()); // "Is Reservered" / "Reserver matches"
 
 			if (!checkReserver)
 				return changed;

@@ -19,7 +19,7 @@ namespace TD_Find_Lib
 		public override IEnumerable<string> ConfigErrors()
 		{
 			if (queryClass == null)
-				yield return "ThingQueryDef needs queryClass set";
+				yield return "ThingQueryDef needs queryClass set";//notranslate
 		}
 	}
 
@@ -43,10 +43,10 @@ namespace TD_Find_Lib
 		public override IEnumerable<string> ConfigErrors()
 		{
 			if (queryDef == null)
-				yield return "ThingQueryPreselectDef needs queryDef set";
+				yield return "ThingQueryPreselectDef needs queryDef set";//notranslate
 
-			if(defaultValues.values.Count == 0)
-				yield return "ThingQueryPreselectDef needs some defaultValues otherwise why was it set?";
+			if (defaultValues.values.Count == 0)
+				yield return "ThingQueryPreselectDef needs some defaultValues otherwise why was it set?";//notranslate
 		}
 	}
 
