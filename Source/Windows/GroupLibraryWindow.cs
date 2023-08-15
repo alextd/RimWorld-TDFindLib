@@ -74,6 +74,7 @@ namespace TD_Find_Lib
 		private float scrollViewHeight;
 		private int reorderID;
 		private float reorderRectHeight;
+		const float GapBetweenGroups = 4;
 
 		public override void DoWindowContents(Rect fillRect)
 		{
@@ -122,7 +123,7 @@ namespace TD_Find_Lib
 
 			// Add new group
 
-			listing.Gap(4);
+			listing.Gap(GapBetweenGroups);
 			Rect newGroupRect = listing.GetRect(Text.LineHeight);
 			if (!ReorderableWidget.Dragging)
 			{
@@ -165,7 +166,7 @@ namespace TD_Find_Lib
 
 
 				//Label
-				newGroupRow.Gap(4);
+				newGroupRow.Gap(GapBetweenGroups);
 				newGroupRow.Label("TD.AddNewGroup".Translate(), height: Text.LineHeight);
 				Text.Font = GameFont.Small;
 			}
@@ -174,13 +175,14 @@ namespace TD_Find_Lib
 			// Active searches, possibly from mods
 			if (refreshDrawer?.Count > 0)
 			{
-				listing.Gap(4);
+				listing.Gap(GapBetweenGroups);
 
 				listing.GapLine();
 				refreshDrawer?.DrawQuerySearchList(listing);
 			}
 
 			listing.EndScrollView(ref scrollViewHeight);
+			scrollViewHeight += GapBetweenGroups;
 		}
 
 
