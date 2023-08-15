@@ -191,6 +191,8 @@ namespace TDFindLib_Ideology
 			base.AllOptions().Where(p => p.visible && p.preceptClass == typeof(Precept));
 	}
 
+
+	// Yap I sure planned to use this abstract class more
 	public abstract class ThingQueryPreceptOther<T> : ThingQueryDropDown<PreceptDef> where T : Precept
 	{
 		public override bool AppliesDirectlyTo(Thing thing)
@@ -382,7 +384,8 @@ namespace TDFindLib_Ideology
 		}
 	}
 
-	//Check if item is noble to player ideo ; or held pawn's ideo. ; or pawn's held weapon
+	// Check if item is noble to player ideo ; or held pawn's ideo. ; or pawn's held weapon
+	// Precept_Weapon
 	public class ThingQueryWeaponDisposition : ThingQueryDropDown<IdeoWeaponDisposition>
 	{
 		public ThingQueryWeaponDisposition() => sel = IdeoWeaponDisposition.Noble;
@@ -414,6 +417,7 @@ namespace TDFindLib_Ideology
 			base.NameFor(o).CapitalizeFirst();
 	}
 
+	// Precept_Animal
 	public class ThingQueryVeneratedAnimal : ThingQueryIdeoligion // conveniently same options but different filter
 	{
 		public override bool AppliesDirectlyTo(Thing thing)
@@ -437,6 +441,54 @@ namespace TDFindLib_Ideology
 
 		public override string NameForExtra(int ex) =>
 			ex == 1 ? "TD.OwnersIdeoligion".Translate() : "TD.PlayersIdeoligion".Translate();
+	}
+
+
+	// Precept_Xenotype
+	public enum IdeoXenotypeFilterType { Preferred, Disliked, NoOpinion }
+	public class ThingQueryIdeoXenotype : ThingQueryIdeoligion // conveniently same options but different filter
+	{
+		public IdeoXenotypeFilterType filterType;
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null) return false;
+
+			if (pawn.genes == null) return false;
+
+			// Which ideo this checks for
+			Ideo ideo = sel;
+
+			if (extraOption == 1)
+				ideo = pawn.Ideo;
+
+			if (extraOption == 2)
+				ideo = Faction.OfPlayer.ideos.PrimaryIdeo;
+
+			if (ideo == null) return false;
+
+			// The logic here is messing with me hnnng
+			if (ideo.PreferredXenotypes.Count == 0
+					&& ideo.PreferredCustomXenotypes.Count == 0)
+				return filterType == IdeoXenotypeFilterType.NoOpinion;
+
+			if (filterType == IdeoXenotypeFilterType.NoOpinion)
+				return false;
+
+			return (filterType == IdeoXenotypeFilterType.Preferred) == ideo.IsPreferredXenotype(pawn);
+		}
+
+		public override string NameForExtra(int ex) =>
+			ex == 1 ? "TD.PersonsIdeoligion".Translate() : "TD.PlayersIdeoligion".Translate();
+
+		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		{
+			bool changed = base.DrawMain(rect, locked, fullRect);
+
+			RowButtonFloatMenuEnum(filterType, newValue => filterType = newValue);
+
+			return changed;
+		}
 	}
 
 
@@ -557,6 +609,9 @@ namespace TDFindLib_Ideology
 				foreach (ThingQuerySelectableDef def in DefDatabase<ThingQuerySelectableDef>.AllDefsListForReading)
 					if (def.mod == ModContentPack.IdeologyModPackageId)
 						def.devOnly = true;
+
+			if (!ModsConfig.BiotechActive)
+				DefDatabase<ThingQuerySelectableDef>.GetNamed("Query_IdeoXenotype").devOnly = true;
 		}
 	}
 }

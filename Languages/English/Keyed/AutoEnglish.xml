@@ -147,6 +147,7 @@
 	
 	<TD.PlayersIdeoligion>Player's Ideoligion</TD.PlayersIdeoligion>
 	<TD.OtherIdeoligion>Other Ideoligion</TD.OtherIdeoligion>
+	<TD.PersonsIdeoligion>Their Ideoligion</TD.PersonsIdeoligion>
 	<TD.CanBe>Can Be</TD.CanBe>
 	<TD.HasRole>Has Role</TD.HasRole>
 	<TD.WantsApparelForRole>Wants apparel for role</TD.WantsApparelForRole>
@@ -159,4 +160,5 @@
 	<TD.Chronological>Chronological</TD.Chronological>
 	<TD.Biological>Biological</TD.Biological>
 	
+
 </LanguageData>
