@@ -97,7 +97,8 @@ namespace TD_Find_Lib
 		public bool warnedModdedFilterLibrary = false;
 		public override void ExposeData()
 		{
-			if(Scribe.mode == LoadSaveMode.Saving && !warnedModdedFilterLibrary)
+			if(Find.WindowStack != null &&
+				Scribe.mode == LoadSaveMode.Saving && !warnedModdedFilterLibrary)
 			{
 				if (searchGroups.Any(sg => sg.Any(qs => qs.Children.Any(tq => ThingQueryMaker.moddedQueries.Contains(tq.def)))))
 				{
