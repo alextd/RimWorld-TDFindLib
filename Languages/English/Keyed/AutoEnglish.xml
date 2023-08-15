@@ -74,6 +74,8 @@
 	<TD.ExportSearchTo>Export search to...</TD.ExportSearchTo>
 	<TD.ImportGroupFrom>Import group from...</TD.ImportGroupFrom>
 	<TD.ExportGroupTo>Export group to...</TD.ExportGroupTo>
+	<TD.ImportLibraryFrom>Import library from...</TD.ImportLibraryFrom>
+	<TD.ExportLibraryTo>Export library to...</TD.ExportLibraryTo>
 	<TD.CopyToClipboard>Copy to clipboard</TD.CopyToClipboard>
 	<TD.PasteFromClipboard>Paste from clipboard</TD.PasteFromClipboard>
 	<TD.AND>AND</TD.AND>

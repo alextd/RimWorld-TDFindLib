@@ -13,6 +13,7 @@ namespace TD_Find_Lib
 	{
 		public static List<ISearchReceiver> receivers = new();
 		public static List<ISearchGroupReceiver> groupReceivers = new();
+		public static List<ISearchLibraryReceiver> libraryReceivers = new();
 		public static List<ISearchProvider> providers = new();
 		//providers work overtime, providing none/single/list/group-of-lists
 
@@ -28,6 +29,8 @@ namespace TD_Find_Lib
 				receivers.Add(receiver);
 			if (obj is ISearchGroupReceiver greceiver)
 				groupReceivers.Add(greceiver);
+			if (obj is ISearchLibraryReceiver lreceiver)
+				libraryReceivers.Add(lreceiver);
 			if (obj is ISearchProvider provider)
 				providers.Add(provider);
 		}
@@ -35,6 +38,7 @@ namespace TD_Find_Lib
 		{
 			receivers.Remove(obj as ISearchReceiver);
 			groupReceivers.Remove(obj as ISearchGroupReceiver);
+			libraryReceivers.Remove(obj as ISearchLibraryReceiver);
 			providers.Remove(obj as ISearchProvider);
 		}
 	}
@@ -44,7 +48,7 @@ namespace TD_Find_Lib
 	// You can import from a provider
 	public interface ISearchProvider
 	{
-		public enum Method { None, Single, Selection, Grouping }
+		public enum Method { None, Single, Group, Library }
 
 		public string Source { get; }
 		public string ProvideName { get; }
@@ -73,9 +77,18 @@ namespace TD_Find_Lib
 		public void Receive(SearchGroup search);
 	}
 
+	public interface ISearchLibraryReceiver
+	{
+		public string Source { get; }
+		public string ReceiveName { get; }
+		public QuerySearch.CloneArgs CloneArgs { get; }
+		public bool CanReceive();
+		public void Receive(List<SearchGroup> search);
+	}
+
 
 	[StaticConstructorOnStartup]
-	public class ClipboardTransfer : ISearchReceiver, ISearchProvider, ISearchGroupReceiver
+	public class ClipboardTransfer : ISearchReceiver, ISearchProvider, ISearchGroupReceiver, ISearchLibraryReceiver
 	{
 		static ClipboardTransfer()
 		{
@@ -102,12 +115,18 @@ namespace TD_Find_Lib
 			GUIUtility.systemCopyBuffer = ScribeXmlFromString.SaveAsString(group);
 		}
 
+		public void Receive(List<SearchGroup> library)
+		{
+			GUIUtility.systemCopyBuffer = ScribeXmlFromString.SaveListAsString(library);
+		}
+
 
 		public ISearchProvider.Method ProvideMethod()
 		{
 			string clipboard = GUIUtility.systemCopyBuffer;
 			return ScribeXmlFromString.IsValid<QuerySearch>(clipboard) ? ISearchProvider.Method.Single
-				: ScribeXmlFromString.IsValid<SearchGroup>(clipboard) ? ISearchProvider.Method.Selection
+				: ScribeXmlFromString.IsValid<SearchGroup>(clipboard) ? ISearchProvider.Method.Group
+				: ScribeXmlFromString.IsValidList<SearchGroup>(clipboard) ? ISearchProvider.Method.Library
 				: ISearchProvider.Method.None;
 		}
 
@@ -123,6 +142,10 @@ namespace TD_Find_Lib
 			return ScribeXmlFromString.LoadFromString<SearchGroup>(clipboard, null, null);
 		}
 
-		public List<SearchGroup> ProvideLibrary() => null;
+		public List<SearchGroup> ProvideLibrary()
+		{
+			string clipboard = GUIUtility.systemCopyBuffer;
+			return ScribeXmlFromString.LoadListFromString<SearchGroup>(clipboard, null, null);
+		}
 	}
 }

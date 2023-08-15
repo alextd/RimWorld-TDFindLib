@@ -78,12 +78,19 @@ namespace TD_Find_Lib
 
 		public override void DoWindowContents(Rect fillRect)
 		{
+			// Title
 			Text.Font = GameFont.Medium;
 			Text.Anchor = TextAnchor.UpperCenter;
 			Rect titleRect = fillRect.TopPartPixels(Text.LineHeight).AtZero();
 			Widgets.Label(titleRect, "TD.TDFindLibSearchLibrary".Translate());
 			Text.Anchor = default;
 
+
+			// Import/export library
+			WidgetRow iconRow = new(titleRect.xMax, titleRect.yMin, UIDirection.LeftThenDown);
+			SearchStorage.ButtonChooseExportSearchLibrary(iconRow, parent.Children, Settings.StorageTransferTag);
+
+			// Listing
 			fillRect.yMin = titleRect.yMax;
 
 			Listing_StandardIndent listing = new();

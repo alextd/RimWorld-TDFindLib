@@ -66,13 +66,13 @@ namespace TD_Find_Lib
 							handler(provider.ProvideSingle().Clone(cloneArgs));
 						}));
 						continue;
-					case ISearchProvider.Method.Selection:
+					case ISearchProvider.Method.Group:
 						importOptions.Add(new FloatMenuOption(provider.ProvideName, () =>
 						{
 							ImportFromListSubmenu(provider.ProvideGroup(), handler, cloneArgs);
 						}));
 						continue;
-					case ISearchProvider.Method.Grouping:
+					case ISearchProvider.Method.Library:
 						importOptions.Add(new FloatMenuOption(provider.ProvideName, () =>
 						{
 							List<FloatMenuOption> submenuOptions = new();
@@ -148,13 +148,13 @@ namespace TD_Find_Lib
 					case ISearchProvider.Method.None:
 					case ISearchProvider.Method.Single:
 						continue;
-					case ISearchProvider.Method.Selection:
+					case ISearchProvider.Method.Group:
 						importOptions.Add(new FloatMenuOption(provider.ProvideName, () =>
 						{
 							handler(provider.ProvideGroup().Clone(cloneArgs));
 						}));
 						continue;
-					case ISearchProvider.Method.Grouping:
+					case ISearchProvider.Method.Library:
 						importOptions.Add(new FloatMenuOption(provider.ProvideName, () =>
 						{
 							List<FloatMenuOption> submenuOptions = new();
@@ -178,11 +178,10 @@ namespace TD_Find_Lib
 		}
 
 
-
-		public static void ButtonChooseExportSearchGroup(WidgetRow row, SearchGroup search, string source = null)
+		public static void ButtonChooseExportSearchGroup(WidgetRow row, SearchGroup group, string source = null)
 		{
 			if (row.ButtonIcon(FindTex.ExportGroup, "TD.ExportGroupTo".Translate()))
-				Find.WindowStack.Add(new FloatMenu(ExportSearchGroupOptions(search, source)));
+				Find.WindowStack.Add(new FloatMenu(ExportSearchGroupOptions(group, source)));
 			;
 		}
 
@@ -200,6 +199,32 @@ namespace TD_Find_Lib
 
 			return exportOptions;
 		}
+
+
+		public static void ButtonChooseExportSearchLibrary(WidgetRow row, List<SearchGroup> library, string source = null)
+		{
+			if (row.ButtonIcon(FindTex.ExportGroup, "TD.ExportLibraryTo".Translate()))
+				Find.WindowStack.Add(new FloatMenu(ExportSearchLibraryOptions(library, source)));
+		}
+
+		public static List<FloatMenuOption> ExportSearchLibraryOptions(List<SearchGroup> library, string source = null)
+		{
+			List<FloatMenuOption> exportOptions = new();
+
+			foreach (ISearchLibraryReceiver receiver in SearchTransfer.libraryReceivers)
+			{
+				if (SourceMatch(receiver.Source, source)) continue;
+				if (!receiver.CanReceive()) continue;
+
+				exportOptions.Add(new FloatMenuOption(receiver.ReceiveName, 
+					() => receiver.Receive(
+						library.Select(g => g.Clone(receiver.CloneArgs)).ToList()
+						)));
+			}
+
+			return exportOptions;
+		}
+
 
 		public static bool SourceMatch(string source1, string source2) =>
 			source1 != null && source2 != null &&

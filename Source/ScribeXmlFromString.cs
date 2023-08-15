@@ -3,6 +3,7 @@ using System.Xml;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.IO;
 using Verse;
 
 namespace TD_Find_Lib
@@ -15,10 +16,16 @@ namespace TD_Find_Lib
 			string tag = obj.GetType().ToString();
 			return $"<{tag}>\n{Scribe.saver.DebugOutputFor(obj)}\n</{tag}>";
 		}
+		public static string SaveListAsString<T>(List<T> obj) where T : IExposable
+		{
+			string tag = "List_"+typeof(T).ToString();
+			return $"<{tag}>\n{Scribe.saver.DebugOutputForList(obj)}\n</{tag}>";
+		}
 
 
 		// Validate before you load!
 		public static bool IsValid<T>(string xmlText) => xmlText.StartsWith("<"+typeof(T).ToString()+">");
+		public static bool IsValidList<T>(string xmlText) => xmlText.StartsWith($"<List+{typeof(T)}>");
 
 
 		// Load!
@@ -107,5 +114,45 @@ namespace TD_Find_Lib
 				throw;
 			}
 		}
+
+
+		//ScribeLoader.DebugOutputFor but for a list with Scribe_Collections
+		public static string DebugOutputForList<T>(this ScribeSaver saver, List<T> saveable)
+		{
+			if (Scribe.mode != 0)
+			{
+				Verse.Log.Error("DebugOutput needs current mode to be Inactive");
+				return "";
+			}
+			try
+			{
+				using StringWriter stringWriter = new StringWriter();
+				XmlWriterSettings xmlWriterSettings = new XmlWriterSettings();
+				xmlWriterSettings.Indent = true;
+				xmlWriterSettings.IndentChars = "  ";
+				xmlWriterSettings.OmitXmlDeclaration = true;
+				try
+				{
+					using (saver.writer = XmlWriter.Create(stringWriter, xmlWriterSettings))
+					{
+						Scribe.mode = LoadSaveMode.Saving;
+						saver.savingForDebug = true;
+						Scribe_Collections.Look(ref saveable, "saveable");
+					}
+					return stringWriter.ToString();
+				}
+				finally
+				{
+					saver.ForceStop();
+				}
+			}
+			catch (Exception ex)
+			{
+				Verse.Log.Error("Exception while getting debug output: " + ex);
+				saver.ForceStop();
+				return "";
+			}
+		}
+
 	}
 }

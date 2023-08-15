@@ -8,7 +8,7 @@ using RimWorld;
 
 namespace TD_Find_Lib
 {
-	public class Settings : ModSettings, ISearchReceiver, ISearchGroupReceiver, ISearchProvider, ISearchStorageParent
+	public class Settings : ModSettings, ISearchReceiver, ISearchGroupReceiver, ISearchLibraryReceiver, ISearchProvider, ISearchStorageParent
 	{
 		private bool onlyAvailable = true;
 		public bool OnlyAvailable => onlyAvailable != Event.current.shift && Current.Game != null;
@@ -180,6 +180,12 @@ namespace TD_Find_Lib
 			Find.WindowStack.Add(new FloatMenu(submenuOptions));
 		}
 
+		public void Receive(List<SearchGroup> library)
+		{
+			foreach(var group in library)
+				Add(group);
+		}
+
 		public static void SaveToGroup(QuerySearch search, SearchGroup group)
 		{
 			Find.WindowStack.Add(new Dialog_Name(search.name, n => { search.name = n; group.TryAdd(search); }, "TD.SaveTo0".Translate(group.name)));
@@ -189,8 +195,8 @@ namespace TD_Find_Lib
 		// ISearchProvider things
 		public ISearchProvider.Method ProvideMethod()
 		{
-			return searchGroups.Count > 1 ? ISearchProvider.Method.Grouping :
-				(searchGroups[0].Count == 0 ? ISearchProvider.Method.None : ISearchProvider.Method.Selection);
+			return searchGroups.Count > 1 ? ISearchProvider.Method.Library :
+				(searchGroups[0].Count == 0 ? ISearchProvider.Method.None : ISearchProvider.Method.Group);
 		}
 
 		public QuerySearch ProvideSingle() => null;
