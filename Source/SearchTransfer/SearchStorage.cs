@@ -253,7 +253,7 @@ namespace TD_Find_Lib
 				if (SourceMatch(receiver.Source, source)) continue;
 				if (!receiver.CanReceive()) continue;
 
-				exportOptions.Add(new FloatMenuOption(receiver.ReceiveName, 
+				exportOptions.Add(new FloatMenuOption(receiver.ReceiveName,
 					() => receiver.Receive(
 						library.Select(g => g.Clone(receiver.CloneArgs)).ToList()
 						)));
@@ -263,8 +263,14 @@ namespace TD_Find_Lib
 		}
 
 
-		public static bool SourceMatch(string source1, string source2) =>
-			source1 != null && source2 != null &&
-			source1.Split(',').Intersect(source2.Split(',')).Count() > 0;
+		public static bool SourceMatch(string otherSource, string thisSource)
+		{
+			if (otherSource == null || thisSource == null) return false;
+
+			if (otherSource[0] == '=')
+				return otherSource.Substring(1) != thisSource;
+
+			return otherSource.Split(',').Intersect(thisSource.Split(',')).Count() > 0;
+		}
 	}
 }

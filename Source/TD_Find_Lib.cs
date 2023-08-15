@@ -21,7 +21,7 @@ namespace TD_Find_Lib
 
 				if (settings.firstUse)
 				{
-					List<SearchGroup> groups = DefaultSearches.library.ProvideLibrary();
+					List<SearchGroup> groups = DefaultSearches.CopyLibrary;
 
 					if (groups != null)
 					{

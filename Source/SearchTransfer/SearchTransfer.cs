@@ -154,14 +154,12 @@ namespace TD_Find_Lib
 	[StaticConstructorOnStartup]
 	public class DefaultSearches : ISearchProvider
 	{
-		// Don't register it for global use. It'll be used when wanted.
-		public static DefaultSearches library;
 		static DefaultSearches()
 		{
-			library = new DefaultSearches();
+			SearchTransfer.Register(new DefaultSearches());
 		}
 
-		public string Source => "Default"; //always used
+		public string Source => "=" + Settings.StorageTransferTag; // only used with settings storage
 
 		public string ProvideName => "Default Searches";
 
@@ -169,12 +167,20 @@ namespace TD_Find_Lib
 		public QuerySearch ProvideSingle() => null;
 		public SearchGroup ProvideGroup() => null;
 
-		public List<SearchGroup> ProvideLibrary() =>
-			ScribeXmlFromString.LoadListFromString<SearchGroup>(
+
+
+		private static List<SearchGroup> _library;
+		private static List<SearchGroup> Library => _library ??= ScribeXmlFromString.LoadListFromString<SearchGroup>(
 				File.ReadAllText(
 					GenFile.ResolveCaseInsensitiveFilePath(
 						LoadedModManager.GetMod<Mod>().Content.ModMetaData.RootDir.FullName
 						+ Path.DirectorySeparatorChar + "About", "DefaultSearches.xml")),
 				null, null);
+
+		public static List<SearchGroup> CopyLibrary => Library.Select(g => g.Clone(default)).ToList();
+
+
+		public List<SearchGroup> ProvideLibrary() => Library;
+			
 	}
 }

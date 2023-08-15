@@ -88,6 +88,10 @@ namespace TD_Find_Lib
 				def => def.modContentPack != basePack || def.mod != null);
 			moddedQueries = moddedSelections.Where(tq => tq is ThingQueryDef).Cast<ThingQueryDef>().ToList();
 
+//			TODO:
+//			moddedQueries = moddedSelections.Where(def => def is ThingQueryDef && def.modContentPack != basePack).Cast<ThingQueryDef>().ToList();
+
+
 			// Remove the mod category if there's no modded filters
 			if (moddedSelections.Count == 0)
 				rootSelectableQueries.Remove(ThingQueryDefOf.Category_Mod);
