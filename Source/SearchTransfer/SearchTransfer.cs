@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.IO;
 using Verse;
+using RimWorld;
 using UnityEngine;
 
 namespace TD_Find_Lib
@@ -147,5 +149,32 @@ namespace TD_Find_Lib
 			string clipboard = GUIUtility.systemCopyBuffer;
 			return ScribeXmlFromString.LoadListFromString<SearchGroup>(clipboard, null, null);
 		}
+	}
+
+	[StaticConstructorOnStartup]
+	public class DefaultSearches : ISearchProvider
+	{
+		// Don't register it for global use. It'll be used when wanted.
+		public static DefaultSearches library;
+		static DefaultSearches()
+		{
+			library = new DefaultSearches();
+		}
+
+		public string Source => "Default"; //always used
+
+		public string ProvideName => "Default Searches";
+
+		public ISearchProvider.Method ProvideMethod() => ISearchProvider.Method.Library;
+		public QuerySearch ProvideSingle() => null;
+		public SearchGroup ProvideGroup() => null;
+
+		public List<SearchGroup> ProvideLibrary() =>
+			ScribeXmlFromString.LoadListFromString<SearchGroup>(
+				File.ReadAllText(
+					GenFile.ResolveCaseInsensitiveFilePath(
+						LoadedModManager.GetMod<Mod>().Content.ModMetaData.RootDir.FullName
+						+ Path.DirectorySeparatorChar + "About", "DefaultSearches.xml")),
+				null, null);
 	}
 }

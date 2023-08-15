@@ -21,12 +21,7 @@ namespace TD_Find_Lib
 
 				if (settings.firstUse)
 				{
-					List<SearchGroup> groups =
-						ScribeXmlFromString.LoadListFromString<SearchGroup>(
-							File.ReadAllText(
-								GenFile.ResolveCaseInsensitiveFilePath(
-									Content.ModMetaData.RootDir.FullName + Path.DirectorySeparatorChar + "About", "DefaultSearches.xml")),
-							null, null);
+					List<SearchGroup> groups = DefaultSearches.library.ProvideLibrary();
 
 					if (groups != null)
 					{

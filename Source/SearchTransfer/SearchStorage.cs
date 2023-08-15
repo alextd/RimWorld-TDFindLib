@@ -14,7 +14,7 @@ namespace TD_Find_Lib
 		public static void ButtonOpenLibrary(this WidgetRow row)
 		{
 			if (row.ButtonIcon(FindTex.Book, "TD.OpenTheLibraryOfSearches".Translate()))
-				OpenLibrary();
+				Settings.Open();
 		}
 
 		public static void ButtonOpenLibrary(Rect rect)
@@ -25,14 +25,9 @@ namespace TD_Find_Lib
 				rect.height = rect.width;
 
 			if (Widgets.ButtonImage(rect, FindTex.Book))
-				OpenLibrary();
+				Settings.Open();
 
 			TooltipHandler.TipRegion(rect, "TD.OpenTheLibraryOfSearches".Translate());
-		}
-
-		public static void OpenLibrary()
-		{
-			Find.WindowStack.Add(new GroupLibraryWindow(Mod.settings));
 		}
 
 
@@ -164,7 +159,7 @@ namespace TD_Find_Lib
 							{
 								submenuOptions.Add(new FloatMenuOption(group.name, () =>
 								{
-									handler(provider.ProvideGroup().Clone(cloneArgs));
+									handler(group.Clone(cloneArgs));
 								}));
 							}
 

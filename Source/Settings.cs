@@ -31,7 +31,7 @@ namespace TD_Find_Lib
 			Children.Add(group);
 			group.parent = this;
 
-			if(refresh)
+			if (refresh)
 				Find.WindowStack?.WindowOfType<GroupLibraryWindow>()?.SetupDrawers();
 		}
 
@@ -73,16 +73,22 @@ namespace TD_Find_Lib
 
 			listing.Gap();
 
-			if(listing.ButtonTextLabeled("TD.ViewQuerySearchLibrary".Translate(), "TD.View".Translate()))
+			if (listing.ButtonTextLabeled("TD.ViewQuerySearchLibrary".Translate(), "TD.View".Translate()))
 			{
 				//Ah gee this triggers settings.Write but that's no real problem
 				Find.WindowStack.WindowOfType<Dialog_ModSettings>().Close();
 				Find.WindowStack.WindowOfType<Dialog_Options>().Close();
 
-				Find.WindowStack.Add(new GroupLibraryWindow(this));
+				Open();
 			}
 
 			listing.End();
+		}
+
+		public static void Open()
+		{
+			//TD_Find_Lib.Mod because .Mod is a property of this class whoops
+			Find.WindowStack.Add(new GroupLibraryWindow(TD_Find_Lib.Mod.settings, StorageTransferTag));
 		}
 
 

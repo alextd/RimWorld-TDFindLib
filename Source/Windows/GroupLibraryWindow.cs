@@ -13,10 +13,12 @@ namespace TD_Find_Lib
 		private ISearchStorageParent parent;
 		private List<SearchGroupDrawer> groupDrawers = new();
 		private RefreshSearchGroupDrawer refreshDrawer;
+		public string transferTag;
 
-		public GroupLibraryWindow(ISearchStorageParent parent)
+		public GroupLibraryWindow(ISearchStorageParent parent, string transferTag)
 		{
 			this.parent = parent;
+			this.transferTag = transferTag;
 
 			SetupDrawers();
 
@@ -35,7 +37,7 @@ namespace TD_Find_Lib
 		{
 			groupDrawers.Clear();
 			foreach (SearchGroup group in parent.Children)
-				groupDrawers.Add(new SearchGroupDrawer(group, groupDrawers));
+				groupDrawers.Add(new SearchGroupDrawer(group, groupDrawers, transferTag));
 		}
 
 		public override void PostClose()
@@ -88,20 +90,20 @@ namespace TD_Find_Lib
 
 			// Import/export library
 			WidgetRow iconRow = new(titleRect.xMax, titleRect.yMin, UIDirection.LeftThenDown);
-			iconRow.ButtonChooseExportSearchLibrary(parent.Children, Settings.StorageTransferTag);
+			iconRow.ButtonChooseExportSearchLibrary(parent.Children, transferTag);
 			iconRow.ButtonChooseImportSearchLibrary(library =>
 			{
 				foreach(var group in library)
 				{
 					parent.Add(group, false);
 
-					var drawer = new SearchGroupDrawer(group, groupDrawers);
+					var drawer = new SearchGroupDrawer(group, groupDrawers, transferTag);
 					parent.NotifyChanged();
 
 					groupDrawers.Add(drawer);
 				}
 
-			}, Settings.StorageTransferTag);
+			}, transferTag);
 
 			// Listing
 			fillRect.yMin = titleRect.yMax;
@@ -159,7 +161,7 @@ namespace TD_Find_Lib
 						var group = new SearchGroup(n, parent);
 						parent.Add(group, false);
 
-						var drawer = new SearchGroupDrawer(group, groupDrawers);
+						var drawer = new SearchGroupDrawer(group, groupDrawers, transferTag);
 						groupDrawers.Add(drawer);
 
 						drawer.PopUpCreateQuerySearch();
@@ -174,7 +176,7 @@ namespace TD_Find_Lib
 				{
 					parent.Add(group, false);
 
-					var drawer = new SearchGroupDrawer(group, groupDrawers);
+					var drawer = new SearchGroupDrawer(group, groupDrawers, transferTag);
 					if (groupDrawers.Any(d => d.Name == group.name))
 						drawer.PopUpRename();
 					else
@@ -182,7 +184,7 @@ namespace TD_Find_Lib
 
 					groupDrawers.Add(drawer);
 				},
-				Settings.StorageTransferTag);
+				transferTag);
 
 
 				//Label
@@ -324,9 +326,11 @@ namespace TD_Find_Lib
 	public class SearchGroupDrawer : SearchGroupDrawerBase<SearchGroup, QuerySearch>
 	{
 		public List<SearchGroupDrawer> siblings;
-		public SearchGroupDrawer(SearchGroup l, List<SearchGroupDrawer> siblings) : base(l)
+		public string transferTag;
+		public SearchGroupDrawer(SearchGroup l, List<SearchGroupDrawer> siblings, string transferTag) : base(l)
 		{
 			this.siblings = siblings;
+			this.transferTag = transferTag;
 		}
 
 		public override string Name => list.name;
@@ -363,7 +367,7 @@ namespace TD_Find_Lib
 			{
 				var search = new QuerySearch() { name = n };
 				list.TryAdd(search);
-				Find.WindowStack.Add(new SearchEditorWindow(search, Settings.StorageTransferTag, f => list.parent.NotifyChanged()));
+				Find.WindowStack.Add(new SearchEditorWindow(search, transferTag, f => list.parent.NotifyChanged()));
 			},
 			"TD.NameForNewSearch".Translate(),
 			name => list.Any(s => s.name == name)));
@@ -391,15 +395,15 @@ namespace TD_Find_Lib
 			}
 
 			// Export Group
-			headerRow.ButtonChooseExportSearchGroup(list, Settings.StorageTransferTag);
+			headerRow.ButtonChooseExportSearchGroup(list, transferTag);
 
 
 			// Import single search
-			headerRow.ButtonChooseImportSearch(list.Add, Settings.StorageTransferTag);
+			headerRow.ButtonChooseImportSearch(list.Add, transferTag);
 
 
 			// Paste Group and merge
-			headerRow.ButtonChooseImportSearchGroup(list.AddRange, Settings.StorageTransferTag);
+			headerRow.ButtonChooseImportSearchGroup(list.AddRange, transferTag);
 
 
 			// Rename 
@@ -415,7 +419,7 @@ namespace TD_Find_Lib
 		{
 			if (row.ButtonIcon(FindTex.Edit, "TD.EditThisSearch".Translate()))
 			{
-				Find.WindowStack.Add(new SearchEditorWindow(search.CloneInactive(), Settings.StorageTransferTag, nd => list.ConfirmPaste(nd, i)));
+				Find.WindowStack.Add(new SearchEditorWindow(search.CloneInactive(), transferTag, nd => list.ConfirmPaste(nd, i)));
 			}
 
 
@@ -433,7 +437,7 @@ namespace TD_Find_Lib
 						"TD.Delete0".Translate(search.name), () => Trash(i), true));
 			}
 
-			row.ButtonChooseExportSearch(search, Settings.StorageTransferTag);
+			row.ButtonChooseExportSearch(search, transferTag);
 		}
 	}
 
