@@ -88,8 +88,8 @@ namespace TD_Find_Lib
 
 			// Import/export library
 			WidgetRow iconRow = new(titleRect.xMax, titleRect.yMin, UIDirection.LeftThenDown);
-			SearchStorage.ButtonChooseExportSearchLibrary(iconRow, parent.Children, Settings.StorageTransferTag);
-			SearchStorage.ButtonChooseImportSearchLibrary(iconRow, library =>
+			iconRow.ButtonChooseExportSearchLibrary(parent.Children, Settings.StorageTransferTag);
+			iconRow.ButtonChooseImportSearchLibrary(library =>
 			{
 				foreach(var group in library)
 				{
@@ -170,7 +170,7 @@ namespace TD_Find_Lib
 
 
 				// Import button
-				SearchStorage.ButtonChooseImportSearchGroup(newGroupRow, group =>
+				newGroupRow.ButtonChooseImportSearchGroup(group =>
 				{
 					parent.Add(group, false);
 
@@ -391,15 +391,15 @@ namespace TD_Find_Lib
 			}
 
 			// Export Group
-			SearchStorage.ButtonChooseExportSearchGroup(headerRow, list, Settings.StorageTransferTag);
+			headerRow.ButtonChooseExportSearchGroup(list, Settings.StorageTransferTag);
 
 
 			// Import single search
-			SearchStorage.ButtonChooseImportSearch(headerRow, list.Add, Settings.StorageTransferTag);
+			headerRow.ButtonChooseImportSearch(list.Add, Settings.StorageTransferTag);
 
 
 			// Paste Group and merge
-			SearchStorage.ButtonChooseImportSearchGroup(headerRow, list.AddRange, Settings.StorageTransferTag);
+			headerRow.ButtonChooseImportSearchGroup(list.AddRange, Settings.StorageTransferTag);
 
 
 			// Rename 
@@ -433,7 +433,7 @@ namespace TD_Find_Lib
 						"TD.Delete0".Translate(search.name), () => Trash(i), true));
 			}
 
-			SearchStorage.ButtonChooseExportSearch(row, search, Settings.StorageTransferTag);
+			row.ButtonChooseExportSearch(search, Settings.StorageTransferTag);
 		}
 	}
 

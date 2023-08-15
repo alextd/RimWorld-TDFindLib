@@ -11,7 +11,7 @@ namespace TD_Find_Lib
 {
 	public static class SearchStorage
 	{
-		public static void ButtonOpenLibrary(WidgetRow row)
+		public static void ButtonOpenLibrary(this WidgetRow row)
 		{
 			if (row.ButtonIcon(FindTex.Book, "TD.OpenTheLibraryOfSearches".Translate()))
 				OpenLibrary();
@@ -37,16 +37,14 @@ namespace TD_Find_Lib
 
 
 
-		public static void ButtonChooseImportSearch(WidgetRow row, Action<QuerySearch> handler, string source = null, CloneArgs cloneArgs = default)
+		public static void ButtonChooseImportSearch(this WidgetRow row, Action<QuerySearch> handler, string source = null, CloneArgs cloneArgs = default)
 		{
 			var options = ImportSearchOptions(handler, source, cloneArgs);
-			if (options.Count > 0 && row.ButtonIcon(FindTex.Import, "TD.ImportSearchFrom".Translate()))
-			{
-				if (options.Count == 1)
-					options[0].action();
-				else
-					Find.WindowStack.Add(new FloatMenu(options));
-			}
+
+			if (options.Count == 0) return;
+
+			if (row.ButtonIcon(FindTex.Import, "TD.ImportSearchFrom".Translate()))
+				Find.WindowStack.Add(new FloatMenu(options));
 		}
 		public static List<FloatMenuOption> ImportSearchOptions(Action<QuerySearch> handler, string source = null, CloneArgs cloneArgs = default)
 		{
@@ -103,7 +101,7 @@ namespace TD_Find_Lib
 
 
 
-		public static void ButtonChooseExportSearch(WidgetRow row, QuerySearch search, string source = null)
+		public static void ButtonChooseExportSearch(this WidgetRow row, QuerySearch search, string source = null)
 		{
 			if (row.ButtonIcon(FindTex.Export, "TD.ExportSearchTo".Translate()))
 				Find.WindowStack.Add(new FloatMenu(ExportSearchOptions(search, source)));
@@ -129,10 +127,13 @@ namespace TD_Find_Lib
 		// Basically a copy of ButtonChooseImportSearch, but accepting SearchGroup instead of QuerySearch.
 		// Single searches are not accepted, and one less submenu is needed to get at options.
 		// handler should set parent and siblings, or just extract each item from the list.
-		public static void ButtonChooseImportSearchGroup(WidgetRow row, Action<SearchGroup> handler, string source = null, CloneArgs cloneArgs = default)
+		public static void ButtonChooseImportSearchGroup(this WidgetRow row, Action<SearchGroup> handler, string source = null, CloneArgs cloneArgs = default)
 		{
 			var options = ImportSearchGroupOptions(handler, source, cloneArgs);
-			if (options.Count > 0 && row.ButtonIcon(FindTex.ImportGroup, "TD.ImportGroupFrom".Translate()))
+
+			if (options.Count == 0) return;
+
+			if (row.ButtonIcon(FindTex.ImportGroup, "TD.ImportGroupFrom".Translate()))
 				Find.WindowStack.Add(new FloatMenu(options));
 		}
 		public static List<FloatMenuOption> ImportSearchGroupOptions(Action<SearchGroup> handler, string source, CloneArgs cloneArgs = default)
@@ -178,8 +179,10 @@ namespace TD_Find_Lib
 		}
 
 
-		public static void ButtonChooseExportSearchGroup(WidgetRow row, SearchGroup group, string source = null)
+		public static void ButtonChooseExportSearchGroup(this WidgetRow row, SearchGroup group, string source = null)
 		{
+			if (group.Count == 0) return;
+
 			if (row.ButtonIcon(FindTex.ExportGroup, "TD.ExportGroupTo".Translate()))
 				Find.WindowStack.Add(new FloatMenu(ExportSearchGroupOptions(group, source)));
 			;
@@ -202,10 +205,13 @@ namespace TD_Find_Lib
 
 
 
-		public static void ButtonChooseImportSearchLibrary(WidgetRow row, Action<List<SearchGroup>> handler, string source = null, CloneArgs cloneArgs = default)
+		public static void ButtonChooseImportSearchLibrary(this WidgetRow row, Action<List<SearchGroup>> handler, string source = null, CloneArgs cloneArgs = default)
 		{
 			var options = ImportSearchLibraryOptions(handler, source, cloneArgs);
-			if (options.Count > 0 && row.ButtonIcon(FindTex.ImportGroup, "TD.ImportLibraryFrom".Translate()))
+
+			if (options.Count == 0) return;
+
+			if (row.ButtonIcon(FindTex.ImportGroup, "TD.ImportLibraryFrom".Translate()))
 				Find.WindowStack.Add(new FloatMenu(options));
 		}
 		public static List<FloatMenuOption> ImportSearchLibraryOptions(Action<List<SearchGroup>> handler, string source, CloneArgs cloneArgs = default)
@@ -235,8 +241,10 @@ namespace TD_Find_Lib
 		}
 
 
-		public static void ButtonChooseExportSearchLibrary(WidgetRow row, List<SearchGroup> library, string source = null)
+		public static void ButtonChooseExportSearchLibrary(this WidgetRow row, List<SearchGroup> library, string source = null)
 		{
+			if (library.Count == 0) return;
+
 			if (row.ButtonIcon(FindTex.ExportGroup, "TD.ExportLibraryTo".Translate()))
 				Find.WindowStack.Add(new FloatMenu(ExportSearchLibraryOptions(library, source)));
 		}

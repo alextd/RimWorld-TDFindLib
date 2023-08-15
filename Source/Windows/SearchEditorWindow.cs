@@ -334,14 +334,14 @@ namespace TD_Find_Lib
 					"TD.Rename0".Translate(search.name)));
 
 			// Library button
-			SearchStorage.ButtonOpenLibrary(row);
+			row.ButtonOpenLibrary();
 
 			// Export button
-			SearchStorage.ButtonChooseExportSearch(row, search, transferTag);
+			row.ButtonChooseExportSearch(search, transferTag);
 
 			// Import button
 			if(!permalocked)
-				SearchStorage.ButtonChooseImportSearch(row, Import, transferTag, ImportArgs);
+				row.ButtonChooseImportSearch(Import, transferTag, ImportArgs);
 		}
 
 
