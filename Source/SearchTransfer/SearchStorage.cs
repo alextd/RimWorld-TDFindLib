@@ -201,6 +201,40 @@ namespace TD_Find_Lib
 		}
 
 
+
+		public static void ButtonChooseImportSearchLibrary(WidgetRow row, Action<List<SearchGroup>> handler, string source = null, CloneArgs cloneArgs = default)
+		{
+			var options = ImportSearchLibraryOptions(handler, source, cloneArgs);
+			if (options.Count > 0 && row.ButtonIcon(FindTex.ImportGroup, "TD.ImportLibraryFrom".Translate()))
+				Find.WindowStack.Add(new FloatMenu(options));
+		}
+		public static List<FloatMenuOption> ImportSearchLibraryOptions(Action<List<SearchGroup>> handler, string source, CloneArgs cloneArgs = default)
+		{
+			List<FloatMenuOption> importOptions = new();
+
+			foreach (ISearchProvider provider in SearchTransfer.providers)
+			{
+				if (SourceMatch(provider.Source, source)) continue;
+
+				switch (provider.ProvideMethod())
+				{
+					case ISearchProvider.Method.None:
+					case ISearchProvider.Method.Single:
+					case ISearchProvider.Method.Group:
+						continue;
+					case ISearchProvider.Method.Library:
+						importOptions.Add(new FloatMenuOption(provider.ProvideName, () =>
+						{
+							handler(provider.ProvideLibrary().Select(g => g.Clone(cloneArgs)).ToList());
+						}));
+						continue;
+				}
+			}
+
+			return importOptions;
+		}
+
+
 		public static void ButtonChooseExportSearchLibrary(WidgetRow row, List<SearchGroup> library, string source = null)
 		{
 			if (row.ButtonIcon(FindTex.ExportGroup, "TD.ExportLibraryTo".Translate()))

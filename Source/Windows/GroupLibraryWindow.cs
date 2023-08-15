@@ -89,6 +89,19 @@ namespace TD_Find_Lib
 			// Import/export library
 			WidgetRow iconRow = new(titleRect.xMax, titleRect.yMin, UIDirection.LeftThenDown);
 			SearchStorage.ButtonChooseExportSearchLibrary(iconRow, parent.Children, Settings.StorageTransferTag);
+			SearchStorage.ButtonChooseImportSearchLibrary(iconRow, library =>
+			{
+				foreach(var group in library)
+				{
+					parent.Add(group, false);
+
+					var drawer = new SearchGroupDrawer(group, groupDrawers);
+					parent.NotifyChanged();
+
+					groupDrawers.Add(drawer);
+				}
+
+			}, Settings.StorageTransferTag);
 
 			// Listing
 			fillRect.yMin = titleRect.yMax;

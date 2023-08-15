@@ -11,6 +11,7 @@ namespace TD_Find_Lib
 	public static class ScribeXmlFromString
 	{
 		// Save!
+		const string ListPrefix = "List_";
 		public static string SaveAsString(IExposable obj)
 		{
 			string tag = obj.GetType().ToString();
@@ -18,14 +19,14 @@ namespace TD_Find_Lib
 		}
 		public static string SaveListAsString<T>(List<T> obj) where T : IExposable
 		{
-			string tag = "List_"+typeof(T).ToString();
+			string tag = ListPrefix+typeof(T).ToString();
 			return $"<{tag}>\n{Scribe.saver.DebugOutputForList(obj)}\n</{tag}>";
 		}
 
 
 		// Validate before you load!
-		public static bool IsValid<T>(string xmlText) => xmlText.StartsWith("<"+typeof(T).ToString()+">");
-		public static bool IsValidList<T>(string xmlText) => xmlText.StartsWith($"<List+{typeof(T)}>");
+		public static bool IsValid<T>(string xmlText) => xmlText.StartsWith($"<{typeof(T)}>");
+		public static bool IsValidList<T>(string xmlText) => xmlText.StartsWith($"<{ListPrefix}{typeof(T)}>");
 
 
 		// Load!
