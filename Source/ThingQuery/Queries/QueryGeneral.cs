@@ -1373,6 +1373,7 @@ namespace TD_Find_Lib
 			return changed;
 		}
 
+		public override bool AcceptsDrops => checkReserver;
 		protected override bool DrawUnder(Listing_StandardIndent listing, bool locked)
 		{
 			if (!checkReserver)

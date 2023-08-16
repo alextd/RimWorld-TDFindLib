@@ -1449,6 +1449,7 @@ namespace TD_Find_Lib
 			return changed;
 		}
 
+		public override bool AcceptsDrops => filterType != SubmatchType.Has;
 		protected override bool DrawUnder(Listing_StandardIndent listing, bool locked)
 		{
 			if (filterType == SubmatchType.Has)

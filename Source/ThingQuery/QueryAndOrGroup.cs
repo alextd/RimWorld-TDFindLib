@@ -15,6 +15,7 @@ namespace TD_Find_Lib
 		// IQueryHolder 
 		protected HeldQueries children;
 		public HeldQueries Children => children;
+		public virtual bool AcceptsDrops => true;
 		//Parent and RootHolder handled by ThingQuery
 
 
@@ -222,6 +223,7 @@ namespace TD_Find_Lib
 			return changed;
 		}
 
+		public override bool AcceptsDrops => hasType != SubmatchType.Has;
 		protected override bool DrawUnder(Listing_StandardIndent listing, bool locked)
 		{
 			if (hasType == SubmatchType.Has)

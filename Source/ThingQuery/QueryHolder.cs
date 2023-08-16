@@ -17,7 +17,7 @@ namespace TD_Find_Lib
 	}
 	public interface IQueryHolderDroppable : IQueryHolder
 	{
-		//literally for the type check
+		public bool AcceptsDrops { get; }
 	}
 	public interface IQueryHolderRoot : IQueryHolderDroppable	//presumably roots will be droppable right?
 	{
@@ -27,7 +27,7 @@ namespace TD_Find_Lib
 		public bool Active { get; }
 	}
 
-	// QueryHolder is actually one of the latest untested additions.
+	// QueryHolder is actually one of the later, untested additions.
 	// Everything went through QuerySearch which search on all things in a map
 	//  Then I thought "Hey, maybe I should open this up to any list of things"
 	// So that's QueryHolder, it simply holds and applies queries to given things.
@@ -51,6 +51,7 @@ namespace TD_Find_Lib
 		public virtual void NotifyUpdated() { }
 		public virtual void NotifyRefUpdated() => RebindMap();
 		public virtual bool Active => false;
+		public virtual bool AcceptsDrops => true;
 
 		public QueryHolder()
 		{
@@ -301,7 +302,7 @@ namespace TD_Find_Lib
 
 			ThingQuery draggedQuery = Gather(delegate (IQueryHolder holder)
 			{
-				if (holder.Children.reorderID == fromGroup)
+				if (holder.Children.reorderID == fromGroup && holder is IQueryHolderDroppable dropper && dropper.AcceptsDrops)
 					return holder.Children.queries.ElementAt(from);
 
 				return null;
@@ -310,7 +311,7 @@ namespace TD_Find_Lib
 			IQueryHolder newHolder = null;
 			ForEach(delegate (IQueryHolder holder)
 			{
-				if (holder.Children.reorderID == toGroup && holder is IQueryHolderDroppable)
+				if (holder.Children.reorderID == toGroup && holder is IQueryHolderDroppable dropper && dropper.AcceptsDrops)
 				{
 					// Hold up, don't drop inside yourself or any of your sacred lineage
 					for(IQueryHolder ancestor = holder; ancestor != null; ancestor = ancestor.Parent)
@@ -390,7 +391,7 @@ namespace TD_Find_Lib
 					removedQueries.Add(query);
 
 				// Layout event in query.Listing will set query.usedRect ; Repaint in Reorderable will use it.
-				// We'd like the reorderable of the parent has to come before children
+				// We'd like the reorderable of the parent to come before children
 				// so children will be last in the list, and will override the selected clicked rect
 				// But events in the children should be caught and used before dragging is allowed, so it has to go after.
 				ReorderableWidget.Reorderable(reorderID, query.queryRect);
