@@ -5,5 +5,13 @@
 	<TD.IdeoXenotypeFilterType.Disliked>Disliked</TD.IdeoXenotypeFilterType.Disliked>
 	<TD.IdeoXenotypeFilterType.NoOpinion>No Opinion</TD.IdeoXenotypeFilterType.NoOpinion>
 
+	<TD.GuaranlenFilterType.Connection>Is Connected</TD.GuaranlenFilterType.Connection>
+	<TD.GuaranlenFilterType.Mode>Dryad Caste Is</TD.GuaranlenFilterType.Mode>
+	<TD.GuaranlenFilterType.Strength>Connection Strength</TD.GuaranlenFilterType.Strength>
+	<TD.GuaranlenFilterType.StrengthDesired>Desired Strength</TD.GuaranlenFilterType.StrengthDesired>
+	<TD.GuaranlenFilterType.MaxDryads>Max Dryads</TD.GuaranlenFilterType.MaxDryads>
+	<TD.GuaranlenFilterType.CurDryads>Dryad Count</TD.GuaranlenFilterType.CurDryads>
+	<TD.GuaranlenFilterType.TimeToDryad>Days until new Dryad</TD.GuaranlenFilterType.TimeToDryad>
+
 
 </LanguageData>
