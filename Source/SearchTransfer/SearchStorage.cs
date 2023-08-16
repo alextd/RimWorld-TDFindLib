@@ -71,9 +71,8 @@ namespace TD_Find_Lib
 							List<FloatMenuOption> submenuOptions = new();
 
 							foreach (SearchGroup group in provider.ProvideLibrary())
-							{
-								submenuOptions.Add(new FloatMenuOption("+ " + group.name, () => ImportFromListSubmenu(group, handler, cloneArgs)));
-							}
+								if (group.Any())
+									submenuOptions.Add(new FloatMenuOption("+ " + group.name, () => ImportFromListSubmenu(group, handler, cloneArgs)));
 
 							Find.WindowStack.Add(new FloatMenu(submenuOptions));
 						}));
