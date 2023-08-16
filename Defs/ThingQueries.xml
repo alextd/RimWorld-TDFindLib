@@ -105,7 +105,7 @@
 
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_PawnProperty</defName>
-		<label>basics</label>
+		<label>general</label>
 		<queryClass>TD_Find_Lib.ThingQueryBasicProperty</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 
