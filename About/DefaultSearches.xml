@@ -364,14 +364,19 @@
 			<mapType>AllMaps</mapType>
 			<searchMaps />
 			<queries>
+				<li Class="TD_Find_Lib.ThingQueryCategory">
+					<def>Query_Category</def>
+					<sel>Animal</sel>
+				</li>
 				<li Class="TD_Find_Lib.ThingQueryFaction">
 					<def>Query_Faction</def>
 					<include>False</include>
 					<ex>1</ex>
 				</li>
-				<li Class="TD_Find_Lib.ThingQueryCategory">
-					<def>Query_Category</def>
-					<sel>Animal</sel>
+				<li Class="TD_Find_Lib.ThingQueryRaceProps">
+					<def>Query_RaceProps</def>
+					<sel>Wildness</sel>
+					<valueRange>0~0.5</valueRange>
 				</li>
 				<li Class="TD_Find_Lib.ThingQueryAndOrGroup">
 					<def>Query_AndOrGroup</def>
