@@ -1323,12 +1323,11 @@ namespace TD_Find_Lib
 
 	// This would be better to be ThingQueryDropDown<PawnRelationDef> if people modded PawnRelationDef
 	// So it can handle saving that by name. But using ThingQueryAndOrGroup is easier for UI.
-	public enum RelationFilterType { Has, Any, All}
 	public class ThingQueryRelation : ThingQueryAndOrGroup
 	{
 		public PawnRelationDef relation;
 		public Gender gender; // Def is "Parent" with labels "father" and "mother". There seems to be no translation string for "parent" so I'm gonna not do that filter.
-		public RelationFilterType filterType;
+		public SubmatchType filterType;
 		// "the related pawn matches these filters" : default "this pawn has this relation"
 		// "ANY related pawn matches" : default "ALL"
 
@@ -1393,10 +1392,10 @@ namespace TD_Find_Lib
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
 
-			if(filterType == RelationFilterType.Has)
+			if(filterType == SubmatchType.Has)
 				return RelationsFor(pawn).Any();
 
-			else if (filterType == RelationFilterType.Any)
+			else if (filterType == SubmatchType.Any)
 				return RelationsFor(pawn).Any(otherPawn => children.AppliesTo(otherPawn));
 
 			//else if (filterType == RelationFilterType.All)
@@ -1404,17 +1403,6 @@ namespace TD_Find_Lib
 			// This filter checks 1) you have at least one father 1) all those fathers match the filters.
 			return RelationsFor(pawn).Count() > 0 && RelationsFor(pawn).All(otherPawn => children.AppliesTo(otherPawn));
 
-		}
-
-
-		private bool ButtonToggleType()
-		{
-			if (row.ButtonText(filterType.TranslateEnum()))
-			{
-				filterType = filterType.Next();
-				return true;
-			}
-			return false;
 		}
 
 		public static string NameFor(PawnRelationDef def, Gender gender) =>
@@ -1446,10 +1434,10 @@ namespace TD_Find_Lib
 		{
 			row.Label(Label); // "Relation"
 
-			bool changed = ButtonToggleType(); // "Has"
+			bool changed = row.ButtonCycleEnum(ref filterType); // "Has"
 			ButtonOptions(); // "Parent"
 
-			if (filterType == RelationFilterType.Has)
+			if (filterType == SubmatchType.Has)
 				return changed;
 
 			// "Relation Any/All Parent Matches Any/All of these filters:"
@@ -1463,7 +1451,7 @@ namespace TD_Find_Lib
 
 		protected override bool DrawUnder(Listing_StandardIndent listing, bool locked)
 		{
-			if (filterType == RelationFilterType.Has)
+			if (filterType == SubmatchType.Has)
 				return false;
 
 			return base.DrawUnder(listing, locked);

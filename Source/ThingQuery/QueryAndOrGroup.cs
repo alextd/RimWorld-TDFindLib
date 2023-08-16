@@ -8,6 +8,8 @@ using RimWorld;
 
 namespace TD_Find_Lib
 {
+	public enum SubmatchType { Has, Any, All }
+
 	public class ThingQueryAndOrGroup : ThingQuery, IQueryHolderDroppable
 	{
 		// IQueryHolder 
@@ -144,6 +146,88 @@ namespace TD_Find_Lib
 			changed |= ButtonToggleAny();
 			row.Label("TD.Of".Translate());
 			return changed;
+		}
+	}
+
+	public enum EquipmentFilterType { Any, Primary, Equipment, Apparel}
+	public class ThingQueryEquipment : ThingQueryAndOrGroup
+	{
+		protected EquipmentFilterType filterType;
+		protected SubmatchType hasType;
+
+		public override void ExposeData()
+		{
+			base.ExposeData();
+			Scribe_Values.Look(ref filterType, "filterType");
+			Scribe_Values.Look(ref hasType, "hasType");
+		}
+		protected override ThingQuery Clone()
+		{
+			ThingQueryEquipment clone = (ThingQueryEquipment)base.Clone();
+			clone.filterType = filterType;
+			clone.hasType = hasType;
+			return clone;
+		}
+
+		public IEnumerable<Thing> GearFor(Pawn pawn)
+		{
+			if (filterType is EquipmentFilterType.Any or EquipmentFilterType.Apparel 
+				&& pawn.apparel != null)
+				foreach (var app in pawn.apparel.WornApparel)
+					yield return app;
+
+			
+			if (pawn.equipment == null)
+				yield break;
+
+
+			if (filterType is EquipmentFilterType.Any)
+				foreach (var eq in pawn.equipment.AllEquipmentListForReading)
+					yield return eq;
+
+			if (filterType is EquipmentFilterType.Equipment)
+				foreach (var eq in pawn.equipment.AllEquipmentListForReading
+					.Where(eq => eq.def.equipmentType != EquipmentType.Primary))
+					yield return eq;
+
+			if (filterType is EquipmentFilterType.Primary)
+				if (pawn.equipment.Primary != null)
+					yield return pawn.equipment.Primary;
+
+		}
+		public override bool AppliesDirectlyTo(Thing thing)
+		{
+			Pawn pawn = thing as Pawn;
+			if (pawn == null) return false;
+
+			return hasType switch
+			{
+				SubmatchType.Has => GearFor(pawn).Any(),
+				SubmatchType.Any => GearFor(pawn).Any(app => base.AppliesDirectlyTo(app)),
+				_ => GearFor(pawn).Count() > 0 && GearFor(pawn).All(app => base.AppliesDirectlyTo(app)),
+			};
+		}
+
+		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		{
+			bool changed = row.ButtonCycleEnum(ref hasType);
+			RowButtonFloatMenuEnum(filterType, newValue => filterType = newValue);
+
+			if (hasType == SubmatchType.Has) return changed;
+
+			row.Label("TD.Matches".Translate());
+			changed |= ButtonToggleAny();
+			row.Label("TD.Of".Translate());
+
+			return changed;
+		}
+
+		protected override bool DrawUnder(Listing_StandardIndent listing, bool locked)
+		{
+			if (hasType == SubmatchType.Has)
+				return false;
+
+			return base.DrawUnder(listing, locked);
 		}
 	}
 

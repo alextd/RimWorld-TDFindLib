@@ -35,5 +35,16 @@ namespace TD_Find_Lib
 			}
 			return false;
 		}
+
+
+		public static bool ButtonCycleEnum<T>(this WidgetRow row, ref T value) where T : System.Enum
+		{
+			if (row.ButtonText(value.TranslateEnum()))
+			{
+				value = value.Next();
+				return true;
+			}
+			return false;
+		}
 	}
 }

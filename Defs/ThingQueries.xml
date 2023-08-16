@@ -42,6 +42,7 @@
 			<li>Query_Temp</li>
 			<li>Query_ComfyTemp</li>
 			<li>Query_AreaRestriction</li>
+			<li>Query_Equipment</li>
 			<li>Query_Inventory</li>
 		</subQueries>
 	</TD_Find_Lib.ThingQueryCategoryDef>
@@ -172,6 +173,12 @@
 		<defName>Query_AreaRestriction</defName>
 		<label>area restriction</label>
 		<queryClass>TD_Find_Lib.ThingQueryRestricted</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Equipment</defName>
+		<label>equipped or worn</label>
+		<queryClass>TD_Find_Lib.ThingQueryEquipment</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 
 	<TD_Find_Lib.ThingQueryDef>

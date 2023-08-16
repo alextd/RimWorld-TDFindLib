@@ -64,12 +64,17 @@
 	<TD.AbilityFilterType.Active>Active</TD.AbilityFilterType.Active>
 	<TD.AbilityFilterType.Charges>Charges Available</TD.AbilityFilterType.Charges>
 
-	<TD.RelationFilterType.Has>Has a</TD.RelationFilterType.Has>
-	<TD.RelationFilterType.Any>Any</TD.RelationFilterType.Any>
-	<TD.RelationFilterType.All>All</TD.RelationFilterType.All>
-	
+	<TD.SubmatchType.Has>Has any</TD.SubmatchType.Has>
+	<TD.SubmatchType.Any>Any</TD.SubmatchType.Any>
+	<TD.SubmatchType.All>All</TD.SubmatchType.All>
+
 	<TD.ScheduleFilterType.Current>Current is</TD.ScheduleFilterType.Current>
 	<TD.ScheduleFilterType.AllScheduleIs>Schedule matches</TD.ScheduleFilterType.AllScheduleIs>
 	<TD.ScheduleFilterType.AnyScheduleNot>Schedule doesn't match</TD.ScheduleFilterType.AnyScheduleNot>
+
+	<TD.EquipmentFilterType.Any>equipped or worn</TD.EquipmentFilterType.Any>
+	<TD.EquipmentFilterType.Primary>equipped weapon</TD.EquipmentFilterType.Primary>
+	<TD.EquipmentFilterType.Equipment>other equipment</TD.EquipmentFilterType.Equipment>
+	<TD.EquipmentFilterType.Apparel>apparel</TD.EquipmentFilterType.Apparel>
 
 </LanguageData>
