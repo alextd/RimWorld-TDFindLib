@@ -269,7 +269,7 @@ namespace TD_Find_Lib
 			// Reorder Search rect
 			if (Event.current.type == EventType.Repaint)
 			{
-				Rect reorderRect = new(0f, startHeight, listing.ColumnWidth, reorderRectHeight);
+				Rect reorderRect = new(0f, startHeight - Text.LineHeight, listing.ColumnWidth, reorderRectHeight + Text.LineHeight);
 				reorderID = ReorderableWidget.NewGroup(
 					DoReorderSearch,
 					ReorderableDirection.Vertical,
@@ -299,11 +299,6 @@ namespace TD_Find_Lib
 				DrawExtraRowRect(rowRect, item, i);
 
 				ReorderableWidget.Reorderable(reorderID, rowRect);
-			}
-			if (Count == 0 && ReorderableWidget.Dragging)
-			{
-				Rect rowRect = listing.GetRect(RowHeight);
-				Widgets.DrawBox(rowRect);
 			}
 			reorderRectHeight = listing.CurHeight - startHeight;
 
