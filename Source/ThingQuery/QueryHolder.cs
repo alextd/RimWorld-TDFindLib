@@ -429,7 +429,7 @@ namespace TD_Find_Lib
 
 			//Same id 34003428 as GenUI.DrawMouseAttachment
 			Find.WindowStack.ImmediateWindow(34003428, dragRect, WindowLayer.Super,
-				() => dragQuery.DrawMain(dragRect.AtZero(), true, dragRect.AtZero()),
+				() => dragQuery.DrawRow(dragRect.AtZero()),
 				doBackground: false, absorbInputAroundWindow: false, 0f);
 		}
 

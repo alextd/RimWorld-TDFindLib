@@ -18,7 +18,7 @@ namespace TD_Find_Lib
 			sel == "" || thing.Label.IndexOf(sel, StringComparison.OrdinalIgnoreCase) >= 0;
 
 		protected override string MakeLabel() => "TD.Named".Translate();
-		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			base.DrawMain(rect, locked, fullRect);
 			rect.xMin += row.FinalX;
@@ -468,7 +468,7 @@ namespace TD_Find_Lib
 			ex == 4 ? "TD.AnyOption".Translate() :
 			"TD.NoFaction".Translate();	//Can't be null because T is struct
 
-		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			//This is not DrawCustom because then the faction button would go on the left.
 			bool changed = base.DrawMain(rect, locked, fullRect);
@@ -686,7 +686,7 @@ namespace TD_Find_Lib
 			thing.TryGetQuality(out QualityCategory qc) &&
 			sel.Includes(qc);
 
-		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			base.DrawMain(rect, locked, fullRect);
 
@@ -1331,7 +1331,7 @@ namespace TD_Find_Lib
 
 
 
-		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			row.Label(Label); // "Reservation"
 

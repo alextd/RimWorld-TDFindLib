@@ -67,7 +67,7 @@ namespace TD_Find_Lib
 		}
 
 
-		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			if (base.DrawMain(rect, locked, fullRect))
 			{
@@ -824,7 +824,7 @@ namespace TD_Find_Lib
 				_ => "NonRecruitable".Translate()
 			};
 
-		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			bool changed = base.DrawMain(rect, locked, fullRect);
 
@@ -858,7 +858,7 @@ namespace TD_Find_Lib
 			return sel ? pawn.IsQuestHelper() : pawn.IsQuestLodger();
 		}
 
-		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			base.DrawMain(rect, locked, fullRect);
 			Rect buttRect = fullRect.RightPartClamped(0.4f, row.FinalX);
@@ -1305,7 +1305,7 @@ namespace TD_Find_Lib
 			return sel.Includes(chronological ? pawn.ageTracker.AgeChronologicalYearsFloat : pawn.ageTracker.AgeBiologicalYearsFloat);
 		}
 
-		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			bool changed = base.DrawMain(rect, locked, fullRect);
 
@@ -1430,7 +1430,7 @@ namespace TD_Find_Lib
 			}
 		}
 
-		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			row.Label(Label); // "Relation"
 
@@ -1622,7 +1622,7 @@ namespace TD_Find_Lib
 			return false;
 		}
 
-		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			base.DrawMain(rect, locked, fullRect);
 

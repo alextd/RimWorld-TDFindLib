@@ -267,7 +267,7 @@ namespace TDFindLib_Ideology
 			return clone;
 		}
 
-		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			bool changed = base.DrawMain(rect, locked, fullRect);
 
@@ -481,7 +481,7 @@ namespace TDFindLib_Ideology
 		public override string NameForExtra(int ex) =>
 			ex == 1 ? "TD.PersonsIdeoligion".Translate() : "TD.PlayersIdeoligion".Translate();
 
-		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			bool changed = base.DrawMain(rect, locked, fullRect);
 

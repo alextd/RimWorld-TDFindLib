@@ -312,8 +312,12 @@ namespace TD_Find_Lib
 				iconWidth = rowRect.xMax - iconRow.FinalX;
 		}
 
-
-		public virtual bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		public void DrawRow(Rect rect)
+		{
+			row.Init(rect.x, rect.y, gap: RowGap);
+			DrawMain(rect, true, rect);
+		}
+		protected virtual bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			row.Label(Label);
 			return false;
@@ -834,7 +838,7 @@ namespace TD_Find_Lib
 				options.Add(FloatMenuFor(o));
 		}
 
-		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			bool changeSelection = false;
 			bool changed = false;
@@ -1220,7 +1224,7 @@ namespace TD_Find_Lib
 		// Does not need clone because ThingQueryWithOption handles it ; 
 		// Does need ExposeData because generic partent could not handle reffing a struct's field
 
-		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			base.DrawMain(rect, locked, fullRect);
 			return TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref selByRef, valueStyle: Style);
@@ -1245,7 +1249,7 @@ namespace TD_Find_Lib
 		// Does not need clone because ThingQueryWithOption handles it ; 
 		// Does need ExposeData because generic partent could not handle reffing a struct's field
 
-		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			base.DrawMain(rect, locked, fullRect);
 			return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref selByRef, Writer);
@@ -1305,7 +1309,7 @@ namespace TD_Find_Lib
 				label = sb.ToString();
 		}
 
-		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			base.DrawMain(rect, locked, fullRect);
 			if (Widgets.ButtonText(fullRect.RightPart(.7f), label))

@@ -45,7 +45,7 @@ namespace TDFindLib_Biotech
 			});
 		}
 
-		public override bool DrawMain(UnityEngine.Rect rect, bool locked, UnityEngine.Rect fullRect)
+		protected override bool DrawMain(UnityEngine.Rect rect, bool locked, UnityEngine.Rect fullRect)
 		{
 			bool changed = base.DrawMain(rect, locked, fullRect);
 
@@ -92,7 +92,7 @@ namespace TDFindLib_Biotech
 			return false;
 		}
 
-		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			RowPrependNOT();
 			
@@ -292,7 +292,7 @@ namespace TDFindLib_Biotech
 					yield return custo.name;
 		}
 
-		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			bool changed = base.DrawMain(rect, locked, fullRect);
 
