@@ -182,6 +182,7 @@ namespace TD_Find_Lib
 		// The main row WidgetRow drawer.
 		protected static WidgetRow row = new();
 		private static WidgetRow iconRow = new();
+		private float iconWidth; // remember for this query so multi-window is no problem.
 		protected virtual float RowGap => WidgetRow.DefaultGap;
 		public (bool, bool) Listing(Listing_StandardIndent listing, bool locked)
 		{
@@ -203,7 +204,7 @@ namespace TD_Find_Lib
 			bool delete = false;
 
 
-			// Layout icons now for width / events.
+			// Layout icons now for iconWidth
 			// Now that I've written this, it seems like this should be precomputed.
 			if (Event.current.type != EventType.Repaint)
 				DrawIcons(locked, rowRect, ref changed, ref delete);
@@ -213,7 +214,7 @@ namespace TD_Find_Lib
 			Rect drawRect = rowRect;
 
 			// Make room for icons
-			drawRect.width -= (drawRect.xMax - iconRow.FinalX);
+			drawRect.width -= iconWidth;
 
 			row.Init(drawRect.x, drawRect.y, gap: RowGap);
 
@@ -302,6 +303,8 @@ namespace TD_Find_Lib
 					changed = true;
 				}
 			}
+			if (Event.current.type == EventType.Layout)
+				iconWidth = rowRect.xMax - iconRow.FinalX;
 		}
 
 
