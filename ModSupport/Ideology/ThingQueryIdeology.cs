@@ -492,15 +492,15 @@ namespace TDFindLib_Ideology
 	}
 
 
-	public enum GuaranlenFilterType { Connection, Mode, Strength, StrengthDesired, MaxDryads, CurDryads, TimeToDryad }
-	public class ThingQueryGuaranlen : ThingQueryDropDown<GuaranlenFilterType>
+	public enum GauranlenFilterType { Connection, Mode, Strength, StrengthDesired, MaxDryads, CurDryads, TimeToDryad }
+	public class ThingQueryGauranlen : ThingQueryDropDown<GauranlenFilterType>
 	{
 		public GauranlenTreeModeDef modeDef;
 		public FloatRangeUB strength;
 		public IntRangeUB numDryads;
 		public IntRangeUB timeToDryad; // ticks, shown as days
 
-		public ThingQueryGuaranlen()
+		public ThingQueryGauranlen()
 		{
 			modeDef = GauranlenTreeModeDefOf.Gaumaker;
 			strength = new(0, 1, .5f, 1); // todo find consts
@@ -513,27 +513,27 @@ namespace TDFindLib_Ideology
 
 			switch (sel)
 			{
-				//				case GuaranlenFilterType.Connection:
+				//				case GauranlenFilterType.Connection:
 				//					break;
-				case GuaranlenFilterType.Mode:
+				case GauranlenFilterType.Mode:
 					Scribe_Defs.Look(ref modeDef, "modeDef");
 					break;
-				case GuaranlenFilterType.Strength:
-				case GuaranlenFilterType.StrengthDesired:
+				case GauranlenFilterType.Strength:
+				case GauranlenFilterType.StrengthDesired:
 					Scribe_Values.Look(ref strength.range, "strength");
 					break;
-				case GuaranlenFilterType.MaxDryads:
-				case GuaranlenFilterType.CurDryads:
+				case GauranlenFilterType.MaxDryads:
+				case GauranlenFilterType.CurDryads:
 					Scribe_Values.Look(ref numDryads.range, "numDryads");
 					break;
-				case GuaranlenFilterType.TimeToDryad:
+				case GauranlenFilterType.TimeToDryad:
 					Scribe_Values.Look(ref timeToDryad.range, "timeToDryad");
 					break;
 			}
 		}
 		protected override ThingQuery Clone()
 		{
-			ThingQueryGuaranlen clone = (ThingQueryGuaranlen)base.Clone();
+			ThingQueryGauranlen clone = (ThingQueryGauranlen)base.Clone();
 			clone.modeDef = modeDef;
 			clone.strength = strength;
 			clone.numDryads = numDryads;
@@ -550,19 +550,19 @@ namespace TDFindLib_Ideology
 
 			switch (sel)
 			{
-				case GuaranlenFilterType.Connection:
+				case GauranlenFilterType.Connection:
 					return connection.Connected;
-				case GuaranlenFilterType.Mode:
+				case GauranlenFilterType.Mode:
 					return connection.Mode == modeDef;
-				case GuaranlenFilterType.Strength:
+				case GauranlenFilterType.Strength:
 					return strength.Includes(connection.ConnectionStrength);
-				case GuaranlenFilterType.StrengthDesired:
+				case GauranlenFilterType.StrengthDesired:
 					return strength.Includes(connection.DesiredConnectionStrength);
-				case GuaranlenFilterType.MaxDryads:
+				case GauranlenFilterType.MaxDryads:
 					return numDryads.Includes(connection.MaxDryads);
-				case GuaranlenFilterType.CurDryads:
+				case GauranlenFilterType.CurDryads:
 					return numDryads.Includes(connection.dryads.Count);
-				case GuaranlenFilterType.TimeToDryad:
+				case GauranlenFilterType.TimeToDryad:
 					return timeToDryad.Includes(connection.spawnTick - Find.TickManager.TicksGame);
 			}
 
@@ -573,22 +573,22 @@ namespace TDFindLib_Ideology
 		{
 			switch (sel)
 			{
-				case GuaranlenFilterType.Connection:
+				case GauranlenFilterType.Connection:
 					return false;
 
-				case GuaranlenFilterType.Mode:
+				case GauranlenFilterType.Mode:
 					RowButtonFloatMenuDef(modeDef, newValue => modeDef = newValue);
 					return false;
 
-				case GuaranlenFilterType.Strength:
-				case GuaranlenFilterType.StrengthDesired:
+				case GauranlenFilterType.Strength:
+				case GauranlenFilterType.StrengthDesired:
 					return TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref strength, ToStringStyle.PercentZero);
 
-				case GuaranlenFilterType.MaxDryads:
-				case GuaranlenFilterType.CurDryads:
+				case GauranlenFilterType.MaxDryads:
+				case GauranlenFilterType.CurDryads:
 					return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref numDryads);
 
-				case GuaranlenFilterType.TimeToDryad:
+				case GauranlenFilterType.TimeToDryad:
 					return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref timeToDryad, ticks => $"{ticks * 1f / GenDate.TicksPerDay:0.0}");
 			}
 

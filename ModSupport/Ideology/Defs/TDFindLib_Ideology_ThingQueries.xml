@@ -90,9 +90,9 @@
 	</TD_Find_Lib.ThingQueryDef>
 	
 	<TD_Find_Lib.ThingQueryDef>
-		<defName>Query_Guaranlen</defName>
-		<label>guaranlen tree</label>
-		<queryClass>TDFindLib_Ideology.ThingQueryGuaranlen</queryClass>
+		<defName>Query_Gauranlen</defName>
+		<label>gauranlen tree</label>
+		<queryClass>TDFindLib_Ideology.ThingQueryGauranlen</queryClass>
 		<mod>Ludeon.RimWorld.Ideology</mod>
 		<insertCategory>Category_Plants</insertCategory>
 	</TD_Find_Lib.ThingQueryDef>

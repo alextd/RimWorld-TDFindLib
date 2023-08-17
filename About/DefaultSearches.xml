@@ -959,13 +959,13 @@
 				<li Class="TD_Find_Lib.ThingQueryAndOrGroup">
 					<def>Query_AndOrGroup</def>
 					<queries>
-						<li Class="TDFindLib_Ideology.ThingQueryGuaranlen">
-							<def>Query_Guaranlen</def>
+						<li Class="TDFindLib_Ideology.ThingQueryGauranlen">
+							<def>Query_Gauranlen</def>
 							<sel>CurDryads</sel>
 							<numDryads>4~4</numDryads>
 						</li>
-						<li Class="TDFindLib_Ideology.ThingQueryGuaranlen">
-							<def>Query_Guaranlen</def>
+						<li Class="TDFindLib_Ideology.ThingQueryGauranlen">
+							<def>Query_Gauranlen</def>
 							<sel>Strength</sel>
 							<strength>0~0.7692308</strength>
 						</li>
@@ -975,13 +975,13 @@
 				<li Class="TD_Find_Lib.ThingQueryAndOrGroup">
 					<def>Query_AndOrGroup</def>
 					<queries>
-						<li Class="TDFindLib_Ideology.ThingQueryGuaranlen">
-							<def>Query_Guaranlen</def>
+						<li Class="TDFindLib_Ideology.ThingQueryGauranlen">
+							<def>Query_Gauranlen</def>
 							<sel>CurDryads</sel>
 							<numDryads>3~4</numDryads>
 						</li>
-						<li Class="TDFindLib_Ideology.ThingQueryGuaranlen">
-							<def>Query_Guaranlen</def>
+						<li Class="TDFindLib_Ideology.ThingQueryGauranlen">
+							<def>Query_Gauranlen</def>
 							<sel>Strength</sel>
 							<strength>0~0.5192308</strength>
 						</li>
@@ -991,13 +991,13 @@
 				<li Class="TD_Find_Lib.ThingQueryAndOrGroup">
 					<def>Query_AndOrGroup</def>
 					<queries>
-						<li Class="TDFindLib_Ideology.ThingQueryGuaranlen">
-							<def>Query_Guaranlen</def>
+						<li Class="TDFindLib_Ideology.ThingQueryGauranlen">
+							<def>Query_Gauranlen</def>
 							<sel>CurDryads</sel>
 							<numDryads>2~4</numDryads>
 						</li>
-						<li Class="TDFindLib_Ideology.ThingQueryGuaranlen">
-							<def>Query_Guaranlen</def>
+						<li Class="TDFindLib_Ideology.ThingQueryGauranlen">
+							<def>Query_Gauranlen</def>
 							<sel>Strength</sel>
 							<strength>0~0.2692308</strength>
 						</li>

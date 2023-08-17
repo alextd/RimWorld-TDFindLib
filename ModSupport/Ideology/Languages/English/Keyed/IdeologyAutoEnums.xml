@@ -5,13 +5,13 @@
 	<TD.IdeoXenotypeFilterType.Disliked>Disliked</TD.IdeoXenotypeFilterType.Disliked>
 	<TD.IdeoXenotypeFilterType.NoOpinion>No Opinion</TD.IdeoXenotypeFilterType.NoOpinion>
 
-	<TD.GuaranlenFilterType.Connection>Is Connected</TD.GuaranlenFilterType.Connection>
-	<TD.GuaranlenFilterType.Mode>Dryad Caste Is</TD.GuaranlenFilterType.Mode>
-	<TD.GuaranlenFilterType.Strength>Connection Strength</TD.GuaranlenFilterType.Strength>
-	<TD.GuaranlenFilterType.StrengthDesired>Desired Strength</TD.GuaranlenFilterType.StrengthDesired>
-	<TD.GuaranlenFilterType.MaxDryads>Max Dryads</TD.GuaranlenFilterType.MaxDryads>
-	<TD.GuaranlenFilterType.CurDryads>Dryad Count</TD.GuaranlenFilterType.CurDryads>
-	<TD.GuaranlenFilterType.TimeToDryad>Days until new Dryad</TD.GuaranlenFilterType.TimeToDryad>
+	<TD.GauranlenFilterType.Connection>Is Connected</TD.GauranlenFilterType.Connection>
+	<TD.GauranlenFilterType.Mode>Dryad Caste Is</TD.GauranlenFilterType.Mode>
+	<TD.GauranlenFilterType.Strength>Connection Strength</TD.GauranlenFilterType.Strength>
+	<TD.GauranlenFilterType.StrengthDesired>Desired Strength</TD.GauranlenFilterType.StrengthDesired>
+	<TD.GauranlenFilterType.MaxDryads>Max Dryads</TD.GauranlenFilterType.MaxDryads>
+	<TD.GauranlenFilterType.CurDryads>Dryad Count</TD.GauranlenFilterType.CurDryads>
+	<TD.GauranlenFilterType.TimeToDryad>Days until new Dryad</TD.GauranlenFilterType.TimeToDryad>
 
 
 </LanguageData>
