@@ -577,7 +577,11 @@ namespace TDFindLib_Ideology
 					return false;
 
 				case GauranlenFilterType.Mode:
-					RowButtonFloatMenuDef(modeDef, newValue => modeDef = newValue);
+					RowButtonFloatMenu(
+						modeDef, 
+						DefDatabase<GauranlenTreeModeDef>.AllDefs.Append(null), 
+						def => def == null ? "None".Translate() : def.GetLabel(),
+						newValue => modeDef = newValue);
 					return false;
 
 				case GauranlenFilterType.Strength:
