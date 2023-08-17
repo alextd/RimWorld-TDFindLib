@@ -161,7 +161,7 @@ namespace TD_Find_Lib
 
 		public string Source => "=" + Settings.StorageTransferTag; // only used with settings storage
 
-		public string ProvideName => "Default Searches";
+		public string ProvideName => "Sample Searches";
 
 		public ISearchProvider.Method ProvideMethod() => ISearchProvider.Method.Library;
 		public QuerySearch ProvideSingle() => null;
