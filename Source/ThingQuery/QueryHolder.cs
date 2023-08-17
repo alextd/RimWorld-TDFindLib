@@ -362,7 +362,7 @@ namespace TD_Find_Lib
 
 
 		// draw queries continuing a Listing_StandardIndent
-		public int reorderID;
+		public int reorderID = -1;
 		private float reorderRectHeight;
 
 		public bool DrawQueriesListing(Listing_StandardIndent listing, bool locked, string indentAfterFirst = null, float extendableHeight = 0)

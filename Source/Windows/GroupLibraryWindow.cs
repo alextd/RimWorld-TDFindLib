@@ -74,7 +74,7 @@ namespace TD_Find_Lib
 
 		private Vector2 scrollPosition = Vector2.zero;
 		private float scrollViewHeight;
-		private int reorderID;
+		private int reorderID = -1;
 		private float reorderRectHeight;
 		const float GapBetweenGroups = 4;
 
@@ -246,7 +246,7 @@ namespace TD_Find_Lib
 		//Drawing
 		private const float RowHeight = WidgetRow.IconSize + 6;
 
-		public int reorderID;
+		public int reorderID = -1;
 		private float reorderRectHeight;
 
 		public Rect DrawHeader(Listing_StandardIndent listing)
