@@ -89,13 +89,18 @@ namespace TD_Find_Lib
 		{
 			get {
 				if (_label == null)
-				{
-					_label = MakeLabel();
-					if (!include)
-						_label = "TD.NOT".Translate().Colorize(Color.red) + " " + _label;
-				}
+					_label = PrependNOT + MakeLabel();
+
 				return _label;
 			}
+		}
+
+		public string PrependNOT => include ? "" : TagNOT + " ";
+		public string TagNOT => "TD.NOT".Translate().Colorize(Color.red);
+		protected void RowPrependNOT()
+		{
+			if (!include)
+				row.Label(TagNOT);
 		}
 
 
@@ -855,9 +860,9 @@ namespace TD_Find_Lib
 			else
 			{
 				// selected option button on right. 
-				float labelSize = Text.CalcSize(selLabel).x + WidgetRow.ButtonExtraSpace;
+				float selButtonSizeWanted = Text.CalcSize(selLabel).x + WidgetRow.ButtonExtraSpace;
 
-				Rect buttRect = fullRect.RightPartClamped(0.4f, row.FinalX, labelSize);
+				Rect buttRect = fullRect.RightPartClamped(0.4f, row.FinalX, selButtonSizeWanted);
 				changeSelection = Widgets.ButtonText(buttRect, selLabel);
 				if (TipForSel() is string tip) TooltipHandler.TipRegion(buttRect, tip);
 			}
@@ -1212,11 +1217,13 @@ namespace TD_Find_Lib
 
 			Scribe_Values.Look(ref _sel.range, "sel");
 		}
+		// Does not need clone because ThingQueryWithOption handles it ; 
+		// Does need ExposeData because generic partent could not handle reffing a struct's field
 
 		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			base.DrawMain(rect, locked, fullRect);
-			return TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(Text.CalcSize(Label).x), id, ref selByRef, valueStyle: Style);
+			return TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref selByRef, valueStyle: Style);
 		}
 	}
 
@@ -1235,11 +1242,13 @@ namespace TD_Find_Lib
 
 			Scribe_Values.Look(ref _sel.range, "sel");
 		}
+		// Does not need clone because ThingQueryWithOption handles it ; 
+		// Does need ExposeData because generic partent could not handle reffing a struct's field
 
 		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			base.DrawMain(rect, locked, fullRect);
-			return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(Text.CalcSize(Label).x), id, ref selByRef, Writer);
+			return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref selByRef, Writer);
 		}
 	}
 

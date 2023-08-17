@@ -27,6 +27,7 @@
 	<TD.Opened>Opened</TD.Opened>
 	<TD.BlockedOpen>Blocked Open</TD.BlockedOpen>
 	<TD.IncludeThingsThatMatch>Include things that match</TD.IncludeThingsThatMatch>
+	<TD.ExcludeThingsThatMatch>Exclude things that match</TD.ExcludeThingsThatMatch>
 	<TD.OfTheseQueries>of these filters:</TD.OfTheseQueries>
 	<TD.TheThingHoldingThis>The thing holding this</TD.TheThingHoldingThis>
 	<TD.AnythingThisIsHolding>Anything this is holding</TD.AnythingThisIsHolding>

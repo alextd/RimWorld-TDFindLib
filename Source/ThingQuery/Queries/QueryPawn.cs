@@ -48,7 +48,7 @@ namespace TD_Find_Lib
 		public override int Max => GenDate.TicksPerDay * 2;
 		public override Func<int, string> Writer => ticks => $"{ticks * 1f / GenDate.TicksPerHour:0.0}";
 
-		public ThingQueryDying() => selByRef.max = GenDate.TicksPerDay;
+		public ThingQueryDying() => _sel.max = GenDate.TicksPerDay;
 
 
 		public override bool AppliesDirectlyTo(Thing thing)
@@ -861,7 +861,7 @@ namespace TD_Find_Lib
 		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			base.DrawMain(rect, locked, fullRect);
-			Rect buttRect = fullRect.RightPartClamped(0.4f, Text.CalcSize(Label).x);
+			Rect buttRect = fullRect.RightPartClamped(0.4f, row.FinalX);
 			string label = sel ? "TD.IsHelper".Translate() : "TD.IsLodger".Translate();
 			if (Widgets.ButtonText(buttRect, label))
 			{

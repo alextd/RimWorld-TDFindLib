@@ -76,7 +76,7 @@ namespace TD_Find_Lib
 		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			// no base.DrawMain, don't want label in the filter row
-			row.Label("TD.IncludeThingsThatMatch".Translate());
+			row.Label(include ? "TD.IncludeThingsThatMatch".Translate() : "TD.ExcludeThingsThatMatch".Translate());
 			bool changed = ButtonToggleAny();
 			row.Label("TD.OfTheseQueries".Translate());
 
@@ -141,6 +141,7 @@ namespace TD_Find_Lib
 
 		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
+			RowPrependNOT();
 			bool changed = row.ButtonTextToggleBool(ref holdingThis, "TD.TheThingHoldingThis".Translate(), "TD.AnythingThisIsHolding".Translate());
 
 			row.Label("TD.Matches".Translate());
@@ -211,6 +212,7 @@ namespace TD_Find_Lib
 
 		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
+			RowPrependNOT();
 			bool changed = row.ButtonCycleEnum(ref hasType);
 			RowButtonFloatMenuEnum(filterType, newValue => filterType = newValue);
 
@@ -262,6 +264,7 @@ namespace TD_Find_Lib
 
 		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
+			RowPrependNOT();
 			row.Label("TD.AnythingXStepsNearbyMatchesPre".Translate());
 			Rect rangeRect = row.GetRect(80);
 			row.Label("TD.AnythingXStepsNearbyMatchesPost".Translate());

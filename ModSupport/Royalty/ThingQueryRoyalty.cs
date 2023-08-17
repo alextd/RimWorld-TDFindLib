@@ -389,7 +389,7 @@ namespace TDFindLib_Royalty
 		public override int Min => 0;
 		public override int Max => 5; //Seems enough
 
-		public ThingQueryPermitPoints() => _sel.range.min = 1;
+		public ThingQueryPermitPoints() => _sel.min = 1;
 
 		public override bool AppliesDirectlyTo(Thing thing)
 		{

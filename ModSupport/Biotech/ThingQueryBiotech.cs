@@ -94,6 +94,8 @@ namespace TDFindLib_Biotech
 
 		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
+			RowPrependNOT();
+			
 			bool changed = false;
 
 			if (!overseer)

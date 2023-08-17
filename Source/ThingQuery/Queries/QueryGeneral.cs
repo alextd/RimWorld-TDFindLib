@@ -17,16 +17,11 @@ namespace TD_Find_Lib
 			//thing.Label.Contains(sel, CaseInsensitiveComparer.DefaultInvariant);	//Contains doesn't accept comparer with strings. okay.
 			sel == "" || thing.Label.IndexOf(sel, StringComparison.OrdinalIgnoreCase) >= 0;
 
-		public static string namedLabel = "TD.Named".Translate();
-		public static float? namedLabelWidth;
-		public static float NamedLabelWidth =>
-			namedLabelWidth.HasValue ? namedLabelWidth.Value :
-			(namedLabelWidth = Text.CalcSize(namedLabel).x).Value;
-
+		protected override string MakeLabel() => "TD.Named".Translate();
 		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
-			Widgets.Label(rect, namedLabel);
-			rect.xMin += NamedLabelWidth;
+			base.DrawMain(rect, locked, fullRect);
+			rect.xMin += row.FinalX;
 
 			if (locked)
 			{
@@ -38,14 +33,17 @@ namespace TD_Find_Lib
 				&& GUI.GetNameOfFocusedControl() == $"THING_QUERY_NAME_INPUT{id}")
 					Event.current.Use();
 
+			Rect resetRect = rect.RightPartPixels(rect.height);
+			rect.width -= resetRect.width + WidgetRow.DefaultGap;
+
 			GUI.SetNextControlName($"THING_QUERY_NAME_INPUT{id}");
-			string newStr = Widgets.TextField(rect.LeftPart(0.9f), sel);
+			string newStr = Widgets.TextField(rect, sel);
 			if (newStr != sel)
 			{
 				sel = newStr;
 				return true;
 			}
-			if (Widgets.ButtonImage(rect.RightPartPixels(rect.height), TexUI.RotLeftTex))
+			if (Widgets.ButtonImage(resetRect, TexUI.RotLeftTex))
 			{
 				UI.UnfocusCurrentControl();
 				sel = "";
@@ -303,39 +301,15 @@ namespace TD_Find_Lib
 			"TD.Frozen".Translate();
 	}
 
-	public class ThingQueryTimeToRot : ThingQuery
+	public class ThingQueryTimeToRot : ThingQueryIntRange
 	{
-		public const int MinReasonable = 0;
-		public const int MaxReasonable = GenDate.TicksPerDay * 20;
+		public override int Max => GenDate.TicksPerDay * 20;
+		public override Func<int, string> Writer => ticks => $"{ticks * 1f / GenDate.TicksPerDay:0.0}";
 
-		IntRangeUB ticksRange;
-		
-		public ThingQueryTimeToRot()
-		{
-			ticksRange = new IntRangeUB(MinReasonable, MaxReasonable);
-			ticksRange.max = MaxReasonable / 2;
-		}
-
-		public override void ExposeData()
-		{
-			base.ExposeData();
-			Scribe_Values.Look(ref ticksRange.range, "ticksRange");
-		}
-		protected override ThingQuery Clone()
-		{
-			ThingQueryTimeToRot clone = (ThingQueryTimeToRot)base.Clone();
-			clone.ticksRange = ticksRange;
-			return clone;
-		}
+		public ThingQueryTimeToRot() => _sel.max = Max / 2;
 
 		public override bool AppliesDirectlyTo(Thing thing) =>
-			thing.TryGetComp<CompRottable>()?.TicksUntilRotAtCurrentTemp is int t && ticksRange.Includes(t);
-
-		public override bool DrawMain(Rect rect, bool locked, Rect fullRect)
-		{
-			base.DrawMain(rect, locked, fullRect);
-			return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(Text.CalcSize(Label).x), id, ref ticksRange, ticks => $"{ticks * 1f / GenDate.TicksPerDay:0.0}");
-		}
+			thing.TryGetComp<CompRottable>()?.TicksUntilRotAtCurrentTemp is int t && sel.Includes(t);
 	}
 
 	public class ThingQueryGrowth : ThingQueryFloatRange
@@ -717,7 +691,7 @@ namespace TD_Find_Lib
 			base.DrawMain(rect, locked, fullRect);
 
 			QualityRange newRange = sel;
-			Widgets.QualityRange(fullRect.RightHalfClamped(Text.CalcSize(Label).x), id, ref newRange);
+			Widgets.QualityRange(fullRect.RightHalfClamped(row.FinalX), id, ref newRange);
 			if (sel != newRange)
 			{
 				sel = newRange;
