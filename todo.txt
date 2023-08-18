@@ -1,3 +1,10 @@
+=== Fixes 
+
+split DrawMain to DrawRow then DrawRight, so row.FinalX can be used to nudge DrawRight correctly in subclass overrides. 
+ (Right now, any overrides to DrawMain might add things to the row after the parent class used row.FinalX)
+
+
+
 ===Mods to use TDFindLib
 
 numbers
@@ -6,11 +13,14 @@ Stockpile filter details
 Job target filter
 colony manager automation
 
+
+
 ==more filters
 
 mods?
 Humanoid Alien Races
 
+inventory: empty, any, % load - carrying vs gear vs apparel vs weapons
 
 What other ThingQueryPreselectDef could we make.
 
@@ -18,7 +28,10 @@ hediff duration
 
 Apparel required filter <ThingDef> pawn.apparel.ActiveRequirementsForReading.Any(r => r.RequiredForPawn(pawn, sel))
 
-== features
+
+
+== more features
+
 ctrl-C QuerySearch when locked
 "sort by name" in library
 
@@ -28,11 +41,8 @@ Ctrl-F from info screen to match that thing. e.g. gene.
 
 
 
-===HARDCORE===:
-===HARDCORE===:
-===HARDCORE===:
+== New nice things
 
-==Features:
 Result List => Multiplier per thing => total value? Nutrition and ___?
 (e.g. Everybody gets one: until you have 10xNutrition, not just 10xfood)
 
@@ -44,6 +54,7 @@ Search tradeships?
 thinglist group by def large lists
 
 All Maps filter by type : colony? raid? etc.
+
 
 
 ==QoL
@@ -60,6 +71,8 @@ ThingViewer supports maps? Tab for each map?
 thinglist tab/page down key to next thingdef
 - dropdown to go to section by def.
 - collapse same def
+
+  save/load to file instead of clipboard?
 
 restrict queries by list type - e.g. don't show 'personal details' like skills for item lists.
 
@@ -80,15 +93,23 @@ check (num != indexWithinGroup) OR this group handles ctrl-drop
 zip copy/paste? System.IO.Compression
 
 
+
 ==Optimizations:
 static constructor lists of options
 
 proprocess queries by def
 
 
+
 ==Hardcore
-Reflection Filter: defined by def ?
+Ctrl-f text input super smart:
+- "mood" finds thoughts with mood
+- "wood" finds harvest product: wood
+- "weapon" finds equipped weapon subfilter
+- "bionic" finds various references to bionic
+
 ThingComp Filter
+Reflection Filter: defined by def ?
 
 flesh out baselist : ListerThings checkbox by def / category.
 
@@ -101,17 +122,7 @@ ctrl-f pin multiple thinglist+refresh
 
 
 
-
 ???
 Get rid of Null options? Make it extraoptions.?
-FilterGroup active/inactive?
 resolve references all the time so dangling references are cleaned? eg set up area filter and then delete area.
 dragging thinglist window instead of unselect? Hard to tell difference between click and drag
-  save/load to file instead of clipboard?
-
-split DrawMain to DrawRow then DrawRight, so row.FinalX can be used to nudge DrawRight correctly in subclass overrides. 
- (Right now, any overrides to DrawMain might add things to the row after the parent class used row.FinalX)
-
-
-
-========= 
