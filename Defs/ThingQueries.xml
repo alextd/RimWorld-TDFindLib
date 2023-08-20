@@ -369,6 +369,7 @@
 		<subQueries>
 			<li>Query_ItemCategory</li>
 			<li>Query_Quality</li>
+			<li>Query_Art</li>
 			<li>Query_Stuff</li>
 			<li>Query_SpecialFilter</li>
 			<li>Query_ApparelLayer</li>
@@ -429,6 +430,7 @@
 			<li>Query_BuildingCategory</li>
 			<li>Query_Stuff</li>
 			<li>Query_Quality</li>
+			<li>Query_Art</li>
 			<li>Query_Designation</li>
 			<li>Query_HP</li>
 			<li>Query_MineableDef</li>
@@ -612,6 +614,12 @@
 		<defName>Query_Reserved</defName>
 		<label>reservation</label>
 		<queryClass>TD_Find_Lib.ThingQueryReserved</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Art</defName>
+		<label>is art</label>
+		<queryClass>TD_Find_Lib.ThingQueryArt</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 
 	<TD_Find_Lib.ThingQueryDef>

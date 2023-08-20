@@ -1356,4 +1356,11 @@ namespace TD_Find_Lib
 			return base.DrawUnder(listing, locked);
 		}
 	}
+
+	public class ThingQueryArt : ThingQuery
+	{
+		public override bool AppliesDirectlyTo(Thing thing) =>
+			thing.TryGetComp<CompArt>() is CompArt art && art.Active;
+	}
+
 }
