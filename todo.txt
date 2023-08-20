@@ -102,6 +102,8 @@ proprocess queries by def
 
 
 ==Hardcore
+Filter that references a query in the library.
+
 Ctrl-f text input super smart:
 - "mood" finds thoughts with mood
 - "wood" finds harvest product: wood
