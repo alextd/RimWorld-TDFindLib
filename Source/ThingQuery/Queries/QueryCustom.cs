@@ -145,6 +145,14 @@ namespace TD_Find_Lib
 			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty)
 				.Where(p => p.PropertyType == typeof(int)))
 				yield return NewData(typeof(IntPropData<>), type, type, prop.Name);
+
+			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField)
+				.Where(f => f.FieldType == typeof(float)))
+				yield return new FloatFieldData(type, field.Name);
+
+			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty)
+				.Where(p => p.PropertyType == typeof(float)))
+				yield return NewData(typeof(FloatPropData<>), type, type, prop.Name);
 		}
 	}
 
@@ -191,7 +199,9 @@ namespace TD_Find_Lib
 			getter ??= AccessTools.MethodDelegate<BoolGetter>(AccessTools.PropertyGetter(typeof(T), name));
 		}
 
-		public override bool GetBoolValue(object pbj) => getter(pbj as T);// please only pass in T
+		public override bool GetBoolValue(object obj) => getter(obj as T);// please only pass in T
+
+		public override string ToString() => $"{base.ToString()} bool property";
 	}
 
 
@@ -297,8 +307,120 @@ namespace TD_Find_Lib
 			getter ??= AccessTools.MethodDelegate<IntGetter>(AccessTools.PropertyGetter(typeof(T), name));
 		}
 
-		public override int GetIntValue(object pbj) => getter(pbj as T);// please only pass in T
+		public override int GetIntValue(object obj) => getter(obj as T);// please only pass in T
+
+		public override string ToString() => $"{base.ToString()} int property";
 	}
+
+
+
+	public abstract class FloatData : FieldData
+	{
+		private FloatRange valueRange = new(10, 15);
+		public override void PostExposeData()
+		{
+			Scribe_Values.Look(ref valueRange, "range");
+		}
+		public override FieldData Clone()
+		{
+			FloatData clone = (FloatData)base.Clone();
+			clone.valueRange = valueRange;
+			return clone;
+		}
+
+		public FloatData(Type type, string name)
+			: base(type, name)
+		{ }
+
+		public abstract float GetFloatValue(object obj);
+		public override bool AppliesTo(Thing thing) => valueRange.Includes(GetFloatValue(thing));
+
+		private string lBuffer, rBuffer;
+		private string controlNameL, controlNameR;
+		public override bool Draw(Listing_StandardIndent listing)
+		{
+			listing.NestedIndent();
+			listing.Gap(listing.verticalSpacing);
+
+			Rect rect = listing.GetRect(Text.LineHeight);
+			Rect lRect = rect.LeftPart(.45f);
+			Rect rRect = rect.RightPart(.45f);
+
+			// these wil be the names generated inside TextFieldNumeric
+			controlNameL = "TextField" + lRect.y.ToString("F0") + lRect.x.ToString("F0");
+			controlNameR = "TextField" + rRect.y.ToString("F0") + rRect.x.ToString("F0");
+
+			FloatRange oldRange = valueRange;
+			Widgets.TextFieldNumeric(lRect, ref valueRange.min, ref lBuffer, float.MinValue, float.MaxValue);
+			Widgets.TextFieldNumeric(rRect, ref valueRange.max, ref rBuffer, float.MinValue, float.MaxValue);
+
+
+			if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Tab
+				 && (GUI.GetNameOfFocusedControl() == controlNameL || GUI.GetNameOfFocusedControl() == controlNameR))
+				Event.current.Use();
+
+			Text.Anchor = TextAnchor.MiddleCenter;
+			Widgets.Label(rect, "-");
+			Text.Anchor = default;
+
+			listing.NestedOutdent();
+
+			return valueRange != oldRange;
+		}
+
+		public override void DoFocus()
+		{
+			GUI.FocusControl(controlNameL);
+		}
+
+		public override bool Unfocus()
+		{
+			if (GUI.GetNameOfFocusedControl() == controlNameL || GUI.GetNameOfFocusedControl() == controlNameR)
+			{
+				UI.UnfocusCurrentControl();
+				return true;
+			}
+
+			return false;
+		}
+	}
+
+	public class FloatFieldData : FloatData
+	{
+		public FloatFieldData(Type type, string name)
+			: base(type, name)
+		{ }
+
+		private AccessTools.FieldRef<object, float> getter;
+		public override void Make()
+		{
+			getter ??= AccessTools.FieldRefAccess<object, float>(AccessTools.Field(type, name));
+		}
+
+		public override float GetFloatValue(object obj) => getter(obj);
+
+		public override string ToString() => $"{base.ToString()} float field";
+	}
+
+	public class FloatPropData<T> : FloatData where T : class
+	{
+		public FloatPropData(Type type, string name)
+			: base(type, name)
+		{ }
+
+		// Generics are required for this delegate to exist so that it's actually fast.
+		delegate float FloatGetter(T t);
+		private FloatGetter getter;
+		public override void Make()
+		{
+			getter ??= AccessTools.MethodDelegate<FloatGetter>(AccessTools.PropertyGetter(typeof(T), name));
+		}
+
+		public override float GetFloatValue(object obj) => getter(obj as T);// please only pass in T
+
+		public override string ToString() => $"{base.ToString()} float property";
+	}
+
 
 
 
