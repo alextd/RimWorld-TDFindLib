@@ -21,6 +21,13 @@ namespace TD_Find_Lib
 			this.type = type;
 			this.name = name;
 		}
+		public virtual void PostExposeData() { }
+		public virtual FieldData Clone() => 
+			(FieldData)Activator.CreateInstance(GetType(), type, name);
+
+		public virtual bool Draw(Listing_StandardIndent listing) => false;
+		public virtual void DoFocus() { }
+		public virtual bool Unfocus() => false;
 
 		public override string ToString() => $"{type}.{name}";
 
@@ -130,8 +137,19 @@ namespace TD_Find_Lib
 			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty)
 				.Where(p => p.PropertyType == typeof(bool)))
 				yield return NewData(typeof(BoolPropData<>), type, type, prop.Name);
+
+			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField)
+				.Where(f => f.FieldType == typeof(int)))
+				yield return new IntFieldData(type, field.Name);
+
+			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty)
+				.Where(p => p.PropertyType == typeof(int)))
+				yield return NewData(typeof(IntPropData<>), type, type, prop.Name);
 		}
 	}
+
+
+
 	public abstract class BoolData : FieldData
 	{
 		public BoolData(Type type, string name)
@@ -175,6 +193,113 @@ namespace TD_Find_Lib
 
 		public override bool GetBoolValue(object pbj) => getter(pbj as T);// please only pass in T
 	}
+
+
+	public abstract class IntData : FieldData
+	{
+		private IntRange valueRange = new(10,15);
+		public override void PostExposeData()
+		{
+			Scribe_Values.Look(ref valueRange, "range");
+		}
+		public override FieldData Clone()
+		{
+			IntData clone = (IntData)base.Clone();
+			clone.valueRange = valueRange;
+			return clone;
+		}
+
+		public IntData(Type type, string name)
+			: base(type, name)
+		{ }
+
+		public abstract int GetIntValue(object obj);
+		public override bool AppliesTo(Thing thing) => valueRange.Includes(GetIntValue(thing));
+
+		private string lBuffer, rBuffer;
+		private string controlNameL, controlNameR;
+		public override bool Draw(Listing_StandardIndent listing)
+		{
+			listing.NestedIndent();
+			listing.Gap(listing.verticalSpacing);
+
+			Rect rect = listing.GetRect(Text.LineHeight);
+			Rect lRect = rect.LeftPart(.45f);
+			Rect rRect = rect.RightPart(.45f);
+
+			// these wil be the names generated inside TextFieldNumeric
+			controlNameL = "TextField" + lRect.y.ToString("F0") + lRect.x.ToString("F0");
+			controlNameR = "TextField" + rRect.y.ToString("F0") + rRect.x.ToString("F0");
+
+			IntRange oldRange = valueRange;
+			Widgets.TextFieldNumeric(lRect, ref valueRange.min, ref lBuffer, int.MinValue, int.MaxValue);
+			Widgets.TextFieldNumeric(rRect, ref valueRange.max, ref rBuffer, int.MinValue, int.MaxValue);
+
+			
+			if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Tab
+				 && (GUI.GetNameOfFocusedControl() == controlNameL || GUI.GetNameOfFocusedControl() == controlNameR))
+				Event.current.Use();
+
+			Text.Anchor = TextAnchor.MiddleCenter;
+			Widgets.Label(rect, "-");
+			Text.Anchor = default;
+
+			listing.NestedOutdent();
+
+			return valueRange != oldRange;
+		}
+
+		public override void DoFocus()
+		{
+			GUI.FocusControl(controlNameL);
+		}
+
+		public override bool Unfocus()
+		{
+			if (GUI.GetNameOfFocusedControl() == controlNameL || GUI.GetNameOfFocusedControl() == controlNameR)
+			{
+				UI.UnfocusCurrentControl();
+				return true;
+			}
+
+			return false;
+		}
+	}
+
+	public class IntFieldData : IntData
+	{
+		public IntFieldData(Type type, string name)
+			: base(type, name)
+		{ }
+
+		private AccessTools.FieldRef<object, int> getter;
+		public override void Make()
+		{
+			getter ??= AccessTools.FieldRefAccess<object, int>(AccessTools.Field(type, name));
+		}
+
+		public override int GetIntValue(object obj) => getter(obj);
+
+		public override string ToString() => $"{base.ToString()} int field";
+	}
+
+	public class IntPropData<T> : IntData where T : class
+	{
+		public IntPropData(Type type, string name)
+			: base(type, name)
+		{ }
+
+		// Generics are required for this delegate to exist so that it's actually fast.
+		delegate int IntGetter(T t);
+		private IntGetter getter;
+		public override void Make()
+		{
+			getter ??= AccessTools.MethodDelegate<IntGetter>(AccessTools.PropertyGetter(typeof(T), name));
+		}
+
+		public override int GetIntValue(object pbj) => getter(pbj as T);// please only pass in T
+	}
+
 
 
 	[StaticConstructorOnStartup]
@@ -222,8 +347,11 @@ namespace TD_Find_Lib
 				Scribe_Values.Look(ref typeName, "typeName");
 
 				// FieldData just needs string name saved
-				if (fieldName != null)
+				if (data != null)
+				{
 					Scribe_Values.Look(ref fieldName, "fieldName");
+					data.PostExposeData();
+				}
 			}
 			else if (Scribe.mode == LoadSaveMode.LoadingVars)
 			{
@@ -234,11 +362,15 @@ namespace TD_Find_Lib
 					matchType = type;
 
 
-					// FieldData just saved string name
+					// FieldData can be null with no selection
 					if (!fieldName.NullOrEmpty())
 					{
-						data = FieldData.FieldDataFor(matchType, fieldName);
-						if (data == null)
+						if (FieldData.FieldDataFor(matchType, fieldName) is FieldData loadedData)
+						{
+							data = loadedData;	// Make() and sets fieldName
+							data.PostExposeData();
+						}
+						else
 							loadError = $"Couldn't find field {typeName}.{fieldName}";
 					}
 				}
@@ -252,7 +384,7 @@ namespace TD_Find_Lib
 		{
 			ThingQueryCustom clone = (ThingQueryCustom)base.Clone();
 			clone.matchType = matchType;
-			clone.data = data;
+			clone.data = data.Clone();
 			return clone;
 		}
 
@@ -268,6 +400,19 @@ namespace TD_Find_Lib
 			RowButtonFloatMenu(data, FieldData.GetOptions(matchType, typeof(Thing)), v => v?.DisplayName(matchType) ?? "   ", newData => data = newData, tooltip: data?.ToString());
 
 			return false;
+		}
+		protected override bool DrawUnder(Listing_StandardIndent listing, bool locked)
+		{
+			return data?.Draw(listing) ?? false;
+		}
+		protected override void DoFocus()
+		{
+			data?.DoFocus();
+		}
+
+		public override bool Unfocus()
+		{
+			return data?.Unfocus() ?? false;
 		}
 
 		public override bool AppliesDirectlyTo(Thing thing)
