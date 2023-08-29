@@ -97,7 +97,7 @@ namespace TD_Find_Lib
 		public static FieldData FieldDataFor(Type type, string name)
 		{
 			// This should only be called if it exists
-			return FieldsFor(type).FirstOrDefault(fd => fd.name == name);
+			return FieldsFor(type).FirstOrDefault(fd => fd.name == name)?.Clone();
 		}
 
 
@@ -448,8 +448,12 @@ namespace TD_Find_Lib
 			set
 			{
 				_data = value;
-				_data?.Make();
 				fieldName = _data?.name;
+				if(data!= null)
+				{
+					_data.Make();
+					Focus();
+				}
 			}
 		}
 
@@ -518,8 +522,8 @@ namespace TD_Find_Lib
 			row.Label("Is type");
 			RowButtonFloatMenu(matchType, FieldData.thingSubclasses, t => t.Name, newT => {matchType = newT; data = null;}, tooltip: matchType.ToString());
 			row.Label("with value");
-			//todo: name with ">>Spawned" for parent class fields
-			RowButtonFloatMenu(data, FieldData.GetOptions(matchType, typeof(Thing)), v => v?.DisplayName(matchType) ?? "   ", newData => data = newData, tooltip: data?.ToString());
+			//todo: dropdown name with ">>Spawned" for parent class fields but draw button without
+			RowButtonFloatMenu(data, FieldData.GetOptions(matchType, typeof(Thing)), v => v?.DisplayName(matchType) ?? "   ", newData => data = newData.Clone(), tooltip: data?.ToString());
 
 			return false;
 		}
