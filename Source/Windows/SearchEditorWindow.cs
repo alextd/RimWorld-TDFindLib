@@ -183,6 +183,7 @@ namespace TD_Find_Lib
 			this.search = search;
 		}
 
+		private string layoutFocus;
 		public override void DoWindowContents(Rect fillRect)
 		{
 			if (!locked && 
@@ -203,6 +204,24 @@ namespace TD_Find_Lib
 				ClipboardTransfer clippy = new();
 				clippy.Receive(search);
 				Event.current.Use();
+			}
+
+			// workaround for unity GUI bug where Unity windows seems to, I guess, bind GUI control ids and doesn't handle them dynamically being removed/reordered
+			// In the end the GUI.GetNameOfFocusedControl is different between layout and repaint events in the same frame.
+			// Seems to not happen in normal operation.
+			if (Event.current.type == EventType.Layout)
+				layoutFocus = GUI.GetNameOfFocusedControl();
+			else if (Event.current.type == EventType.Repaint)
+			{
+				if (layoutFocus != GUI.GetNameOfFocusedControl())
+				{
+					Verse.Log.Warning("TDFindLib detected a Unity GUI bug and is fixing it by re-opening the window");
+					Rect pos = windowRect;
+					Close(false);
+					Find.WindowStack.Add(this);
+					windowRect = pos;
+					// would love to GUI.FocusControl but the name of the Widget.TextField are by COORDINATES ugh.
+				}
 			}
 		}
 
