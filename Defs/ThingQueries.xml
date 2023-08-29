@@ -659,6 +659,12 @@
 		<queryClass>TD_Find_Lib.ThingQueryAndOrGroup</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_Custom</defName>
+		<label>custom (advanced)</label>
+		<queryClass>TD_Find_Lib.ThingQueryCustom</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
+
 
 	<!-- debug types -->
 	<TD_Find_Lib.ThingQueryCategoryDef>

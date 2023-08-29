@@ -336,21 +336,21 @@ namespace TD_Find_Lib
 
 		// Float menu helpers
 		protected static readonly List<FloatMenuOption> floatOptions = new();
-		public void RowButtonFloatMenuEnum<TEnum>(TEnum value, Action<TEnum> setAction, Func<TEnum, bool> filter = null) where TEnum : System.Enum =>
-			RowButtonFloatMenu(value, Enum.GetValues(typeof(TEnum)) as IEnumerable<TEnum>, TranslateEnumEx.TranslateEnum, setAction, filter);
+		public void RowButtonFloatMenuEnum<TEnum>(TEnum value, Action<TEnum> setAction, Func<TEnum, bool> filter = null, string tooltip = null) where TEnum : System.Enum =>
+			RowButtonFloatMenu(value, Enum.GetValues(typeof(TEnum)) as IEnumerable<TEnum>, TranslateEnumEx.TranslateEnum, setAction, filter, tooltip);
 
 		public void DoFloatOptionsEnum<TEnum>(Action<TEnum> setAction, Func<TEnum, bool> filter = null) where TEnum : System.Enum => 
 			DoFloatOptions(Enum.GetValues(typeof(TEnum)) as IEnumerable<TEnum>, TranslateEnumEx.TranslateEnum, setAction, filter);
 
-		public void RowButtonFloatMenuDef<TDef>(TDef value, Action<TDef> setAction, Func<TDef, bool> filter = null) where TDef : Def => 
-			RowButtonFloatMenu(value, DefDatabase<TDef>.AllDefs, LabelByDefName.GetLabel, setAction, filter);
+		public void RowButtonFloatMenuDef<TDef>(TDef value, Action<TDef> setAction, Func<TDef, bool> filter = null, string tooltip = null) where TDef : Def => 
+			RowButtonFloatMenu(value, DefDatabase<TDef>.AllDefs, LabelByDefName.GetLabel, setAction, filter, tooltip);
 
 		public void DoFloatOptionsDef<TDef>(Action<TDef> setAction, Func<TDef, bool> filter = null) where TDef : Def =>
 			DoFloatOptions(DefDatabase<TDef>.AllDefs, LabelByDefName.GetLabel, setAction, filter);
 
-		public void RowButtonFloatMenu<T>(T value, IEnumerable<T> values, Func<T, string> nameFor, Action<T> setAction, Func<T, bool> filter = null)
+		public void RowButtonFloatMenu<T>(T value, IEnumerable<T> values, Func<T, string> nameFor, Action<T> setAction, Func<T, bool> filter = null, string tooltip = null)
 		{
-			if (row.ButtonText(nameFor(value)))
+			if (row.ButtonText(nameFor(value), tooltip))
 				DoFloatOptions(values, nameFor, setAction, filter);
 		}
 
@@ -378,10 +378,31 @@ namespace TD_Find_Lib
 		//Probably a good filter
 		public static bool ValidDef(ThingDef def) =>
 			(def.category != ThingCategory.Ethereal || def.selectable) && // anything EtherealThingBase that isn't selectable is out. e.g. Flashstorms
-			!typeof(Mote).IsAssignableFrom(def.thingClass) &&
-			!typeof(Projectile).IsAssignableFrom(def.thingClass) &&
+			ValidType(def.thingClass) &&
 			def.drawerType != DrawerType.None &&  //non-drawers are weird abstract things.
 			def.category != ThingCategory.PsychicEmitter; //Solar pinhole why? can't you stay ThingCategory.Ethereal
+
+
+		public static bool ValidType(Type type) =>
+			type == typeof(Thing)
+			||
+			((
+			// Lots of Thing subclasses are not good, so whitelist these:
+			typeof(ThingWithComps).IsAssignableFrom(type) ||
+			typeof(Filth).IsAssignableFrom(type) ||
+			typeof(AttachableThing).IsAssignableFrom(type)
+			)
+			&&
+			!(
+				// Some deeper subclasses are bad, so blacklist them:
+				typeof(Mechlink).IsAssignableFrom(type) || // Now this is one tiny class
+				typeof(OrbitalStrike).IsAssignableFrom(type) ||
+				typeof(Skyfaller).IsAssignableFrom(type) ||
+				typeof(Tornado).IsAssignableFrom(type) ||
+				typeof(TunnelHiveSpawner).IsAssignableFrom(type) ||
+				typeof(MechShield).IsAssignableFrom(type) ||
+				typeof(Projectile).IsAssignableFrom(type)
+			));
 	}
 
 	public class FloatMenuOptionAndRefresh : FloatMenuOption
