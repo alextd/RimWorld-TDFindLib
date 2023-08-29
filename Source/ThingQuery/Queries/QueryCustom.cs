@@ -546,8 +546,6 @@ namespace TD_Find_Lib
 			if (!matchType.IsAssignableFrom(thing.GetType()))
 				return false;
 
-			//TODO: more types other than bool
-
 			if (data != null)
 				return data.AppliesTo(thing);
 
