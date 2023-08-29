@@ -3,6 +3,7 @@
 split DrawMain to DrawRow then DrawRight, so row.FinalX can be used to nudge DrawRight correctly in subclass overrides. 
  (Right now, any overrides to DrawMain might add things to the row after the parent class used row.FinalX)
 
+fire graphic flickering in thinglist
 
 
 ===Mods to use TDFindLib
