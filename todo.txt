@@ -1,8 +1,20 @@
 === Custom query
 
-class handler: thing.def.stackLimit
+
+disallow thinglist selectall from selecting unselectablethings
+
+
+- class handler: thing.def.stackLimit
 Comp Handler thing.GetComp<T>.x
 global dict for Make() getters?
+enum  values
+List Any/All
+string handler
+Def handler
+handle arbitrary parents and list their fields (eg KindDef : Def)
+
+type-in some text for next field
+type-in . or tab to resolve that field
 
 
 === Fixes 

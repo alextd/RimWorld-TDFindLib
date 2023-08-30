@@ -11,25 +11,70 @@ using HarmonyLib;
 
 namespace TD_Find_Lib
 {
-	public abstract class FieldData
+	// Parent class to hold data about all fields of any type
+	public abstract class FieldData : IExposable
 	{
 		public Type type; // declaring type, a subclass of some parent base type (often Thing)
-		// There's no Type fieldType because that'll be a subclass for each type
+		public Type fieldType;
 		public string name; // field name / property name
-		public FieldData(Type type, string name)
+
+		// For load/save
+		private string typeName;
+		private string fieldTypeName;
+		public string DisableReason =>
+			type == null ? $"Could not find type {typeName} for ({fieldType}) {typeName}.{name}"
+			: fieldType == null ? $"Could not find field type {fieldTypeName} for ({fieldType}) {typeName}.{name}"
+			: null;
+
+		public FieldData() { }
+
+		public FieldData(Type type, Type fieldType, string name)
 		{
 			this.type = type;
+			this.fieldType = fieldType;
 			this.name = name;
 		}
-		public virtual void PostExposeData() { }
-		public virtual FieldData Clone() => 
-			(FieldData)Activator.CreateInstance(GetType(), type, name);
+
+		public virtual void ExposeData()
+		{
+			Scribe_Values.Look(ref name, "name");
+
+			if (Scribe.mode == LoadSaveMode.Saving)
+			{
+				typeName ??= type.ToString();
+				fieldTypeName ??= fieldType.ToString();
+				Scribe_Values.Look(ref typeName, "type");
+				Scribe_Values.Look(ref fieldType, "fieldType");
+			}
+			if (Scribe.mode == LoadSaveMode.LoadingVars)
+			{
+				Scribe_Values.Look(ref typeName, "type");
+				Scribe_Values.Look(ref fieldTypeName, "fieldType");
+
+				// Maybe null if loaded 3rdparty types
+				type = ParseHelper.ParseType(typeName);
+				fieldType = ParseHelper.ParseType(fieldTypeName);
+			}
+		}
+
+		public virtual FieldData Clone()
+		{
+			FieldData clone = (FieldData)Activator.CreateInstance(GetType());
+
+			clone.type = type;
+			clone.fieldType = fieldType;
+			clone.name = name;
+			clone.typeName = typeName;
+			clone.fieldTypeName = fieldTypeName;
+
+			return clone;
+		}
 
 		public virtual bool Draw(Listing_StandardIndent listing) => false;
 		public virtual void DoFocus() { }
 		public virtual bool Unfocus() => false;
 
-		public override string ToString() => $"{type}.{name}";
+		public override string ToString() => $"({fieldType}) {type}.{name}";
 
 		// When listing for a subclass, prepend '>' if it's a parent's field
 		public string DisplayName(Type selectedType)
@@ -39,6 +84,11 @@ namespace TD_Find_Lib
 			{
 				diff++;
 				selectedType = selectedType.BaseType;
+				if(selectedType == null)
+				{
+					//ABORT though this ought not happen
+					return name;
+				}
 			}
 
 			return new string('>', diff) + name;
@@ -48,11 +98,14 @@ namespace TD_Find_Lib
 		public abstract void Make();
 
 
-		// Static listers
-		// Here we hold all fields
-		// Just the type+name until they're used, then they'll Make() an accessor.
-		// Starting with thing subclasses so we have a dropdown
-		// And we'll add in other fields when accessed.
+		// Static listers for ease of use
+		// Here we hold all fields known
+		// Just the type+name until they're used, then they'll be Clone()d
+		// and Make()d to create an actual accessor delegate.
+		// (TODO: global dict to hold those delegates since we now clone things since they hold comparision data_
+		// fields starts with just Thing subclasses known
+		// mainly since QueryCustom has a dropdown to select thing subclasses
+		// And we'll add in other type/fields when accessed.
 		private static readonly Dictionary<Type, List<FieldData>> fields = new();
 		public static readonly List<Type> thingSubclasses;
 
@@ -63,34 +116,20 @@ namespace TD_Find_Lib
 			foreach (Type thingType in new Type[] { typeof(Thing) }
 					.Concat(typeof(Thing).AllSubclasses().Where(ThingQuery.ValidType)))
 			{
-				if(MakeFieldData(thingType) != null)
+				if(FieldsFor(thingType).Any())
 					thingSubclasses.Add(thingType);
 			}
 		}
-
-		private static List<FieldData> MakeFieldData(Type type)
-		{
-			List<FieldData> list = new(FindFields(type));
-
-			if (list.Count > 0)
-			{
-				fields[type] = list;
-				return list;
-			}
-			return null;
-		}
-
 		// Public acessors:
 
-		public static IEnumerable<FieldData> FieldsFor(Type type)
+		public static List<FieldData> FieldsFor(Type type)
 		{
-			if (!fields.TryGetValue(type, out var list))
+			if (!fields.TryGetValue(type, out var fieldsForType))
 			{
-				list = MakeFieldData(type);
-				if(list != null)
-					fields[type] = list;
+				fieldsForType = new(FindFields(type));
+				fields[type] = fieldsForType;
 			}
-			return list ?? Enumerable.Empty<FieldData>();
+			return fieldsForType;
 		}
 		public static FieldData FieldDataFor(Type type, string name)
 		{
@@ -105,7 +144,7 @@ namespace TD_Find_Lib
 		{
 			if (!typeFields.TryGetValue(type, out var list))
 			{
-				list = new(FieldsFor(type));
+				list = FieldsFor(type);
 				typeFields[type] = list;
 
 				while(type != parentType)
@@ -128,6 +167,13 @@ namespace TD_Find_Lib
 		const BindingFlags bFlags = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance;
 		private static IEnumerable<FieldData> FindFields(Type type)
 		{
+			// class members
+			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField)
+				.Where(f => f.FieldType.IsClass))
+				yield return new ClassFieldData(type, field.FieldType, field.Name);
+
+
+			// valuetypes
 			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField)
 				.Where(f => f.FieldType == typeof(bool)))
 				yield return new BoolFieldData(type, field.Name);
@@ -154,10 +200,41 @@ namespace TD_Find_Lib
 		}
 	}
 
+	// FieldDataMember
+	public abstract class FieldDataMember : FieldData
+	{
+		public FieldDataMember() { }
+		public FieldDataMember(Type type, Type fieldType, string name)
+			: base(type, fieldType, name)
+		{ }
+
+		public abstract object GetMember(object obj);
+	}
+
+	public class ClassFieldData : FieldDataMember
+	{
+		public ClassFieldData() { }
+		public ClassFieldData(Type type, Type fieldType, string name)
+			: base(type, fieldType, name)
+		{ }
+
+		private AccessTools.FieldRef<object, object> getter;
+		public override void Make()
+		{
+			getter ??= AccessTools.FieldRefAccess<object, object>(AccessTools.Field(type, name));
+		}
+
+		public override object GetMember(object obj) => getter(obj);
+	}
+
+
+	// Comparers that end the sequence
+
 	public abstract class FieldDataComparer : FieldData
 	{
-		public FieldDataComparer(Type type, string name)
-			: base(type, name)
+		public FieldDataComparer() { }
+		public FieldDataComparer(Type type, Type fieldType, string name)
+			: base(type, fieldType, name)
 		{ }
 
 		public abstract bool AppliesTo(object obj);
@@ -167,8 +244,9 @@ namespace TD_Find_Lib
 
 	public abstract class BoolData : FieldDataComparer
 	{
+		public BoolData() { }
 		public BoolData(Type type, string name)
-			: base(type, name)
+			: base(type, typeof(bool), name)
 		{ }
 
 		public abstract bool GetBoolValue(object obj);
@@ -177,6 +255,7 @@ namespace TD_Find_Lib
 
 	public class BoolFieldData : BoolData
 	{
+		public BoolFieldData() { }
 		public BoolFieldData(Type type, string name)
 			: base(type, name)
 		{		}
@@ -188,12 +267,11 @@ namespace TD_Find_Lib
 		}
 
 		public override bool GetBoolValue(object obj) => getter(obj);
-
-		public override string ToString() => $"{base.ToString()} bool field";
 	}
 
 	public class BoolPropData<T> : BoolData where T : class
 	{
+		public BoolPropData() { }
 		public BoolPropData(Type type, string name)
 			: base(type, name)
 		{		}
@@ -207,16 +285,15 @@ namespace TD_Find_Lib
 		}
 
 		public override bool GetBoolValue(object obj) => getter(obj as T);// please only pass in T
-
-		public override string ToString() => $"{base.ToString()} bool property";
 	}
 
 
 	public abstract class IntData : FieldDataComparer
 	{
 		private IntRange valueRange = new(10,15);
-		public override void PostExposeData()
+		public override void ExposeData()
 		{
+			base.ExposeData();
 			Scribe_Values.Look(ref valueRange, "range");
 		}
 		public override FieldData Clone()
@@ -226,8 +303,9 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
+		public IntData() { }
 		public IntData(Type type, string name)
-			: base(type, name)
+			: base(type, typeof(int), name)
 		{ }
 
 		public abstract int GetIntValue(object obj);
@@ -285,6 +363,7 @@ namespace TD_Find_Lib
 
 	public class IntFieldData : IntData
 	{
+		public IntFieldData() { }
 		public IntFieldData(Type type, string name)
 			: base(type, name)
 		{ }
@@ -296,12 +375,11 @@ namespace TD_Find_Lib
 		}
 
 		public override int GetIntValue(object obj) => getter(obj);
-
-		public override string ToString() => $"{base.ToString()} int field";
 	}
 
 	public class IntPropData<T> : IntData where T : class
 	{
+		public IntPropData() { }
 		public IntPropData(Type type, string name)
 			: base(type, name)
 		{ }
@@ -315,8 +393,6 @@ namespace TD_Find_Lib
 		}
 
 		public override int GetIntValue(object obj) => getter(obj as T);// please only pass in T
-
-		public override string ToString() => $"{base.ToString()} int property";
 	}
 
 
@@ -324,8 +400,9 @@ namespace TD_Find_Lib
 	public abstract class FloatData : FieldDataComparer
 	{
 		private FloatRange valueRange = new(10, 15);
-		public override void PostExposeData()
+		public override void ExposeData()
 		{
+			base.ExposeData();
 			Scribe_Values.Look(ref valueRange, "range");
 		}
 		public override FieldData Clone()
@@ -335,8 +412,9 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
+		public FloatData() { }
 		public FloatData(Type type, string name)
-			: base(type, name)
+			: base(type, typeof(float), name)
 		{ }
 
 		public abstract float GetFloatValue(object obj);
@@ -394,6 +472,7 @@ namespace TD_Find_Lib
 
 	public class FloatFieldData : FloatData
 	{
+		public FloatFieldData() { }
 		public FloatFieldData(Type type, string name)
 			: base(type, name)
 		{ }
@@ -406,12 +485,11 @@ namespace TD_Find_Lib
 		}
 
 		public override float GetFloatValue(object obj) => getter(obj);
-
-		public override string ToString() => $"{base.ToString()} float field";
 	}
 
 	public class FloatPropData<T> : FloatData where T : class
 	{
+		public FloatPropData() { }
 		public FloatPropData(Type type, string name)
 			: base(type, name)
 		{ }
@@ -425,8 +503,6 @@ namespace TD_Find_Lib
 		}
 
 		public override float GetFloatValue(object obj) => getter(obj as T);// please only pass in T
-
-		public override string ToString() => $"{base.ToString()} float property";
 	}
 
 
@@ -435,82 +511,63 @@ namespace TD_Find_Lib
 	[StaticConstructorOnStartup]
 	public class ThingQueryCustom : ThingQuery
 	{
-		private Type _matchType;
-		private string typeName;
-		private FieldDataComparer _data;
-		private string fieldName;
+		public Type matchType;
+		private string matchTypeName;
+		private List<FieldDataMember> memberChain;
+		private FieldDataComparer _member;
 
-		public Type matchType
+		public FieldDataComparer member
 		{
-			get => _matchType;
+			get => _member;
 			set
 			{
-				_matchType = value;
-				typeName = _matchType.ToString();
-			}
-		}
-
-		public FieldDataComparer data
-		{
-			get => _data;
-			set
-			{
-				_data = value;
-				fieldName = _data?.name;
-				if(data!= null)
+				_member = value;
+				if(member != null)
 				{
-					_data.Make();
+					_member.Make();
 					Focus();
 				}
 			}
 		}
 
 
-
 		public ThingQueryCustom()
 		{
 			matchType = typeof(Thing);
+			memberChain = new();
 		}
 		public override void ExposeData()
 		{
 			base.ExposeData();
 
-
 			if (Scribe.mode == LoadSaveMode.Saving)
 			{
-				Scribe_Values.Look(ref typeName, "typeName");
-
-				// FieldData just needs string name saved
-				if (data != null)
-				{
-					Scribe_Values.Look(ref fieldName, "fieldName");
-					data.PostExposeData();
-				}
+				matchTypeName ??= matchType.ToString();
+				Scribe_Values.Look(ref matchTypeName, "matchType");
 			}
-			else if (Scribe.mode == LoadSaveMode.LoadingVars)
+
+			Scribe_Collections.Look(ref memberChain, "memberChain");
+			Scribe_Deep.Look(ref _member, "member");
+
+			if (Scribe.mode == LoadSaveMode.LoadingVars)
 			{
-				Scribe_Values.Look(ref typeName, "typeName");
-				Scribe_Values.Look(ref fieldName, "fieldName");
-				if (ParseHelper.ParseType(typeName) is Type type)
+				Scribe_Values.Look(ref matchTypeName, "matchType");
+				if (ParseHelper.ParseType(matchTypeName) is Type type)
 				{
 					matchType = type;
-
-
-					// FieldData can be null with no selection
-					if (!fieldName.NullOrEmpty())
-					{
-						if (FieldData.FieldDataFor(matchType, fieldName) is FieldDataComparer loadedData)
-						{
-							data = loadedData;	// Make() and sets fieldName
-							data.PostExposeData();
-						}
-						else
-							loadError = $"Couldn't find field {typeName}.{fieldName}";
-					}
 				}
 				else
 				{
-					loadError = $"Couldn't find Type {typeName}";
+					loadError = $"Couldn't find Type {matchTypeName}";
+				}
+
+				member?.Make();
+				loadError ??= member?.DisableReason;
+
+				foreach (var memberData in memberChain)
+				{
+					memberData.Make();
+					loadError ??= memberData?.DisableReason;
 				}
 			}
 		}
@@ -518,35 +575,89 @@ namespace TD_Find_Lib
 		{
 			ThingQueryCustom clone = (ThingQueryCustom)base.Clone();
 			clone.matchType = matchType;
-			clone.data = (FieldDataComparer)data.Clone();
+			clone.matchTypeName = matchTypeName;
+			clone._member = (FieldDataComparer)member?.Clone();
+			clone.member?.Make();
+			clone.memberChain = new(memberChain.Select(d => d.Clone() as FieldDataMember));
+			foreach (var memberData in clone.memberChain)
+				memberData.Make();
+			clone.loadError = loadError;
 			return clone;
 		}
 
 		private string loadError = null;
 		public override string DisableReason => loadError;
 
+		private void SelectMatchType(Type type)
+		{
+			loadError = null;
+			matchType = type;
+			member = null;
+			memberChain.Clear();
+		}
+		private void SetMember(FieldData newData)
+		{
+			loadError = null;
+
+			FieldData addData = newData.Clone();
+
+			if(addData is FieldDataComparer addDataCompare)
+			{
+				member = addDataCompare;
+			}
+			else if(addData is FieldDataMember addDataMember)
+			{
+				memberChain.Add(addDataMember);
+				addDataMember.Make();
+				member = null; //to be selected
+			}
+			//memberChain
+		}
+
+		private void SetMemberAt(FieldData newData, int i)
+		{
+			memberChain.RemoveRange(i, memberChain.Count - i);
+
+			SetMember(newData);
+		}
+
 		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			row.Label("Is type");
-			RowButtonFloatMenu(matchType, FieldData.thingSubclasses, t => t.Name, newT => {matchType = newT; data = null;}, tooltip: matchType.ToString());
-			row.Label("with value");
+			RowButtonFloatMenu(matchType, FieldData.thingSubclasses, t => t.Name, SelectMatchType, tooltip: matchType.ToString());
+
+			Type type = matchType;
+			Type parentType = typeof(Thing);
+			for (int i = 0; i < memberChain.Count; i++)
+			{
+				int locali = i;
+				var memberData = memberChain[i];
+
+				row.Label(".");
+				//todo: dropdown name with ">>Spawned" for parent class fields but draw button without
+				RowButtonFloatMenu(memberData, FieldData.GetOptions(type, parentType), v => v?.DisplayName(type) ?? "   ", newData => SetMemberAt(newData, locali), tooltip: memberData.ToString());;
+
+				parentType = type = memberData.fieldType;
+			}
+
+			row.Label(":");
 			//todo: dropdown name with ">>Spawned" for parent class fields but draw button without
-			RowButtonFloatMenu(data, FieldData.GetOptions(matchType, typeof(Thing)), v => v?.DisplayName(matchType) ?? "   ", newData => data = (FieldDataComparer)newData.Clone(), tooltip: data?.ToString());
+			RowButtonFloatMenu(member, FieldData.GetOptions(type, parentType), v => v?.DisplayName(type) ?? "   ", SetMember, tooltip: member?.ToString());
 
 			return false;
 		}
 		protected override bool DrawUnder(Listing_StandardIndent listing, bool locked)
 		{
-			return data?.Draw(listing) ?? false;
+			return member?.Draw(listing) ?? false;
 		}
 		protected override void DoFocus()
 		{
-			data?.DoFocus();
+			member?.DoFocus();
 		}
 
 		public override bool Unfocus()
 		{
-			return data?.Unfocus() ?? false;
+			return member?.Unfocus() ?? false;
 		}
 
 		public override bool AppliesDirectlyTo(Thing thing)
@@ -554,8 +665,22 @@ namespace TD_Find_Lib
 			if (!matchType.IsAssignableFrom(thing.GetType()))
 				return false;
 
-			if (data != null)
-				return data.AppliesTo(thing);
+			object obj = thing;
+			foreach (var memberData in memberChain)
+			{
+				if (!memberData.type.IsAssignableFrom(obj.GetType()))
+					// redundant on first call oh well
+					// matchType is needed above if you're checking Pawn.def, as for memberData it's Thing.def
+					return false;
+
+				obj = memberData.GetMember(obj);
+
+				if (obj == null)
+					return false;
+			}
+
+			if (member != null)
+				return member.AppliesTo(obj);
 
 			return false;
 		}
