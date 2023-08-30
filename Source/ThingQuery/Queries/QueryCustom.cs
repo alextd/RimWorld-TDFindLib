@@ -47,8 +47,6 @@ namespace TD_Find_Lib
 		// Make should use ??= to create / store an accessor
 		public abstract void Make();
 
-		public abstract bool AppliesTo(Thing thing);
-
 
 		// Static listers
 		// Here we hold all fields
@@ -156,16 +154,25 @@ namespace TD_Find_Lib
 		}
 	}
 
+	public abstract class FieldDataComparer : FieldData
+	{
+		public FieldDataComparer(Type type, string name)
+			: base(type, name)
+		{ }
+
+		public abstract bool AppliesTo(object obj);
+
+	}
 
 
-	public abstract class BoolData : FieldData
+	public abstract class BoolData : FieldDataComparer
 	{
 		public BoolData(Type type, string name)
 			: base(type, name)
 		{ }
 
 		public abstract bool GetBoolValue(object obj);
-		public override bool AppliesTo(Thing thing) => GetBoolValue(thing);
+		public override bool AppliesTo(object obj) => GetBoolValue(obj);
 	}
 
 	public class BoolFieldData : BoolData
@@ -205,7 +212,7 @@ namespace TD_Find_Lib
 	}
 
 
-	public abstract class IntData : FieldData
+	public abstract class IntData : FieldDataComparer
 	{
 		private IntRange valueRange = new(10,15);
 		public override void PostExposeData()
@@ -224,7 +231,7 @@ namespace TD_Find_Lib
 		{ }
 
 		public abstract int GetIntValue(object obj);
-		public override bool AppliesTo(Thing thing) => valueRange.Includes(GetIntValue(thing));
+		public override bool AppliesTo(object obj) => valueRange.Includes(GetIntValue(obj));
 
 		private string lBuffer, rBuffer;
 		private string controlNameL, controlNameR;
@@ -314,7 +321,7 @@ namespace TD_Find_Lib
 
 
 
-	public abstract class FloatData : FieldData
+	public abstract class FloatData : FieldDataComparer
 	{
 		private FloatRange valueRange = new(10, 15);
 		public override void PostExposeData()
@@ -333,7 +340,7 @@ namespace TD_Find_Lib
 		{ }
 
 		public abstract float GetFloatValue(object obj);
-		public override bool AppliesTo(Thing thing) => valueRange.Includes(GetFloatValue(thing));
+		public override bool AppliesTo(object obj) => valueRange.Includes(GetFloatValue(obj));
 
 		private string lBuffer, rBuffer;
 		private string controlNameL, controlNameR;
@@ -391,6 +398,7 @@ namespace TD_Find_Lib
 			: base(type, name)
 		{ }
 
+		// generics not needed for FieldRef as it can handle a float fine huh?
 		private AccessTools.FieldRef<object, float> getter;
 		public override void Make()
 		{
@@ -429,7 +437,7 @@ namespace TD_Find_Lib
 	{
 		private Type _matchType;
 		private string typeName;
-		private FieldData _data;
+		private FieldDataComparer _data;
 		private string fieldName;
 
 		public Type matchType
@@ -442,7 +450,7 @@ namespace TD_Find_Lib
 			}
 		}
 
-		public FieldData data
+		public FieldDataComparer data
 		{
 			get => _data;
 			set
@@ -491,7 +499,7 @@ namespace TD_Find_Lib
 					// FieldData can be null with no selection
 					if (!fieldName.NullOrEmpty())
 					{
-						if (FieldData.FieldDataFor(matchType, fieldName) is FieldData loadedData)
+						if (FieldData.FieldDataFor(matchType, fieldName) is FieldDataComparer loadedData)
 						{
 							data = loadedData;	// Make() and sets fieldName
 							data.PostExposeData();
@@ -510,7 +518,7 @@ namespace TD_Find_Lib
 		{
 			ThingQueryCustom clone = (ThingQueryCustom)base.Clone();
 			clone.matchType = matchType;
-			clone.data = data.Clone();
+			clone.data = (FieldDataComparer)data.Clone();
 			return clone;
 		}
 
@@ -523,7 +531,7 @@ namespace TD_Find_Lib
 			RowButtonFloatMenu(matchType, FieldData.thingSubclasses, t => t.Name, newT => {matchType = newT; data = null;}, tooltip: matchType.ToString());
 			row.Label("with value");
 			//todo: dropdown name with ">>Spawned" for parent class fields but draw button without
-			RowButtonFloatMenu(data, FieldData.GetOptions(matchType, typeof(Thing)), v => v?.DisplayName(matchType) ?? "   ", newData => data = newData.Clone(), tooltip: data?.ToString());
+			RowButtonFloatMenu(data, FieldData.GetOptions(matchType, typeof(Thing)), v => v?.DisplayName(matchType) ?? "   ", newData => data = (FieldDataComparer)newData.Clone(), tooltip: data?.ToString());
 
 			return false;
 		}
