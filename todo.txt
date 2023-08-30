@@ -1,3 +1,10 @@
+=== Custom query
+
+class handler: thing.def.stackLimit
+Comp Handler thing.GetComp<T>.x
+global dict for Make() getters?
+
+
 === Fixes 
 
 split DrawMain to DrawRow then DrawRight, so row.FinalX can be used to nudge DrawRight correctly in subclass overrides. 
