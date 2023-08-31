@@ -11,7 +11,7 @@ namespace TD_Find_Lib
 	{
 		public static void Select(Thing t, bool playSound = true)
 		{
-			if(t.Spawned)
+			if(t.def.selectable && t.Spawned)
 				Find.Selector.Select(t, playSound);
 		}
 	}
