@@ -164,39 +164,51 @@ namespace TD_Find_Lib
 		private static FieldData NewData(Type fieldDataType, Type inputType = null, params object[] args) =>
 			(FieldData)Activator.CreateInstance(inputType == null ? fieldDataType : fieldDataType.MakeGenericType(inputType), args);
 
+
+		private static bool ValidProp(PropertyInfo p) =>
+			p.CanRead && p.GetMethod.GetParameters().Length == 0;
+
+		private static bool ValidClassType(Type type) =>
+			type.IsClass && !type.GetInterfaces().Contains(typeof(System.Collections.IEnumerable));
+
 		const BindingFlags bFlags = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance;
 		private static IEnumerable<FieldData> FindFields(Type type)
 		{
-			// class members
-			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField)
-				.Where(f => f.FieldType.IsClass))
-				yield return new ClassFieldData(type, field.FieldType, field.Name);
+			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField))
+				if (ValidClassType(field.FieldType))
+					yield return new ClassFieldData(type, field.FieldType, field.Name);
+
+			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
+				if (ValidClassType(prop.PropertyType))
+					yield return NewData(typeof(ClassPropData<>), type, type, prop.PropertyType, prop.Name);
 
 
 			// valuetypes
-			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField)
-				.Where(f => f.FieldType == typeof(bool)))
-				yield return new BoolFieldData(type, field.Name);
+			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField))
+				if (field.FieldType == typeof(bool))
+					yield return new BoolFieldData(type, field.Name);
 
-			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty)
-				.Where(p => p.PropertyType == typeof(bool)))
-				yield return NewData(typeof(BoolPropData<>), type, type, prop.Name);
+			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
+				if (prop.PropertyType == typeof(bool))
+					yield return NewData(typeof(BoolPropData<>), type, type, prop.Name);
 
-			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField)
-				.Where(f => f.FieldType == typeof(int)))
-				yield return new IntFieldData(type, field.Name);
 
-			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty)
-				.Where(p => p.PropertyType == typeof(int)))
-				yield return NewData(typeof(IntPropData<>), type, type, prop.Name);
+			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField))
+				if (field.FieldType == typeof(int))
+					yield return new IntFieldData(type, field.Name);
 
-			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField)
-				.Where(f => f.FieldType == typeof(float)))
-				yield return new FloatFieldData(type, field.Name);
+			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
+				if (prop.PropertyType == typeof(int))
+					yield return NewData(typeof(IntPropData<>), type, type, prop.Name);
 
-			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty)
-				.Where(p => p.PropertyType == typeof(float)))
-				yield return NewData(typeof(FloatPropData<>), type, type, prop.Name);
+
+			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField))
+				if (field.FieldType == typeof(float))
+					yield return new FloatFieldData(type, field.Name);
+
+			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
+				if (prop.PropertyType == typeof(float))
+					yield return NewData(typeof(FloatPropData<>), type, type, prop.Name);
 		}
 	}
 
@@ -225,6 +237,24 @@ namespace TD_Find_Lib
 		}
 
 		public override object GetMember(object obj) => getter(obj);
+	}
+
+	public class ClassPropData<T> : FieldDataMember
+	{
+		public ClassPropData() { }
+		public ClassPropData(Type type, Type fieldType, string name)
+			: base(type, fieldType, name)
+		{ }
+
+		// Generics are required for this delegate to exist so that it's actually fast.
+		delegate object ClassGetter(T t);
+		private ClassGetter getter;
+		public override void Make()
+		{
+			getter ??= AccessTools.MethodDelegate<ClassGetter>(AccessTools.PropertyGetter(typeof(T), name));
+		}
+
+		public override object GetMember(object obj) => getter((T)obj);
 	}
 
 

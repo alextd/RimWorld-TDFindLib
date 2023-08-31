@@ -3,14 +3,21 @@
 - class handler: thing.def.stackLimit
 Comp Handler thing.GetComp<T>.x
 global dict for Make() getters?
+as subclass : 
 enum  values
+class is null (don't necesarilly skip nulls)
 List Any/All
 string handler
 Def handler
 handle arbitrary parents and list their fields (eg KindDef : Def)
+Section/color class / bools / etc.
 
 type-in some text for next field
 type-in . or tab to resolve that field
+
+
+=HARDCORE
+FieldDataComparerThingQuery => ThingQuery on that class. HUM.
 
 
 === Fixes 
