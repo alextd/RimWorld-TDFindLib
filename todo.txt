@@ -2,6 +2,7 @@
 
 - class handler: thing.def.stackLimit
 Comp Handler thing.GetComp<T>.x
+field (Class) in menu
 global dict for Make() getters?
 as subclass : 
 enum  values
@@ -40,6 +41,8 @@ colony manager automation
 
 ==more filters
 
+Current job target filters. 
+
 mods?
 Humanoid Alien Races
 
@@ -55,6 +58,8 @@ Apparel required filter <ThingDef> pawn.apparel.ActiveRequirementsForReading.Any
 
 == more features
 
+Fix load error dropdown: eg "Create Area 2" that creates the area, binds it, and activates the UI to draw the area.
+custom alerts: pause/letter on alert
 ctrl-C QuerySearch when locked
 "sort by name" in library
 

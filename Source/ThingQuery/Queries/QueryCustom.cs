@@ -77,7 +77,7 @@ namespace TD_Find_Lib
 		public override string ToString() => $"({fieldType}) {type}.{name}";
 
 		// When listing for a subclass, prepend '>' if it's a parent's field
-		public string DisplayName(Type selectedType)
+		public virtual string DisplayName(Type selectedType)
 		{
 			int diff = 0;
 			while (selectedType != type)
@@ -131,11 +131,6 @@ namespace TD_Find_Lib
 			}
 			return fieldsForType;
 		}
-		public static FieldData FieldDataFor(Type type, string name)
-		{
-			// This should only be called if it exists
-			return FieldsFor(type).FirstOrDefault(fd => fd.name == name)?.Clone();
-		}
 
 
 		// All FieldData options for a subclass and its parents
@@ -161,7 +156,7 @@ namespace TD_Find_Lib
 
 		// Here we find all fields
 		// TODO: more types, meaning FieldData subclasses for each type
-		private static FieldData NewData(Type fieldDataType, Type inputType = null, params object[] args) =>
+		private static FieldData NewData(Type fieldDataType, Type inputType, params object[] args) =>
 			(FieldData)Activator.CreateInstance(inputType == null ? fieldDataType : fieldDataType.MakeGenericType(inputType), args);
 
 
@@ -174,14 +169,21 @@ namespace TD_Find_Lib
 		const BindingFlags bFlags = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance;
 		private static IEnumerable<FieldData> FindFields(Type type)
 		{
+			// class members
 			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField))
 				if (ValidClassType(field.FieldType))
 					yield return new ClassFieldData(type, field.FieldType, field.Name);
 
 			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
 				if (ValidClassType(prop.PropertyType))
-					yield return NewData(typeof(ClassPropData<>), type, type, prop.PropertyType, prop.Name);
+					yield return NewData(typeof(ClassPropData<>), type, prop.PropertyType, prop.Name);
 
+			//Hard coded 
+			if(type == typeof(ThingWithComps))
+			{
+				foreach(Type compType in GenTypes.AllSubclasses(typeof(ThingComp)))
+					yield return NewData(typeof(ThingCompData<>), compType);
+			}
 
 			// valuetypes
 			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField))
@@ -190,7 +192,7 @@ namespace TD_Find_Lib
 
 			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
 				if (prop.PropertyType == typeof(bool))
-					yield return NewData(typeof(BoolPropData<>), type, type, prop.Name);
+					yield return NewData(typeof(BoolPropData<>), type, prop.Name);
 
 
 			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField))
@@ -199,7 +201,7 @@ namespace TD_Find_Lib
 
 			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
 				if (prop.PropertyType == typeof(int))
-					yield return NewData(typeof(IntPropData<>), type, type, prop.Name);
+					yield return NewData(typeof(IntPropData<>), type, prop.Name);
 
 
 			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField))
@@ -208,22 +210,29 @@ namespace TD_Find_Lib
 
 			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
 				if (prop.PropertyType == typeof(float))
-					yield return NewData(typeof(FloatPropData<>), type, type, prop.Name);
+					yield return NewData(typeof(FloatPropData<>), type, prop.Name);
 		}
 	}
 
-	// FieldDataMember
-	public abstract class FieldDataMember : FieldData
+
+
+	// FieldData subclasses of FieldDataClassMember handle gettings members that hold/return a Class
+	// FieldDataClassMember can be chained e.g. thing.def.building
+	// The final FieldData after the chain must be a comparer (below) 
+	// That one actually does the filter on the value that it gets
+	// e.g. thing.def.building.uninstallWork > 300
+	public abstract class FieldDataClassMember : FieldData
 	{
-		public FieldDataMember() { }
-		public FieldDataMember(Type type, Type fieldType, string name)
+		public FieldDataClassMember() { }
+		public FieldDataClassMember(Type type, Type fieldType, string name)
 			: base(type, fieldType, name)
 		{ }
 
 		public abstract object GetMember(object obj);
 	}
 
-	public class ClassFieldData : FieldDataMember
+	// Subclasses to get a simple class object field/property
+	public class ClassFieldData : FieldDataClassMember
 	{
 		public ClassFieldData() { }
 		public ClassFieldData(Type type, Type fieldType, string name)
@@ -239,11 +248,11 @@ namespace TD_Find_Lib
 		public override object GetMember(object obj) => getter(obj);
 	}
 
-	public class ClassPropData<T> : FieldDataMember
+	public class ClassPropData<T> : FieldDataClassMember
 	{
 		public ClassPropData() { }
-		public ClassPropData(Type type, Type fieldType, string name)
-			: base(type, fieldType, name)
+		public ClassPropData(Type fieldType, string name)
+			: base(typeof(T), fieldType, name)
 		{ }
 
 		// Generics are required for this delegate to exist so that it's actually fast.
@@ -258,8 +267,27 @@ namespace TD_Find_Lib
 	}
 
 
-	// Comparers that end the sequence
+	// FieldData for ThingComp, ahandpicked handler for this generic method
+	public class ThingCompData<T> : FieldDataClassMember where T : ThingComp 
+	{
+		public ThingCompData()
+			: base(typeof(ThingWithComps), typeof(T), nameof(ThingWithComps.GetComp))
+		{ }
 
+		delegate T ThingCompGetter(ThingWithComps t);
+		private ThingCompGetter getter;
+		public override void Make()
+		{
+			getter ??= AccessTools.MethodDelegate<ThingCompGetter>(AccessTools.Method(type, name).MakeGenericMethod(fieldType));
+		}
+		public override object GetMember(object obj) => getter(obj as ThingWithComps);
+
+		public override string DisplayName(Type selectedType) => $"GetComp〈{fieldType.Name}〉";
+
+	}
+
+
+	// FieldData subclasses that compare valuetypes to end the sequence
 	public abstract class FieldDataComparer : FieldData
 	{
 		public FieldDataComparer() { }
@@ -302,8 +330,8 @@ namespace TD_Find_Lib
 	public class BoolPropData<T> : BoolData where T : class
 	{
 		public BoolPropData() { }
-		public BoolPropData(Type type, string name)
-			: base(type, name)
+		public BoolPropData(string name)
+			: base(typeof(T), name)
 		{		}
 
 		// Generics are required for this delegate to exist so that it's actually fast.
@@ -410,8 +438,8 @@ namespace TD_Find_Lib
 	public class IntPropData<T> : IntData where T : class
 	{
 		public IntPropData() { }
-		public IntPropData(Type type, string name)
-			: base(type, name)
+		public IntPropData(string name)
+			: base(typeof(T), name)
 		{ }
 
 		// Generics are required for this delegate to exist so that it's actually fast.
@@ -520,8 +548,8 @@ namespace TD_Find_Lib
 	public class FloatPropData<T> : FloatData where T : class
 	{
 		public FloatPropData() { }
-		public FloatPropData(Type type, string name)
-			: base(type, name)
+		public FloatPropData(string name)
+			: base(typeof(T), name)
 		{ }
 
 		// Generics are required for this delegate to exist so that it's actually fast.
@@ -543,7 +571,7 @@ namespace TD_Find_Lib
 	{
 		public Type matchType;
 		private string matchTypeName;
-		private List<FieldDataMember> memberChain;
+		private List<FieldDataClassMember> memberChain;
 		private FieldDataComparer _member;
 
 		public FieldDataComparer member
@@ -608,7 +636,7 @@ namespace TD_Find_Lib
 			clone.matchTypeName = matchTypeName;
 			clone._member = (FieldDataComparer)member?.Clone();
 			clone.member?.Make();
-			clone.memberChain = new(memberChain.Select(d => d.Clone() as FieldDataMember));
+			clone.memberChain = new(memberChain.Select(d => d.Clone() as FieldDataClassMember));
 			foreach (var memberData in clone.memberChain)
 				memberData.Make();
 			clone.loadError = loadError;
@@ -635,7 +663,7 @@ namespace TD_Find_Lib
 			{
 				member = addDataCompare;
 			}
-			else if(addData is FieldDataMember addDataMember)
+			else if(addData is FieldDataClassMember addDataMember)
 			{
 				memberChain.Add(addDataMember);
 				addDataMember.Make();
@@ -665,14 +693,15 @@ namespace TD_Find_Lib
 
 				row.Label(".");
 				//todo: dropdown name with ">>Spawned" for parent class fields but draw button without
-				RowButtonFloatMenu(memberData, FieldData.GetOptions(type, parentType), v => v?.DisplayName(type) ?? "   ", newData => SetMemberAt(newData, locali), tooltip: memberData.ToString());;
+				RowButtonFloatMenu(memberData, FieldData.GetOptions(type, parentType), v => v.DisplayName(type), newData => SetMemberAt(newData, locali), tooltip: memberData.ToString());;
 
 				parentType = type = memberData.fieldType;
 			}
+			// Whatever comes out of the memberchain should be some other class, not a valuetype to be compared
 
 			row.Label(":");
 			//todo: dropdown name with ">>Spawned" for parent class fields but draw button without
-			RowButtonFloatMenu(member, FieldData.GetOptions(type, parentType), v => v?.DisplayName(type) ?? "   ", SetMember, tooltip: member?.ToString());
+			RowButtonFloatMenu(member, FieldData.GetOptions(type, parentType), v => v?.DisplayName(type) ?? "(Select field)", SetMember, tooltip: member?.ToString());
 
 			return false;
 		}
