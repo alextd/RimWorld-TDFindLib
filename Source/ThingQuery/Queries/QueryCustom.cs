@@ -135,14 +135,15 @@ namespace TD_Find_Lib
 
 		// All FieldData options for a subclass and its parents
 		private static readonly Dictionary<Type, List<FieldData>> typeFields = new();
-		public static List<FieldData> GetOptions(Type type, Type parentType)
+		private static readonly Type[] baseTypes = new[] { typeof(Thing), typeof(Def), typeof(object), null};
+		public static List<FieldData> GetOptions(Type type)
 		{
 			if (!typeFields.TryGetValue(type, out var list))
 			{
 				list = FieldsFor(type);
 				typeFields[type] = list;
 
-				while(type != parentType)
+				while(!baseTypes.Contains(type))
 				{
 					type = type.BaseType;
 					list.AddRange(FieldsFor(type));
@@ -267,7 +268,7 @@ namespace TD_Find_Lib
 	}
 
 
-	// FieldData for ThingComp, ahandpicked handler for this generic method
+	// FieldData for ThingComp, a hand-picked handler for this generic method
 	public class ThingCompData<T> : FieldDataClassMember where T : ThingComp 
 	{
 		public ThingCompData()
@@ -685,7 +686,6 @@ namespace TD_Find_Lib
 			RowButtonFloatMenu(matchType, FieldData.thingSubclasses, t => t.Name, SelectMatchType, tooltip: matchType.ToString());
 
 			Type type = matchType;
-			Type parentType = typeof(Thing);
 			for (int i = 0; i < memberChain.Count; i++)
 			{
 				int locali = i;
@@ -693,15 +693,15 @@ namespace TD_Find_Lib
 
 				row.Label(".");
 				//todo: dropdown name with ">>Spawned" for parent class fields but draw button without
-				RowButtonFloatMenu(memberData, FieldData.GetOptions(type, parentType), v => v.DisplayName(type), newData => SetMemberAt(newData, locali), tooltip: memberData.ToString());;
+				RowButtonFloatMenu(memberData, FieldData.GetOptions(type), v => v.DisplayName(type), newData => SetMemberAt(newData, locali), tooltip: memberData.ToString());;
 
-				parentType = type = memberData.fieldType;
+				type = memberData.fieldType;
 			}
 			// Whatever comes out of the memberchain should be some other class, not a valuetype to be compared
 
 			row.Label(":");
 			//todo: dropdown name with ">>Spawned" for parent class fields but draw button without
-			RowButtonFloatMenu(member, FieldData.GetOptions(type, parentType), v => v?.DisplayName(type) ?? "(Select field)", SetMember, tooltip: member?.ToString());
+			RowButtonFloatMenu(member, FieldData.GetOptions(type), v => v?.DisplayName(type) ?? "(Select field)", SetMember, tooltip: member?.ToString());
 
 			return false;
 		}
