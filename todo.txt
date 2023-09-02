@@ -1,7 +1,8 @@
 === Custom query
 
 - class handler: thing.def.stackLimit
-Comp Handler thing.GetComp<T>.x
+- Comp Handler thing.GetComp<T>.x
+Dropdown name / selected name
 field (Class) in menu
 global dict for Make() getters?
 as subclass : 
