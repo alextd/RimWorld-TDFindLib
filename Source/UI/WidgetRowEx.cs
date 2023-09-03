@@ -46,5 +46,30 @@ namespace TD_Find_Lib
 			}
 			return false;
 		}
+
+
+
+		public static bool TextField(this WidgetRow row, ref string text, string controlName = null, float width = -1f)
+		{ 
+			if (width < 0f)
+			{
+				width = Text.CalcSize(text.ToString()).x;
+			}
+			row.IncrementYIfWillExceedMaxWidth(width + 2f);
+			row.IncrementPosition(2f);
+			Rect rect = new (row.LeftX(width), row.curY, width, 24f);
+
+			string newText = Widgets.TextField(rect, text);
+
+			row.IncrementPosition(2f);
+			row.IncrementPosition(rect.width);
+
+			if (newText != text)
+			{
+				text = newText;
+				return true;
+			}
+			return false;
+		}
 	}
 }

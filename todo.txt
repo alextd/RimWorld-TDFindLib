@@ -2,6 +2,10 @@
 
 - class handler: thing.def.stackLimit
 - Comp Handler thing.GetComp<T>.x
+
+one string drawn handled by . separated member names
+edit between . . to change memberchain and enter to confirm
+
 Dropdown name / selected name
 field (Class) in menu
 global dict for Make() getters?

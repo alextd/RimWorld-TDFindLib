@@ -94,6 +94,21 @@ namespace TD_Find_Lib
 			return new string('>', diff) + name;
 		}
 
+		public virtual bool ShouldShow(string[] filters)
+		{
+			foreach(string filter in filters)
+			{
+				if (fieldType.Name.ToLower().Contains(filter)
+					|| name.ToLower().Contains(filter))
+					continue;
+
+				return false;
+			}
+			return true;
+		}
+
+		public virtual string LiteralName => name.ToLower();
+
 		// Make should use ??= to create / store an accessor
 		public abstract void Make();
 
@@ -284,6 +299,7 @@ namespace TD_Find_Lib
 		public override object GetMember(object obj) => getter(obj as ThingWithComps);
 
 		public override string DisplayName(Type selectedType) => $"GetComp〈{fieldType.Name}〉";
+		public override string LiteralName => $"getcomp<{fieldType.Name.ToLower()}>()";
 
 	}
 
@@ -594,6 +610,8 @@ namespace TD_Find_Lib
 		{
 			matchType = typeof(Thing);
 			memberChain = new();
+
+			controlName = $"THING_QUERY_CUSTOM_INPUT{id}";
 		}
 		public override void ExposeData()
 		{
@@ -657,6 +675,8 @@ namespace TD_Find_Lib
 		private void SetMember(FieldData newData)
 		{
 			loadError = null;
+			fieldBuffer = "";
+			filters = new string[] { };
 
 			FieldData addData = newData.Clone();
 
@@ -680,6 +700,9 @@ namespace TD_Find_Lib
 			SetMember(newData);
 		}
 
+		private string fieldBuffer = "";
+		private string[] filters = new string[] { };
+		private readonly string controlName;
 		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			row.Label("Is type");
@@ -699,23 +722,126 @@ namespace TD_Find_Lib
 			}
 			// Whatever comes out of the memberchain should be some other class, not a valuetype to be compared
 
-			row.Label(":");
-			//todo: dropdown name with ">>Spawned" for parent class fields but draw button without
-			RowButtonFloatMenu(member, FieldData.GetOptions(type), v => v?.DisplayName(type) ?? "(Select field)", SetMember, tooltip: member?.ToString());
+			var nextOptions = FieldData.GetOptions(type);
+			row.Label(".");
+			// the text fielllld
 
-			return false;
+			// handle special input before the textfield grabs it
+			bool focused = GUI.GetNameOfFocusedControl() == controlName;
+			bool keyDown = Event.current.type == EventType.KeyDown;
+			KeyCode keyCode = Event.current.keyCode;
+
+			GUI.SetNextControlName(controlName);
+
+
+			bool changed = false;
+			if (keyDown && focused &&
+				(keyCode == KeyCode.Tab || keyCode == KeyCode.Return || keyCode == KeyCode.KeypadEnter
+				|| keyCode == KeyCode.Period || keyCode == KeyCode.KeypadPeriod))
+			{
+				Event.current.Use();
+
+				//Tab auto-suggest
+				if (keyCode == KeyCode.Tab)
+				{
+					//Not float options but hovering under always?
+					//tab to next option
+					DoFloatOptions(nextOptions, v => v.DisplayName(type), SetMember, d => d.ShouldShow(filters));
+					Log.Message($"Tab! {type} : {fieldBuffer}");
+				}
+
+				// Enter auto-complete
+				if (keyCode == KeyCode.Return || keyCode == KeyCode.KeypadEnter)
+				{
+					FieldData newData = nextOptions.Where(d => d.ShouldShow(filters)).FirstOrDefault();
+					Log.Message($"Enter! {type} : {fieldBuffer} => {newData}");
+					if (newData != null)
+					{
+						SetMember(newData);
+						changed = true;
+					}
+				}
+
+				// '.' set field exact
+				if (keyCode == KeyCode.Period || keyCode == KeyCode.KeypadPeriod)
+				{
+					FieldData newData = nextOptions.Where(d => d.LiteralName == fieldBuffer).FirstOrDefault();
+					Log.Message($".! {type} : {fieldBuffer}");
+					if (newData != null)
+					{
+						SetMember(newData);
+						changed = true;
+					}
+					//todo else error noise
+				}
+			}
+
+			if (member != null)
+			{
+				Rect memberRect = row.Label(member.DisplayName(type), tooltip: member.ToString());
+				if(Widgets.ButtonInvisible(memberRect))
+				{
+					fieldBuffer = member.name;
+					filters = fieldBuffer.ToLower().Split(' ');
+					member = null;
+					Focus();
+				}
+			}
+			else
+			{
+				if (row.TextField(ref fieldBuffer, controlName, 100))
+					filters = fieldBuffer.ToLower().Split(' ');
+			}
+
+
+			if (focused)
+			{
+				int count = Math.Min(nextOptions.Where(d => d.ShouldShow(filters)).Count(), 10);
+
+
+
+				Vector2 pos = UI.GUIToScreenPoint(new(0, 0));
+				Rect suggestionRect = new(pos.x + fullRect.x, pos.y + fullRect.yMax, fullRect.width, count * Text.LineHeight);
+				Find.WindowStack.ImmediateWindow(id, suggestionRect, WindowLayer.Super, delegate
+				{
+					Rect rect = suggestionRect.AtZero();
+					//Widgets.BeginGroup(rect);
+					//Widgets.DrawWindowBackground(rect);
+					rect.height = Text.LineHeight;
+					foreach (var d in nextOptions.Where(d => d.ShouldShow(filters)))
+					{
+						if (--count < 0) break;
+
+						Widgets.Label(rect, d.DisplayName(type));
+
+						rect.y += Text.LineHeight;
+					}
+					//Widgets.EndGroup();
+				}, doBackground: true);
+			}
+
+			return changed;
 		}
 		protected override bool DrawUnder(Listing_StandardIndent listing, bool locked)
 		{
 			return member?.Draw(listing) ?? false;
 		}
+
 		protected override void DoFocus()
 		{
+			if (GUI.GetNameOfFocusedControl() != controlName)
+				GUI.FocusControl(controlName);
 			member?.DoFocus();
 		}
 
 		public override bool Unfocus()
 		{
+			if (GUI.GetNameOfFocusedControl() == controlName)
+			{
+				UI.UnfocusCurrentControl();
+				return true;
+			}
+
 			return member?.Unfocus() ?? false;
 		}
 

@@ -138,6 +138,7 @@ namespace TD_Find_Lib
 			draggable = true;
 			resizeable = true;
 			doCloseX = true;
+			closeOnAccept = false;
 		}
 		public QueryDrawerWindow(QuerySearch search, string transferTag) : this()
 		{
@@ -215,7 +216,7 @@ namespace TD_Find_Lib
 			{
 				if (layoutFocus != GUI.GetNameOfFocusedControl())
 				{
-					Verse.Log.Warning("TDFindLib detected a Unity GUI bug and is fixing it by re-opening the window");
+					Verse.Log.Warning($"TDFindLib detected a Unity GUI bug and is fixing it by re-opening the window (Repaint focus \"{GUI.GetNameOfFocusedControl()}\" != Layout focus \"{layoutFocus}\")");
 					Rect pos = windowRect;
 					Close(false);
 					Find.WindowStack.Add(this);
