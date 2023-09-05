@@ -304,7 +304,7 @@ namespace TD_Find_Lib
 
 		
 		public override string DisplayName(Type selectedType) =>
-			$"{base.DisplayName(selectedType)}〈{fieldType.Name}〉"; // not < > because those tags are stripped for Text.CalcSize
+			$"{base.DisplayName(selectedType)}<{fieldType.Name}>";
 
 		public override string TextName =>
 			$"GetComp<{fieldType.Name}>";
@@ -683,10 +683,9 @@ namespace TD_Find_Lib
 
 			matchType = type;
 
-			//TODO: Don't reset but use ParseTextField to validate
 			member = null;
 			memberChain.Clear();
-			memberChainStr = "";
+			memberStr = "";
 			nextType = matchType;
 			nextOptions = FieldData.GetOptions(nextType);
 
@@ -694,16 +693,8 @@ namespace TD_Find_Lib
 			ParseTextField();
 		}
 
-		private bool needCursorEnd;
 		private void SetMember(FieldData newData)
 		{
-			int cutIndex = memberChainStr.LastIndexOf('.');
-			if (cutIndex > 0)
-				memberChainStr = memberChainStr.Remove(cutIndex) + '.' + newData.TextName;
-			else
-				memberChainStr = newData.TextName;
-
-			needCursorEnd = true;
 
 
 			FieldData addData = newData.Clone();
@@ -711,6 +702,7 @@ namespace TD_Find_Lib
 			if(addData is FieldDataComparer addDataCompare)
 			{
 				member = addDataCompare;
+				memberStr = member.TextName;
 				// Keep nextType in case you want to change the compared field
 
 
@@ -719,12 +711,11 @@ namespace TD_Find_Lib
 			}
 			else if(addData is FieldDataClassMember addDataMember)
 			{
-				memberChainStr += '.';
-
 				memberChain.Add(addDataMember);
 				addDataMember.Make();
 
 				member = null; //to be selected
+				memberStr = "";
 
 
 				nextType = addDataMember.fieldType;
@@ -743,9 +734,7 @@ namespace TD_Find_Lib
 		}
 
 		protected override float RowGap => 0;
-		private string memberChainStr = "";
-		private List<string> memberNames = new ();
-		private string lastMemberStr;
+		private string memberStr = "";
 		private List<string> filters = new ();
 		private List<FieldData> nextOptions;
 		private List<FieldData> filteredOptions = new();
@@ -759,18 +748,8 @@ namespace TD_Find_Lib
 		// After text field edit, parse string for validity + new filtered field suggestions
 		private void ParseTextField()
 		{
-			memberNames.Clear();
-			memberNames.AddRange(memberChainStr.ToLower().Split('.'));
-
-			// Validate memberNames to memberChain
-			// Remove/create as needed
-
 			filters.Clear();
-			lastMemberStr = memberNames.LastOrDefault();
-			if (lastMemberStr != null)
-				filters.AddRange(lastMemberStr.Split(' ', '<', '>'));
-
-			Log.Message($"ParseTextField ({memberChainStr}) => ({memberNames.ToStringSafeEnumerable()}) => ({filters.ToStringSafeEnumerable()})");
+			filters.AddRange(memberStr.Split(' ', '<', '>'));
 
 			FilterOptions();
 		}
@@ -785,8 +764,6 @@ namespace TD_Find_Lib
 		// but why would you have set the name if you had the comparison set up?
 		public bool AutoComplete()
 		{
-			Log.Message($"AutoComplete ({memberNames.ToStringSafeEnumerable()}) from options ({filteredOptions.ToStringSafeEnumerable()})");
-
 			FieldData newData = filteredOptions.FirstOrDefault();
 			if (newData != null)
 			{
@@ -817,8 +794,20 @@ namespace TD_Find_Lib
 
 
 
+			// Cast the thing (so often useful it's always gonna be here)
+			row.Label("thing as ");
+			RowButtonFloatMenu(matchType, FieldData.thingSubclasses, t => t.Name, SelectMatchType, tooltip: matchType.ToString());
 
-			// the text fielllld
+
+			StringBuilder sb = new(".");
+			// Draw (append) The memberchain
+			foreach (var memberLink in memberChain)
+			{
+				sb.Append(memberLink.TextName);
+				sb.Append(".");
+			}
+			row.LabelWithTags(sb.ToString());
+
 
 			// handle special input before the textfield grabs it
 			bool focused = GUI.GetNameOfFocusedControl() == controlName;
@@ -855,57 +844,54 @@ namespace TD_Find_Lib
 				}
 				*/
 			}
-			
 
 
-			row.Label("thing as ");
-			RowButtonFloatMenu(matchType, FieldData.thingSubclasses, t => t.Name, SelectMatchType, tooltip: matchType.ToString());
-			row.Label(".");
-
-			/*
-			 * TODO: draw as text when finalized
+			// final member:
 			if (member != null)
 			{
-				Rect memberRect = row.Label(memberChainStr);
-				if(Widgets.ButtonInvisible(memberRect))
+				// as string
+				row.Gap(-2);//account for label gap
+				Rect memberRect = row.LabelWithTags(memberStr);
+				if (Widgets.ButtonInvisible(memberRect))
 				{
 					member = null;
+					ParseTextField();
 					Focus();
 				}
 			}
 			else
 			{
+				//Text fiiiiield!
+				Rect inputRect = rect;
+				inputRect.xMin = row.FinalX;
 
-				Draw Text Field
-			}
-			*/
-
-			GUI.SetNextControlName(controlName);
-			Rect inputRect = rect;
-			inputRect.xMin = row.FinalX;
-
-
-
-			if (TDWidgets.TextField(inputRect, ref memberChainStr))
-			{
-				TextEditor editor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
-				Log.Message($"TextField editor.text = {editor.text}");
-				ParseTextField();
+				GUI.SetNextControlName(controlName);
+				if (TDWidgets.TextField(inputRect, ref memberStr))
+				{
+					TextEditor editor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
+					Log.Message($"TextField editor.text = {editor.text}");
+					ParseTextField();
+				}
 			}
 
 			if (focused)
 			{
-				if (needCursorEnd && Event.current.type == EventType.Layout)
+				/*
+				if (Event.current.type == EventType.Layout)
 				{
-					needCursorEnd = false;
-					TextEditor editor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
+					if (needCursorEnd)
+					{
+						TextEditor editor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
+						needCursorEnd = false;
 
-					editor?.MoveLineEnd();
+						editor?.MoveLineEnd();
+					}
 				}
+				*/
 
 
 
-			// Draw field suggestions
+				// Draw field suggestions
 				int showCount = Math.Min(filteredOptions.Count, 10);
 
 
