@@ -98,5 +98,17 @@ namespace TD_Find_Lib
 			}
 			return changed;
 		}
+
+		public static bool TextField(Rect rect, ref string text)
+		{
+			string newText = Widgets.TextField(rect, text);
+
+			if (newText != text)
+			{
+				text = newText;
+				return true;
+			}
+			return false;
+		}
 	}
 }

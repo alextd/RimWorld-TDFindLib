@@ -16,7 +16,7 @@ namespace TD_Find_Lib
 	{
 		public Type type; // declaring type, a subclass of some parent base type (often Thing)
 		public Type fieldType;
-		public string name; // field name / property name
+		public string name; // field name / property name / sometimes method name
 
 		// For load/save
 		private string typeName;
@@ -94,7 +94,13 @@ namespace TD_Find_Lib
 			return new string('>', diff) + name;
 		}
 
-		public virtual bool ShouldShow(string[] filters)
+
+		// full readable name, e.g. GetComp<CompPower>
+		// This string will be passed back into ParseTextField
+		// and then passed to ShouldShow, which should return true of course
+		public virtual string TextName => name;
+
+		public virtual bool ShouldShow(List<string> filters)
 		{
 			foreach(string filter in filters)
 			{
@@ -106,8 +112,6 @@ namespace TD_Find_Lib
 			}
 			return true;
 		}
-
-		public virtual string LiteralName => name.ToLower();
 
 		// Make should use ??= to create / store an accessor
 		public abstract void Make();
@@ -258,7 +262,7 @@ namespace TD_Find_Lib
 		private AccessTools.FieldRef<object, object> getter;
 		public override void Make()
 		{
-			getter ??= AccessTools.FieldRefAccess<object, object>(AccessTools.Field(type, name));
+			getter ??= AccessTools.FieldRefAccess<object, object>(AccessTools.DeclaredField(type, name));
 		}
 
 		public override object GetMember(object obj) => getter(obj);
@@ -276,7 +280,7 @@ namespace TD_Find_Lib
 		private ClassGetter getter;
 		public override void Make()
 		{
-			getter ??= AccessTools.MethodDelegate<ClassGetter>(AccessTools.PropertyGetter(typeof(T), name));
+			getter ??= AccessTools.MethodDelegate<ClassGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
 		}
 
 		public override object GetMember(object obj) => getter((T)obj);
@@ -294,13 +298,16 @@ namespace TD_Find_Lib
 		private ThingCompGetter getter;
 		public override void Make()
 		{
-			getter ??= AccessTools.MethodDelegate<ThingCompGetter>(AccessTools.Method(type, name).MakeGenericMethod(fieldType));
+			getter ??= AccessTools.MethodDelegate<ThingCompGetter>(AccessTools.DeclaredMethod(type, name).MakeGenericMethod(fieldType));
 		}
 		public override object GetMember(object obj) => getter(obj as ThingWithComps);
 
-		public override string DisplayName(Type selectedType) => $"GetComp〈{fieldType.Name}〉";
-		public override string LiteralName => $"getcomp<{fieldType.Name.ToLower()}>()";
+		
+		public override string DisplayName(Type selectedType) =>
+			$"{base.DisplayName(selectedType)}〈{fieldType.Name}〉"; // not < > because those tags are stripped for Text.CalcSize
 
+		public override string TextName =>
+			$"GetComp<{fieldType.Name}>";
 	}
 
 
@@ -338,7 +345,7 @@ namespace TD_Find_Lib
 		private AccessTools.FieldRef<object, bool> getter;
 		public override void Make()
 		{
-			getter ??= AccessTools.FieldRefAccess<object, bool>(AccessTools.Field(type, name));
+			getter ??= AccessTools.FieldRefAccess<object, bool>(AccessTools.DeclaredField(type, name));
 		}
 
 		public override bool GetBoolValue(object obj) => getter(obj);
@@ -356,7 +363,7 @@ namespace TD_Find_Lib
 		private BoolGetter getter;
 		public override void Make()
 		{
-			getter ??= AccessTools.MethodDelegate<BoolGetter>(AccessTools.PropertyGetter(typeof(T), name));
+			getter ??= AccessTools.MethodDelegate<BoolGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
 		}
 
 		public override bool GetBoolValue(object obj) => getter(obj as T);// please only pass in T
@@ -446,7 +453,7 @@ namespace TD_Find_Lib
 		private AccessTools.FieldRef<object, int> getter;
 		public override void Make()
 		{
-			getter ??= AccessTools.FieldRefAccess<object, int>(AccessTools.Field(type, name));
+			getter ??= AccessTools.FieldRefAccess<object, int>(AccessTools.DeclaredField(type, name));
 		}
 
 		public override int GetIntValue(object obj) => getter(obj);
@@ -464,7 +471,7 @@ namespace TD_Find_Lib
 		private IntGetter getter;
 		public override void Make()
 		{
-			getter ??= AccessTools.MethodDelegate<IntGetter>(AccessTools.PropertyGetter(typeof(T), name));
+			getter ??= AccessTools.MethodDelegate<IntGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
 		}
 
 		public override int GetIntValue(object obj) => getter(obj as T);// please only pass in T
@@ -556,7 +563,7 @@ namespace TD_Find_Lib
 		private AccessTools.FieldRef<object, float> getter;
 		public override void Make()
 		{
-			getter ??= AccessTools.FieldRefAccess<object, float>(AccessTools.Field(type, name));
+			getter ??= AccessTools.FieldRefAccess<object, float>(AccessTools.DeclaredField(type, name));
 		}
 
 		public override float GetFloatValue(object obj) => getter(obj);
@@ -574,7 +581,7 @@ namespace TD_Find_Lib
 		private FloatGetter getter;
 		public override void Make()
 		{
-			getter ??= AccessTools.MethodDelegate<FloatGetter>(AccessTools.PropertyGetter(typeof(T), name));
+			getter ??= AccessTools.MethodDelegate<FloatGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
 		}
 
 		public override float GetFloatValue(object obj) => getter(obj as T);// please only pass in T
@@ -609,6 +616,10 @@ namespace TD_Find_Lib
 		public ThingQueryCustom()
 		{
 			matchType = typeof(Thing);
+			nextType = matchType;
+			nextOptions = FieldData.GetOptions(nextType);
+			filteredOptions.AddRange(nextOptions);
+
 			memberChain = new();
 
 			controlName = $"THING_QUERY_CUSTOM_INPUT{id}";
@@ -665,30 +676,61 @@ namespace TD_Find_Lib
 		private string loadError = null;
 		public override string DisableReason => loadError;
 
+		private Type nextType;
 		private void SelectMatchType(Type type)
 		{
 			loadError = null;
+
 			matchType = type;
+
+			//TODO: Don't reset but use ParseTextField to validate
 			member = null;
 			memberChain.Clear();
+			memberChainStr = "";
+			nextType = matchType;
+			nextOptions = FieldData.GetOptions(nextType);
+
+
+			ParseTextField();
 		}
+
+		private bool needCursorEnd;
 		private void SetMember(FieldData newData)
 		{
-			loadError = null;
-			fieldBuffer = "";
-			filters = new string[] { };
+			int cutIndex = memberChainStr.LastIndexOf('.');
+			if (cutIndex > 0)
+				memberChainStr = memberChainStr.Remove(cutIndex) + '.' + newData.TextName;
+			else
+				memberChainStr = newData.TextName;
+
+			needCursorEnd = true;
+
 
 			FieldData addData = newData.Clone();
 
 			if(addData is FieldDataComparer addDataCompare)
 			{
 				member = addDataCompare;
+				// Keep nextType in case you want to change the compared field
+
+
+				ParseTextField();
+				filteredOptions.Clear(); //no suggestions if you've set a final field
 			}
 			else if(addData is FieldDataClassMember addDataMember)
 			{
+				memberChainStr += '.';
+
 				memberChain.Add(addDataMember);
 				addDataMember.Make();
+
 				member = null; //to be selected
+
+
+				nextType = addDataMember.fieldType;
+				nextOptions = FieldData.GetOptions(nextType);
+
+				ParseTextField();
 			}
 			//memberChain
 		}
@@ -700,15 +742,65 @@ namespace TD_Find_Lib
 			SetMember(newData);
 		}
 
-		private string fieldBuffer = "";
-		private string[] filters = new string[] { };
+		protected override float RowGap => 0;
+		private string memberChainStr = "";
+		private List<string> memberNames = new ();
+		private string lastMemberStr;
+		private List<string> filters = new ();
+		private List<FieldData> nextOptions;
+		private List<FieldData> filteredOptions = new();
+		/*
+		private string activeMemberName = "";
+		private int activeMemberIndex = 0;
+		private Type activeMemberType = 0;
+		*/
 		private readonly string controlName;
+
+		// After text field edit, parse string for validity + new filtered field suggestions
+		private void ParseTextField()
+		{
+			memberNames.Clear();
+			memberNames.AddRange(memberChainStr.ToLower().Split('.'));
+
+			// Validate memberNames to memberChain
+			// Remove/create as needed
+
+			filters.Clear();
+			lastMemberStr = memberNames.LastOrDefault();
+			if (lastMemberStr != null)
+				filters.AddRange(lastMemberStr.Split(' ', '<', '>'));
+
+			Log.Message($"ParseTextField ({memberChainStr}) => ({memberNames.ToStringSafeEnumerable()}) => ({filters.ToStringSafeEnumerable()})");
+
+			FilterOptions();
+		}
+		private void FilterOptions()
+		{
+			filteredOptions.Clear();
+			filteredOptions.AddRange(nextOptions.Where(d => d.ShouldShow(filters)));
+		}
+
+		// After tab/./enter : select first suggested field and add to memberChain / create comparable member
+		// This might remove comparision settings... Could check if it already exists
+		// but why would you have set the name if you had the comparison set up?
+		public bool AutoComplete()
+		{
+			Log.Message($"AutoComplete ({memberNames.ToStringSafeEnumerable()}) from options ({filteredOptions.ToStringSafeEnumerable()})");
+
+			FieldData newData = filteredOptions.FirstOrDefault();
+			if (newData != null)
+			{
+				SetMember(newData);
+				return true;
+			}
+			return false;
+		}
 		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
+			/*
 			row.Label("Is type");
 			RowButtonFloatMenu(matchType, FieldData.thingSubclasses, t => t.Name, SelectMatchType, tooltip: matchType.ToString());
 
-			Type type = matchType;
 			for (int i = 0; i < memberChain.Count; i++)
 			{
 				int locali = i;
@@ -720,99 +812,152 @@ namespace TD_Find_Lib
 
 				type = memberData.fieldType;
 			}
+			*/
 			// Whatever comes out of the memberchain should be some other class, not a valuetype to be compared
 
-			var nextOptions = FieldData.GetOptions(type);
-			row.Label(".");
+
+
+
 			// the text fielllld
 
 			// handle special input before the textfield grabs it
 			bool focused = GUI.GetNameOfFocusedControl() == controlName;
 			bool keyDown = Event.current.type == EventType.KeyDown;
 			KeyCode keyCode = Event.current.keyCode;
-
-			GUI.SetNextControlName(controlName);
+			char ch = Event.current.character;
 
 
 			bool changed = false;
-			if (keyDown && focused &&
+			if (keyDown)
+			{
+				TextEditor editor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
+				Log.Message($"keyDown {keyCode}/{ch} editor.text = {editor.text}");
+			}
+
+			//suppress the second key events that come after pressing tab/return/period
+			if (keyDown && focused && (ch == '	' || ch == '\n' || ch == '.'))
+			{
+				Event.current.Use();
+			}
+			else if (keyDown && focused &&
 				(keyCode == KeyCode.Tab || keyCode == KeyCode.Return || keyCode == KeyCode.KeypadEnter
 				|| keyCode == KeyCode.Period || keyCode == KeyCode.KeypadPeriod))
 			{
+				changed = AutoComplete();
+
 				Event.current.Use();
 
-				//Tab auto-suggest
+				/*
+				// Dropdown all options
 				if (keyCode == KeyCode.Tab)
 				{
-					//Not float options but hovering under always?
-					//tab to next option
 					DoFloatOptions(nextOptions, v => v.DisplayName(type), SetMember, d => d.ShouldShow(filters));
-					Log.Message($"Tab! {type} : {fieldBuffer}");
 				}
+				*/
+			}
+			
 
-				// Enter auto-complete
-				if (keyCode == KeyCode.Return || keyCode == KeyCode.KeypadEnter)
-				{
-					FieldData newData = nextOptions.Where(d => d.ShouldShow(filters)).FirstOrDefault();
-					Log.Message($"Enter! {type} : {fieldBuffer} => {newData}");
-					if (newData != null)
-					{
-						SetMember(newData);
-						changed = true;
-					}
-				}
 
-				// '.' set field exact
-				if (keyCode == KeyCode.Period || keyCode == KeyCode.KeypadPeriod)
+			row.Label("thing as ");
+			RowButtonFloatMenu(matchType, FieldData.thingSubclasses, t => t.Name, SelectMatchType, tooltip: matchType.ToString());
+			row.Label(".");
+			GUI.SetNextControlName(controlName);
+			Rect inputRect = rect;
+			inputRect.xMin = row.FinalX;
+			if (TDWidgets.TextField(inputRect, ref memberChainStr))
+			{
+				TextEditor editor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
+				Log.Message($"TextField editor.text = {editor.text}");
+				ParseTextField();
+			}
+			if (focused && needCursorEnd && Event.current.type == EventType.Layout)
+			{
+				needCursorEnd = false;
+				if (focused)
 				{
-					FieldData newData = nextOptions.Where(d => d.LiteralName == fieldBuffer).FirstOrDefault();
-					Log.Message($".! {type} : {fieldBuffer}");
-					if (newData != null)
-					{
-						SetMember(newData);
-						changed = true;
-					}
-					//todo else error noise
+					needCursorEnd = false;
+					TextEditor editor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
+					Log.Message($@"{memberChainStr} WAS editor.cursorIndex = {editor.cursorIndex}
+	editor.text = {editor.text}
+	editor.SelectedText = {editor.SelectedText}
+	editor.hasSelection = {editor.hasSelection}
+	editor.selectIndex = {editor.selectIndex}
+	editor.cursorIndex = {editor.cursorIndex}
+	editor.position = {editor.position}
+	editor.altCursorPosition = {editor.altCursorPosition}
+	editor.graphicalCursorPos = {editor.graphicalCursorPos}
+	editor.scrollOffset = {editor.scrollOffset}
+	editor.isPasswordField = {editor.isPasswordField}
+	editor.graphicalSelectCursorPos = {editor.graphicalSelectCursorPos}
+	editor.multiline = {editor.multiline}
+	editor.controlID = {editor.controlID}
+	editor.hasHorizontalCursorPos = {editor.hasHorizontalCursorPos}");
+
+
+					editor?.MoveLineEnd();
+
+					Log.Message($@"{memberChainStr} NOW editor.cursorIndex = {editor.cursorIndex}
+	editor.text = {editor.text}
+	editor.SelectedText = {editor.SelectedText}
+	editor.hasSelection = {editor.hasSelection}
+	editor.selectIndex = {editor.selectIndex}
+	editor.cursorIndex = {editor.cursorIndex}
+	editor.position = {editor.position}
+	editor.altCursorPosition = {editor.altCursorPosition}
+	editor.graphicalCursorPos = {editor.graphicalCursorPos}
+	editor.scrollOffset = {editor.scrollOffset}
+	editor.isPasswordField = {editor.isPasswordField}
+	editor.graphicalSelectCursorPos = {editor.graphicalSelectCursorPos}
+	editor.multiline = {editor.multiline}
+	editor.controlID = {editor.controlID}
+	editor.hasHorizontalCursorPos = {editor.hasHorizontalCursorPos}");
 				}
 			}
-
+			/*
+			 * TODO: draw as text when finalized
 			if (member != null)
 			{
-				Rect memberRect = row.Label(member.DisplayName(type), tooltip: member.ToString());
+				Rect memberRect = row.Label(memberChainStr);
 				if(Widgets.ButtonInvisible(memberRect))
 				{
-					fieldBuffer = member.name;
-					filters = fieldBuffer.ToLower().Split(' ');
 					member = null;
 					Focus();
 				}
 			}
 			else
 			{
-				if (row.TextField(ref fieldBuffer, controlName, 100))
-					filters = fieldBuffer.ToLower().Split(' ');
 			}
+			*/
 
 
+
+			// Draw field suggestions
 			if (focused)
 			{
-				int count = Math.Min(nextOptions.Where(d => d.ShouldShow(filters)).Count(), 10);
-
+				int showCount = Math.Min(filteredOptions.Count, 10);
 
 
 				Vector2 pos = UI.GUIToScreenPoint(new(0, 0));
-				Rect suggestionRect = new(pos.x + fullRect.x, pos.y + fullRect.yMax, fullRect.width, count * Text.LineHeight);
+				Rect suggestionRect = new(pos.x + fullRect.x, pos.y + fullRect.yMax, fullRect.width, showCount * Text.LineHeight);
 				Find.WindowStack.ImmediateWindow(id, suggestionRect, WindowLayer.Super, delegate
 				{
 					Rect rect = suggestionRect.AtZero();
 					//Widgets.BeginGroup(rect);
 					//Widgets.DrawWindowBackground(rect);
 					rect.height = Text.LineHeight;
-					foreach (var d in nextOptions.Where(d => d.ShouldShow(filters)))
-					{
-						if (--count < 0) break;
 
-						Widgets.Label(rect, d.DisplayName(type));
+					if (filteredOptions.Count > 1)
+					{
+						Text.Anchor = TextAnchor.UpperRight;
+						Widgets.Label(rect, $"{filteredOptions.Count} fields");
+						Text.Anchor = default;
+					}
+					foreach (var d in filteredOptions)
+					{
+						if (--showCount < 0) break;
+
+						//TODO SuggestionName aka visual studio "(field) ThingDef Thing.def)
+						Widgets.Label(rect, d.DisplayName(nextType));
 
 						rect.y += Text.LineHeight;
 					}

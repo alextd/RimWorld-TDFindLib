@@ -1,33 +1,57 @@
 === Custom query
 
-- class handler: thing.def.stackLimit
-- Comp Handler thing.GetComp<T>.x
+= class handler: thing.def.stackLimit
+= Comp Handler thing.GetComp<T>.x
 
-one string drawn handled by . separated member names
+= type-in text:
+prevent editing before .
+handle esc : remove last .
 edit between . . to change memberchain and enter to confirm
+save memberchain as string and comparer data as postexposedata?
+finalize last member => no textfield just label. click textfield to edit again.
+finalize last => focus FieldData textfields
 
-Dropdown name / selected name
-field (Class) in menu
+= suggestions:
+downarrow to select index into suggestions
+scroll through suggestions
+beteter name suggestions "def (bool Thing.def)"
+0 suggestions window showing warning!
+sort suggetstions like visual studio?
+1. starting with X,
+2. CamelCase word starts with X, 
+3. CamelCase words starts with X substrings / X matches mid-word
+click suggestions
+hijack floatmenu and not require a click?
+
+
+= FieldData subclasses:
+enum  values FieldData
+class == or != null (don't necesarilly skip nulls) FieldData should be able to handle this
+List Any/All FieldData
+string handler FieldData
+Def handler FieldData
+"as X" handler for all subclasses
+
+=handle arbitrary parents and list their fields (eg KindDef : Def)
+
+
+= dropdown
+Full dropdown selection ?
+dropdown Sections/ color class / bools / etc.
+Dropdown name "field (bool Thing.def)" + color?
 global dict for Make() getters?
-as subclass : 
-enum  values
-class is null (don't necesarilly skip nulls)
-List Any/All
-string handler
-Def handler
-handle arbitrary parents and list their fields (eg KindDef : Def)
-Section/color class / bools / etc.
+
+
 
 blacklist classes.
 Type/Action/MethodInfo
 Or whitelist only rimworld classes?.
 
-type-in some text for next field
-type-in . or tab to resolve that field
 
 
-=HARDCORE
-FieldDataComparerThingQuery => ThingQuery on that class. HUM.
+==HARDCORE CUSTOM QUERY
+FieldDataComparerThingQuery => ThingQuery on that thing. 
+Even more, generic Query<T> valid for Query<ThingDef> / pawns / buildings => FieldDataComparer for that Query
 
 
 === Fixes 
