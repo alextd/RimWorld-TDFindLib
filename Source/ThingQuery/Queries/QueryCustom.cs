@@ -861,58 +861,7 @@ namespace TD_Find_Lib
 			row.Label("thing as ");
 			RowButtonFloatMenu(matchType, FieldData.thingSubclasses, t => t.Name, SelectMatchType, tooltip: matchType.ToString());
 			row.Label(".");
-			GUI.SetNextControlName(controlName);
-			Rect inputRect = rect;
-			inputRect.xMin = row.FinalX;
-			if (TDWidgets.TextField(inputRect, ref memberChainStr))
-			{
-				TextEditor editor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
-				Log.Message($"TextField editor.text = {editor.text}");
-				ParseTextField();
-			}
-			if (focused && needCursorEnd && Event.current.type == EventType.Layout)
-			{
-				needCursorEnd = false;
-				if (focused)
-				{
-					needCursorEnd = false;
-					TextEditor editor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
-					Log.Message($@"{memberChainStr} WAS editor.cursorIndex = {editor.cursorIndex}
-	editor.text = {editor.text}
-	editor.SelectedText = {editor.SelectedText}
-	editor.hasSelection = {editor.hasSelection}
-	editor.selectIndex = {editor.selectIndex}
-	editor.cursorIndex = {editor.cursorIndex}
-	editor.position = {editor.position}
-	editor.altCursorPosition = {editor.altCursorPosition}
-	editor.graphicalCursorPos = {editor.graphicalCursorPos}
-	editor.scrollOffset = {editor.scrollOffset}
-	editor.isPasswordField = {editor.isPasswordField}
-	editor.graphicalSelectCursorPos = {editor.graphicalSelectCursorPos}
-	editor.multiline = {editor.multiline}
-	editor.controlID = {editor.controlID}
-	editor.hasHorizontalCursorPos = {editor.hasHorizontalCursorPos}");
 
-
-					editor?.MoveLineEnd();
-
-					Log.Message($@"{memberChainStr} NOW editor.cursorIndex = {editor.cursorIndex}
-	editor.text = {editor.text}
-	editor.SelectedText = {editor.SelectedText}
-	editor.hasSelection = {editor.hasSelection}
-	editor.selectIndex = {editor.selectIndex}
-	editor.cursorIndex = {editor.cursorIndex}
-	editor.position = {editor.position}
-	editor.altCursorPosition = {editor.altCursorPosition}
-	editor.graphicalCursorPos = {editor.graphicalCursorPos}
-	editor.scrollOffset = {editor.scrollOffset}
-	editor.isPasswordField = {editor.isPasswordField}
-	editor.graphicalSelectCursorPos = {editor.graphicalSelectCursorPos}
-	editor.multiline = {editor.multiline}
-	editor.controlID = {editor.controlID}
-	editor.hasHorizontalCursorPos = {editor.hasHorizontalCursorPos}");
-				}
-			}
 			/*
 			 * TODO: draw as text when finalized
 			if (member != null)
@@ -926,14 +875,37 @@ namespace TD_Find_Lib
 			}
 			else
 			{
+
+				Draw Text Field
 			}
 			*/
+
+			GUI.SetNextControlName(controlName);
+			Rect inputRect = rect;
+			inputRect.xMin = row.FinalX;
+
+
+
+			if (TDWidgets.TextField(inputRect, ref memberChainStr))
+			{
+				TextEditor editor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
+				Log.Message($"TextField editor.text = {editor.text}");
+				ParseTextField();
+			}
+
+			if (focused)
+			{
+				if (needCursorEnd && Event.current.type == EventType.Layout)
+				{
+					needCursorEnd = false;
+					TextEditor editor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
+
+					editor?.MoveLineEnd();
+				}
 
 
 
 			// Draw field suggestions
-			if (focused)
-			{
 				int showCount = Math.Min(filteredOptions.Count, 10);
 
 
