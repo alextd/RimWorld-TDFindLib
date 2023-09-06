@@ -22,12 +22,12 @@ namespace TD_Find_Lib
 		private string fieldLower;
 		private string nameLower;
 
-		// For load/save
+		// For load/save. These are technicaly re-discoverable but this is easier.
 		private string typeName;
 		private string fieldTypeName;
 		public string DisableReason =>
-			type == null ? $"Could not find type {typeName} for ({fieldType}) {typeName}.{name}"
-			: fieldType == null ? $"Could not find field type {fieldTypeName} for ({fieldType}) {typeName}.{name}"
+			type == null ? $"Could not find type {typeName} for ({fieldTypeName}) {typeName}.{name}"
+			: fieldType == null ? $"Could not find field type {fieldTypeName} for ({fieldTypeName}) {typeName}.{name}"
 			: null;
 
 		public FieldData() { }
@@ -53,8 +53,8 @@ namespace TD_Find_Lib
 
 			if (Scribe.mode == LoadSaveMode.Saving)
 			{
-				typeName ??= type.ToString();
-				fieldTypeName ??= fieldType.ToString();
+				typeName = type?.ToString() ?? typeName;
+				fieldTypeName = fieldType?.ToString() ?? fieldTypeName;
 				Scribe_Values.Look(ref typeName, "type");
 				Scribe_Values.Look(ref fieldType, "fieldType");
 			}
@@ -66,6 +66,7 @@ namespace TD_Find_Lib
 				// Maybe null if loaded 3rdparty types
 				type = ParseHelper.ParseType(typeName);
 				fieldType = ParseHelper.ParseType(fieldTypeName);
+
 				MakeLower();
 			}
 		}
@@ -606,10 +607,10 @@ namespace TD_Find_Lib
 	[StaticConstructorOnStartup]
 	public class ThingQueryCustom : ThingQuery
 	{
-		public Type matchType;
-		private string matchTypeName;
-		private List<FieldDataClassMember> memberChain;
+		public Type matchType = typeof(Thing);
+		public List<FieldDataClassMember> memberChain = new();
 		private FieldDataComparer _member;
+		public string memberStr = "";
 
 		public FieldDataComparer member
 		{
@@ -626,28 +627,46 @@ namespace TD_Find_Lib
 		}
 
 
+		private Type _nextType;
+		private List<FieldData> nextOptions;
+		public Type nextType
+		{
+			get => _nextType;
+			set
+			{
+				_nextType = value;
+				nextOptions = FieldData.GetOptions(_nextType);
+
+				ParseTextField();
+			}
+		}
+
+
+		private string loadError = null;
+		public override string DisableReason => loadError;
+
 		public ThingQueryCustom()
 		{
-			matchType = typeof(Thing);
-			memberChain = new();
-
 			nextType = matchType;
 
 
 			controlName = $"THING_QUERY_CUSTOM_INPUT{id}";
 		}
+
+		private string matchTypeName;
 		public override void ExposeData()
 		{
 			base.ExposeData();
 
 			if (Scribe.mode == LoadSaveMode.Saving)
 			{
-				matchTypeName ??= matchType.ToString();
+				matchTypeName = matchType?.ToString() ?? matchTypeName;
 				Scribe_Values.Look(ref matchTypeName, "matchType");
 			}
 
 			Scribe_Collections.Look(ref memberChain, "memberChain");
 			Scribe_Deep.Look(ref _member, "member");
+			Scribe_Values.Look(ref memberStr, "memberStr");
 
 			if (Scribe.mode == LoadSaveMode.LoadingVars)
 			{
@@ -662,44 +681,39 @@ namespace TD_Find_Lib
 				}
 
 				member?.Make();
-				loadError ??= member?.DisableReason;
+				loadError = member?.DisableReason;
 
 				foreach (var memberData in memberChain)
 				{
 					memberData.Make();
 					loadError ??= memberData?.DisableReason;
 				}
+
+				nextType = memberChain.LastOrDefault()?.fieldType ?? matchType;
 			}
 		}
 		protected override ThingQuery Clone()
 		{
 			ThingQueryCustom clone = (ThingQueryCustom)base.Clone();
+
 			clone.matchType = matchType;
 			clone.matchTypeName = matchTypeName;
+
 			clone._member = (FieldDataComparer)member?.Clone();
 			clone.member?.Make();
+			clone.memberStr = memberStr;
+
 			clone.memberChain = new(memberChain.Select(d => d.Clone() as FieldDataClassMember));
 			foreach (var memberData in clone.memberChain)
 				memberData.Make();
+
+			clone.nextType = nextType;
+
 			clone.loadError = loadError;
+
 			return clone;
 		}
 
-		private string loadError = null;
-		public override string DisableReason => loadError;
-
-		private Type _nextType;
-		private Type nextType
-		{
-			get => _nextType;
-			set
-			{
-				_nextType = value;
-				nextOptions = FieldData.GetOptions(_nextType);
-
-				ParseTextField();
-			}
-		}
 		private void SelectMatchType(Type type)
 		{
 			loadError = null;
@@ -714,8 +728,6 @@ namespace TD_Find_Lib
 
 		private void SetMember(FieldData newData)
 		{
-
-
 			FieldData addData = newData.Clone();
 
 			if(addData is FieldDataComparer addDataCompare)
@@ -737,30 +749,12 @@ namespace TD_Find_Lib
 
 				nextType = addDataMember.fieldType;
 			}
-			//memberChain
 		}
 
-		private void SetMemberAt(FieldData newData, int i)
-		{
-			memberChain.RemoveRange(i, memberChain.Count - i);
 
-			SetMember(newData);
-		}
-
-		protected override float RowGap => 0;
-		private string memberStr = "";
+		// After text field edit, parse string for new filtered field suggestions
 		private List<string> filters = new ();
-		private List<FieldData> nextOptions;
 		private List<FieldData> filteredOptions = new();
-		private bool needCursorEnd;
-		/*
-		private string activeMemberName = "";
-		private int activeMemberIndex = 0;
-		private Type activeMemberType = 0;
-		*/
-		private readonly string controlName;
-
-		// After text field edit, parse string for validity + new filtered field suggestions
 		private void ParseTextField()
 		{
 			filters.Clear();
@@ -783,6 +777,10 @@ namespace TD_Find_Lib
 			}
 			return false;
 		}
+
+		protected override float RowGap => 0;
+		private readonly string controlName;
+		private bool needMoveLineEnd;
 		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			/*
@@ -828,10 +826,9 @@ namespace TD_Find_Lib
 
 
 			bool changed = false;
-			TextEditor editor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
 			if (keyDown)
 			{
-				Log.Message($"keyDown {keyCode}/{ch} editor.text = {editor.text}");
+				Log.Message($"keyDown {keyCode}/{ch} editor.text = {((TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl)).text}");
 			}
 
 			//suppress the second key events that come after pressing tab/return/period
@@ -856,7 +853,7 @@ namespace TD_Find_Lib
 						member = null;
 						var lastMember = memberChain.Pop();
 
-						needCursorEnd = true;
+						needMoveLineEnd = true;
 						memberStr = lastMember.TextName;
 						nextType = memberChain.LastOrDefault()?.fieldType ?? matchType;
 
@@ -905,10 +902,10 @@ namespace TD_Find_Lib
 			{
 				if (Event.current.type == EventType.Layout)
 				{
-					if (needCursorEnd)
+					if (needMoveLineEnd)
 					{
-						editor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
-						needCursorEnd = false;
+						TextEditor editor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
+						needMoveLineEnd = false;
 
 						editor?.MoveLineEnd();
 					}
@@ -978,8 +975,9 @@ namespace TD_Find_Lib
 			foreach (var memberData in memberChain)
 			{
 				if (!memberData.type.IsAssignableFrom(obj.GetType()))
-					// redundant on first call oh well
-					// matchType is needed above if you're checking Pawn.def, as for memberData it's Thing.def
+					// Redundant for first member call, oh well
+					// direct matchType check is still needed above if you're checking matchType == Pawn with Pawn.def.x
+					// Because the memberData.type is not checking for Pawn, as it's actually Thing.def
 					return false;
 
 				obj = memberData.GetMember(obj);

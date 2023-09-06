@@ -49,7 +49,7 @@ namespace TD_Find_Lib
 
 		public static Rect LabelWithTags(this WidgetRow row, string text, string tooltip = null, float height = -1f)
 		{
-			// Without stripping tags so it uses <text>
+			// Text.CalcSuze() but without stripping tags so it uses <text>
 			Text.tmpTextGUIContent.text = text;//.StripTags();
 			float width = Text.CurFontStyle.CalcSize(Text.tmpTextGUIContent).x;
 			return row.Label(text, width, tooltip, height);

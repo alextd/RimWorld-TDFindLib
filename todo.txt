@@ -1,16 +1,22 @@
 === Custom query
 
+put selectionError/loadError in ThinQuery base
+
 = class handler: thing.def.stackLimit
 = Comp Handler thing.GetComp<T>.x
 
-set matchType Focus
+set matchType => Focus
 
 = type-in text:
 = delete on empty textfield to back up and change last in memberchain
-focus comparer when set, ohno unity dynamic textfield problem?
-exposedata+clone
+= focus comparer when set, ohno unity dynamic textfield problem?
+= exposedata+clone
+hover over field info.
+
+click outside focus , defocus
 
 = suggestions:
+dont show after bed.Medical => tab
 downarrow to select index into suggestions
 scroll through suggestions
 beteter name suggestions "def (bool Thing.def)"
