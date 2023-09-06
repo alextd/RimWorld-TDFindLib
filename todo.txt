@@ -11,10 +11,10 @@
 = exposedata+clone
 = hover over field info.
 
-bool tostring=> bool not system.boolean
-remove verse. rimworld. namespaces from type tostring
+= bool tostring=> bool not system.boolean
+= remove verse. rimworld. namespaces from type tostring
 
-click outside focus , defocus
+= click outside focus , defocus
 
 = suggestions:
 dont show after bed.Medical => tab
@@ -27,7 +27,6 @@ sort suggetstions like visual studio?
 1. starting with X,
 2. CamelCase word starts with X, 
 3. CamelCase words starts with X substrings / X matches mid-word
-click suggestions
 hijack floatmenu and not require a click?
 
 

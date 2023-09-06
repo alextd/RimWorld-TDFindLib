@@ -210,6 +210,11 @@ namespace TD_Find_Lib
 				Event.current.Use();
 			}
 
+			if (Event.current.type == EventType.MouseDown && fillRect.Contains(Event.current.mousePosition))
+			{
+				UI.UnfocusCurrentControl();
+			}
+
 			// workaround for unity GUI bug where Unity windows seems to, I guess, bind GUI control ids and doesn't handle them dynamically being removed/reordered
 			// In the end the GUI.GetNameOfFocusedControl is different between layout and repaint events in the same frame.
 			// Seems to not happen in normal operation.
