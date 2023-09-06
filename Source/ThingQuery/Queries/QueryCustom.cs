@@ -89,25 +89,7 @@ namespace TD_Find_Lib
 		public virtual void DoFocus() { }
 		public virtual bool Unfocus() => false;
 
-		public override string ToString() => $"({fieldType}) {type}.{name}";
-
-		// When listing for a subclass, prepend '>' if it's a parent's field
-		public virtual string DisplayName(Type selectedType)
-		{
-			int diff = 0;
-			while (selectedType != type)
-			{
-				diff++;
-				selectedType = selectedType.BaseType;
-				if(selectedType == null)
-				{
-					//ABORT though this ought not happen
-					return name;
-				}
-			}
-
-			return new string('>', diff) + name;
-		}
+		public virtual string Details => $"({fieldType}) {type}.{name}";
 
 
 		// full readable name, e.g. GetComp<CompPower>
@@ -317,9 +299,6 @@ namespace TD_Find_Lib
 		public override object GetMember(object obj) => getter(obj as ThingWithComps);
 
 		
-		public override string DisplayName(Type selectedType) =>
-			$"{base.DisplayName(selectedType)}<{fieldType.Name}>";
-
 		public override string TextName =>
 			$"GetComp<{fieldType.Name}>";
 	}
@@ -815,7 +794,7 @@ namespace TD_Find_Lib
 			{
 				row.Label(".");
 				row.Gap(-2);
-				row.LabelWithTags(memberLink.TextName, tooltip: memberLink.ToString());
+				row.LabelWithTags(memberLink.TextName, tooltip: memberLink.Details);
 				row.Gap(-2);
 			}
 			row.Label(".");
@@ -829,10 +808,6 @@ namespace TD_Find_Lib
 
 
 			bool changed = false;
-			if (keyDown)
-			{
-				Log.Message($"keyDown {keyCode}/{ch} editor.text = {((TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl)).text}");
-			}
 
 			//suppress the second key events that come after pressing tab/return/period
 			if (keyDown && focused)
@@ -879,7 +854,7 @@ namespace TD_Find_Lib
 			{
 				// as string
 				row.Gap(-2);//account for label gap
-				Rect memberRect = row.LabelWithTags(member.TextName, tooltip: member.ToString());
+				Rect memberRect = row.LabelWithTags(member.TextName, tooltip: member.Details);
 				if (Widgets.ButtonInvisible(memberRect))
 				{
 					member = null;
@@ -917,30 +892,43 @@ namespace TD_Find_Lib
 				int showCount = Math.Min(filteredOptions.Count, 10);
 
 				Vector2 pos = UI.GUIToScreenPoint(new(0, 0));
-				Rect suggestionRect = new(pos.x + fullRect.x, pos.y + fullRect.yMax, fullRect.width, showCount * Text.LineHeight);
-				Find.WindowStack.ImmediateWindow(id, suggestionRect, WindowLayer.Super, delegate
+				Rect suggestionRect = new(pos.x + fullRect.x, pos.y + fullRect.yMax, queryRect.width, (1+showCount) * Text.LineHeight);
+				Find.WindowStack.ImmediateWindow(id, suggestionRect, WindowLayer.Super, (Action)delegate
 				{
 					Rect rect = suggestionRect.AtZero();
-					//Widgets.BeginGroup(rect);
-					//Widgets.DrawWindowBackground(rect);
+					rect.xMin += 2;
+					rect.xMax -= 4;
+
+					// draw Field count
+					Text.Anchor = TextAnchor.LowerRight;
+					if (filteredOptions.Count > 1)
+						Widgets.Label(rect, $"{filteredOptions.Count} fields");
+					else if (filteredOptions.Count == 0 )
+						Widgets.Label(rect, $"No fields!");
+					Text.Anchor = default;
+
+					// Set height for row
 					rect.height = Text.LineHeight;
 
-					if (filteredOptions.Count > 1)
-					{
-						Text.Anchor = TextAnchor.UpperRight;
-						Widgets.Label(rect, $"{filteredOptions.Count} fields");
-						Text.Anchor = default;
-					}
+					// Highligh selected option
+					// TODO: QueryCustom field to use it elsewhere, probably by index.
+					var selectedOption = filteredOptions.FirstOrDefault();
+
 					foreach (var d in filteredOptions)
 					{
 						if (--showCount < 0) break;
 
-						//TODO SuggestionName aka visual studio "(field) ThingDef Thing.def)
-						Widgets.Label(rect, d.DisplayName(nextType));
+						Widgets.Label(rect, d.TextName);
 
+						if (selectedOption == d)
+						{
+							Widgets.DrawHighlight(rect);
+							rect.y += Text.LineHeight;
+							Widgets.Label(rect, $": <color=grey>{selectedOption.Details}</color>");
+							Widgets.DrawHighlight(rect);
+						}
 						rect.y += Text.LineHeight;
 					}
-					//Widgets.EndGroup();
 				}, doBackground: true);
 			}
 

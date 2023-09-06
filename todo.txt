@@ -9,15 +9,19 @@
 = delete on empty textfield to back up and change last in memberchain
 = focus comparer when set, ohno unity dynamic textfield problem?
 = exposedata+clone
-hover over field info.
+= hover over field info.
+
+bool tostring=> bool not system.boolean
+remove verse. rimworld. namespaces from type tostring
 
 click outside focus , defocus
 
 = suggestions:
 dont show after bed.Medical => tab
-downarrow to select index into suggestions
+= first row selected suggestion with "def (bool Thing.def)"; next 10 options name only and "100 options"
+click suggestion => SetMember
 scroll through suggestions
-beteter name suggestions "def (bool Thing.def)"
+downarrow to select index into suggestions, enter => SetMember
 0 suggestions window showing warning!
 sort suggetstions like visual studio?
 1. starting with X,

@@ -192,15 +192,15 @@ namespace TD_Find_Lib
 		public (bool, bool) Listing(Listing_StandardIndent listing, bool locked)
 		{
 			// Set up the first row rect to draw. (DrawUnder if more space needed)
-			Rect rowRect = listing.GetRect(Text.LineHeight + listing.verticalSpacing); //ends up being 22 which is height of Text.CalcSize 
+			queryRect = listing.GetRect(Text.LineHeight + listing.verticalSpacing); //ends up being 22 which is height of Text.CalcSize 
 
 
 			// Red crossthough line
 			if (!include)
 			{
-				Widgets.DrawBoxSolid(rowRect.ContractedBy(2), new Color(1, 0, 0, 0.1f));
+				Widgets.DrawBoxSolid(queryRect.ContractedBy(2), new Color(1, 0, 0, 0.1f));
 				GUI.color = new Color(1, 0, 0, 0.25f);
-				Widgets.DrawLineHorizontal(rowRect.x + 2, rowRect.y + Text.LineHeight / 2, rowRect.width - 4);
+				Widgets.DrawLineHorizontal(queryRect.x + 2, queryRect.y + Text.LineHeight / 2, queryRect.width - 4);
 				GUI.color = Color.white;
 			}
 
@@ -212,13 +212,11 @@ namespace TD_Find_Lib
 			// Layout icons now for iconWidth
 			// Now that I've written this, it seems like this should be precomputed.
 			if (Event.current.type != EventType.Repaint)
-				DrawIcons(locked, rowRect, ref changed, ref delete);
+				DrawIcons(locked, ref changed, ref delete);
 
 
-			// Draw Query
-			Rect drawRect = rowRect;
-
-			// Make room for icons
+			// Draw Query, Make room for icons
+			Rect drawRect = queryRect;
 			drawRect.width -= iconWidth;
 
 			row.Init(drawRect.x, drawRect.y, gap: RowGap);
@@ -243,10 +241,8 @@ namespace TD_Find_Lib
 				TooltipHandler.TipRegion(drawRect, def.tooltip);
 			}
 
-			// Draw Query second row with extra-special options
+			// Draw Query second row with extra-special options, extend queryRect height
 			changed |= DrawUnder(listing, locked);
-
-			queryRect = rowRect;
 			queryRect.yMax = listing.CurHeight;
 
 			// For the occasional text input
@@ -273,15 +269,16 @@ namespace TD_Find_Lib
 
 			// Draw icons AFTER highlights though.
 			if (Event.current.type == EventType.Repaint)
-				DrawIcons(locked, rowRect, ref changed, ref delete);
+				DrawIcons(locked, ref changed, ref delete);
 
 			listing.Gap(listing.verticalSpacing);
 			return (changed, delete);
 		}
 
-		private void DrawIcons(bool locked, Rect rowRect, ref bool changed, ref bool delete)
+		private void DrawIcons(bool locked, ref bool changed, ref bool delete)
 		{
-			iconRow.Init(rowRect.xMax, rowRect.y, UIDirection.LeftThenDown, rowRect.width);
+			//Does not actually use rect.height, so extendable queryRect doesn't matter
+			iconRow.Init(queryRect.xMax, queryRect.y, UIDirection.LeftThenDown, queryRect.width);
 			if (!locked)
 			{
 				//Clear button
@@ -309,7 +306,7 @@ namespace TD_Find_Lib
 				}
 			}
 			if (Event.current.type == EventType.Layout)
-				iconWidth = rowRect.xMax - iconRow.FinalX;
+				iconWidth = queryRect.xMax - iconRow.FinalX;
 		}
 
 		public void DrawRow(Rect rect)
