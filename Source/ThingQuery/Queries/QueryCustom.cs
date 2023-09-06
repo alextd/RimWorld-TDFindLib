@@ -810,14 +810,15 @@ namespace TD_Find_Lib
 			RowButtonFloatMenu(matchType, FieldData.thingSubclasses, t => t.Name, SetMatchType, tooltip: matchType.ToString());
 
 
-			StringBuilder sb = new(".");
 			// Draw (append) The memberchain
 			foreach (var memberLink in memberChain)
 			{
-				sb.Append(memberLink.TextName);
-				sb.Append(".");
+				row.Label(".");
+				row.Gap(-2);
+				row.LabelWithTags(memberLink.TextName, tooltip: memberLink.ToString());
+				row.Gap(-2);
 			}
-			row.LabelWithTags(sb.ToString());
+			row.Label(".");
 
 
 			// handle special input before the textfield grabs it
@@ -878,7 +879,7 @@ namespace TD_Find_Lib
 			{
 				// as string
 				row.Gap(-2);//account for label gap
-				Rect memberRect = row.LabelWithTags(memberStr);
+				Rect memberRect = row.LabelWithTags(member.TextName, tooltip: member.ToString());
 				if (Widgets.ButtonInvisible(memberRect))
 				{
 					member = null;
