@@ -1,11 +1,9 @@
 === Custom query
 
-put selectionError/loadError in ThinQuery base
-
 = class handler: thing.def.stackLimit
 = Comp Handler thing.GetComp<T>.x
 
-set matchType => Focus
+= set matchType => Focus
 
 = type-in text:
 = delete on empty textfield to back up and change last in memberchain

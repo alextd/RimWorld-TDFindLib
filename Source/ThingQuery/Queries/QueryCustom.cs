@@ -714,7 +714,7 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		private void SelectMatchType(Type type)
+		private void SetMatchType(Type type)
 		{
 			loadError = null;
 
@@ -724,6 +724,8 @@ namespace TD_Find_Lib
 			memberChain.Clear();
 			memberStr = "";
 			nextType = matchType;
+
+			Focus();
 		}
 
 		private void SetMember(FieldData newData)
@@ -805,7 +807,7 @@ namespace TD_Find_Lib
 
 			// Cast the thing (so often useful it's always gonna be here)
 			row.Label("thing as ");
-			RowButtonFloatMenu(matchType, FieldData.thingSubclasses, t => t.Name, SelectMatchType, tooltip: matchType.ToString());
+			RowButtonFloatMenu(matchType, FieldData.thingSubclasses, t => t.Name, SetMatchType, tooltip: matchType.ToString());
 
 
 			StringBuilder sb = new(".");
