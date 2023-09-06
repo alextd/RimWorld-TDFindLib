@@ -250,7 +250,7 @@ namespace TD_Find_Lib
 			queryRect.yMax = listing.CurHeight;
 
 			// For the occasional text input
-			if (shouldFocus)
+			if (shouldFocus && Event.current.type == EventType.Layout)
 			{
 				DoFocus();
 				shouldFocus = false;
