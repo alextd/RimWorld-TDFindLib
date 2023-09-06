@@ -89,13 +89,13 @@ namespace TD_Find_Lib
 		public virtual void DoFocus() { }
 		public virtual bool Unfocus() => false;
 
-		public virtual string Details => $"({fieldType}) {type}.{name}";
 
 
 		// full readable name, e.g. GetComp<CompPower>
 		// This string will be passed back into ParseTextField
 		// and then passed to ShouldShow, which should return true of course
 		public virtual string TextName => name;
+		public virtual string Details => $"({fieldType.ToStringSimple()}) {type.ToStringSimple()}.{TextName}";
 
 		public virtual bool ShouldShow(List<string> filters)
 		{
@@ -300,7 +300,7 @@ namespace TD_Find_Lib
 
 		
 		public override string TextName =>
-			$"GetComp<{fieldType.Name}>";
+			$"GetComp<{fieldType.Name}>()";
 	}
 
 
@@ -739,7 +739,7 @@ namespace TD_Find_Lib
 		private void ParseTextField()
 		{
 			filters.Clear();
-			filters.AddRange(memberStr.ToLower().Split(' ', '<', '>'));
+			filters.AddRange(memberStr.ToLower().Split(' ', '<', '>', '(', ')'));
 
 			filteredOptions.Clear();
 			filteredOptions.AddRange(nextOptions.Where(d => d.ShouldShow(filters)));
@@ -981,6 +981,17 @@ namespace TD_Find_Lib
 				return member.AppliesTo(obj);
 
 			return false;
+		}
+	}
+
+	public static class TypeEx
+	{
+		public static string ToStringSimple(this Type type)
+		{
+			if (type == typeof(float)) return "float";
+			if (type == typeof(bool)) return "bool";
+			if (type == typeof(int)) return "int";
+			return type.Name;
 		}
 	}
 }
