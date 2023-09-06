@@ -224,6 +224,8 @@ namespace TD_Find_Lib
 					Close(false);
 					Find.WindowStack.Add(this);
 					windowRect = pos;
+
+					search.Children.ForEach((ThingQuery q) => q.Focus());
 					// would love to GUI.FocusControl but the name of the Widget.TextField are by COORDINATES ugh.
 				}
 			}
