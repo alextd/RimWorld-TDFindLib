@@ -18,6 +18,10 @@ namespace TD_Find_Lib
 		public Type fieldType;
 		public string name; // field name / property name / sometimes method name
 
+		// For filters
+		private string fieldLower;
+		private string nameLower;
+
 		// For load/save
 		private string typeName;
 		private string fieldTypeName;
@@ -33,6 +37,14 @@ namespace TD_Find_Lib
 			this.type = type;
 			this.fieldType = fieldType;
 			this.name = name;
+
+			MakeLower();
+		}
+
+		private void MakeLower()
+		{
+			fieldLower = fieldType.Name.ToLower();
+			nameLower = name.ToLower();
 		}
 
 		public virtual void ExposeData()
@@ -54,6 +66,7 @@ namespace TD_Find_Lib
 				// Maybe null if loaded 3rdparty types
 				type = ParseHelper.ParseType(typeName);
 				fieldType = ParseHelper.ParseType(fieldTypeName);
+				MakeLower();
 			}
 		}
 
@@ -66,6 +79,7 @@ namespace TD_Find_Lib
 			clone.name = name;
 			clone.typeName = typeName;
 			clone.fieldTypeName = fieldTypeName;
+			clone.MakeLower();
 
 			return clone;
 		}
@@ -104,8 +118,7 @@ namespace TD_Find_Lib
 		{
 			foreach(string filter in filters)
 			{
-				if (fieldType.Name.ToLower().Contains(filter)
-					|| name.ToLower().Contains(filter))
+				if (fieldLower.Contains(filter) || nameLower.Contains(filter))
 					continue;
 
 				return false;
@@ -616,11 +629,10 @@ namespace TD_Find_Lib
 		public ThingQueryCustom()
 		{
 			matchType = typeof(Thing);
-			nextType = matchType;
-			nextOptions = FieldData.GetOptions(nextType);
-			filteredOptions.AddRange(nextOptions);
-
 			memberChain = new();
+
+			nextType = matchType;
+
 
 			controlName = $"THING_QUERY_CUSTOM_INPUT{id}";
 		}
@@ -676,7 +688,18 @@ namespace TD_Find_Lib
 		private string loadError = null;
 		public override string DisableReason => loadError;
 
-		private Type nextType;
+		private Type _nextType;
+		private Type nextType
+		{
+			get => _nextType;
+			set
+			{
+				_nextType = value;
+				nextOptions = FieldData.GetOptions(_nextType);
+
+				ParseTextField();
+			}
+		}
 		private void SelectMatchType(Type type)
 		{
 			loadError = null;
@@ -687,10 +710,6 @@ namespace TD_Find_Lib
 			memberChain.Clear();
 			memberStr = "";
 			nextType = matchType;
-			nextOptions = FieldData.GetOptions(nextType);
-
-
-			ParseTextField();
 		}
 
 		private void SetMember(FieldData newData)
@@ -705,9 +724,7 @@ namespace TD_Find_Lib
 				memberStr = member.TextName;
 				// Keep nextType in case you want to change the compared field
 
-
 				ParseTextField();
-				filteredOptions.Clear(); //no suggestions if you've set a final field
 			}
 			else if(addData is FieldDataClassMember addDataMember)
 			{
@@ -719,9 +736,6 @@ namespace TD_Find_Lib
 
 
 				nextType = addDataMember.fieldType;
-				nextOptions = FieldData.GetOptions(nextType);
-
-				ParseTextField();
 			}
 			//memberChain
 		}
@@ -738,6 +752,7 @@ namespace TD_Find_Lib
 		private List<string> filters = new ();
 		private List<FieldData> nextOptions;
 		private List<FieldData> filteredOptions = new();
+		private bool needCursorEnd;
 		/*
 		private string activeMemberName = "";
 		private int activeMemberIndex = 0;
@@ -749,12 +764,8 @@ namespace TD_Find_Lib
 		private void ParseTextField()
 		{
 			filters.Clear();
-			filters.AddRange(memberStr.Split(' ', '<', '>'));
+			filters.AddRange(memberStr.ToLower().Split(' ', '<', '>'));
 
-			FilterOptions();
-		}
-		private void FilterOptions()
-		{
 			filteredOptions.Clear();
 			filteredOptions.AddRange(nextOptions.Where(d => d.ShouldShow(filters)));
 		}
@@ -817,24 +828,41 @@ namespace TD_Find_Lib
 
 
 			bool changed = false;
+			TextEditor editor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
 			if (keyDown)
 			{
-				TextEditor editor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
 				Log.Message($"keyDown {keyCode}/{ch} editor.text = {editor.text}");
 			}
 
 			//suppress the second key events that come after pressing tab/return/period
-			if (keyDown && focused && (ch == '	' || ch == '\n' || ch == '.'))
+			if (keyDown && focused)
 			{
-				Event.current.Use();
-			}
-			else if (keyDown && focused &&
-				(keyCode == KeyCode.Tab || keyCode == KeyCode.Return || keyCode == KeyCode.KeypadEnter
-				|| keyCode == KeyCode.Period || keyCode == KeyCode.KeypadPeriod))
-			{
-				changed = AutoComplete();
+				if ((ch == '	' || ch == '\n' || ch == '.'))
+				{
+					Event.current.Use();
+				}
+				else if (keyCode == KeyCode.Tab
+					|| keyCode == KeyCode.Return || keyCode == KeyCode.KeypadEnter
+					|| keyCode == KeyCode.Period || keyCode == KeyCode.KeypadPeriod)
+				{
+					changed = AutoComplete();
 
-				Event.current.Use();
+					Event.current.Use();
+				}
+				else if (keyCode == KeyCode.Backspace)
+				{
+					if(memberStr == "" && memberChain.Count>0)
+					{
+						member = null;
+						var lastMember = memberChain.Pop();
+
+						needCursorEnd = true;
+						memberStr = lastMember.TextName;
+						nextType = memberChain.LastOrDefault()?.fieldType ?? matchType;
+
+						Event.current.Use();
+					}
+				}
 
 				/*
 				// Dropdown all options
@@ -855,7 +883,6 @@ namespace TD_Find_Lib
 				if (Widgets.ButtonInvisible(memberRect))
 				{
 					member = null;
-					ParseTextField();
 					Focus();
 				}
 			}
@@ -868,32 +895,26 @@ namespace TD_Find_Lib
 				GUI.SetNextControlName(controlName);
 				if (TDWidgets.TextField(inputRect, ref memberStr))
 				{
-					TextEditor editor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
-					Log.Message($"TextField editor.text = {editor.text}");
 					ParseTextField();
 				}
 			}
 
+
+			// Draw field suggestions
 			if (focused)
 			{
-				/*
 				if (Event.current.type == EventType.Layout)
 				{
 					if (needCursorEnd)
 					{
-						TextEditor editor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
+						editor = (TextEditor)GUIUtility.GetStateObject(typeof(TextEditor), GUIUtility.keyboardControl);
 						needCursorEnd = false;
 
 						editor?.MoveLineEnd();
 					}
 				}
-				*/
 
-
-
-				// Draw field suggestions
 				int showCount = Math.Min(filteredOptions.Count, 10);
-
 
 				Vector2 pos = UI.GUIToScreenPoint(new(0, 0));
 				Rect suggestionRect = new(pos.x + fullRect.x, pos.y + fullRect.yMax, fullRect.width, showCount * Text.LineHeight);

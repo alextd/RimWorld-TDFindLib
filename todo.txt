@@ -4,12 +4,9 @@
 = Comp Handler thing.GetComp<T>.x
 
 = type-in text:
-prevent editing before .
-handle esc : remove last .
-edit between . . to change memberchain and enter to confirm
-save memberchain as string and comparer data as postexposedata?
-finalize last member => no textfield just label. click textfield to edit again.
-finalize last => focus FieldData textfields
+= delete on empty textfield to back up and change last in memberchain
+focus comparer when set
+exposedata+clone
 
 = suggestions:
 downarrow to select index into suggestions
