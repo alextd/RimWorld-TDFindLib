@@ -715,6 +715,8 @@ namespace TD_Find_Lib
 			{
 				member = addDataCompare;
 				memberStr = member.TextName;
+
+				UI.UnfocusCurrentControl();
 				// Keep nextType in case you want to change the compared field
 
 				ParseTextField();
@@ -735,22 +737,22 @@ namespace TD_Find_Lib
 
 		// After text field edit, parse string for new filtered field suggestions
 		private List<string> filters = new ();
-		private List<FieldData> filteredOptions = new();
+		private List<FieldData> suggestions = new();
 		private void ParseTextField()
 		{
 			filters.Clear();
 			filters.AddRange(memberStr.ToLower().Split(' ', '<', '>', '(', ')'));
 
-			filteredOptions.Clear();
-			filteredOptions.AddRange(nextOptions.Where(d => d.ShouldShow(filters)));
+			suggestions.Clear();
+			suggestions.AddRange(nextOptions.Where(d => d.ShouldShow(filters)));
 		}
 
 		// After tab/./enter : select first suggested field and add to memberChain / create comparable member
 		// This might remove comparision settings... Could check if it already exists
-		// but why would you have set the name if you had the comparison set up?
+		// but why would you set the name if you already had the comparison set up?
 		public bool AutoComplete()
 		{
-			FieldData newData = filteredOptions.FirstOrDefault();
+			FieldData newData = suggestions.FirstOrDefault();
 			if (newData != null)
 			{
 				SetMember(newData);
@@ -762,6 +764,7 @@ namespace TD_Find_Lib
 		protected override float RowGap => 0;
 		private readonly string controlName;
 		private bool needMoveLineEnd;
+		private bool focused;
 		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			/*
@@ -801,7 +804,15 @@ namespace TD_Find_Lib
 
 
 			// handle special input before the textfield grabs it
-			bool focused = GUI.GetNameOfFocusedControl() == controlName;
+
+			// Fuckin double-events for keydown means we get two events, keycode and char,
+			// so unfocusing on keycode means we're not focused for the char event
+			// Remember between events but you gotta reset some time so reset it on repaint I guess
+			if(Event.current.type == EventType.Repaint)
+				focused = GUI.GetNameOfFocusedControl() == controlName;
+			else
+				focused |= GUI.GetNameOfFocusedControl() == controlName;
+
 			bool keyDown = Event.current.type == EventType.KeyDown;
 			KeyCode keyCode = Event.current.keyCode;
 			char ch = Event.current.character;
@@ -809,25 +820,30 @@ namespace TD_Find_Lib
 
 			bool changed = false;
 
-			//suppress the second key events that come after pressing tab/return/period
 			if (keyDown && focused)
 			{
+				// suppress the second key events that come after pressing tab/return/period
 				if ((ch == '	' || ch == '\n' || ch == '.'))
 				{
+					Log.Message($"Using event ch:{ch}");
 					Event.current.Use();
 				}
+				// Autocomplete after tab/./enter
 				else if (keyCode == KeyCode.Tab
 					|| keyCode == KeyCode.Return || keyCode == KeyCode.KeypadEnter
 					|| keyCode == KeyCode.Period || keyCode == KeyCode.KeypadPeriod)
 				{
+					Log.Message($"Using event key:{keyCode} ({memberStr})");
 					changed = AutoComplete();
 
 					Event.current.Use();
 				}
+				// Backup to last member if deleting empty string after "member."
 				else if (keyCode == KeyCode.Backspace)
 				{
-					if(memberStr == "" && memberChain.Count>0)
+					if(memberStr == "" && memberChain.Count > 0)
 					{
+						Log.Message($"Using event key:{keyCode}");
 						member = null;
 						var lastMember = memberChain.Pop();
 
@@ -889,7 +905,7 @@ namespace TD_Find_Lib
 					}
 				}
 
-				int showCount = Math.Min(filteredOptions.Count, 10);
+				int showCount = Math.Min(suggestions.Count, 10);
 
 				Vector2 pos = UI.GUIToScreenPoint(new(0, 0));
 				Rect suggestionRect = new(pos.x + fullRect.x, pos.y + fullRect.yMax, queryRect.width, (1+showCount) * Text.LineHeight);
@@ -901,9 +917,9 @@ namespace TD_Find_Lib
 
 					// draw Field count
 					Text.Anchor = TextAnchor.LowerRight;
-					if (filteredOptions.Count > 1)
-						Widgets.Label(rect, $"{filteredOptions.Count} fields");
-					else if (filteredOptions.Count == 0 )
+					if (suggestions.Count > 1)
+						Widgets.Label(rect, $"{suggestions.Count} fields");
+					else if (suggestions.Count == 0 )
 						Widgets.Label(rect, $"No fields!");
 					Text.Anchor = default;
 
@@ -912,9 +928,9 @@ namespace TD_Find_Lib
 
 					// Highligh selected option
 					// TODO: QueryCustom field to use it elsewhere, probably by index.
-					var selectedOption = filteredOptions.FirstOrDefault();
+					var selectedOption = suggestions.FirstOrDefault();
 
-					foreach (var d in filteredOptions)
+					foreach (var d in suggestions)
 					{
 						if (--showCount < 0) break;
 
@@ -941,9 +957,10 @@ namespace TD_Find_Lib
 
 		protected override void DoFocus()
 		{
-			if (GUI.GetNameOfFocusedControl() != controlName)
+			if(member == null)
 				GUI.FocusControl(controlName);
-			member?.DoFocus();
+			else
+				member.DoFocus();
 		}
 
 		public override bool Unfocus()

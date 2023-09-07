@@ -17,7 +17,7 @@
 = click outside focus , defocus
 
 = suggestions:
-dont show after bed.Medical => tab
+= dont show after bed.Medical => tab
 = first row selected suggestion with "def (bool Thing.def)"; next 10 options name only and "100 options"
 click suggestion => SetMember
 scroll through suggestions

@@ -188,7 +188,7 @@ namespace TD_Find_Lib
 		public override void DoWindowContents(Rect fillRect)
 		{
 			if(Event.current.type is not EventType.Repaint and not EventType.Layout)
-				Log.Message($"{Event.current}");
+				Log.Message($"{Event.current} ({GUI.GetNameOfFocusedControl()})");
 
 			if (!locked && 
 				Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.V && Event.current.control)
