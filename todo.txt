@@ -20,9 +20,9 @@
 = dont show after bed.Medical => tab
 = first row selected suggestion with "def (bool Thing.def)"; next 10 options name only and "100 options"
 = click suggestion => SetMember
-scroll through suggestions
-downarrow to select index into suggestions, enter => SetMember
-0 suggestions window showing warning!
+= scroll through suggestions
+= downarrow to select index into suggestions, enter => SetMember
+= 0 suggestions window showing warning!
 sort suggetstions like visual studio?
 1. starting with X,
 2. CamelCase word starts with X, 
@@ -43,7 +43,7 @@ Def handler FieldData
 
 
 = dropdown
-Full dropdown selection ?
+rightclick - Full dropdown selection ?
 dropdown Sections/ color class / bools / etc.
 Dropdown name "field (bool Thing.def)" + color?
 global dict for Make() getters?

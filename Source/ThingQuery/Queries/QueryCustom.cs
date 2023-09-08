@@ -618,6 +618,8 @@ namespace TD_Find_Lib
 				nextOptions = FieldData.GetOptions(_nextType);
 
 				ParseTextField();
+				suggestionI = 0;
+				suggestionScroll = default;
 			}
 		}
 
@@ -739,7 +741,9 @@ namespace TD_Find_Lib
 		// After text field edit, parse string for new filtered field suggestions
 		private List<string> filters = new ();
 		private List<FieldData> suggestions = new();
+		private int suggestionI;
 		private Vector2 suggestionScroll;
+		private readonly float suggestionRowHeight = Text.LineHeightOf(GameFont.Small);
 		private void ParseTextField()
 		{
 			filters.Clear();
@@ -747,6 +751,14 @@ namespace TD_Find_Lib
 
 			suggestions.Clear();
 			suggestions.AddRange(nextOptions.Where(d => d.ShouldShow(filters)));
+
+			AdjustForSuggestion();
+		}
+		private void AdjustForSuggestion()
+		{
+			suggestionI = Mathf.Clamp(suggestionI, 0, suggestions.Count - 1);
+
+			suggestionScroll.y = Mathf.Clamp(suggestionScroll.y, (suggestionI - 9) * suggestionRowHeight, suggestionI * suggestionRowHeight);
 		}
 
 		// After tab/./enter : select first suggested field and add to memberChain / create comparable member
@@ -754,7 +766,7 @@ namespace TD_Find_Lib
 		// but why would you set the name if you already had the comparison set up?
 		public bool AutoComplete()
 		{
-			FieldData newData = suggestions.FirstOrDefault();
+			FieldData newData = suggestions.ElementAtOrDefault(suggestionI);
 			if (newData != null)
 			{
 				SetMember(newData);
@@ -823,36 +835,58 @@ namespace TD_Find_Lib
 
 			bool changed = false;
 
-			if (keyDown && focused)
+			if (keyDown)
 			{
-				// suppress the second key events that come after pressing tab/return/period
-				if ((ch == '	' || ch == '\n' || ch == '.'))
+				if (focused)
 				{
-					Log.Message($"Using event ch:{ch}");
-					Event.current.Use();
-				}
-				// Autocomplete after tab/./enter
-				else if (keyCode == KeyCode.Tab
-					|| keyCode == KeyCode.Return || keyCode == KeyCode.KeypadEnter
-					|| keyCode == KeyCode.Period || keyCode == KeyCode.KeypadPeriod)
-				{
-					Log.Message($"Using event key:{keyCode} ({memberStr})");
-					changed = AutoComplete();
-
-					Event.current.Use();
-				}
-				// Backup to last member if deleting empty string after "member."
-				else if (keyCode == KeyCode.Backspace)
-				{
-					if(memberStr == "" && memberChain.Count > 0)
+					// suppress the second key events that come after pressing tab/return/period
+					if ((ch == '	' || ch == '\n' || ch == '.'))
 					{
-						Log.Message($"Using event key:{keyCode}");
-						member = null;
-						var lastMember = memberChain.Pop();
+						Log.Message($"Using event ch:{ch}");
+						Event.current.Use();
+					}
+					// Autocomplete after tab/./enter
+					else if (keyCode == KeyCode.Tab
+						|| keyCode == KeyCode.Return || keyCode == KeyCode.KeypadEnter
+						|| keyCode == KeyCode.Period || keyCode == KeyCode.KeypadPeriod)
+					{
+						Log.Message($"Using event key:{keyCode} ({memberStr})");
+						changed = AutoComplete();
 
-						needMoveLineEnd = true;
-						memberStr = lastMember.TextName;
-						nextType = memberChain.LastOrDefault()?.fieldType ?? matchType;
+						Event.current.Use();
+					}
+					// Backup to last member if deleting empty string after "member."
+					else if (keyCode == KeyCode.Backspace)
+					{
+						if (memberStr == "" && memberChain.Count > 0)
+						{
+							Log.Message($"Using event key:{keyCode}");
+							member = null;
+							var lastMember = memberChain.Pop();
+
+							needMoveLineEnd = true;
+							memberStr = lastMember.TextName;
+							nextType = memberChain.LastOrDefault()?.fieldType ?? matchType;
+
+							Event.current.Use();
+						}
+					}
+				}
+
+				// Maintain keypresses when navigatin'
+				if (focused || mouseOverSuggestions)
+				{
+					if (keyCode == KeyCode.DownArrow)
+					{
+						suggestionI++;
+						AdjustForSuggestion();
+
+						Event.current.Use();
+					}
+					else if (keyCode == KeyCode.UpArrow)
+					{
+						suggestionI--;
+						AdjustForSuggestion();
 
 						Event.current.Use();
 					}
@@ -910,7 +944,7 @@ namespace TD_Find_Lib
 				}
 
 				int showCount = Math.Min(suggestions.Count, 10);
-				Rect suggestionRect = new(fullRect.x, fullRect.yMax, queryRect.width, (1 + showCount) * Text.LineHeight);
+				Rect suggestionRect = new(fullRect.x, fullRect.yMax, queryRect.width, (1 + showCount) * suggestionRowHeight);
 
 				// Focused opens the window, mouseover sustains the window so button works.
 				if (Event.current.type == EventType.Layout)
@@ -937,18 +971,19 @@ namespace TD_Find_Lib
 					bool needsScroll = suggestions.Count > 10;
 					if (needsScroll)
 					{
-						rect.height = (1 + suggestions.Count) * Text.LineHeight;
+						rect.height = (1 + suggestions.Count) * suggestionRowHeight;
 						Widgets.BeginScrollView(suggestionRect.AtZero(), ref suggestionScroll, rect);
 					}
 
 
-					// Set height for row
+					// Set rect for row
+					rect.width = 9999;//go ahead and spill over out of bounds instead of wrapping next line
 					rect.xMin += 2;
-					rect.height = Text.LineHeight;
+					rect.height = suggestionRowHeight;
 
 					// Highligh selected option
 					// TODO: QueryCustom field to use it elsewhere, probably by index.
-					var selectedOption = suggestions.FirstOrDefault();
+					var selectedOption = suggestions.ElementAtOrDefault(suggestionI);
 
 					foreach (var d in suggestions)
 					{
@@ -967,11 +1002,11 @@ namespace TD_Find_Lib
 						if (selectedOption == d)
 						{
 							Widgets.DrawHighlight(rect);	// field row
-							rect.y += Text.LineHeight;
+							rect.y += suggestionRowHeight;
 							Widgets.Label(rect, $": <color=grey>{selectedOption.Details}</color>");
 							Widgets.DrawHighlight(rect);	// details row
 						}
-						rect.y += Text.LineHeight;
+						rect.y += suggestionRowHeight;
 					}
 
 					if (needsScroll)
