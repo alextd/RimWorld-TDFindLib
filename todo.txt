@@ -30,8 +30,12 @@
 
 = lock textfields
 
+mousover suggestion tooltip details
+click suggesion details addmember
+
 = FieldData subclasses:
-enum  values FieldData
+= enum  values FieldData
+enum values handles flag (e.g. .def.ingestible.foodType)
 class == or != null (don't necesarilly skip nulls) FieldData should be able to handle this
 List Any/All FieldData
 string handler FieldData

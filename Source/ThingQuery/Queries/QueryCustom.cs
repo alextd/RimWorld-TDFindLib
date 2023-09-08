@@ -110,8 +110,15 @@ namespace TD_Find_Lib
 			return true;
 		}
 
-		// Make should use ??= to create / store an accessor
-		public abstract void Make();
+		protected ThingQueryCustom parentQuery;
+		public void Make(ThingQueryCustom p)
+		{
+			parentQuery = p;
+			MakeAccessor();
+		}
+		// MakeAccessor should use ??= to create / store an accessor
+		// TODO store it globally by type instead of one for each FieldData object
+		public abstract void MakeAccessor();
 
 		// Static listers for ease of use
 		// Here we hold all fields known
@@ -210,6 +217,18 @@ namespace TD_Find_Lib
 			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
 				if (prop.PropertyType == typeof(float))
 					yield return NewData(typeof(FloatPropData<>), type, prop.Name);
+
+			// enums
+			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField))
+				if (field.FieldType.IsEnum)
+					yield return NewData(typeof(EnumFieldData<>), field.FieldType, type, field.Name);
+
+			/*
+			 * TODO: NewData handling multiple generic types
+			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
+				if (prop.PropertyType.IsEnum)
+					yield return NewData(typeof(EnumPropData<>), field.FieldType, field.Name);
+			*/
 		}
 	}
 
@@ -239,7 +258,7 @@ namespace TD_Find_Lib
 		{ }
 
 		private AccessTools.FieldRef<object, object> getter;
-		public override void Make()
+		public override void MakeAccessor()
 		{
 			getter ??= AccessTools.FieldRefAccess<object, object>(AccessTools.DeclaredField(type, name));
 		}
@@ -257,7 +276,7 @@ namespace TD_Find_Lib
 		// Generics are required for this delegate to exist so that it's actually fast.
 		delegate object ClassGetter(T t);
 		private ClassGetter getter;
-		public override void Make()
+		public override void MakeAccessor()
 		{
 			getter ??= AccessTools.MethodDelegate<ClassGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
 		}
@@ -275,7 +294,7 @@ namespace TD_Find_Lib
 
 		delegate T ThingCompGetter(ThingWithComps t);
 		private ThingCompGetter getter;
-		public override void Make()
+		public override void MakeAccessor()
 		{
 			getter ??= AccessTools.MethodDelegate<ThingCompGetter>(AccessTools.DeclaredMethod(type, name).MakeGenericMethod(fieldType));
 		}
@@ -319,7 +338,7 @@ namespace TD_Find_Lib
 		{		}
 
 		private AccessTools.FieldRef<object, bool> getter;
-		public override void Make()
+		public override void MakeAccessor()
 		{
 			getter ??= AccessTools.FieldRefAccess<object, bool>(AccessTools.DeclaredField(type, name));
 		}
@@ -337,7 +356,7 @@ namespace TD_Find_Lib
 		// Generics are required for this delegate to exist so that it's actually fast.
 		delegate bool BoolGetter(T t);
 		private BoolGetter getter;
-		public override void Make()
+		public override void MakeAccessor()
 		{
 			getter ??= AccessTools.MethodDelegate<BoolGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
 		}
@@ -434,7 +453,7 @@ namespace TD_Find_Lib
 		{ }
 
 		private AccessTools.FieldRef<object, int> getter;
-		public override void Make()
+		public override void MakeAccessor()
 		{
 			getter ??= AccessTools.FieldRefAccess<object, int>(AccessTools.DeclaredField(type, name));
 		}
@@ -452,7 +471,7 @@ namespace TD_Find_Lib
 		// Generics are required for this delegate to exist so that it's actually fast.
 		delegate int IntGetter(T t);
 		private IntGetter getter;
-		public override void Make()
+		public override void MakeAccessor()
 		{
 			getter ??= AccessTools.MethodDelegate<IntGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
 		}
@@ -551,7 +570,7 @@ namespace TD_Find_Lib
 
 		// generics not needed for FieldRef as it can handle a float fine huh?
 		private AccessTools.FieldRef<object, float> getter;
-		public override void Make()
+		public override void MakeAccessor()
 		{
 			getter ??= AccessTools.FieldRefAccess<object, float>(AccessTools.DeclaredField(type, name));
 		}
@@ -569,13 +588,116 @@ namespace TD_Find_Lib
 		// Generics are required for this delegate to exist so that it's actually fast.
 		delegate float FloatGetter(T t);
 		private FloatGetter getter;
-		public override void Make()
+		public override void MakeAccessor()
 		{
 			getter ??= AccessTools.MethodDelegate<FloatGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
 		}
 
 		public override float GetFloatValue(object obj) => getter(obj as T);// please only pass in T
 	}
+
+
+
+	public abstract class EnumData<TEnum> : FieldDataComparer where TEnum : System.Enum
+	{
+		TEnum include, exclude; //exclude for flags only
+		bool flags;
+
+		public EnumData()
+		{
+			flags = typeof(TEnum).GetCustomAttributes<FlagsAttribute>().Any();
+		}
+		public EnumData(Type type, string name)
+			: base(type, typeof(TEnum), name)
+		{
+			flags = typeof(TEnum).GetCustomAttributes<FlagsAttribute>().Any();
+		}
+		public override void ExposeData()
+		{
+			base.ExposeData();
+			Scribe_Values.Look(ref include, "include");
+			Scribe_Values.Look(ref exclude, "exclude");
+		}
+		public override FieldData Clone()
+		{
+			EnumData<TEnum> clone = (EnumData<TEnum>)base.Clone();
+			clone.include = include;
+			clone.exclude = exclude;
+			return clone;
+		}
+
+		public abstract TEnum GetEnumValue(object obj);
+
+		public override bool AppliesTo(object obj)
+		{
+			TEnum objEnum = GetEnumValue(obj);
+			if (flags)
+			{
+				return true;
+			}
+			else
+			{
+				return objEnum.Equals(include);
+			}
+		}
+
+		public override bool Draw(Listing_StandardIndent listing, bool locked)
+		{
+			Rect rect = listing.GetRect(Text.LineHeight);
+			if (flags)
+			{
+				// dropdown mask / enum with flags on or off selector
+			}
+			else
+			{
+				// Dropdown enum selector
+				Text.Anchor = TextAnchor.LowerRight;
+				Widgets.Label(rect.LeftHalf(), "Is: ");
+				Text.Anchor = default;
+				if(Widgets.ButtonText(rect.RightHalf(), include.ToString()))
+					parentQuery.DoFloatOptions(Enum.GetValues(typeof(TEnum)) as IEnumerable<TEnum>, e => e.ToString(), newValue => include = newValue);
+			}
+			return false;
+		}
+	}
+
+
+
+	public class EnumFieldData<TEnum> : EnumData<TEnum> where TEnum : System.Enum
+	{
+		public EnumFieldData() { }
+		public EnumFieldData(Type type, string name)
+			: base(type, name)
+		{ }
+
+		private AccessTools.FieldRef<object, TEnum> getter;
+		public override void MakeAccessor()
+		{
+			getter ??= AccessTools.FieldRefAccess<object, TEnum>(AccessTools.DeclaredField(type, name));
+		}
+
+		public override TEnum GetEnumValue(object obj) => getter(obj);
+	}
+
+	public class EnumPropData<T, TEnum> : EnumData<TEnum> where TEnum : System.Enum where T : class
+	{
+		public EnumPropData() { }
+		public EnumPropData(string name)
+			: base(typeof(T), name)
+		{ }
+
+		// Generics are required for this delegate to exist so that it's actually fast.
+		delegate TEnum EnumGetter(T t);
+		private EnumGetter getter;
+		public override void MakeAccessor()
+		{
+			getter ??= AccessTools.MethodDelegate<EnumGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
+		}
+
+		public override TEnum GetEnumValue(object obj) => getter(obj as T);// please only pass in T
+	}
+
+
 
 
 
@@ -607,7 +729,7 @@ namespace TD_Find_Lib
 				_member = value;
 				if(member != null)
 				{
-					_member.Make();
+					_member.Make(this);
 					Focus();
 				}
 			}
@@ -669,12 +791,12 @@ namespace TD_Find_Lib
 					loadError = $"Couldn't find Type {matchTypeName}";
 				}
 
-				member?.Make();
+				member?.Make(this);
 				loadError = member?.DisableReason;
 
 				foreach (var memberData in memberChain)
 				{
-					memberData.Make();
+					memberData.Make(this);
 					loadError ??= memberData?.DisableReason;
 				}
 
@@ -689,12 +811,12 @@ namespace TD_Find_Lib
 			clone.matchTypeName = matchTypeName;
 
 			clone._member = (FieldDataComparer)member?.Clone();
-			clone.member?.Make();
+			clone.member?.Make(this);
 			clone.memberStr = memberStr;
 
 			clone.memberChain = new(memberChain.Select(d => d.Clone() as FieldDataClassMember));
 			foreach (var memberData in clone.memberChain)
-				memberData.Make();
+				memberData.Make(this);
 
 			clone.nextType = nextType;
 
@@ -721,7 +843,7 @@ namespace TD_Find_Lib
 		{
 			FieldData addData = newData.Clone();
 
-			if(addData is FieldDataComparer addDataCompare)
+			if (addData is FieldDataComparer addDataCompare)
 			{
 				member = addDataCompare;
 				memberStr = member.TextName;
@@ -734,7 +856,7 @@ namespace TD_Find_Lib
 			else if(addData is FieldDataClassMember addDataMember)
 			{
 				memberChain.Add(addDataMember);
-				addDataMember.Make();
+				addDataMember.Make(this);
 
 				member = null; //to be selected
 				memberStr = "";
