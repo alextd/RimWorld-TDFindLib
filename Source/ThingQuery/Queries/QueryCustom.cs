@@ -113,30 +113,13 @@ namespace TD_Find_Lib
 		// Make should use ??= to create / store an accessor
 		public abstract void Make();
 
-
 		// Static listers for ease of use
 		// Here we hold all fields known
 		// Just the type+name until they're used, then they'll be Clone()d
 		// and Make()d to create an actual accessor delegate.
 		// (TODO: global dict to hold those delegates since we now clone things since they hold comparision data)
-		// declaredFields starts with just Thing subclasses known
-		// mainly since QueryCustom has a dropdown to select thing subclasses
 		// And we'll add in other type/fields when accessed.
 		private static readonly Dictionary<Type, List<FieldData>> declaredFields = new();
-		public static readonly List<Type> thingSubclasses;
-
-
-		static FieldData()
-		{
-			thingSubclasses = new();
-			foreach (Type thingType in new Type[] { typeof(Thing) }
-					.Concat(typeof(Thing).AllSubclasses().Where(ThingQuery.ValidType)))
-			{
-				if(FieldsFor(thingType).Any())
-					thingSubclasses.Add(thingType);
-			}
-		}
-
 		public static List<FieldData> FieldsFor(Type type)
 		{
 			if (!declaredFields.TryGetValue(type, out var fieldsForType))
@@ -586,6 +569,17 @@ namespace TD_Find_Lib
 	[StaticConstructorOnStartup]
 	public class ThingQueryCustom : ThingQuery
 	{
+		public static readonly List<Type> thingSubclasses;
+		static ThingQueryCustom()
+		{
+			thingSubclasses = new();
+			foreach (Type thingType in new Type[] { typeof(Thing) }
+					.Concat(typeof(Thing).AllSubclasses().Where(ValidType)))
+			{
+				thingSubclasses.Add(thingType);
+			}
+		}
+
 		public Type matchType = typeof(Thing);
 		public List<FieldDataClassMember> memberChain = new();
 		private FieldDataComparer _member;
@@ -783,7 +777,7 @@ namespace TD_Find_Lib
 		{
 			/*
 			row.Label("Is type");
-			RowButtonFloatMenu(matchType, FieldData.thingSubclasses, t => t.Name, SelectMatchType, tooltip: matchType.ToString());
+			RowButtonFloatMenu(matchType, thingSubclasses, t => t.Name, SelectMatchType, tooltip: matchType.ToString());
 
 			for (int i = 0; i < memberChain.Count; i++)
 			{
@@ -803,7 +797,7 @@ namespace TD_Find_Lib
 
 			// Cast the thing (so often useful it's always gonna be here)
 			row.Label("thing as ");
-			RowButtonFloatMenu(matchType, FieldData.thingSubclasses, t => t.Name, SetMatchType, tooltip: matchType.ToString());
+			RowButtonFloatMenu(matchType, thingSubclasses, t => t.Name, SetMatchType, tooltip: matchType.ToString());
 
 
 			// Draw (append) The memberchain

@@ -23,13 +23,8 @@
 = scroll through suggestions
 = downarrow to select index into suggestions, enter => SetMember
 = 0 suggestions window showing warning!
-sort suggetstions like visual studio?
-1. starting with X,
-2. CamelCase word starts with X, 
-3. CamelCase words starts with X substrings / X matches mid-word
-hijack floatmenu and not require a click?
 
-maybe do include subclasses without fields eg building_heater
+= maybe do include subclasses without fields eg building_heater
 
 focus field after click suggestion
 
