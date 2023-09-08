@@ -29,6 +29,10 @@ sort suggetstions like visual studio?
 3. CamelCase words starts with X substrings / X matches mid-word
 hijack floatmenu and not require a click?
 
+maybe do include subclasses without fields eg building_heater
+
+focus field after click suggestion
+
 lock textfields
 
 = FieldData subclasses:

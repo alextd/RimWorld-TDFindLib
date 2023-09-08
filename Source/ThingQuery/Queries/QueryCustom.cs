@@ -118,11 +118,11 @@ namespace TD_Find_Lib
 		// Here we hold all fields known
 		// Just the type+name until they're used, then they'll be Clone()d
 		// and Make()d to create an actual accessor delegate.
-		// (TODO: global dict to hold those delegates since we now clone things since they hold comparision data_
-		// fields starts with just Thing subclasses known
+		// (TODO: global dict to hold those delegates since we now clone things since they hold comparision data)
+		// declaredFields starts with just Thing subclasses known
 		// mainly since QueryCustom has a dropdown to select thing subclasses
 		// And we'll add in other type/fields when accessed.
-		private static readonly Dictionary<Type, List<FieldData>> fields = new();
+		private static readonly Dictionary<Type, List<FieldData>> declaredFields = new();
 		public static readonly List<Type> thingSubclasses;
 
 
@@ -136,28 +136,27 @@ namespace TD_Find_Lib
 					thingSubclasses.Add(thingType);
 			}
 		}
-		// Public acessors:
 
 		public static List<FieldData> FieldsFor(Type type)
 		{
-			if (!fields.TryGetValue(type, out var fieldsForType))
+			if (!declaredFields.TryGetValue(type, out var fieldsForType))
 			{
 				fieldsForType = new(FindFields(type));
-				fields[type] = fieldsForType;
+				declaredFields[type] = fieldsForType;
 			}
 			return fieldsForType;
 		}
 
 
 		// All FieldData options for a subclass and its parents
-		private static readonly Dictionary<Type, List<FieldData>> typeFields = new();
+		private static readonly Dictionary<Type, List<FieldData>> typeFieldOptions = new();
 		private static readonly Type[] baseTypes = new[] { typeof(Thing), typeof(Def), typeof(object), null};
 		public static List<FieldData> GetOptions(Type type)
 		{
-			if (!typeFields.TryGetValue(type, out var list))
+			if (!typeFieldOptions.TryGetValue(type, out var list))
 			{
-				list = FieldsFor(type);
-				typeFields[type] = list;
+				list = FieldsFor(type).ListFullCopy();
+				typeFieldOptions[type] = list;
 
 				while(!baseTypes.Contains(type))
 				{
