@@ -26,9 +26,9 @@
 
 = maybe do include subclasses without fields eg building_heater
 
-focus field after click suggestion
+= focus field after click suggestion
 
-lock textfields
+= lock textfields
 
 = FieldData subclasses:
 enum  values FieldData

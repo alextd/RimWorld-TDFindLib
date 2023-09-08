@@ -85,7 +85,7 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		public virtual bool Draw(Listing_StandardIndent listing) => false;
+		public virtual bool Draw(Listing_StandardIndent listing, bool locked) => false;
 		public virtual void DoFocus() { }
 		public virtual bool Unfocus() => false;
 
@@ -371,7 +371,7 @@ namespace TD_Find_Lib
 
 		private string lBuffer, rBuffer;
 		private string controlNameL, controlNameR;
-		public override bool Draw(Listing_StandardIndent listing)
+		public override bool Draw(Listing_StandardIndent listing, bool locked)
 		{
 			listing.NestedIndent();
 			listing.Gap(listing.verticalSpacing);
@@ -385,9 +385,16 @@ namespace TD_Find_Lib
 			controlNameR = "TextField" + rRect.y.ToString("F0") + rRect.x.ToString("F0");
 
 			IntRange oldRange = valueRange;
-			Widgets.TextFieldNumeric(lRect, ref valueRange.min, ref lBuffer, int.MinValue, int.MaxValue);
-			Widgets.TextFieldNumeric(rRect, ref valueRange.max, ref rBuffer, int.MinValue, int.MaxValue);
-
+			if (locked)
+			{
+				Widgets.Label(lRect, lBuffer);
+				Widgets.Label(rRect, rBuffer);
+			}
+			else
+			{
+				Widgets.TextFieldNumeric(lRect, ref valueRange.min, ref lBuffer, int.MinValue, int.MaxValue);
+				Widgets.TextFieldNumeric(rRect, ref valueRange.max, ref rBuffer, int.MinValue, int.MaxValue);
+			}
 			
 			if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Tab
 				 && (GUI.GetNameOfFocusedControl() == controlNameL || GUI.GetNameOfFocusedControl() == controlNameR))
@@ -480,7 +487,7 @@ namespace TD_Find_Lib
 
 		private string lBuffer, rBuffer;
 		private string controlNameL, controlNameR;
-		public override bool Draw(Listing_StandardIndent listing)
+		public override bool Draw(Listing_StandardIndent listing, bool locked)
 		{
 			listing.NestedIndent();
 			listing.Gap(listing.verticalSpacing);
@@ -494,9 +501,16 @@ namespace TD_Find_Lib
 			controlNameR = "TextField" + rRect.y.ToString("F0") + rRect.x.ToString("F0");
 
 			FloatRange oldRange = valueRange;
-			Widgets.TextFieldNumeric(lRect, ref valueRange.min, ref lBuffer, float.MinValue, float.MaxValue);
-			Widgets.TextFieldNumeric(rRect, ref valueRange.max, ref rBuffer, float.MinValue, float.MaxValue);
-
+			if (locked)
+			{
+				Widgets.Label(lRect, lBuffer);
+				Widgets.Label(rRect, rBuffer);
+			}
+			else
+			{
+				Widgets.TextFieldNumeric(lRect, ref valueRange.min, ref lBuffer, float.MinValue, float.MaxValue);
+				Widgets.TextFieldNumeric(rRect, ref valueRange.max, ref rBuffer, float.MinValue, float.MaxValue);
+			}
 
 			if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Tab
 				 && (GUI.GetNameOfFocusedControl() == controlNameL || GUI.GetNameOfFocusedControl() == controlNameR))
@@ -898,7 +912,7 @@ namespace TD_Find_Lib
 			// final member:
 			if (member != null)
 			{
-				// as string
+				// member as string
 				row.Gap(-2);//account for label gap
 				Rect memberRect = row.LabelWithTags(member.TextName, tooltip: member.Details);
 				if (Widgets.ButtonInvisible(memberRect))
@@ -909,14 +923,24 @@ namespace TD_Find_Lib
 			}
 			else
 			{
-				//Text fiiiiield!
-				Rect inputRect = rect;
-				inputRect.xMin = row.FinalX;
-
-				GUI.SetNextControlName(controlName);
-				if (TDWidgets.TextField(inputRect, ref memberStr))
+				// unfinalized memberStr
+				if (locked)
 				{
-					ParseTextField();
+					// as string
+					row.Gap(-2);//account for label gap
+					row.LabelWithTags(memberStr);
+				}
+				else
+				{
+					// as Text fiiiiield!
+					Rect inputRect = rect;
+					inputRect.xMin = row.FinalX;
+
+					GUI.SetNextControlName(controlName);
+					if (TDWidgets.TextField(inputRect, ref memberStr))
+					{
+						ParseTextField();
+					}
 				}
 			}
 
@@ -1013,7 +1037,7 @@ namespace TD_Find_Lib
 		}
 		protected override bool DrawUnder(Listing_StandardIndent listing, bool locked)
 		{
-			return member?.Draw(listing) ?? false;
+			return member?.Draw(listing, locked) ?? false;
 		}
 
 		protected override void DoFocus()
