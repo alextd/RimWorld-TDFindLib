@@ -739,6 +739,7 @@ namespace TD_Find_Lib
 		// After text field edit, parse string for new filtered field suggestions
 		private List<string> filters = new ();
 		private List<FieldData> suggestions = new();
+		private Vector2 suggestionScroll;
 		private void ParseTextField()
 		{
 			filters.Clear();
@@ -914,7 +915,7 @@ namespace TD_Find_Lib
 				// Focused opens the window, mouseover sustains the window so button works.
 				if (Event.current.type == EventType.Layout)
 				{
-					mouseOverSuggestions = suggestionRect.Contains(Event.current.mousePosition);
+					mouseOverSuggestions = suggestionRect.ExpandedBy(16).Contains(Event.current.mousePosition);
 				}
 
 				suggestionRect.position += UI.GUIToScreenPoint(new(0, 0));
@@ -922,29 +923,35 @@ namespace TD_Find_Lib
 				Find.WindowStack.ImmediateWindow(id, suggestionRect, WindowLayer.Super, delegate
 				{
 					Rect rect = suggestionRect.AtZero();
-					rect.xMin += 2;
-					rect.xMax -= 4;
+					rect.xMax -= 20;
 
 					// draw Field count
 					Text.Anchor = TextAnchor.LowerRight;
 					if (suggestions.Count > 1)
 						Widgets.Label(rect, $"{suggestions.Count} fields");
-					else if (suggestions.Count == 0 )
+					else if (suggestions.Count == 0)
 						Widgets.Label(rect, $"No fields!");
 					Text.Anchor = default;
 
+					// Begin Scrolling
+					bool needsScroll = suggestions.Count > 10;
+					if (needsScroll)
+					{
+						rect.height = (1 + suggestions.Count) * Text.LineHeight;
+						Widgets.BeginScrollView(suggestionRect.AtZero(), ref suggestionScroll, rect);
+					}
+
+
 					// Set height for row
+					rect.xMin += 2;
 					rect.height = Text.LineHeight;
 
 					// Highligh selected option
 					// TODO: QueryCustom field to use it elsewhere, probably by index.
 					var selectedOption = suggestions.FirstOrDefault();
 
-					int i = showCount;
 					foreach (var d in suggestions)
 					{
-						if (--i < 0) break;
-
 						// Suggestion row: click to use
 						Widgets.Label(rect, d.TextName);
 						Widgets.DrawHighlightIfMouseover(rect);
@@ -966,7 +973,11 @@ namespace TD_Find_Lib
 						}
 						rect.y += Text.LineHeight;
 					}
-				}, doBackground: true);
+
+					if (needsScroll)
+						Widgets.EndScrollView();
+				},
+				doBackground: true);
 			}
 
 			return changed;
