@@ -988,6 +988,7 @@ namespace TD_Find_Lib
 						{
 							SetMember(d);
 							mouseOverSuggestions = false;
+							Focus();
 							break;
 						}
 
