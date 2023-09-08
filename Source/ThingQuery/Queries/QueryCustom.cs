@@ -96,6 +96,7 @@ namespace TD_Find_Lib
 		// and then passed to ShouldShow, which should return true of course
 		public virtual string TextName => name;
 		public virtual string Details => $"({fieldType.ToStringSimple()}) {type.ToStringSimple()}.{TextName}";
+		public override string ToString() => Details;
 
 		public virtual bool ShouldShow(List<string> filters)
 		{
@@ -765,6 +766,7 @@ namespace TD_Find_Lib
 		private readonly string controlName;
 		private bool needMoveLineEnd;
 		private bool focused;
+		private bool mouseOverSuggestions;
 		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			/*
@@ -892,7 +894,8 @@ namespace TD_Find_Lib
 
 
 			// Draw field suggestions
-			if (focused)
+
+			if (focused || mouseOverSuggestions)
 			{
 				if (Event.current.type == EventType.Layout)
 				{
@@ -906,10 +909,17 @@ namespace TD_Find_Lib
 				}
 
 				int showCount = Math.Min(suggestions.Count, 10);
+				Rect suggestionRect = new(fullRect.x, fullRect.yMax, queryRect.width, (1 + showCount) * Text.LineHeight);
 
-				Vector2 pos = UI.GUIToScreenPoint(new(0, 0));
-				Rect suggestionRect = new(pos.x + fullRect.x, pos.y + fullRect.yMax, queryRect.width, (1+showCount) * Text.LineHeight);
-				Find.WindowStack.ImmediateWindow(id, suggestionRect, WindowLayer.Super, (Action)delegate
+				// Focused opens the window, mouseover sustains the window so button works.
+				if (Event.current.type == EventType.Layout)
+				{
+					mouseOverSuggestions = suggestionRect.Contains(Event.current.mousePosition);
+				}
+
+				suggestionRect.position += UI.GUIToScreenPoint(new(0, 0));
+
+				Find.WindowStack.ImmediateWindow(id, suggestionRect, WindowLayer.Super, delegate
 				{
 					Rect rect = suggestionRect.AtZero();
 					rect.xMin += 2;
@@ -930,18 +940,29 @@ namespace TD_Find_Lib
 					// TODO: QueryCustom field to use it elsewhere, probably by index.
 					var selectedOption = suggestions.FirstOrDefault();
 
+					int i = showCount;
 					foreach (var d in suggestions)
 					{
-						if (--showCount < 0) break;
+						if (--i < 0) break;
 
+						// Suggestion row: click to use
 						Widgets.Label(rect, d.TextName);
+						Widgets.DrawHighlightIfMouseover(rect);
 
+						if(Widgets.ButtonInvisible(rect))
+						{
+							SetMember(d);
+							mouseOverSuggestions = false;
+							break;
+						}
+
+						// Details on selected highlighted option (key down to browse)
 						if (selectedOption == d)
 						{
-							Widgets.DrawHighlight(rect);
+							Widgets.DrawHighlight(rect);	// field row
 							rect.y += Text.LineHeight;
 							Widgets.Label(rect, $": <color=grey>{selectedOption.Details}</color>");
-							Widgets.DrawHighlight(rect);
+							Widgets.DrawHighlight(rect);	// details row
 						}
 						rect.y += Text.LineHeight;
 					}

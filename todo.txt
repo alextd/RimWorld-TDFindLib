@@ -19,7 +19,7 @@
 = suggestions:
 = dont show after bed.Medical => tab
 = first row selected suggestion with "def (bool Thing.def)"; next 10 options name only and "100 options"
-click suggestion => SetMember
+= click suggestion => SetMember
 scroll through suggestions
 downarrow to select index into suggestions, enter => SetMember
 0 suggestions window showing warning!
@@ -29,6 +29,7 @@ sort suggetstions like visual studio?
 3. CamelCase words starts with X substrings / X matches mid-word
 hijack floatmenu and not require a click?
 
+lock textfields
 
 = FieldData subclasses:
 enum  values FieldData
