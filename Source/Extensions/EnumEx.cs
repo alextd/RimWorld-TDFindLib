@@ -12,7 +12,7 @@ namespace TD_Find_Lib
 	}
 	public static class EnumEx
 	{ 
-		public static T Next<T>(this T src) where T: System.Enum
+		public static T Next<T>(this T src) where T: Enum
 		{
 			if (!typeof(T).IsEnum) throw new ArgumentException(String.Format("Argument {0} is not an Enum", typeof(T).FullName));
 

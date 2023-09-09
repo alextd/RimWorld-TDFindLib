@@ -333,10 +333,10 @@ namespace TD_Find_Lib
 
 		// Float menu helpers
 		protected static readonly List<FloatMenuOption> floatOptions = new();
-		public void RowButtonFloatMenuEnum<TEnum>(TEnum value, Action<TEnum> setAction, Func<TEnum, bool> filter = null, string tooltip = null) where TEnum : System.Enum =>
+		public void RowButtonFloatMenuEnum<TEnum>(TEnum value, Action<TEnum> setAction, Func<TEnum, bool> filter = null, string tooltip = null) where TEnum : Enum =>
 			RowButtonFloatMenu(value, Enum.GetValues(typeof(TEnum)) as IEnumerable<TEnum>, TranslateEnumEx.TranslateEnum, setAction, filter, tooltip);
 
-		public void DoFloatOptionsEnum<TEnum>(Action<TEnum> setAction, Func<TEnum, bool> filter = null) where TEnum : System.Enum => 
+		public void DoFloatOptionsEnum<TEnum>(Action<TEnum> setAction, Func<TEnum, bool> filter = null) where TEnum : Enum => 
 			DoFloatOptions(Enum.GetValues(typeof(TEnum)) as IEnumerable<TEnum>, TranslateEnumEx.TranslateEnum, setAction, filter);
 
 		public void RowButtonFloatMenuDef<TDef>(TDef value, Action<TDef> setAction, Func<TDef, bool> filter = null, string tooltip = null) where TDef : Def => 
@@ -1274,101 +1274,33 @@ namespace TD_Find_Lib
 		}
 	}
 
-
-	public abstract class ThingQueryMask<T> : ThingQuery
+	public abstract class ThingQueryMask<T> : ThingQuery where T : Def
 	{
 		public abstract List<T> Options { get; }
-		public abstract string GetOptionLabel(T o);
 		public abstract int CompareSelector(T o);
 
-		public string label;
-		public List<T> mustHave = new(), cantHave = new();
-
+		public MaskFilterDef<T> mask;
+		public ThingQueryMask()
+		{
+			mask = new(this, CompareSelector);
+		}
 		protected override ThingQuery Clone()
 		{
 			ThingQueryMask<T> clone = (ThingQueryMask<T>)base.Clone();
-			clone.mustHave = mustHave.ToList();
-			clone.cantHave = cantHave.ToList();
-			clone.label = label;
+			clone.mask = (MaskFilterDef<T>)mask.MakeClone(clone);
 			return clone;
 		}
 		public override void ExposeData()
 		{
 			base.ExposeData();
 
-			Scribe_Collections.Look(ref mustHave, "mustHave");
-			Scribe_Collections.Look(ref cantHave, "cannotHave");
-
-			if (Scribe.mode == LoadSaveMode.PostLoadInit)
-				SetSelLabel();
-		}
-
-		static readonly Color mustColor = Color.Lerp(Color.green, Color.gray, .5f);
-		static readonly Color cantColor = Color.Lerp(Color.red, Color.gray, .5f);
-		public void SetSelLabel()
-		{
-			string must = string.Join(", ", mustHave.Select(GetOptionLabel));
-			string cant = string.Join(", ", cantHave.Select(GetOptionLabel));
-
-			StringBuilder sb = new();
-			if (must.Length > 0)
-			{
-				sb.Append(must.Colorize(mustColor));
-			}
-			if (cant.Length > 0)
-			{
-				if (sb.Length > 0)
-					sb.Append(" ; ");
-				sb.Append(cant.Colorize(cantColor));
-			}
-			if (sb.Length == 0)
-				label = "TD.AnyOption".Translate();
-			else
-				label = sb.ToString();
+			mask.PostExposeData(this);
 		}
 
 		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			base.DrawMain(rect, locked, fullRect);
-			if (Widgets.ButtonText(fullRect.RightPart(.7f), label))
-			{
-				List<FloatMenuOption> layerOptions = new();
-				foreach (T option in Options)
-				{
-					layerOptions.Add(new FloatMenuOptionAndRefresh(
-						GetOptionLabel(option),
-						() => {
-							if (Event.current.button == 1)
-							{
-								mustHave.Remove(option);
-								cantHave.Remove(option);
-							}
-							else if (mustHave.Contains(option))
-							{
-								mustHave.Remove(option);
-
-								cantHave.Add(option);
-								cantHave.SortBy(CompareSelector);
-							}
-							else if (cantHave.Contains(option))
-							{
-								cantHave.Remove(option);
-							}
-							else
-							{
-								mustHave.Add(option);
-								cantHave.SortBy(CompareSelector);
-							}
-							SetSelLabel();
-						},
-						this,
-						mustHave.Contains(option) ? Widgets.CheckboxOnTex
-						: cantHave.Contains(option) ? Widgets.CheckboxOffTex
-						: Widgets.CheckboxPartialTex));
-				}
-
-				DoFloatOptions(layerOptions);
-			}
+			mask.DrawButton(fullRect.RightPart(.7f), Options);
 			return false;
 		}
 	}

@@ -554,14 +554,12 @@ namespace TD_Find_Lib
 	{
 		public ThingQueryApparelLayer()
 		{
-			mustHave.Add(ApparelLayerDefOf.OnSkin);
-			SetSelLabel();
+			mask.AddMust(ApparelLayerDefOf.OnSkin);
+			mask.SetLabel();
 		}
 
 		public static List<ApparelLayerDef> layers = DefDatabase<ApparelLayerDef>.AllDefsListForReading;
 		public override List<ApparelLayerDef> Options => layers;
-
-		public override string GetOptionLabel(ApparelLayerDef def) => def.LabelCap;
 
 		public override int CompareSelector(ApparelLayerDef def) => def.drawOrder;
 
@@ -574,7 +572,7 @@ namespace TD_Find_Lib
 			var layers = apparel.def.apparel?.layers;
 			if (layers == null) return false;
 
-			return mustHave.All(layers.Contains) && !cantHave.Any(layers.Contains);
+			return mask.AppliesTo(layers);
 		}
 	}
 
@@ -582,8 +580,8 @@ namespace TD_Find_Lib
 	{
 		public ThingQueryApparelCoverage()
 		{
-			mustHave.Add(BodyPartGroupDefOf.Legs);
-			SetSelLabel();
+			mask.AddMust(BodyPartGroupDefOf.Legs);
+			mask.SetLabel();
 		}
 
 		public static List<BodyPartGroupDef> partGroups;
@@ -602,9 +600,6 @@ namespace TD_Find_Lib
 			partGroups.SortBy(d => d.listOrder);
 		}
 
-
-		public override string GetOptionLabel(BodyPartGroupDef def) => def.LabelCap;
-
 		public override int CompareSelector(BodyPartGroupDef def) => -def.listOrder;
 
 
@@ -616,7 +611,7 @@ namespace TD_Find_Lib
 			var groups = apparel.def.apparel?.bodyPartGroups;
 			if (groups == null) return false;
 
-			return mustHave.All(groups.Contains) && !cantHave.Any(groups.Contains);
+			return mask.mustHave.All(groups.Contains) && !mask.cantHave.Any(groups.Contains);
 		}
 	}
 
