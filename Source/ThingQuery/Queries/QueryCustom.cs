@@ -1130,13 +1130,7 @@ namespace TD_Find_Lib
 						Widgets.Label(rect, d.TextName);
 						Widgets.DrawHighlightIfMouseover(rect);
 
-						if(Widgets.ButtonInvisible(rect))
-						{
-							SetMember(d);
-							mouseOverSuggestions = false;
-							Focus();
-							break;
-						}
+						bool clicked = Widgets.ButtonInvisible(rect);
 
 						// Details on selected highlighted option (key down to browse)
 						if (selectedOption == d)
@@ -1144,7 +1138,16 @@ namespace TD_Find_Lib
 							Widgets.DrawHighlight(rect);	// field row
 							rect.y += suggestionRowHeight;
 							Widgets.Label(rect, $": <color=grey>{selectedOption.Details}</color>");
-							Widgets.DrawHighlight(rect);	// details row
+							Widgets.DrawHighlight(rect);  // details row
+							clicked |= Widgets.ButtonInvisible(rect);
+						}
+
+						if (clicked)
+						{
+							SetMember(d);
+							mouseOverSuggestions = false;
+							Focus();
+							break;
 						}
 						rect.y += suggestionRowHeight;
 					}
