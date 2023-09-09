@@ -1135,11 +1135,19 @@ namespace TD_Find_Lib
 						// Details on selected highlighted option (key down to browse)
 						if (selectedOption == d)
 						{
-							Widgets.DrawHighlight(rect);	// field row
+							Widgets.DrawHighlight(rect);  // field row
 							rect.y += suggestionRowHeight;
 							Widgets.Label(rect, $": <color=grey>{selectedOption.Details}</color>");
 							Widgets.DrawHighlight(rect);  // details row
 							clicked |= Widgets.ButtonInvisible(rect);
+						}
+						else
+						{
+							if(Mouse.IsOver(rect))
+							{
+								// Eh, <> not handled well 
+								TooltipHandler.TipRegion(rect, d.Details);
+							}
 						}
 
 						if (clicked)

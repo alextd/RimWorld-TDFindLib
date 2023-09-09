@@ -30,8 +30,8 @@
 
 = lock textfields
 
-mousover suggestion tooltip details
-click suggesion details addmember
+= mousover suggestion tooltip details
+= click suggesion details addmember
 
 = FieldData subclasses:
 = enum  values FieldData
