@@ -162,8 +162,8 @@ namespace TD_Find_Lib
 
 		// Here we find all fields
 		// TODO: more types, meaning FieldData subclasses for each type
-		private static FieldData NewData(Type fieldDataType, Type inputType, params object[] args) =>
-			(FieldData)Activator.CreateInstance(inputType == null ? fieldDataType : fieldDataType.MakeGenericType(inputType), args);
+		private static FieldData NewData(Type fieldDataType, Type[] genericTypes, params object[] args) =>
+			(FieldData)Activator.CreateInstance(fieldDataType.MakeGenericType(genericTypes), args);
 
 
 		private static bool ValidProp(PropertyInfo p) =>
@@ -182,13 +182,13 @@ namespace TD_Find_Lib
 
 			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
 				if (ValidClassType(prop.PropertyType))
-					yield return NewData(typeof(ClassPropData<>), type, prop.PropertyType, prop.Name);
+					yield return NewData(typeof(ClassPropData<>), new []{ type }, prop.PropertyType, prop.Name);
 
 			//Hard coded 
 			if(type == typeof(ThingWithComps))
 			{
 				foreach(Type compType in GenTypes.AllSubclasses(typeof(ThingComp)))
-					yield return NewData(typeof(ThingCompData<>), compType);
+					yield return NewData(typeof(ThingCompData<>), new[] { compType });
 			}
 
 			// valuetypes
@@ -198,7 +198,7 @@ namespace TD_Find_Lib
 
 			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
 				if (prop.PropertyType == typeof(bool))
-					yield return NewData(typeof(BoolPropData<>), type, prop.Name);
+					yield return NewData(typeof(BoolPropData<>), new[] { type }, prop.Name);
 
 
 			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField))
@@ -207,7 +207,7 @@ namespace TD_Find_Lib
 
 			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
 				if (prop.PropertyType == typeof(int))
-					yield return NewData(typeof(IntPropData<>), type, prop.Name);
+					yield return NewData(typeof(IntPropData<>), new[] { type }, prop.Name);
 
 
 			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField))
@@ -216,19 +216,17 @@ namespace TD_Find_Lib
 
 			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
 				if (prop.PropertyType == typeof(float))
-					yield return NewData(typeof(FloatPropData<>), type, prop.Name);
+					yield return NewData(typeof(FloatPropData<>), new[] { type }, prop.Name);
 
 			// enums
 			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField))
 				if (field.FieldType.IsEnum)
-					yield return NewData(typeof(EnumFieldData<>), field.FieldType, type, field.Name);
+					yield return NewData(typeof(EnumFieldData<>), new[] { field.FieldType }, type, field.Name);
 
-			/*
-			 * TODO: NewData handling multiple generic types
+			
 			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
 				if (prop.PropertyType.IsEnum)
-					yield return NewData(typeof(EnumPropData<>), field.FieldType, field.Name);
-			*/
+					yield return NewData(typeof(EnumPropData<,>), new[] { type, prop.PropertyType }, prop.Name);
 		}
 	}
 
