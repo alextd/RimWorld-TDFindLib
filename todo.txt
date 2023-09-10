@@ -35,7 +35,9 @@
 
 = FieldData subclasses:
 = enum  values FieldData
-enum values handles flag (e.g. .def.ingestible.foodType)
+= enum values handles flag (e.g. .def.ingestible.foodType)
+ enum makelabel on create
+enum value props (type[] for generics in NewData)
 class == or != null (don't necesarilly skip nulls) FieldData should be able to handle this
 List Any/All FieldData
 string handler FieldData
@@ -44,6 +46,8 @@ Def handler FieldData
 
 =handle arbitrary parents and list their fields (eg KindDef : Def)
 
+
+stop showing suggestion dropdown after def.ingestible.foodType
 
 = dropdown
 rightclick - Full dropdown selection ?

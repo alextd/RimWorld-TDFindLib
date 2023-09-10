@@ -611,7 +611,7 @@ namespace TD_Find_Lib
 			var groups = apparel.def.apparel?.bodyPartGroups;
 			if (groups == null) return false;
 
-			return mask.mustHave.All(groups.Contains) && !mask.cantHave.Any(groups.Contains);
+			return mask.AppliesTo(groups);
 		}
 	}
 

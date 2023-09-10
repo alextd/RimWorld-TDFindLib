@@ -598,31 +598,31 @@ namespace TD_Find_Lib
 
 
 
-	public abstract class EnumData<TEnum> : FieldDataComparer where TEnum : System.Enum
+	public abstract class EnumData<TEnum> : FieldDataComparer where TEnum : Enum
 	{
-		TEnum include, exclude; //exclude for flags only
-		bool flags;
+		public MaskFilterEnum<TEnum> mask;
+		private readonly bool flags;
 
 		public EnumData()
 		{
+			mask = new();
 			flags = typeof(TEnum).GetCustomAttributes<FlagsAttribute>().Any();
 		}
 		public EnumData(Type type, string name)
 			: base(type, typeof(TEnum), name)
 		{
+			mask = new();
 			flags = typeof(TEnum).GetCustomAttributes<FlagsAttribute>().Any();
 		}
 		public override void ExposeData()
 		{
 			base.ExposeData();
-			Scribe_Values.Look(ref include, "include");
-			Scribe_Values.Look(ref exclude, "exclude");
+			mask.PostExposeData();
 		}
 		public override FieldData Clone()
 		{
 			EnumData<TEnum> clone = (EnumData<TEnum>)base.Clone();
-			clone.include = include;
-			clone.exclude = exclude;
+			clone.mask = (MaskFilterEnum<TEnum>)mask.Clone();
 			return clone;
 		}
 
@@ -633,11 +633,11 @@ namespace TD_Find_Lib
 			TEnum objEnum = GetEnumValue(obj);
 			if (flags)
 			{
-				return true;
+				return mask.AppliesTo(objEnum);
 			}
 			else
 			{
-				return objEnum.Equals(include);
+				return mask.mustHave.Equals(objEnum);
 			}
 		}
 
@@ -646,16 +646,17 @@ namespace TD_Find_Lib
 			Rect rect = listing.GetRect(Text.LineHeight);
 			if (flags)
 			{
-				// dropdown mask / enum with flags on or off selector
+				// dropdown mask to set filter to check if flags must be on or off
+				mask.DrawButton(rect, parentQuery: parentQuery);
 			}
 			else
 			{
-				// Dropdown enum selector
 				Text.Anchor = TextAnchor.LowerRight;
 				Widgets.Label(rect.LeftHalf(), "Is: ");
 				Text.Anchor = default;
-				if(Widgets.ButtonText(rect.RightHalf(), include.ToString()))
-					parentQuery.DoFloatOptions(Enum.GetValues(typeof(TEnum)) as IEnumerable<TEnum>, e => e.ToString(), newValue => include = newValue);
+				// Dropdown enum selector
+				if (Widgets.ButtonText(rect.RightHalf(), mask.mustHave.ToString()))
+					parentQuery.DoFloatOptions(Enum.GetValues(typeof(TEnum)) as IEnumerable<TEnum>, e => e.ToString(), newValue => mask.mustHave = newValue);
 			}
 			return false;
 		}
@@ -663,7 +664,7 @@ namespace TD_Find_Lib
 
 
 
-	public class EnumFieldData<TEnum> : EnumData<TEnum> where TEnum : System.Enum
+	public class EnumFieldData<TEnum> : EnumData<TEnum> where TEnum : Enum
 	{
 		public EnumFieldData() { }
 		public EnumFieldData(Type type, string name)
@@ -679,7 +680,7 @@ namespace TD_Find_Lib
 		public override TEnum GetEnumValue(object obj) => getter(obj);
 	}
 
-	public class EnumPropData<T, TEnum> : EnumData<TEnum> where TEnum : System.Enum where T : class
+	public class EnumPropData<T, TEnum> : EnumData<TEnum> where TEnum : Enum where T : class
 	{
 		public EnumPropData() { }
 		public EnumPropData(string name)
@@ -718,22 +719,9 @@ namespace TD_Find_Lib
 
 		public Type matchType = typeof(Thing);
 		public List<FieldDataClassMember> memberChain = new();
-		private FieldDataComparer _member;
+		public FieldDataComparer member;
 		public string memberStr = "";
 
-		public FieldDataComparer member
-		{
-			get => _member;
-			set
-			{
-				_member = value;
-				if(member != null)
-				{
-					_member.Make(this);
-					Focus();
-				}
-			}
-		}
 
 
 		private Type _nextType;
@@ -776,7 +764,7 @@ namespace TD_Find_Lib
 			}
 
 			Scribe_Collections.Look(ref memberChain, "memberChain");
-			Scribe_Deep.Look(ref _member, "member");
+			Scribe_Deep.Look(ref member, "member");
 			Scribe_Values.Look(ref memberStr, "memberStr");
 
 			if (Scribe.mode == LoadSaveMode.LoadingVars)
@@ -810,13 +798,13 @@ namespace TD_Find_Lib
 			clone.matchType = matchType;
 			clone.matchTypeName = matchTypeName;
 
-			clone._member = (FieldDataComparer)member?.Clone();
-			clone.member?.Make(this);
+			clone.member = (FieldDataComparer)member?.Clone();
+			clone.member?.Make(clone);
 			clone.memberStr = memberStr;
 
 			clone.memberChain = new(memberChain.Select(d => d.Clone() as FieldDataClassMember));
 			foreach (var memberData in clone.memberChain)
-				memberData.Make(this);
+				memberData.Make(clone);
 
 			clone.nextType = nextType;
 
@@ -846,11 +834,13 @@ namespace TD_Find_Lib
 			if (addData is FieldDataComparer addDataCompare)
 			{
 				member = addDataCompare;
-				memberStr = member.TextName;
+				member.Make(this);
 
+				Focus();	//next frame
 				UI.UnfocusCurrentControl();
-				// Keep nextType in case you want to change the compared field
 
+				// Keep nextType in case you want to change the compared field
+				memberStr = addDataCompare.TextName;
 				ParseTextField();
 			}
 			else if(addData is FieldDataClassMember addDataMember)

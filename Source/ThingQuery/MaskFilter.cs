@@ -12,20 +12,12 @@ namespace TD_Find_Lib
 	{
 		public TGroup mustHave, cantHave;
 		public string label;
-		private ThingQuery parentQuery;
 
-		public MaskFilter() { }
-		public MaskFilter(ThingQuery p)
+		public MaskFilter()
 		{
-			parentQuery = p;
+			//Subclasses should SetLabel in ctor.
 		}
-		public virtual MaskFilter<T, TGroup> MakeClone(ThingQuery p)
-		{
-			MaskFilter<T, TGroup> clone = Clone();
-			clone.parentQuery = p;
-			return clone;
-		}
-		protected virtual MaskFilter<T, TGroup> Clone()
+		public virtual MaskFilter<T, TGroup> Clone()
 		{
 			MaskFilter<T, TGroup> clone = (MaskFilter<T, TGroup>)Activator.CreateInstance(GetType());
 			clone.label = label;
@@ -33,16 +25,13 @@ namespace TD_Find_Lib
 			clone.cantHave = cantHave;
 			return clone;
 		}
-		public void PostExposeData(ThingQuery p)
+		public virtual void PostExposeData()
 		{
 			if (Scribe.mode == LoadSaveMode.PostLoadInit)
 			{
 				SetLabel();
-				parentQuery = p;
 			}
-			PostExposeData();
 		}
-		protected virtual void PostExposeData() { }
 
 
 		public abstract bool AppliesTo(TGroup group);
@@ -86,7 +75,8 @@ namespace TD_Find_Lib
 		public void AddMust(T option) => Add(ref mustHave, option);
 		public void AddCant(T option) => Add(ref cantHave, option);
 
-		public void DrawButton(Rect rect, List<T> options = null)
+		//Would be nice if it weren't tied to ThingQuery .
+		public void DrawButton(Rect rect, ThingQuery parentQuery, List < T> options = null)
 		{
 			if (Widgets.ButtonText(rect, label))
 			{
@@ -127,6 +117,8 @@ namespace TD_Find_Lib
 			}
 		}
 	}
+
+
 	public class MaskFilterDef<T> : MaskFilter<T, List<T>> where T : Def
 	{
 		private Func<T, int> comparator;
@@ -135,14 +127,13 @@ namespace TD_Find_Lib
 		{
 			mustHave = new();
 			cantHave = new();
+			SetLabel();
 		}
-		public MaskFilterDef(ThingQuery p, Func<T, int> c) : base(p)
+		public MaskFilterDef(Func<T, int> c) : this()
 		{
 			comparator = c;
-			mustHave = new();
-			cantHave = new();
 		}
-		protected override MaskFilter<T, List<T>> Clone()
+		public override MaskFilter<T, List<T>> Clone()
 		{
 			MaskFilterDef<T> clone = (MaskFilterDef<T>)base.Clone();
 			clone.mustHave = mustHave.ToList();
@@ -150,8 +141,10 @@ namespace TD_Find_Lib
 			clone.comparator = comparator;
 			return clone;
 		}
-		protected override void PostExposeData()
+		public override void PostExposeData()
 		{
+			base.PostExposeData();
+
 			Scribe_Collections.Look(ref mustHave, "mustHave");
 			Scribe_Collections.Look(ref cantHave, "cannotHave");
 		}
@@ -173,17 +166,20 @@ namespace TD_Find_Lib
 			group.SortBy(comparator);
 		}
 	}
+
 	public class MaskFilterEnum<T> : MaskFilter<T, T> where T : Enum
 	{
-		public MaskFilterEnum() { }
-		public MaskFilterEnum(ThingQuery p) : base(p)
-		{ }
-		protected override void PostExposeData()
+		public MaskFilterEnum()
 		{
+			SetLabel();
+		}
+		public override void PostExposeData()
+		{
+			base.PostExposeData();
+
 			Scribe_Values.Look(ref mustHave, "mustHave");
 			Scribe_Values.Look(ref cantHave, "cannotHave");
 		}
-
 
 
 		public override bool AppliesTo(T check) =>
@@ -192,15 +188,22 @@ namespace TD_Find_Lib
 			(((int)(object)cantHave & (int)(object)check) == 0);
 
 
-		private string defaultLabel = default(T).ToString();
+		private readonly string defaultLabel = default(T).ToString();
 		public override string MakeLabel(T val)
+		{
+			string result = val.ToString();
+			if (result == defaultLabel)
+				return "TD.AnyOption".Translate();
+			return result;
+		}
+		public override string MakeLabelGroup(T val)
 		{
 			string result = val.ToString();
 			if (result == defaultLabel)
 				return "";
 			return result;
 		}
-		public override string MakeLabelGroup(T val) => MakeLabel(val);
+		
 
 		protected override bool Contains(T group, T option) =>
 			group.HasFlag(option);

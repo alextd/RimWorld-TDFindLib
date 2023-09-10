@@ -1282,25 +1282,24 @@ namespace TD_Find_Lib
 		public MaskFilterDef<T> mask;
 		public ThingQueryMask()
 		{
-			mask = new(this, CompareSelector);
+			mask = new(CompareSelector);
 		}
 		protected override ThingQuery Clone()
 		{
 			ThingQueryMask<T> clone = (ThingQueryMask<T>)base.Clone();
-			clone.mask = (MaskFilterDef<T>)mask.MakeClone(clone);
+			clone.mask = (MaskFilterDef<T>)mask.Clone();
 			return clone;
 		}
 		public override void ExposeData()
 		{
 			base.ExposeData();
-
-			mask.PostExposeData(this);
+			mask.PostExposeData();
 		}
 
 		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			base.DrawMain(rect, locked, fullRect);
-			mask.DrawButton(fullRect.RightPart(.7f), Options);
+			mask.DrawButton(fullRect.RightPart(.7f), this, Options);
 			return false;
 		}
 	}
