@@ -146,9 +146,19 @@ namespace TD_Find_Lib
 		{
 			if (!typeFieldOptions.TryGetValue(type, out var list))
 			{
-				list = FieldsFor(type).ListFullCopy();
+				list = new();
 				typeFieldOptions[type] = list;
 
+				// Special Def comparators
+				if (typeof(Def).IsAssignableFrom(type))
+				{
+					list.Add(NewData(typeof(DefData<>), new Type[] { type }));
+				}
+
+				// Long list of Field comparators
+				list.AddRange(FieldsFor(type));
+
+				// And parent class comparators
 				while (!baseTypes.Contains(type))
 				{
 					type = type.BaseType;
@@ -189,24 +199,21 @@ namespace TD_Find_Lib
 		{
 			// class members
 			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField))
-				if (ValidClassType(field.FieldType))
-				{
-					Log.Message($"{type}.{field.Name} EnumerableType({field.FieldType}) is {EnumerableType(field.FieldType)}");
-					if (EnumerableType(field.FieldType) is Type enumType)
-						yield return new EnumerableFieldData(type, enumType, field.Name);
-					else
+				if (ValidClassType(field.FieldType) && EnumerableType(field.FieldType) == null)
 						yield return new ClassFieldData(type, field.FieldType, field.Name);
-				}
 
 			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
-				if (ValidClassType(prop.PropertyType))
-				{
-					Log.Message($"{type}.{prop.Name} EnumerableType({prop.PropertyType}) is {EnumerableType(prop.PropertyType)}");
-					if (EnumerableType(prop.PropertyType) is Type enumType)
-						yield return NewData(typeof(EnumerablePropData<>), new[] { type }, enumType, prop.Name);
-					else
+				if (ValidClassType(prop.PropertyType) && EnumerableType(prop.PropertyType) == null)
 						yield return NewData(typeof(ClassPropData<>), new[] { type }, prop.PropertyType, prop.Name);
-				}
+
+			// enumerbale class members
+			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField))
+				if (ValidClassType(field.FieldType) && EnumerableType(field.FieldType) is Type enumType)
+						yield return new EnumerableFieldData(type, enumType, field.Name);
+
+			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
+				if (ValidClassType(prop.PropertyType) && EnumerableType(prop.PropertyType) is Type enumType)
+						yield return NewData(typeof(EnumerablePropData<>), new[] { type }, enumType, prop.Name);
 
 			// ThingComp, Hard coded for ThingWithComps
 			if (type == typeof(ThingWithComps))
@@ -957,6 +964,52 @@ namespace TD_Find_Lib
 	}
 
 
+	public class DefData<TDef> : FieldDataComparer where TDef : Def, new()
+	{
+		public TDef compareTo;
+
+		public override void ExposeData()
+		{
+			base.ExposeData();
+			Scribe_Defs.Look(ref compareTo, "compareTo");
+		}
+		public override FieldData Clone()
+		{
+			DefData<TDef> clone = (DefData<TDef>)base.Clone();
+			clone.compareTo = compareTo;
+			return clone;
+		}
+
+		public DefData()
+			: base(typeof(TDef), typeof(bool), "is exact def")
+		{
+		}
+
+
+		public override string Dot => " ";
+		public override string TextName => compareTo == null ? base.TextName : $"== {compareTo.defName}";
+
+		public override bool AppliesTo(object obj) => obj == compareTo;
+
+		public override void MakeAccessor()
+		{
+			compareTo = DefDatabase<TDef>.AllDefsListForReading.First();
+		}
+
+		public override bool Draw(Listing_StandardIndent listing, bool locked)
+		{
+			listing.NestedIndent();
+			listing.Gap(listing.verticalSpacing);
+
+			Rect rect = listing.GetRect(Text.LineHeight);
+			if (Widgets.ButtonText(rect, compareTo.GetLabel()))
+				parentQuery.DoFloatOptions(DefDatabase<TDef>.AllDefs, LabelByDefName.GetLabel, newValue => compareTo = newValue);
+
+			listing.NestedOutdent();
+
+			return false;
+		}
+	}
 
 	// ThingQueryCustom
 	// And we finally get to the Query itself that uses the above FieldData subclasses.
