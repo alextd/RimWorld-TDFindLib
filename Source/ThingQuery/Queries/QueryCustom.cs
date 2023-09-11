@@ -1297,7 +1297,6 @@ namespace TD_Find_Lib
 					// suppress the second key events that come after pressing tab/return/period
 					if ((ch == '	' || ch == '\n' || ch == '.'))
 					{
-						Log.Message($"Using event ch:{ch}");
 						Event.current.Use();
 					}
 					// Autocomplete after tab/./enter
@@ -1305,7 +1304,6 @@ namespace TD_Find_Lib
 						|| keyCode == KeyCode.Return || keyCode == KeyCode.KeypadEnter
 						|| keyCode == KeyCode.Period || keyCode == KeyCode.KeypadPeriod)
 					{
-						Log.Message($"Using event key:{keyCode} ({memberStr})");
 						changed = AutoComplete();
 
 						Event.current.Use();
@@ -1315,7 +1313,6 @@ namespace TD_Find_Lib
 					{
 						if (memberStr == "" && memberChain.Count > 0)
 						{
-							Log.Message($"Using event key:{keyCode}");
 							member = null;
 							var lastMember = memberChain.Pop();
 
