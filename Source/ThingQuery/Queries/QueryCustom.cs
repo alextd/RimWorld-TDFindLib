@@ -1229,9 +1229,14 @@ namespace TD_Find_Lib
 			if (!matchType.IsAssignableFrom(thing.GetType()))
 				return false;
 
-			object obj = thing;
-			foreach (var memberData in memberChain)
+			return MemberAppliesTo(thing);
+		}
+
+		private bool MemberAppliesTo(object obj, int startI = 0)
+		{
+			for (int i = startI; i < memberChain.Count; i++)
 			{
+				var memberData = memberChain[i];
 
 				// return false if any object in chain is null
 				// Redundant on first call for Thing thing
@@ -1246,6 +1251,14 @@ namespace TD_Find_Lib
 				if (!memberData.type.IsAssignableFrom(obj.GetType()))
 					return false;
 
+
+				/*
+				if(memberData.enumerable)
+				{
+					IEnumerable<object> enumerbale = (IEnumerable<object>)obj;
+					return enumerbale.Any(o => MemberAppliesTo(o, i + 1));
+				}
+				*/
 				obj = memberData.GetMember(obj);
 			}
 
