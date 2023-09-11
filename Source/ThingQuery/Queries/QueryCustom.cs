@@ -94,8 +94,9 @@ namespace TD_Find_Lib
 		// full readable name, e.g. GetComp<CompPower>
 		// This string will be passed back into ParseTextField
 		// and then passed to ShouldShow, which should return true of course
+		public virtual string Dot => ".";
 		public virtual string TextName => name;
-		public virtual string Details => $"({fieldType.ToStringSimple()}) {type.ToStringSimple()}.{TextName}";
+		public virtual string Details => $"({fieldType.ToStringSimple()}) {type.ToStringSimple()}{Dot}{TextName}";
 		public override string ToString() => Details;
 
 		public virtual bool ShouldShow(List<string> filters)
@@ -148,11 +149,15 @@ namespace TD_Find_Lib
 				list = FieldsFor(type).ListFullCopy();
 				typeFieldOptions[type] = list;
 
-				while(!baseTypes.Contains(type))
+				while (!baseTypes.Contains(type))
 				{
 					type = type.BaseType;
 					list.AddRange(FieldsFor(type));
 				}
+
+				// Special comparators
+				list.Add(new ObjIsNull(typeof(object)));
+				list.Add(new ObjIsNotNull(typeof(object)));
 			}
 			return list;
 		}
@@ -313,7 +318,6 @@ namespace TD_Find_Lib
 		{ }
 
 		public abstract bool AppliesTo(object obj);
-
 	}
 
 
@@ -697,8 +701,48 @@ namespace TD_Find_Lib
 	}
 
 
+	public class ObjIsNull : FieldDataComparer
+	{
+		public ObjIsNull() { }
+		public ObjIsNull(Type type)
+			: base(type, typeof(bool), "is null")
+		{ }
 
+		public override string Dot => "";
+		public override string TextName => "== null";
 
+		// Even though code below doesn't call this as it checks obj == null before passing to FieldDataComparer
+		public override bool AppliesTo(object obj) => obj == null;
+		public override void MakeAccessor() { }
+
+		public override bool ShouldShow(List<string> filters)
+		{
+			if (base.ShouldShow(filters)) return true;
+
+			return filters.Contains("==");
+		}
+	}
+
+	public class ObjIsNotNull : FieldDataComparer
+	{
+		public ObjIsNotNull() { }
+		public ObjIsNotNull(Type type)
+			: base(type, typeof(bool), "is not null")
+		{ }
+
+		public override string Dot => "";
+		public override string TextName => "!= null";
+
+		public override bool AppliesTo(object obj) => obj != null;
+		public override void MakeAccessor() { }
+
+		public override bool ShouldShow(List<string> filters)
+		{
+			if (base.ShouldShow(filters)) return true;
+
+			return filters.Contains("!=");
+		}
+	}
 
 
 	[StaticConstructorOnStartup]
@@ -932,7 +976,7 @@ namespace TD_Find_Lib
 				row.LabelWithTags(memberLink.TextName, tooltip: memberLink.Details);
 				row.Gap(-2);
 			}
-			row.Label(".");
+			row.Label(member?.Dot ?? ".");
 
 
 			// handle special input before the textfield grabs it
@@ -1188,17 +1232,25 @@ namespace TD_Find_Lib
 			object obj = thing;
 			foreach (var memberData in memberChain)
 			{
+
+				// return false if any object in chain is null
+				// Redundant on first call for Thing thing
+				// Ought to be after GetMember for most cases
+				// But if the final check is "is null", that needs to check the resulting obj AFTER this loop
+				if (obj == null)
+					return false;
+
+				// Redundant for first member call, oh well
+				// direct matchType check is still needed above if you're checking matchType == Pawn with Pawn.def.x
+				// Because the memberData.type is not checking for Pawn, as it's actually Thing.def
 				if (!memberData.type.IsAssignableFrom(obj.GetType()))
-					// Redundant for first member call, oh well
-					// direct matchType check is still needed above if you're checking matchType == Pawn with Pawn.def.x
-					// Because the memberData.type is not checking for Pawn, as it's actually Thing.def
 					return false;
 
 				obj = memberData.GetMember(obj);
-
-				if (obj == null)
-					return false;
 			}
+
+			if (obj == null)
+				return member is ObjIsNull; // This or implement a bool property that's overriden true for this subclass only
 
 			if (member != null)
 				return member.AppliesTo(obj);

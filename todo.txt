@@ -38,7 +38,7 @@
 = enum values handles flag (e.g. .def.ingestible.foodType)
 = enum makelabel on create
 = enum value props (type[] for generics in NewData)
-class == or != null (don't necesarilly skip nulls) FieldData should be able to handle this
+= class == or != null (don't necesarilly skip nulls) FieldData should be able to handle this
 List Any/All FieldData
 string handler FieldData
 Def handler FieldData
@@ -47,15 +47,11 @@ Def handler FieldData
 =handle arbitrary parents and list their fields (eg KindDef : Def)
 
 
+clear memberStr when member set. Remake when member set null with member != null.
+
 stop showing suggestion dropdown after def.ingestible.foodType
 
-= dropdown
-rightclick - Full dropdown selection ?
-dropdown Sections/ color class / bools / etc.
-Dropdown name "field (bool Thing.def)" + color?
 global dict for Make() getters?
-
-
 
 blacklist classes.
 Type/Action/MethodInfo
