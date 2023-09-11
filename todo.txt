@@ -40,7 +40,7 @@
 = enum value props (type[] for generics in NewData)
 = class == or != null (don't necesarilly skip nulls) FieldData should be able to handle this
 = List Any FieldData
-string handler FieldData
+= string handler FieldData
 Def handler FieldData
 "as X" handler for all subclasses
 

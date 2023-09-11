@@ -243,6 +243,17 @@ namespace TD_Find_Lib
 					yield return NewData(typeof(FloatPropData<>), new[] { type }, prop.Name);
 
 
+			// strings
+			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField))
+				if (field.FieldType == typeof(string))
+					yield return new StringFieldData(type, field.Name);
+
+			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
+				if (prop.PropertyType == typeof(string))
+					yield return NewData(typeof(StringPropData<>), new[] { type }, prop.Name);
+			
+
+
 			// enums
 			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField))
 				if (field.FieldType.IsEnum)
@@ -440,7 +451,7 @@ namespace TD_Find_Lib
 			getter ??= AccessTools.MethodDelegate<BoolGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
 		}
 
-		public override bool GetBoolValue(object obj) => getter(obj as T);// please only pass in T
+		public override bool GetBoolValue(object obj) => getter((T)obj);// please only pass in T
 	}
 
 
@@ -555,7 +566,7 @@ namespace TD_Find_Lib
 			getter ??= AccessTools.MethodDelegate<IntGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
 		}
 
-		public override int GetIntValue(object obj) => getter(obj as T);// please only pass in T
+		public override int GetIntValue(object obj) => getter((T)obj);// please only pass in T
 	}
 
 
@@ -672,7 +683,7 @@ namespace TD_Find_Lib
 			getter ??= AccessTools.MethodDelegate<FloatGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
 		}
 
-		public override float GetFloatValue(object obj) => getter(obj as T);// please only pass in T
+		public override float GetFloatValue(object obj) => getter((T)obj);// please only pass in T
 	}
 
 
@@ -774,7 +785,7 @@ namespace TD_Find_Lib
 			getter ??= AccessTools.MethodDelegate<EnumGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
 		}
 
-		public override TEnum GetEnumValue(object obj) => getter(obj as T);// please only pass in T
+		public override TEnum GetEnumValue(object obj) => getter((T)obj);// please only pass in T
 	}
 
 
@@ -822,6 +833,133 @@ namespace TD_Find_Lib
 	}
 
 
+	public abstract class StringData : FieldDataComparer
+	{
+		private string compareTo;
+		private bool exact;
+		public override void ExposeData()
+		{
+			base.ExposeData();
+			Scribe_Values.Look(ref compareTo, "compareTo");
+			Scribe_Values.Look(ref exact, "exact");
+		}
+		public override FieldData Clone()
+		{
+			StringData clone = (StringData)base.Clone();
+			clone.compareTo = compareTo;
+			clone.exact = exact;
+			return clone;
+		}
+
+		public StringData() { }
+		public StringData(Type type, string name)
+			: base(type, typeof(string), name)
+		{ }
+
+		public abstract string GetStringValue(object obj);
+		public override bool AppliesTo(object obj)
+		{
+			string value = GetStringValue(obj);
+			return exact ? value == compareTo : value.Contains(compareTo);
+		}
+
+		private string controlName;
+		public override void MakeAccessor()
+		{
+			controlName = $"STRING_DATA{parentQuery.Id}";
+		}
+		public override bool Draw(Listing_StandardIndent listing, bool locked)
+		{
+			listing.NestedIndent();
+			listing.Gap(listing.verticalSpacing);
+
+			Rect rect = listing.GetRect(Text.LineHeight);
+			Rect lRect = rect.LeftPart(.2f);
+			Rect rRect = rect.RightPart(.78f);
+
+			bool changed = false;
+
+			if (Widgets.ButtonText(lRect, exact ? "Is: " : "Contains:"))
+			{
+				exact = !exact;
+				changed = true;
+			}
+
+			if (locked)
+			{
+				Widgets.Label(rRect, compareTo);
+			}
+			else
+			{
+				changed |= TDWidgets.TextField(rRect, ref compareTo);
+			}
+
+			if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Tab
+				 && (GUI.GetNameOfFocusedControl() == controlName))
+				Event.current.Use();
+
+			listing.NestedOutdent();
+
+			return changed;
+		}
+
+		public override void DoFocus()
+		{
+			GUI.FocusControl(controlName);
+		}
+
+		public override bool Unfocus()
+		{
+			if (GUI.GetNameOfFocusedControl() == controlName)
+			{
+				UI.UnfocusCurrentControl();
+				return true;
+			}
+
+			return false;
+		}
+	}
+
+	public class StringFieldData : StringData
+	{
+		public StringFieldData() { }
+		public StringFieldData(Type type, string name)
+			: base(type, name)
+		{ }
+
+		private AccessTools.FieldRef<object, string> getter;
+		public override void MakeAccessor()
+		{
+			base.MakeAccessor();
+			getter ??= AccessTools.FieldRefAccess<object, string>(AccessTools.DeclaredField(type, name));
+		}
+
+		public override string GetStringValue(object obj) => getter(obj);
+	}
+
+	public class StringPropData<T> : StringData where T : class
+	{
+		public StringPropData() { }
+		public StringPropData(string name)
+			: base(typeof(T), name)
+		{ }
+
+		// Generics are required for this delegate to exist so that it's actually fast.
+		delegate string StringGetter(T t);
+		private StringGetter getter;
+		public override void MakeAccessor()
+		{
+			base.MakeAccessor();
+			getter ??= AccessTools.MethodDelegate<StringGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
+		}
+
+		public override string GetStringValue(object obj) => getter((T)obj);// please only pass in T
+	}
+
+
+
+	// ThingQueryCustom
+	// And we finally get to the Query itself that uses the above FieldData subclasses.
 	[StaticConstructorOnStartup]
 	public class ThingQueryCustom : ThingQuery
 	{

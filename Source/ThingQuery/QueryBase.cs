@@ -61,7 +61,9 @@ namespace TD_Find_Lib
 		public IQueryHolderRoot RootHolder => parent?.RootHolder;
 
 
-		protected int id; //For Widgets.draggingId purposes
+		protected int id; //For Widgets purposes, e.g. draggingId or GUI.controlname
+		public int Id => id;
+
 		private static int nextID = 1;
 		protected ThingQuery() { id = nextID++; }
 
