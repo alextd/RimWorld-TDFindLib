@@ -142,10 +142,12 @@ namespace TD_Find_Lib
 		// All FieldData options for a subclass and its parents
 		private static readonly Dictionary<Type, List<FieldData>> typeFieldOptions = new();
 		private static readonly Type[] baseTypes = new[] { typeof(Thing), typeof(Def), typeof(object), null};
-		public static List<FieldData> GetOptions(Type type)
+		public static List<FieldData> GetOptions(Type baseType)
 		{
-			if (!typeFieldOptions.TryGetValue(type, out var list))
+			if (!typeFieldOptions.TryGetValue(baseType, out var list))
 			{
+				Type type = baseType;
+
 				list = new();
 				typeFieldOptions[type] = list;
 
@@ -164,6 +166,10 @@ namespace TD_Find_Lib
 					type = type.BaseType;
 					list.AddRange(FieldsFor(type));
 				}
+
+				// Special accessors
+				foreach (Type subType in baseType.AllSubclassesNonAbstract())
+					list.Add(new AsSubclassData(baseType, subType));
 
 				// Special comparators
 				list.Add(new ObjIsNull(typeof(object)));
@@ -366,8 +372,28 @@ namespace TD_Find_Lib
 	}
 
 
-	// Subclasses to get an enumerable field/property
+	//FieldData for "as subclass"
+	public class AsSubclassData: FieldDataClassMember
+	{
+		public AsSubclassData() { }
+		public AsSubclassData(Type type, Type subType)
+			: base(type, subType, "as subclass")
+		{ }
 
+		public override string Dot => " ";
+		public override string TextName =>
+			$"as {fieldType.Name}";
+
+		public override void MakeAccessor() { }
+
+		// fun fact I spend like 30 minutes writing this trying to convert obj to fieldType then realized it's returning as object anyway
+		public override object GetMember(object obj) => obj;
+	}
+
+
+
+	// FieldDataEnumerableMember
+	// Subclasses to get an enumerable field/property
 	public class EnumerableFieldData : FieldDataEnumerableMember
 	{
 		public EnumerableFieldData() { }
@@ -1401,9 +1427,9 @@ namespace TD_Find_Lib
 					// draw Field count
 					Text.Anchor = TextAnchor.LowerRight;
 					if (suggestions.Count > 1)
-						Widgets.Label(rect, $"{suggestions.Count} fields");
+						Widgets.Label(rect, $"{suggestions.Count} options");
 					else if (suggestions.Count == 0)
-						Widgets.Label(rect, $"No fields!");
+						Widgets.Label(rect, $"No options!");
 					Text.Anchor = default;
 
 					// Begin Scrolling

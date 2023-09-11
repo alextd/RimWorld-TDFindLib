@@ -41,10 +41,10 @@
 = class == or != null (don't necesarilly skip nulls) FieldData should be able to handle this
 = List Any FieldData
 = string handler FieldData
-Def handler FieldData
-"as X" handler for all subclasses
+= Def handler FieldData
+= "as X" handler for all subclasses
 
-=handle arbitrary parents and list their fields (eg KindDef : Def)
+= handle arbitrary parents and list their fields (eg KindDef : Def)
 
 Spliut TExtName/DetalsName/SelectionName
 clear memberStr when member set. Remake when member set null with member != null.
