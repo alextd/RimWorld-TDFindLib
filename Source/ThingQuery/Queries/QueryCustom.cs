@@ -175,7 +175,12 @@ namespace TD_Find_Lib
 			p.CanRead && p.GetMethod.GetParameters().Length == 0;
 
 		private static bool ValidClassType(Type type) =>
-			type.IsClass && !type.GetInterfaces().Contains(typeof(System.Collections.IEnumerable));
+			type.IsClass;
+
+		private static Type EnumerableType(Type type) =>
+			type.GetInterfaces()
+			.FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+			?.GetGenericArguments()[0];
 
 		const BindingFlags bFlags = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance;
 		private static IEnumerable<FieldData> FindFields(Type type)
@@ -183,11 +188,23 @@ namespace TD_Find_Lib
 			// class members
 			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField))
 				if (ValidClassType(field.FieldType))
-					yield return new ClassFieldData(type, field.FieldType, field.Name);
+				{
+					Log.Message($"{type}.{field.Name} EnumerableType({field.FieldType}) is {EnumerableType(field.FieldType)}");
+					if (EnumerableType(field.FieldType) is Type enumType)
+						yield return new EnumerableFieldData(type, enumType, field.Name);
+					else
+						yield return new ClassFieldData(type, field.FieldType, field.Name);
+				}
 
 			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
 				if (ValidClassType(prop.PropertyType))
-					yield return NewData(typeof(ClassPropData<>), new []{ type }, prop.PropertyType, prop.Name);
+				{
+					Log.Message($"{type}.{prop.Name} EnumerableType({prop.PropertyType}) is {EnumerableType(prop.PropertyType)}");
+					if (EnumerableType(prop.PropertyType) is Type enumType)
+						yield return NewData(typeof(EnumerablePropData<>), new[] { type }, enumType, prop.Name);
+					else
+						yield return NewData(typeof(ClassPropData<>), new[] { type }, prop.PropertyType, prop.Name);
+				}
 
 			//Hard coded 
 			if(type == typeof(ThingWithComps))
@@ -237,12 +254,32 @@ namespace TD_Find_Lib
 
 
 
-	// FieldData subclasses of FieldDataClassMember handle gettings members that hold/return a Class
-	// FieldDataClassMember can be chained e.g. thing.def.building
+	// FieldData subclasses of FieldDataMember handle gettings members that hold/return a Class
+	// FieldDataMember can be chained e.g. thing.def.building
 	// The final FieldData after the chain must be a comparer (below) 
 	// That one actually does the filter on the value that it gets
 	// e.g. thing.def.building.uninstallWork > 300
-	public abstract class FieldDataClassMember : FieldData
+	public abstract class FieldDataMember : FieldData
+	{
+		public FieldDataMember() { }
+		public FieldDataMember(Type type, Type fieldType, string name)
+			: base(type, fieldType, name)
+		{ }
+	}
+	// One for classes that are IEnumerable (special handler in Query.AppliesTo does .Any())
+	public abstract class FieldDataEnumerableMember : FieldDataMember
+	{
+		public FieldDataEnumerableMember() { }
+		public FieldDataEnumerableMember(Type type, Type fieldType, string name)
+			: base(type, fieldType, name)
+		{ }
+
+		public override string TextName => base.TextName + ".Any: ";
+
+		public abstract IEnumerable<object> GetMembers(object obj);
+	}
+	// One for any other class
+	public abstract class FieldDataClassMember : FieldDataMember
 	{
 		public FieldDataClassMember() { }
 		public FieldDataClassMember(Type type, Type fieldType, string name)
@@ -309,6 +346,44 @@ namespace TD_Find_Lib
 	}
 
 
+	// Subclasses to get an enumerable field/property
+
+	public class EnumerableFieldData : FieldDataEnumerableMember
+	{
+		public EnumerableFieldData() { }
+		public EnumerableFieldData(Type type, Type fieldType, string name)
+			: base(type, fieldType, name)
+		{ }
+
+		private AccessTools.FieldRef<object, IEnumerable<object>> getter;
+		public override void MakeAccessor()
+		{
+			getter ??= AccessTools.FieldRefAccess<object, IEnumerable<object>>(AccessTools.DeclaredField(type, name));
+		}
+
+		public override IEnumerable<object> GetMembers(object obj) => getter(obj);
+	}
+
+	public class EnumerablePropData<T> : FieldDataEnumerableMember
+	{
+		public EnumerablePropData() { }
+		public EnumerablePropData(Type fieldType, string name)
+			: base(typeof(T), fieldType, name)
+		{ }
+
+		// Generics are required for this delegate to exist so that it's actually fast.
+		delegate IEnumerable<object> ClassGetter(T t);
+		private ClassGetter getter;
+		public override void MakeAccessor()
+		{
+			getter ??= AccessTools.MethodDelegate<ClassGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
+		}
+
+		public override IEnumerable<object> GetMembers(object obj) => getter((T)obj);
+	}
+
+
+	// FieldDataComparer
 	// FieldData subclasses that compare valuetypes to end the sequence
 	public abstract class FieldDataComparer : FieldData
 	{
@@ -760,7 +835,7 @@ namespace TD_Find_Lib
 		}
 
 		public Type matchType = typeof(Thing);
-		public List<FieldDataClassMember> memberChain = new();
+		public List<FieldDataMember> memberChain = new();
 		public FieldDataComparer member;
 		public string memberStr = "";
 
@@ -844,7 +919,7 @@ namespace TD_Find_Lib
 			clone.member?.Make(clone);
 			clone.memberStr = memberStr;
 
-			clone.memberChain = new(memberChain.Select(d => d.Clone() as FieldDataClassMember));
+			clone.memberChain = new(memberChain.Select(d => d.Clone() as FieldDataMember));
 			foreach (var memberData in clone.memberChain)
 				memberData.Make(clone);
 
@@ -885,7 +960,7 @@ namespace TD_Find_Lib
 				memberStr = addDataCompare.TextName;
 				ParseTextField();
 			}
-			else if(addData is FieldDataClassMember addDataMember)
+			else if(addData is FieldDataMember addDataMember)
 			{
 				memberChain.Add(addDataMember);
 				addDataMember.Make(this);
@@ -1252,14 +1327,18 @@ namespace TD_Find_Lib
 					return false;
 
 
-				/*
-				if(memberData.enumerable)
+				if (memberData is FieldDataEnumerableMember enumerableData)
 				{
-					IEnumerable<object> enumerbale = (IEnumerable<object>)obj;
-					return enumerbale.Any(o => MemberAppliesTo(o, i + 1));
+					i++;
+
+					IEnumerable<object> items = enumerableData.GetMembers(obj);
+					// Todo? something other than Any?
+					return items != null && items.Any(o => MemberAppliesTo(o, i));
 				}
-				*/
-				obj = memberData.GetMember(obj);
+
+				// else it'd better be this:
+				FieldDataClassMember classData = (FieldDataClassMember)memberData;
+				obj = classData.GetMember(obj);
 			}
 
 			if (obj == null)

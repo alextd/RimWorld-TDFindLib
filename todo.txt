@@ -39,23 +39,27 @@
 = enum makelabel on create
 = enum value props (type[] for generics in NewData)
 = class == or != null (don't necesarilly skip nulls) FieldData should be able to handle this
-List Any/All FieldData
+= List Any FieldData
 string handler FieldData
 Def handler FieldData
 "as X" handler for all subclasses
 
 =handle arbitrary parents and list their fields (eg KindDef : Def)
 
-
+Spliut TExtName/DetalsName/SelectionName
 clear memberStr when member set. Remake when member set null with member != null.
 
 stop showing suggestion dropdown after def.ingestible.foodType
 
 global dict for Make() getters?
+Better details display for List aka generics maybe handle ThingComp too.
 
 blacklist classes.
-Type/Action/MethodInfo
-Or whitelist only rimworld classes?.
+: Map
+: System. classes : Type/Action/MethodInfo
+Or whitelist only rimworld classes? - Map + enumerable
+
+pasted floatdata not showing # locked?
 
 
 
