@@ -54,10 +54,7 @@ stop showing suggestion dropdown after def.ingestible.foodType
 global dict for Make() getters?
 Better details display for List aka generics maybe handle ThingComp too.
 
-blacklist classes.
-: Map
-: System. classes : Type/Action/MethodInfo
-Or whitelist only rimworld classes? - Map + enumerable
+=blacklist classes: Map, System. classes : Type/Action/MethodInfo
 
 pasted floatdata not showing # locked?
 

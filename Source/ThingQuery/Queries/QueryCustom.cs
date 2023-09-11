@@ -174,8 +174,10 @@ namespace TD_Find_Lib
 		private static bool ValidProp(PropertyInfo p) =>
 			p.CanRead && p.GetMethod.GetParameters().Length == 0;
 
+		private static readonly Type[] blacklist = new Type[]
+			{ typeof(string), typeof(Type), typeof(Action), typeof(MemberInfo), typeof(Map)};
 		private static bool ValidClassType(Type type) =>
-			type.IsClass;
+			type.IsClass && !blacklist.Any(b => b.IsAssignableFrom(type));
 
 		private static Type EnumerableType(Type type) =>
 			type.GetInterfaces()
@@ -206,8 +208,8 @@ namespace TD_Find_Lib
 						yield return NewData(typeof(ClassPropData<>), new[] { type }, prop.PropertyType, prop.Name);
 				}
 
-			//Hard coded 
-			if(type == typeof(ThingWithComps))
+			// ThingComp, Hard coded for ThingWithComps
+			if (type == typeof(ThingWithComps))
 			{
 				foreach(Type compType in GenTypes.AllSubclasses(typeof(ThingComp)))
 					yield return NewData(typeof(ThingCompData<>), new[] { compType });
@@ -240,12 +242,12 @@ namespace TD_Find_Lib
 				if (prop.PropertyType == typeof(float))
 					yield return NewData(typeof(FloatPropData<>), new[] { type }, prop.Name);
 
+
 			// enums
 			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField))
 				if (field.FieldType.IsEnum)
 					yield return NewData(typeof(EnumFieldData<>), new[] { field.FieldType }, type, field.Name);
 
-			
 			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
 				if (prop.PropertyType.IsEnum)
 					yield return NewData(typeof(EnumPropData<,>), new[] { type, prop.PropertyType }, prop.Name);
