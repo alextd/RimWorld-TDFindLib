@@ -1169,6 +1169,9 @@ namespace TD_Find_Lib
 
 		private void SetMember(FieldData newData)
 		{
+			keepAliveSuggestions = false;
+			focused = false;
+
 			FieldData addData = newData.Clone();
 
 			if (addData is FieldDataComparer addDataCompare)
@@ -1176,8 +1179,8 @@ namespace TD_Find_Lib
 				member = addDataCompare;
 				member.Make(this);
 
-				Focus();	//next frame
 				UI.UnfocusCurrentControl();
+				Focus();	//next frame
 
 				// Keep nextType in case you want to change the compared field
 				memberStr = "";
@@ -1238,7 +1241,7 @@ namespace TD_Find_Lib
 		private readonly string controlName;
 		private bool needMoveLineEnd;
 		private bool focused;
-		private bool mouseOverSuggestions;
+		private bool keepAliveSuggestions;
 		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
 			/*
@@ -1327,7 +1330,7 @@ namespace TD_Find_Lib
 				}
 
 				// Maintain keypresses when navigatin'
-				if (focused || mouseOverSuggestions)
+				if (focused || keepAliveSuggestions)
 				{
 					if (keyCode == KeyCode.DownArrow)
 					{
@@ -1396,7 +1399,7 @@ namespace TD_Find_Lib
 
 			// Draw field suggestions
 
-			if (focused || mouseOverSuggestions)
+			if (focused || keepAliveSuggestions)
 			{
 				if (Event.current.type == EventType.Layout)
 				{
@@ -1415,7 +1418,7 @@ namespace TD_Find_Lib
 				// Focused opens the window, mouseover sustains the window so button works.
 				if (Event.current.type == EventType.Layout)
 				{
-					mouseOverSuggestions = suggestionRect.ExpandedBy(16).Contains(Event.current.mousePosition);
+					keepAliveSuggestions = suggestionRect.ExpandedBy(16).Contains(Event.current.mousePosition);
 				}
 
 				suggestionRect.position += UI.GUIToScreenPoint(new(0, 0));
@@ -1480,7 +1483,6 @@ namespace TD_Find_Lib
 						if (clicked)
 						{
 							SetMember(d);
-							mouseOverSuggestions = false;
 							Focus();
 
 							//Need to do this manual since this is not a FloatMenuOptionsAndRefresh

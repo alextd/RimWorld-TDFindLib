@@ -50,9 +50,9 @@
 = clear memberStr when member set. Remake when member set null with member != null.
 
 = as pawn should set null if not pawn: Building as Building_Bed.ForPrisoners 
-slection suggestino should refresh list..?
+= slection suggestino should refresh list..?
 
-stop showing suggestion dropdown after def.ingestible.foodType
+= stop showing suggestion dropdown after def.ingestible.foodType
 
 global dict for Make() getters?
 Better details display for List aka generics maybe handle ThingComp too.
