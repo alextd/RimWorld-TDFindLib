@@ -49,7 +49,7 @@
 = Spliut TExtName/DetalsName/SelectionName
 = clear memberStr when member set. Remake when member set null with member != null.
 
-as pawn should set null if not pawn
+= as pawn should set null if not pawn: Building as Building_Bed.ForPrisoners 
 slection suggestino should refresh list..?
 
 stop showing suggestion dropdown after def.ingestible.foodType

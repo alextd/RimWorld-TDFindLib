@@ -401,7 +401,13 @@ namespace TD_Find_Lib
 		public override void MakeAccessor() { }
 
 		// fun fact I spend like 30 minutes writing this trying to convert obj to fieldType then realized it's returning as object anyway
-		public override object GetMember(object obj) => obj;
+		// Then later realized I need to check the type because Thing as Pawn is null when not pawn.
+		public override object GetMember(object obj)
+		{
+			if(fieldType.IsAssignableFrom(obj.GetType()))
+				return obj;
+			return null;
+		}
 	}
 
 
