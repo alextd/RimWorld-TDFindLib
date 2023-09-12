@@ -18,10 +18,6 @@ namespace TD_Find_Lib
 		public Type fieldType;
 		public string name; // field name / property name / sometimes method name
 
-		// For filters
-		private string fieldLower;
-		private string nameLower;
-
 		// For load/save. These are technicaly re-discoverable but this is easier.
 		private string typeName;
 		private string fieldTypeName;
@@ -37,14 +33,6 @@ namespace TD_Find_Lib
 			this.type = type;
 			this.fieldType = fieldType;
 			this.name = name;
-
-			MakeLower();
-		}
-
-		private void MakeLower()
-		{
-			fieldLower = fieldType.Name.ToLower();
-			nameLower = name.ToLower();
 		}
 
 		public virtual void ExposeData()
@@ -66,8 +54,6 @@ namespace TD_Find_Lib
 				// Maybe null if loaded 3rdparty types
 				type = ParseHelper.ParseType(typeName);
 				fieldType = ParseHelper.ParseType(fieldTypeName);
-
-				MakeLower();
 			}
 		}
 
@@ -80,7 +66,6 @@ namespace TD_Find_Lib
 			clone.name = name;
 			clone.typeName = typeName;
 			clone.fieldTypeName = fieldTypeName;
-			clone.MakeLower();
 
 			return clone;
 		}
@@ -91,24 +76,50 @@ namespace TD_Find_Lib
 
 
 
-		// full readable name, e.g. GetComp<CompPower>
-		// This string will be passed back into ParseTextField
-		// and then passed to ShouldShow, which should return true of course
-		public virtual string Dot => ".";
-		public virtual string TextName => name;
-		public virtual string Details => $"({fieldType.ToStringSimple()}) {type.ToStringSimple()}{Dot}{TextName}";
-		public override string ToString() => Details;
+		// The base name, usually just the field name ezpz
+		// override for exceptions e.g. "GetComp<CompPower>()" or "as CompPowerTradable"
+		public virtual string Name => name;
 
-		public virtual bool ShouldShow(List<string> filters)
+		// TextName, a hopefully code-accurate part of chain, e.g. building .GetComp<CompPower>() .pct ...
+		// overrides for " as CompPowerTradable" with added instead of dot.
+		public virtual string TextName => $".{Name}";
+
+		// SuggestionName as shown in the dropdown
+		public virtual string SuggestionName => Name;
+		// AutoFillName fills in the textfield when you back up 
+		public virtual string AutoFillName => SuggestionName;
+		// FilterName, what is searched to make suggestions, e.g. add "is not !="
+		public virtual string FilterName => SuggestionName;
+
+		// TooltipDetails for field/type, not so much the readable TextName: e.g. (CompPower) ThingWithComps.GetComp
+		public virtual string TooltipDetails => $"({fieldType.ToStringSimple()}) {type.ToStringSimple()}.{name}";
+
+		public override string ToString() => TooltipDetails;
+
+
+
+		protected List<string> filterMatches;
+		private void MakeFilterMatches()
 		{
-			foreach(string filter in filters)
+			if (filterMatches == null)
 			{
-				if (fieldLower.Contains(filter) || nameLower.Contains(filter))
-					continue;
-
-				return false;
+				filterMatches = new();
+				filterMatches.Add(fieldType.Name.ToLower());
+				filterMatches.AddRange(FilterName.ToLower().Split(' ', '<', '>', '(', ')'));
 			}
-			return true;
+		}
+		public bool ShouldShow(string filterInput)
+		{
+			foreach (var filterMatch in filterMatches)
+				if (filterMatch.Contains(filterInput))
+					return true;
+
+			return false;
+		}
+		public bool ShouldShow(List<string> filterInputs)
+		{
+			MakeFilterMatches();
+			return filterInputs.All(ShouldShow);
 		}
 
 		protected ThingQueryCustom parentQuery;
@@ -300,7 +311,8 @@ namespace TD_Find_Lib
 			: base(type, fieldType, name)
 		{ }
 
-		public override string TextName => base.TextName + ".Any: ";
+		public override string TextName =>
+			base.TextName + ".Any: ";
 
 		public abstract IEnumerable<object> GetMembers(object obj);
 	}
@@ -368,7 +380,8 @@ namespace TD_Find_Lib
 
 		
 		public override string TextName =>
-			$"GetComp<{fieldType.Name}>()";
+			$".GetComp<{fieldType.Name}>()";
+		public override string SuggestionName => $"GetComp<{fieldType.Name}>";
 	}
 
 
@@ -380,8 +393,9 @@ namespace TD_Find_Lib
 			: base(type, subType, "as subclass")
 		{ }
 
-		public override string Dot => " ";
 		public override string TextName =>
+			$" as {fieldType.Name}";
+		public override string SuggestionName =>
 			$"as {fieldType.Name}";
 
 		public override void MakeAccessor() { }
@@ -829,19 +843,12 @@ namespace TD_Find_Lib
 			: base(type, typeof(bool), "is null")
 		{ }
 
-		public override string Dot => "";
-		public override string TextName => "== null";
+		public override string TextName => " == null";
+		public override string FilterName => "== is null";
 
 		// Even though code below doesn't call this as it checks obj == null before passing to FieldDataComparer
 		public override bool AppliesTo(object obj) => obj == null;
 		public override void MakeAccessor() { }
-
-		public override bool ShouldShow(List<string> filters)
-		{
-			if (base.ShouldShow(filters)) return true;
-
-			return filters.Contains("==");
-		}
 	}
 
 	public class ObjIsNotNull : FieldDataComparer
@@ -851,18 +858,11 @@ namespace TD_Find_Lib
 			: base(type, typeof(bool), "is not null")
 		{ }
 
-		public override string Dot => "";
-		public override string TextName => "!= null";
+		public override string TextName => " != null";
+		public override string FilterName => "!= is not null";
 
 		public override bool AppliesTo(object obj) => obj != null;
 		public override void MakeAccessor() { }
-
-		public override bool ShouldShow(List<string> filters)
-		{
-			if (base.ShouldShow(filters)) return true;
-
-			return filters.Contains("!=");
-		}
 	}
 
 
@@ -1011,9 +1011,7 @@ namespace TD_Find_Lib
 		{
 		}
 
-
-		public override string Dot => " ";
-		public override string TextName => compareTo == null ? base.TextName : $"== {compareTo.defName}";
+		public override string TextName => $"== {compareTo.defName}";
 
 		public override bool AppliesTo(object obj) => obj == compareTo;
 
@@ -1176,7 +1174,7 @@ namespace TD_Find_Lib
 				UI.UnfocusCurrentControl();
 
 				// Keep nextType in case you want to change the compared field
-				memberStr = addDataCompare.TextName;
+				memberStr = "";
 				ParseTextField();
 			}
 			else if(addData is FieldDataMember addDataMember)
@@ -1265,12 +1263,9 @@ namespace TD_Find_Lib
 			// Draw (append) The memberchain
 			foreach (var memberLink in memberChain)
 			{
-				row.Label(".");
-				row.Gap(-2);
-				row.LabelWithTags(memberLink.TextName, tooltip: memberLink.Details);
+				row.LabelWithTags(memberLink.TextName, tooltip: memberLink.TooltipDetails);
 				row.Gap(-2);
 			}
-			row.Label(member?.Dot ?? ".");
 
 
 			// handle special input before the textfield grabs it
@@ -1317,7 +1312,7 @@ namespace TD_Find_Lib
 							var lastMember = memberChain.Pop();
 
 							needMoveLineEnd = true;
-							memberStr = lastMember.TextName;
+							memberStr = lastMember.AutoFillName;
 							nextType = memberChain.LastOrDefault()?.fieldType ?? matchType;
 
 							Event.current.Use();
@@ -1359,7 +1354,7 @@ namespace TD_Find_Lib
 			{
 				// member as string
 				row.Gap(-2);//account for label gap
-				Rect memberRect = row.LabelWithTags(member.TextName, tooltip: member.Details);
+				Rect memberRect = row.LabelWithTags(member.TextName, tooltip: member.TooltipDetails);
 				if (Widgets.ButtonInvisible(memberRect))
 				{
 					member = null;
@@ -1378,6 +1373,9 @@ namespace TD_Find_Lib
 				else
 				{
 					// as Text fiiiiield!
+
+					row.Label(".");
+
 					Rect inputRect = rect;
 					inputRect.xMin = row.FinalX;
 
@@ -1450,7 +1448,7 @@ namespace TD_Find_Lib
 					foreach (var d in suggestions)
 					{
 						// Suggestion row: click to use
-						Widgets.Label(rect, d.TextName);
+						Widgets.Label(rect, d.SuggestionName);
 						Widgets.DrawHighlightIfMouseover(rect);
 
 						bool clicked = Widgets.ButtonInvisible(rect);
@@ -1460,7 +1458,7 @@ namespace TD_Find_Lib
 						{
 							Widgets.DrawHighlight(rect);  // field row
 							rect.y += suggestionRowHeight;
-							Widgets.Label(rect, $": <color=grey>{selectedOption.Details}</color>");
+							Widgets.Label(rect, $": <color=grey>{selectedOption.TooltipDetails}</color>");
 							Widgets.DrawHighlight(rect);  // details row
 							clicked |= Widgets.ButtonInvisible(rect);
 						}
@@ -1469,7 +1467,7 @@ namespace TD_Find_Lib
 							if(Mouse.IsOver(rect))
 							{
 								// Eh, <> not handled well 
-								TooltipHandler.TipRegion(rect, d.Details);
+								TooltipHandler.TipRegion(rect, d.TooltipDetails);
 							}
 						}
 
