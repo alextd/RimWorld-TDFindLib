@@ -104,7 +104,7 @@ namespace TD_Find_Lib
 			if (filterMatches == null)
 			{
 				filterMatches = new();
-				filterMatches.Add(fieldType.Name.ToLower());
+				filterMatches.Add(fieldType.ToStringSimple().ToLower());
 				filterMatches.AddRange(FilterName.ToLower().Split(' ', '<', '>', '(', ')'));
 			}
 		}
