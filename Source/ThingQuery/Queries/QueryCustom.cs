@@ -545,22 +545,35 @@ namespace TD_Find_Lib
 	public abstract class IntData : FieldDataComparer
 	{
 		private IntRange valueRange = new(10,15);
+
+		public IntData()
+		{
+			FillBuffers();
+		}
+		public IntData(Type type, string name)
+			: base(type, typeof(int), name)
+		{
+			FillBuffers();
+		}
 		public override void ExposeData()
 		{
 			base.ExposeData();
 			Scribe_Values.Look(ref valueRange, "range");
+			if (Scribe.mode == LoadSaveMode.LoadingVars)
+				FillBuffers();
 		}
 		public override FieldData Clone()
 		{
 			IntData clone = (IntData)base.Clone();
 			clone.valueRange = valueRange;
+			clone.FillBuffers();
 			return clone;
 		}
-
-		public IntData() { }
-		public IntData(Type type, string name)
-			: base(type, typeof(int), name)
-		{ }
+		private void FillBuffers()
+		{
+			lBuffer = valueRange.min.ToString();
+			rBuffer = valueRange.max.ToString();
+		}
 
 		public abstract int GetIntValue(object obj);
 		public override bool AppliesTo(object obj) => valueRange.Includes(GetIntValue(obj));
@@ -667,22 +680,35 @@ namespace TD_Find_Lib
 	public abstract class FloatData : FieldDataComparer
 	{
 		private FloatRange valueRange = new(10, 15);
+
+		public FloatData()
+		{
+			FillBuffers();
+		}
+		public FloatData(Type type, string name)
+			: base(type, typeof(float), name)
+		{
+			FillBuffers();
+		}
 		public override void ExposeData()
 		{
 			base.ExposeData();
 			Scribe_Values.Look(ref valueRange, "range");
+			if (Scribe.mode == LoadSaveMode.LoadingVars)
+				FillBuffers();
 		}
 		public override FieldData Clone()
 		{
 			FloatData clone = (FloatData)base.Clone();
 			clone.valueRange = valueRange;
+			clone.FillBuffers();
 			return clone;
 		}
-
-		public FloatData() { }
-		public FloatData(Type type, string name)
-			: base(type, typeof(float), name)
-		{ }
+		private void FillBuffers()
+		{
+			lBuffer = valueRange.min.ToString();
+			rBuffer = valueRange.max.ToString();
+		}
 
 		public abstract float GetFloatValue(object obj);
 		public override bool AppliesTo(object obj) => valueRange.Includes(GetFloatValue(obj));
