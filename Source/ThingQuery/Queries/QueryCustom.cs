@@ -241,7 +241,7 @@ namespace TD_Find_Lib
 				if (ValidClassType(prop.PropertyType) && EnumerableType(prop.PropertyType) == null)
 						yield return NewData(typeof(ClassPropData<>), new[] { type }, prop.PropertyType, prop.Name);
 
-			// enumerbale class members
+			// enumerable class members
 			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField))
 				if (ValidClassType(field.FieldType) && EnumerableType(field.FieldType) is Type enumType)
 						yield return new EnumerableFieldData(type, enumType, field.Name);
@@ -330,7 +330,14 @@ namespace TD_Find_Lib
 		{ }
 
 		public override string TextName =>
-			base.TextName + ".Any: ";
+			base.TextName + ".Any x => x";
+		public override string SuggestionName =>
+			base.SuggestionName + " (Any)";
+		public override string AutoFillName =>
+			Name;
+		public override string TooltipDetails =>
+			$"(IEnumerable<{fieldType.ToStringSimple()}>) {type.ToStringSimple()}.{name}";
+
 
 		public abstract IEnumerable<object> GetMembers(object obj);
 	}

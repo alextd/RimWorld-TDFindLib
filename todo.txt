@@ -60,10 +60,10 @@
 
 = pasted floatdata not showing # when locked?
 
-name enumerable:
-SuggestionName => All Comps (Any)
-TextName => "Any x => x"
-Better details display for List aka generics maybe handle ThingComp too.
+=name enumerable:
+=SuggestionName => "AllComps (Any)"
+=TextName => "Any x => x"
+= Better details display for List aka generics maybe handle ThingComp too.
 
 ==HARDCORE CUSTOM QUERY
 FieldDataComparerThingQuery => ThingQuery on that thing. 
