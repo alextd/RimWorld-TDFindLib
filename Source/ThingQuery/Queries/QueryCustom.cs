@@ -122,15 +122,33 @@ namespace TD_Find_Lib
 			return filterInputs.All(ShouldShow);
 		}
 
+
 		protected ThingQueryCustom parentQuery;
-		public void Make(ThingQueryCustom p)
+
+		public class Comparer : IEqualityComparer<FieldData>
+		{
+			public bool Equals(FieldData x, FieldData y) =>
+				x.type == y.type && x.fieldType == y.fieldType && x.name == y.name;
+
+			public int GetHashCode(FieldData data) =>
+				data.type.GetHashCode() ^ data.fieldType.GetHashCode() ^ data.name.GetHashCode();
+		}
+
+		private Dictionary<FieldData, object> accessors = new(new Comparer());
+		public virtual void Make(ThingQueryCustom p)
 		{
 			parentQuery = p;
-			MakeAccessor();
+			if(!accessors.TryGetValue(this, out object accessor))
+			{
+				accessor = MakeAccessor();
+				accessors[this] = accessor;
+			}
+			SetAccessor(accessor);
 		}
-		// MakeAccessor should use ??= to create / store an accessor
-		// TODO store it globally by type instead of one for each FieldData object
-		public abstract void MakeAccessor();
+
+		// child classes make once for a field, and set for each fieldData instance.
+		public virtual object MakeAccessor() => 0;
+		public virtual void SetAccessor(object obj) { }
 
 		// Static listers for ease of use
 		// Here we hold all fields known
@@ -336,10 +354,12 @@ namespace TD_Find_Lib
 		{ }
 
 		private AccessTools.FieldRef<object, object> getter;
-		public override void MakeAccessor()
-		{
-			getter ??= AccessTools.FieldRefAccess<object, object>(AccessTools.DeclaredField(type, name));
-		}
+
+		public override object MakeAccessor() =>
+			AccessTools.FieldRefAccess<object, object>(AccessTools.DeclaredField(type, name));
+
+		public override void SetAccessor(object obj) =>
+			getter = (AccessTools.FieldRef<object, object>)obj;
 
 		public override object GetMember(object obj) => getter(obj);
 	}
@@ -354,10 +374,11 @@ namespace TD_Find_Lib
 		// Generics are required for this delegate to exist so that it's actually fast.
 		delegate object ClassGetter(T t);
 		private ClassGetter getter;
-		public override void MakeAccessor()
-		{
-			getter ??= AccessTools.MethodDelegate<ClassGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
-		}
+		public override object MakeAccessor() =>
+			AccessTools.MethodDelegate<ClassGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
+
+		public override void SetAccessor(object obj) =>
+			getter = (ClassGetter)obj;
 
 		public override object GetMember(object obj) => getter((T)obj);
 	}
@@ -372,10 +393,13 @@ namespace TD_Find_Lib
 
 		delegate T ThingCompGetter(ThingWithComps t);
 		private ThingCompGetter getter;
-		public override void MakeAccessor()
-		{
-			getter ??= AccessTools.MethodDelegate<ThingCompGetter>(AccessTools.DeclaredMethod(type, name).MakeGenericMethod(fieldType));
-		}
+
+		public override object MakeAccessor() =>
+			AccessTools.MethodDelegate<ThingCompGetter>(AccessTools.DeclaredMethod(type, name).MakeGenericMethod(fieldType));
+
+		public override void SetAccessor(object obj) =>
+			getter = (ThingCompGetter)obj;
+
 		public override object GetMember(object obj) => getter(obj as ThingWithComps);
 
 		
@@ -397,8 +421,6 @@ namespace TD_Find_Lib
 			$" as {fieldType.Name}";
 		public override string SuggestionName =>
 			$"as {fieldType.Name}";
-
-		public override void MakeAccessor() { }
 
 		// fun fact I spend like 30 minutes writing this trying to convert obj to fieldType then realized it's returning as object anyway
 		// Then later realized I needed to check the type because Thing as Pawn is null when not pawn.
@@ -422,10 +444,13 @@ namespace TD_Find_Lib
 		{ }
 
 		private AccessTools.FieldRef<object, IEnumerable<object>> getter;
-		public override void MakeAccessor()
-		{
-			getter ??= AccessTools.FieldRefAccess<object, IEnumerable<object>>(AccessTools.DeclaredField(type, name));
-		}
+
+		public override object MakeAccessor() =>
+			AccessTools.FieldRefAccess<object, IEnumerable<object>>(AccessTools.DeclaredField(type, name));
+
+		public override void SetAccessor(object obj) =>
+			getter = (AccessTools.FieldRef<object, IEnumerable<object>>)obj;
+
 
 		public override IEnumerable<object> GetMembers(object obj) => getter(obj);
 	}
@@ -440,10 +465,13 @@ namespace TD_Find_Lib
 		// Generics are required for this delegate to exist so that it's actually fast.
 		delegate IEnumerable<object> ClassGetter(T t);
 		private ClassGetter getter;
-		public override void MakeAccessor()
-		{
-			getter ??= AccessTools.MethodDelegate<ClassGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
-		}
+
+		public override object MakeAccessor() =>
+			AccessTools.MethodDelegate<ClassGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
+
+		public override void SetAccessor(object obj) =>
+			getter = (ClassGetter)obj;
+
 
 		public override IEnumerable<object> GetMembers(object obj) => getter((T)obj);
 	}
@@ -481,10 +509,13 @@ namespace TD_Find_Lib
 		{		}
 
 		private AccessTools.FieldRef<object, bool> getter;
-		public override void MakeAccessor()
-		{
-			getter ??= AccessTools.FieldRefAccess<object, bool>(AccessTools.DeclaredField(type, name));
-		}
+
+		public override object MakeAccessor() =>
+			AccessTools.FieldRefAccess<object, bool>(AccessTools.DeclaredField(type, name));
+
+		public override void SetAccessor(object obj) =>
+			getter = (AccessTools.FieldRef<object, bool>)obj;
+
 
 		public override bool GetBoolValue(object obj) => getter(obj);
 	}
@@ -499,10 +530,13 @@ namespace TD_Find_Lib
 		// Generics are required for this delegate to exist so that it's actually fast.
 		delegate bool BoolGetter(T t);
 		private BoolGetter getter;
-		public override void MakeAccessor()
-		{
-			getter ??= AccessTools.MethodDelegate<BoolGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
-		}
+
+		public override object MakeAccessor() =>
+			AccessTools.MethodDelegate<BoolGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
+
+		public override void SetAccessor(object obj) =>
+			getter = (BoolGetter)obj;
+
 
 		public override bool GetBoolValue(object obj) => getter((T)obj);// please only pass in T
 	}
@@ -596,10 +630,13 @@ namespace TD_Find_Lib
 		{ }
 
 		private AccessTools.FieldRef<object, int> getter;
-		public override void MakeAccessor()
-		{
-			getter ??= AccessTools.FieldRefAccess<object, int>(AccessTools.DeclaredField(type, name));
-		}
+
+		public override object MakeAccessor() =>
+			AccessTools.FieldRefAccess<object, int>(AccessTools.DeclaredField(type, name));
+
+		public override void SetAccessor(object obj) =>
+			getter = (AccessTools.FieldRef<object, int>)obj;
+
 
 		public override int GetIntValue(object obj) => getter(obj);
 	}
@@ -614,10 +651,13 @@ namespace TD_Find_Lib
 		// Generics are required for this delegate to exist so that it's actually fast.
 		delegate int IntGetter(T t);
 		private IntGetter getter;
-		public override void MakeAccessor()
-		{
-			getter ??= AccessTools.MethodDelegate<IntGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
-		}
+
+		public override object MakeAccessor() =>
+			AccessTools.MethodDelegate<IntGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
+
+	public override void SetAccessor(object obj) =>
+			getter = (IntGetter)obj;
+
 
 		public override int GetIntValue(object obj) => getter((T)obj);// please only pass in T
 	}
@@ -713,10 +753,13 @@ namespace TD_Find_Lib
 
 		// generics not needed for FieldRef as it can handle a float fine huh?
 		private AccessTools.FieldRef<object, float> getter;
-		public override void MakeAccessor()
-		{
-			getter ??= AccessTools.FieldRefAccess<object, float>(AccessTools.DeclaredField(type, name));
-		}
+
+		public override object MakeAccessor() =>
+			AccessTools.FieldRefAccess<object, float>(AccessTools.DeclaredField(type, name));
+
+		public override void SetAccessor(object obj) =>
+				getter = (AccessTools.FieldRef<object, float>)obj;
+
 
 		public override float GetFloatValue(object obj) => getter(obj);
 	}
@@ -731,10 +774,13 @@ namespace TD_Find_Lib
 		// Generics are required for this delegate to exist so that it's actually fast.
 		delegate float FloatGetter(T t);
 		private FloatGetter getter;
-		public override void MakeAccessor()
-		{
-			getter ??= AccessTools.MethodDelegate<FloatGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
-		}
+
+		public override object MakeAccessor() =>
+			AccessTools.MethodDelegate<FloatGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
+
+		public override void SetAccessor(object obj) =>
+				getter = (FloatGetter)obj;
+
 
 		public override float GetFloatValue(object obj) => getter((T)obj);// please only pass in T
 	}
@@ -815,10 +861,13 @@ namespace TD_Find_Lib
 		{ }
 
 		private AccessTools.FieldRef<object, TEnum> getter;
-		public override void MakeAccessor()
-		{
-			getter ??= AccessTools.FieldRefAccess<object, TEnum>(AccessTools.DeclaredField(type, name));
-		}
+
+		public override object MakeAccessor() =>
+			AccessTools.FieldRefAccess<object, TEnum>(AccessTools.DeclaredField(type, name));
+
+		public override void SetAccessor(object obj) =>
+				getter = (AccessTools.FieldRef<object, TEnum>)obj;
+
 
 		public override TEnum GetEnumValue(object obj) => getter(obj);
 	}
@@ -833,10 +882,13 @@ namespace TD_Find_Lib
 		// Generics are required for this delegate to exist so that it's actually fast.
 		delegate TEnum EnumGetter(T t);
 		private EnumGetter getter;
-		public override void MakeAccessor()
-		{
-			getter ??= AccessTools.MethodDelegate<EnumGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
-		}
+
+		public override object MakeAccessor() =>
+			AccessTools.MethodDelegate<EnumGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
+
+		public override void SetAccessor(object obj) =>
+				getter = (EnumGetter)obj;
+
 
 		public override TEnum GetEnumValue(object obj) => getter((T)obj);// please only pass in T
 	}
@@ -854,7 +906,6 @@ namespace TD_Find_Lib
 
 		// Even though code below doesn't call this as it checks obj == null before passing to FieldDataComparer
 		public override bool AppliesTo(object obj) => obj == null;
-		public override void MakeAccessor() { }
 	}
 
 	public class ObjIsNotNull : FieldDataComparer
@@ -868,7 +919,6 @@ namespace TD_Find_Lib
 		public override string FilterName => "!= is not null";
 
 		public override bool AppliesTo(object obj) => obj != null;
-		public override void MakeAccessor() { }
 	}
 
 
@@ -903,9 +953,10 @@ namespace TD_Find_Lib
 		}
 
 		private string controlName;
-		public override void MakeAccessor()
+		public override void Make(ThingQueryCustom p)
 		{
-			controlName = $"STRING_DATA{parentQuery.Id}";
+			base.Make(p);
+			controlName = $"STRING_DATA{p.Id}";
 		}
 		public override bool Draw(Listing_StandardIndent listing, bool locked)
 		{
@@ -967,11 +1018,12 @@ namespace TD_Find_Lib
 		{ }
 
 		private AccessTools.FieldRef<object, string> getter;
-		public override void MakeAccessor()
-		{
-			base.MakeAccessor();
-			getter ??= AccessTools.FieldRefAccess<object, string>(AccessTools.DeclaredField(type, name));
-		}
+
+		public override object MakeAccessor() =>
+			AccessTools.FieldRefAccess<object, string>(AccessTools.DeclaredField(type, name));
+
+		public override void SetAccessor(object obj) =>
+				getter = (AccessTools.FieldRef<object, string>)obj;
 
 		public override string GetStringValue(object obj) => getter(obj);
 	}
@@ -986,11 +1038,13 @@ namespace TD_Find_Lib
 		// Generics are required for this delegate to exist so that it's actually fast.
 		delegate string StringGetter(T t);
 		private StringGetter getter;
-		public override void MakeAccessor()
-		{
-			base.MakeAccessor();
-			getter ??= AccessTools.MethodDelegate<StringGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
-		}
+
+		public override object MakeAccessor() =>
+			AccessTools.MethodDelegate<StringGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
+
+		public override void SetAccessor(object obj) =>
+				getter = (StringGetter)obj;
+
 
 		public override string GetStringValue(object obj) => getter((T)obj);// please only pass in T
 	}
@@ -1021,9 +1075,12 @@ namespace TD_Find_Lib
 
 		public override bool AppliesTo(object obj) => obj == compareTo;
 
-		public override void MakeAccessor()
+		public override void Make(ThingQueryCustom p)
 		{
-			compareTo = DefDatabase<TDef>.AllDefsListForReading.First();
+			base.Make(p);
+
+			// Assign a default it doesn't exist (e.g. after constructor but not Clone)
+			compareTo ??= DefDatabase<TDef>.AllDefsListForReading.First();
 		}
 
 		public override bool Draw(Listing_StandardIndent listing, bool locked)

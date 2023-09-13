@@ -54,14 +54,16 @@
 
 = stop showing suggestion dropdown after def.ingestible.foodType
 
-global dict for Make() getters?
+= global dict for Make() getters
 Better details display for List aka generics maybe handle ThingComp too.
 
 =blacklist classes: Map, System. classes : Type/Action/MethodInfo
 
-pasted floatdata not showing # locked?
+pasted floatdata not showing # when locked?
 
-
+name enumerable:
+SuggestionName => All Comps (Any)
+TextName => "Any x => x"
 
 ==HARDCORE CUSTOM QUERY
 FieldDataComparerThingQuery => ThingQuery on that thing. 
