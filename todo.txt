@@ -56,18 +56,22 @@
 
 = global dict for Make() getters
 
-=blacklist classes: Map, System. classes : Type/Action/MethodInfo
+= blacklist classes: Map, System. classes : Type/Action/MethodInfo
 
 = pasted floatdata not showing # when locked?
 
-=name enumerable:
-=SuggestionName => "AllComps (Any)"
-=TextName => "Any x => x"
+= name enumerable:
+= :SuggestionName => "AllComps (Any)"
+= :TextName => "Any x => x"
+
 = Better details display for List aka generics maybe handle ThingComp too.
 
+paste full memberchain into textfield
+
 ==HARDCORE CUSTOM QUERY
-FieldDataComparerThingQuery => ThingQuery on that thing. 
+FieldDataComparerThingQuery => ThingQuery on a thing. 
 Even more, generic Query<T> valid for Query<ThingDef> / pawns / buildings => FieldDataComparer for that Query
+: convert ALL THINGQUERIES to use this. e.g. ThingQueryHealth  would use Query<Hediff> for Hediffs, ThingQueryFaction for Factions... ah gee that's a lot.
 
 
 === Fixes 
