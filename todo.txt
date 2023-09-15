@@ -66,7 +66,24 @@
 
 = Better details display for List aka generics maybe handle ThingComp too.
 
+= extension method handler
+
 paste full memberchain into textfield
+
+warn to use them / double warn for extensions.
+blacklist ChangeType extension method
+
+is exact def uses ThingQueryThingDef dropdown
+make filterMatches a string not a list ..?
+
+test making HAR/CE queries and loading without them.
+
+== demo
+battery energy pct
+battery capacity
+fuelable amount
+CE loadout any slot is specific weapon
+HAR: pawn.def as ThingDef_AlienRace.alienRace @ https://github.com/erdelf/AlienRaces/blob/master/Source/AlienRace/AlienRace/ThingDef_AlienRace.cs#L165
 
 ==HARDCORE CUSTOM QUERY
 FieldDataComparerThingQuery => ThingQuery on a thing. 

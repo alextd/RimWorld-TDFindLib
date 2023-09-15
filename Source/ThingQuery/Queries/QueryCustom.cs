@@ -33,6 +33,8 @@ namespace TD_Find_Lib
 			this.type = type;
 			this.fieldType = fieldType;
 			this.name = name;
+
+			SetColored();
 		}
 
 		public virtual void ExposeData()
@@ -54,6 +56,8 @@ namespace TD_Find_Lib
 				// Maybe null if loaded 3rdparty types
 				type = ParseHelper.ParseType(typeName);
 				fieldType = ParseHelper.ParseType(fieldTypeName);
+
+				SetColored();
 			}
 		}
 
@@ -66,6 +70,7 @@ namespace TD_Find_Lib
 			clone.name = name;
 			clone.typeName = typeName;
 			clone.fieldTypeName = fieldTypeName;
+			clone.color = color;
 
 			return clone;
 		}
@@ -91,10 +96,80 @@ namespace TD_Find_Lib
 		// FilterName, what is searched to make suggestions, e.g. add "is not !="
 		public virtual string FilterName => SuggestionName;
 
-		// TooltipDetails for field/type, not so much the readable TextName: e.g. (CompPower) ThingWithComps.GetComp
-		public virtual string TooltipDetails => $"({fieldType.ToStringSimple()}) {type.ToStringSimple()}.{name}";
 
-		public override string ToString() => TooltipDetails;
+		// color non-core classes
+		private Color color;
+		private void SetColored()
+		{
+			if(fieldType == null)
+				color = Color.red;
+			else if(ModNameFor(fieldType) != null)
+				color = Color.yellow;
+		}
+		public string TextNameColored =>
+			color != default ? TextName.Colorize(color) : TextName;
+		public string SuggestionNameColored =>
+			color != default ? SuggestionName.Colorize(color) : SuggestionName;
+
+
+		// TooltipDetails for field/type, not so much the readable TextName: e.g. (CompPower) ThingWithComps.GetComp
+		public static Assembly coreAssembly = typeof(Thing).Assembly;
+		private static string ModNameFor(Type assType)
+		{
+			Assembly ass = assType.Assembly;
+			if (ass != coreAssembly)
+			{
+				return LoadedModManager.RunningModsListForReading
+					.FirstOrDefault(p => p.assemblies.loadedAssemblies.Contains(ass))
+					?.Name; //null means it's a System dll
+			}
+			return null;
+		}
+		public virtual string TooltipDetails
+		{
+			get
+			{
+				StringBuilder sb = new();
+
+				// (Field Type)
+				sb.Append("(");
+				if (fieldType != null)
+				{
+					if(ModNameFor(fieldType) is string assName)
+					{
+						sb.Append(assName.Colorize(color));
+						sb.Append("::");
+					}
+					sb.Append(fieldType.ToStringSimple());
+				}
+				else
+				{
+					sb.Append(fieldTypeName);
+				}
+				sb.Append(") ");
+
+				// Class type
+				if (type != null)
+				{
+					if (ModNameFor(type) is string assName)
+					{
+						sb.Append(assName);
+						sb.Append("::");
+					}
+					sb.Append(type.ToStringSimple());
+				}
+				else
+				{
+					sb.Append(typeName);
+				}
+
+				// field name
+				sb.Append(".");
+				sb.Append(name);
+
+				return sb.ToString();
+			}
+		}
 
 
 
@@ -105,6 +180,8 @@ namespace TD_Find_Lib
 			{
 				filterMatches = new();
 				filterMatches.Add(fieldType.ToStringSimple().ToLower());
+				if(ModNameFor(fieldType) is string modName)
+					filterMatches.Add(modName.ToLower());
 				filterMatches.AddRange(FilterName.ToLower().Split(' ', '<', '>', '(', ')'));
 			}
 		}
@@ -241,6 +318,12 @@ namespace TD_Find_Lib
 				if (ValidClassType(prop.PropertyType) && EnumerableType(prop.PropertyType) == null)
 						yield return NewData(typeof(ClassPropData<>), new[] { type }, prop.PropertyType, prop.Name);
 
+			// extension methods that return classes
+			foreach (MethodInfo meth in GetExtensionMethods(type))
+				if (ValidClassType(meth.ReturnType) && EnumerableType(meth.ReturnType) == null)
+						yield return NewData(typeof(ClassExtensionData<>), new[] { type }, meth.ReturnType, meth.Name, meth.DeclaringType);
+
+
 			// enumerable class members
 			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField))
 				if (ValidClassType(field.FieldType) && EnumerableType(field.FieldType) is Type enumType)
@@ -249,6 +332,11 @@ namespace TD_Find_Lib
 			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
 				if (ValidClassType(prop.PropertyType) && EnumerableType(prop.PropertyType) is Type enumType)
 						yield return NewData(typeof(EnumerablePropData<>), new[] { type }, enumType, prop.Name);
+
+			
+			foreach (MethodInfo meth in GetExtensionMethods(type))
+				if (ValidClassType(meth.ReturnType) && EnumerableType(meth.ReturnType) is Type enumType)
+					yield return NewData(typeof(EnumerableExtensionData<>), new[] { type }, enumType, meth.Name, meth.DeclaringType);
 
 			// ThingComp, Hard coded for ThingWithComps
 			if (type == typeof(ThingWithComps))
@@ -304,6 +392,17 @@ namespace TD_Find_Lib
 			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
 				if (prop.PropertyType.IsEnum)
 					yield return NewData(typeof(EnumPropData<,>), new[] { type, prop.PropertyType }, prop.Name);
+		}
+
+
+		static IEnumerable<MethodInfo> GetExtensionMethods(Type extendedType)
+		{
+			return from type in GenTypes.AllTypesWithAttribute<System.Runtime.CompilerServices.ExtensionAttribute>()
+									where type.IsSealed && !type.IsGenericType && !type.IsNested
+									from method in type.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+									where method.IsDefined(typeof(System.Runtime.CompilerServices.ExtensionAttribute), false)
+									where method.GetParameters().Count() == 1 && method.GetParameters()[0].ParameterType == extendedType
+									select method;
 		}
 	}
 
@@ -383,6 +482,45 @@ namespace TD_Find_Lib
 		private ClassGetter getter;
 		public override object MakeAccessor() =>
 			AccessTools.MethodDelegate<ClassGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
+
+		public override void SetAccessor(object obj) =>
+			getter = (ClassGetter)obj;
+
+		public override object GetMember(object obj) => getter((T)obj);
+	}
+
+
+
+	// Extension methods that'll hopefully handle many mod support. 
+	// TODO: any extension method that returns bool/int? Meh...
+	public class ClassExtensionData<T> : FieldDataClassMember
+	{
+		private Type extensionClass;
+		public ClassExtensionData() { }
+		public ClassExtensionData(Type fieldType, string name, Type extensionClass)
+			: base(typeof(T), fieldType, name)
+		{
+			this.extensionClass = extensionClass;
+		}
+		public override void ExposeData()
+		{
+			base.ExposeData();
+			Scribe_Values.Look(ref extensionClass, "extensionClass");
+		}
+		public override FieldData Clone()
+		{
+			ClassExtensionData<T> clone = (ClassExtensionData<T>)base.Clone();
+			clone.extensionClass = extensionClass;
+			return clone;
+		}
+
+		public override string TooltipDetails => "(extension) " + base.TooltipDetails + "()";
+
+		// Generics are required for this delegate to exist so that it's actually fast.
+		delegate object ClassGetter(T t);
+		private ClassGetter getter;
+		public override object MakeAccessor() =>
+			AccessTools.MethodDelegate<ClassGetter>(AccessTools.Method(extensionClass, name));
 
 		public override void SetAccessor(object obj) =>
 			getter = (ClassGetter)obj;
@@ -475,6 +613,41 @@ namespace TD_Find_Lib
 
 		public override object MakeAccessor() =>
 			AccessTools.MethodDelegate<ClassGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
+
+		public override void SetAccessor(object obj) =>
+			getter = (ClassGetter)obj;
+
+
+		public override IEnumerable<object> GetMembers(object obj) => getter((T)obj);
+	}
+
+	public class EnumerableExtensionData<T> : FieldDataEnumerableMember
+	{
+		private Type extensionClass;
+		public EnumerableExtensionData() { }
+		public EnumerableExtensionData(Type fieldType, string name, Type extensionClass)
+			: base(typeof(T), fieldType, name)
+		{
+			this.extensionClass = extensionClass;
+		}
+		public override void ExposeData()
+		{
+			base.ExposeData();
+			Scribe_Values.Look(ref extensionClass, "extensionClass");
+		}
+		public override FieldData Clone()
+		{
+			EnumerableExtensionData<T> clone = (EnumerableExtensionData<T>)base.Clone();
+			clone.extensionClass = extensionClass;
+			return clone;
+		}
+
+		// Generics are required for this delegate to exist so that it's actually fast.
+		delegate IEnumerable<object> ClassGetter(T t);
+		private ClassGetter getter;
+
+		public override object MakeAccessor() =>
+			AccessTools.MethodDelegate<ClassGetter>(AccessTools.Method(extensionClass, name));
 
 		public override void SetAccessor(object obj) =>
 			getter = (ClassGetter)obj;
@@ -1104,7 +1277,7 @@ namespace TD_Find_Lib
 		{
 		}
 
-		public override string TextName => $"== {compareTo.defName}";
+		public override string TextName => $" == {compareTo?.defName ?? "???"}";
 
 		public override bool AppliesTo(object obj) => obj == compareTo;
 
@@ -1113,7 +1286,7 @@ namespace TD_Find_Lib
 			base.Make(p);
 
 			// Assign a default it doesn't exist (e.g. after constructor but not Clone)
-			compareTo ??= DefDatabase<TDef>.AllDefsListForReading.First();
+			compareTo ??= DefDatabase<TDef>.AllDefsListForReading.FirstOrDefault();
 		}
 
 		public override bool Draw(Listing_StandardIndent listing, bool locked)
@@ -1362,7 +1535,7 @@ namespace TD_Find_Lib
 			// Draw (append) The memberchain
 			foreach (var memberLink in memberChain)
 			{
-				row.LabelWithTags(memberLink.TextName, tooltip: memberLink.TooltipDetails);
+				row.LabelWithTags(memberLink.TextNameColored, tooltip: memberLink.TooltipDetails);
 				row.Gap(-2);
 			}
 
@@ -1453,7 +1626,7 @@ namespace TD_Find_Lib
 			{
 				// member as string
 				row.Gap(-2);//account for label gap
-				Rect memberRect = row.LabelWithTags(member.TextName, tooltip: member.TooltipDetails);
+				Rect memberRect = row.LabelWithTags(member.TextNameColored, tooltip: member.TooltipDetails);
 				if (Widgets.ButtonInvisible(memberRect))
 				{
 					member = null;
@@ -1466,6 +1639,8 @@ namespace TD_Find_Lib
 				if (locked)
 				{
 					// as string
+					row.Gap(-2);//account for label gap
+					row.Label(".");
 					row.Gap(-2);//account for label gap
 					row.LabelWithTags(memberStr);
 				}
@@ -1547,7 +1722,7 @@ namespace TD_Find_Lib
 					foreach (var d in suggestions)
 					{
 						// Suggestion row: click to use
-						Widgets.Label(rect, d.SuggestionName);
+						Widgets.Label(rect, d.SuggestionNameColored);
 						Widgets.DrawHighlightIfMouseover(rect);
 
 						bool clicked = Widgets.ButtonInvisible(rect);
