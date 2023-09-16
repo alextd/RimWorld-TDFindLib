@@ -178,5 +178,13 @@
 	<TD.Injury>Injury</TD.Injury>
 	<TD.High>High</TD.High>
 	<TD.Sickness>Sickness</TD.Sickness>
+
+	<TD.WarnCustom>Custom Query is advanced, requiring knowledge of game code. It lets the search access any C# field or property to compare its value.
+
+I'm not providing a guide on how to use it because holy cow, is it too big to explain. You should know what you're looking for instead of just browsing the endless possibilities. In short: a lot of the options are simply not useful. It's a thorough list, not filtered for ease of use.</TD.WarnCustom>
+
+	<TD.WarnExtension>Look, Custom Query is advanced enough, but this is an extension method.
+
+You should only use this if you know what the code does. Usually, Custom Query only lets you access fields and properties - code that doesn't change anything. Extension methods might modify things. You don't want a search to modify things. So you should know what method you're using, and that it only accesses data.</TD.WarnExtension>
 	
 </LanguageData>

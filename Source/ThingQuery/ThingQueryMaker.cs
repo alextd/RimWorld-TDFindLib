@@ -27,6 +27,15 @@ namespace TD_Find_Lib
 
 		public static ThingQuery MakeQuery(ThingQueryDef def)
 		{
+			if (def.queryClass == typeof(ThingQueryCustom) && !Mod.settings.warnedCustom)
+			{
+				Mod.settings.warnedCustom = true;
+				Mod.settings.Write();
+
+				Find.WindowStack.Add(new Dialog_MessageBox("TD.WarnCustom".Translate()));
+			}
+
+
 			ThingQuery query = (ThingQuery)Activator.CreateInstance(def.queryClass);
 			query.def = def;
 			return query;
@@ -171,7 +180,8 @@ namespace TD_Find_Lib
 			foreach (var queryDef in DefDatabase<ThingQueryDef>.AllDefsListForReading)
 				queryDefForType[queryDef.queryClass] = queryDef;
 
-			// Make dummy defs for All ThingQueryCategorizedDropdownHelper so they trigger warning below
+			// Make dummy defs for All ThingQueryCategorizedDropdownHelper
+			// so they don't trigger warning below, but aren't included as selectable
 			var modContentPack = LoadedModManager.GetMod<Mod>().Content;
 			
 			// GenTypes.AllSubclassesNonAbstract doesnt check generics properly so:

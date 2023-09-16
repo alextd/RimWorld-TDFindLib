@@ -70,13 +70,20 @@
 
 = paste full memberchain into textfield, def.building.isEdifice
 
-warn to use them / double warn for extensions.
-blacklist ChangeType extension method
+= warn to use them / double warn for extensions.
 
 is exact def uses ThingQueryThingDef dropdown
 make filterMatches a string not a list ..?
 
+blacklist ChangeType extension method
+color extensions.
+extension methods ()
+
+news xml
+
 test making HAR/CE queries and loading without them.
+
+translatable.
 
 == demo
 battery energy pct

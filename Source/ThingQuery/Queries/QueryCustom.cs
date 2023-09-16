@@ -519,8 +519,19 @@ namespace TD_Find_Lib
 		// Generics are required for this delegate to exist so that it's actually fast.
 		delegate object ClassGetter(T t);
 		private ClassGetter getter;
-		public override object MakeAccessor() =>
-			AccessTools.MethodDelegate<ClassGetter>(AccessTools.Method(extensionClass, name));
+		public override object MakeAccessor()
+		{
+			if (!Mod.settings.warnedExtension)
+			{
+				Mod.settings.warnedExtension = true;
+				Mod.settings.Write();
+
+				Find.WindowStack.Add(new Dialog_MessageBox("TD.WarnExtension".Translate()));
+			}
+
+			return AccessTools.MethodDelegate<ClassGetter>(AccessTools.Method(extensionClass, name));
+		}
+			
 
 		public override void SetAccessor(object obj) =>
 			getter = (ClassGetter)obj;
