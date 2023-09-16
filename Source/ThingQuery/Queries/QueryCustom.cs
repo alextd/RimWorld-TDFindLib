@@ -118,6 +118,7 @@ namespace TD_Find_Lib
 
 
 		// TooltipDetails for field/type, not so much the readable TextName: e.g. (CompPower) ThingWithComps.GetComp
+		// Cannot put <> in a tooltip string because it strips those tags when calculating size. ugh.
 		public static Assembly coreAssembly = typeof(Thing).Assembly;
 		private static string ModNameFor(Type assType)
 		{
@@ -431,7 +432,7 @@ namespace TD_Find_Lib
 		public override string AutoFillName =>
 			Name;
 		public override string TooltipDetails =>
-			$"(IEnumerable<{fieldType.ToStringSimple()}>) {type.ToStringSimple()}.{name}";
+			$"(IEnumerable {fieldType.ToStringSimple()}) {type.ToStringSimple()}.{name}";
 
 
 		public abstract IEnumerable<object> GetMembers(object obj);
