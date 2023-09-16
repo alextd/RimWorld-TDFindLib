@@ -80,9 +80,11 @@
 = color extensions.
 = extension methods ()
 
-def.apparel.layers tooltip cutoff?
+= def.apparel.layers tooltip cutoff
 
-news xml
+= news xml
+
+extension methods given a map?
 
 test making HAR/CE queries and loading without them.
 

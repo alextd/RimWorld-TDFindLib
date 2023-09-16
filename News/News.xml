@@ -6,6 +6,19 @@
 	</HugsLib.UpdateFeatureDef>
 	
 	<HugsLib.UpdateFeatureDef ParentName="TDFindLibUpdateFeatureBase">
+		<defName>TDFindLib_1_3_0</defName>
+		<assemblyVersion>1.3.0</assemblyVersion>
+		<content>TD Find Library now has a &lt;b&gt;Custom Filter&lt;/b&gt;, where you essentially write C# and filter on anything you want. It lets the search access any C# field or property, and ThingComps like power and fuel levels.
+		
+Check out some sample custom searches by importing them from Sample Searches in the library.
+
+Of course this requires knowledge of game code, but with it, nearly everything is accessible, even mod content.
+
+Now, I'm not providing a guide on how to navigate the game's code, because holy cow, is it too big to explain. In short, you should know what you're looking for instead of just browsing the endless possibilities. A lot of the options are simply not useful. It's a thorough list, not filtered for ease of use.
+</content>
+	</HugsLib.UpdateFeatureDef>
+	
+	<HugsLib.UpdateFeatureDef ParentName="TDFindLibUpdateFeatureBase">
 		<defName>TDFindLib_1_2_0</defName>
 		<assemblyVersion>1.2.0</assemblyVersion>
 		<content>TD Find Library now has &lt;size=20&gt;&lt;b&gt;expansion filters&lt;/b&gt;&lt;/size&gt; AND MORE!
