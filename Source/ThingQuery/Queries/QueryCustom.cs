@@ -70,7 +70,7 @@ namespace TD_Find_Lib
 			clone.name = name;
 			clone.typeName = typeName;
 			clone.fieldTypeName = fieldTypeName;
-			clone.color = color;
+			clone.nameColor = nameColor;
 
 			return clone;
 		}
@@ -98,18 +98,23 @@ namespace TD_Find_Lib
 
 
 		// color non-core classes
-		private Color color;
-		private void SetColored()
+		protected Color nameColor, fieldTypeColor;
+		public static readonly Color ModColor = Color.cyan, ExtColor = Color.yellow, BadColor = Color.red;
+		protected virtual void SetColored()
 		{
-			if(fieldType == null)
-				color = Color.red;
-			else if(ModNameFor(fieldType) != null)
-				color = Color.yellow;
+			if (fieldType == null)
+				fieldTypeColor = BadColor;
+			else if (ModNameFor(fieldType) != null)
+				fieldTypeColor = ModColor;
+			else
+				fieldTypeColor = Color.white;
+
+			nameColor = fieldTypeColor;
 		}
 		public string TextNameColored =>
-			color != default ? TextName.Colorize(color) : TextName;
+			nameColor != Color.white ? TextName.Colorize(nameColor) : TextName;
 		public string SuggestionNameColored =>
-			color != default ? SuggestionName.Colorize(color) : SuggestionName;
+			nameColor != Color.white ? SuggestionName.Colorize(nameColor) : SuggestionName;
 
 
 		// TooltipDetails for field/type, not so much the readable TextName: e.g. (CompPower) ThingWithComps.GetComp
@@ -137,7 +142,7 @@ namespace TD_Find_Lib
 				{
 					if(ModNameFor(fieldType) is string assName)
 					{
-						sb.Append(assName.Colorize(color));
+						sb.Append(assName.Colorize(ModColor));
 						sb.Append("::");
 					}
 					sb.Append(fieldType.ToStringSimple());
@@ -153,7 +158,7 @@ namespace TD_Find_Lib
 				{
 					if (ModNameFor(type) is string assName)
 					{
-						sb.Append(assName);
+						sb.Append(assName.Colorize(ModColor));
 						sb.Append("::");
 					}
 					sb.Append(type.ToStringSimple());
@@ -281,14 +286,15 @@ namespace TD_Find_Lib
 			p.CanRead && p.GetMethod.GetParameters().Length == 0;
 
 		private static readonly Type[] blacklistClasses = new Type[]
-			{ typeof(string), typeof(Type), typeof(Action), typeof(MemberInfo), typeof(Map)};
+			{ typeof(string), typeof(Type), typeof(Action), typeof(MemberInfo), typeof(Map),
+			typeof(Texture2D)};
 		private static bool ValidClassType(Type type) =>
 			type.IsClass && !blacklistClasses.Any(b => b.IsAssignableFrom(type));
 
 		private static readonly string[] blacklistMethods = new string[]
 			{ "ChangeType" };
 		private static bool ValidExtensionMethod(MethodInfo meth) =>
-			!blacklistMethods.Contains(meth.Name);
+			!blacklistMethods.Contains(meth.Name) && !meth.IsGenericMethod;
 
 		private static Type EnumerableType(Type type) =>
 			type.GetInterfaces()
@@ -306,11 +312,6 @@ namespace TD_Find_Lib
 			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
 				if (ValidClassType(prop.PropertyType) && EnumerableType(prop.PropertyType) == null)
 						yield return NewData(typeof(ClassPropData<>), new[] { type }, prop.PropertyType, prop.Name);
-
-			// extension methods that return classes
-			foreach (MethodInfo meth in GetExtensionMethods(type))
-				if (ValidExtensionMethod(meth) && ValidClassType(meth.ReturnType) && EnumerableType(meth.ReturnType) == null)
-						yield return NewData(typeof(ClassExtensionData<>), new[] { type }, meth.ReturnType, meth.Name, meth.DeclaringType);
 
 
 			// enumerable class members
@@ -381,6 +382,11 @@ namespace TD_Find_Lib
 			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
 				if (prop.PropertyType.IsEnum)
 					yield return NewData(typeof(EnumPropData<,>), new[] { type, prop.PropertyType }, prop.Name);
+
+			// extension methods that return classes
+			foreach (MethodInfo meth in GetExtensionMethods(type))
+				if (ValidExtensionMethod(meth) && ValidClassType(meth.ReturnType) && EnumerableType(meth.ReturnType) == null)
+					yield return NewData(typeof(ClassExtensionData<>), new[] { type }, meth.ReturnType, meth.Name, meth.DeclaringType);
 		}
 
 
@@ -503,7 +509,18 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
+
+		protected override void SetColored()
+		{
+			base.SetColored();
+			nameColor = Color.Lerp(nameColor, Color.yellow, 0.5f);
+		}
+
+		public override string TextName => base.TextName + "()";
+		public override string SuggestionName => base.SuggestionName + "()";
 		public override string TooltipDetails => "(extension) " + base.TooltipDetails + "()";
+		public override string FilterName => base.FilterName + " extension";
+
 
 		// Generics are required for this delegate to exist so that it's actually fast.
 		delegate object ClassGetter(T t);
@@ -518,7 +535,7 @@ namespace TD_Find_Lib
 				Find.WindowStack.Add(new Dialog_MessageBox("TD.WarnExtension".Translate()));
 			}
 
-			return AccessTools.MethodDelegate<ClassGetter>(AccessTools.Method(extensionClass, name));
+			return AccessTools.MethodDelegate<ClassGetter>(AccessTools.Method(extensionClass, name, new Type[] { typeof(T)}));
 		}
 			
 
@@ -1841,6 +1858,8 @@ namespace TD_Find_Lib
 
 		public override bool AppliesDirectlyTo(Thing thing)
 		{
+			if (member == null) return false;	//not ready
+
 			if (!matchType.IsAssignableFrom(thing.GetType()))
 				return false;
 
@@ -1884,10 +1903,7 @@ namespace TD_Find_Lib
 			if (obj == null)
 				return member is ObjIsNull; // This or implement a bool property that's overriden true for this subclass only
 
-			if (member != null)
-				return member.AppliesTo(obj);
-
-			return false;
+			return member.AppliesTo(obj);
 		}
 	}
 

@@ -76,9 +76,14 @@
 
 = make filterMatches a string not a list ..?
 
-blacklist ChangeType extension method
-color extensions.
-extension methods ()
+= blacklist ChangeType extension method
+= color extensions.
+= extension methods ()
+
+
+enumerable on valuetypes
+: Probably would require Forgetting about the FieldDataMember/Comparer split
+: instead using a new separate class that just looks at the last type for comparison, no field access.
 
 news xml
 
