@@ -74,7 +74,7 @@
 
 = is exact def uses ThingQueryThingDef dropdown
 
-make filterMatches a string not a list ..?
+= make filterMatches a string not a list ..?
 
 blacklist ChangeType extension method
 color extensions.

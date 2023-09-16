@@ -173,30 +173,14 @@ namespace TD_Find_Lib
 
 
 
-		protected List<string> filterMatches;
-		private void MakeFilterMatches()
-		{
-			if (filterMatches == null)
-			{
-				filterMatches = new();
-				filterMatches.Add(fieldType.ToStringSimple().ToLower());
-				if(ModNameFor(fieldType) is string modName)
-					filterMatches.Add(modName.ToLower());
-				filterMatches.AddRange(FilterName.ToLower().Split(' ', '<', '>', '(', ')'));
-			}
-		}
-		public bool ShouldShow(string filterInput)
-		{
-			foreach (var filterMatch in filterMatches)
-				if (filterMatch.Contains(filterInput))
-					return true;
-
-			return false;
-		}
 		public bool ShouldShow(List<string> filterInputs)
 		{
-			MakeFilterMatches();
-			return filterInputs.All(ShouldShow);
+			string filterMatches = fieldType.ToStringSimple().ToLower();
+			filterMatches += " " + FilterName.ToLower();
+			if (ModNameFor(fieldType) is string modName)
+				filterMatches += " " + modName.ToLower();
+
+			return filterInputs.All(i => filterMatches.Contains(i));
 		}
 
 
