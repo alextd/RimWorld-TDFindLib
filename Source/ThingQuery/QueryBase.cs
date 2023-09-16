@@ -967,12 +967,14 @@ namespace TD_Find_Lib
 		public virtual bool OrderedCat => false;
 		public virtual IComparable Comparable(C cat) => NameForCat(cat);
 
-		private readonly Dictionary<C, List<T>> catOptions = new();
+		private readonly Dictionary<C, List<T>> catOptionsDict = new();
 		private readonly List<KeyValuePair<C, List<T>>> orderedCatOptions = new();
 		private readonly List<T> nullOptions = new();
-		private void MakeOptionCategories()
+
+		// TODO: make categorized floatmenus a little more accessible but for now this can be public.
+		public (List<T>, List<KeyValuePair<C, List<T>>>) MakeOptionCategories()
 		{
-			catOptions.Clear();
+			catOptionsDict.Clear();
 			orderedCatOptions.Clear();
 			nullOptions.Clear();
 
@@ -985,17 +987,19 @@ namespace TD_Find_Lib
 				List<T> optionsForCat;
 				if (cat == null)
 					optionsForCat = nullOptions;
-				else if (!catOptions.TryGetValue(cat, out optionsForCat))
+				else if (!catOptionsDict.TryGetValue(cat, out optionsForCat))
 				{
 					optionsForCat = new();
-					catOptions[cat] = optionsForCat;
+					catOptionsDict[cat] = optionsForCat;
 				}
 
 				optionsForCat.Add(def);
 			}
-			orderedCatOptions.AddRange(catOptions);
+			orderedCatOptions.AddRange(catOptionsDict);
 			if (OrderedCat)
 				orderedCatOptions.Sort((a, b) => Comparable(a.Key).CompareTo(Comparable(b.Key)));
+
+			return (nullOptions, orderedCatOptions);
 		}
 
 		public override void MakeDropdownOptions(List<FloatMenuOption> floatOptions)

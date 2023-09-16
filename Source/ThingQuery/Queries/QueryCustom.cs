@@ -1307,7 +1307,38 @@ namespace TD_Find_Lib
 
 			Rect rect = listing.GetRect(Text.LineHeight);
 			if (Widgets.ButtonText(rect, compareTo.GetLabel()))
-				parentQuery.DoFloatOptions(DefDatabase<TDef>.AllDefs, LabelByDefName.GetLabel, newValue => compareTo = newValue);
+			{
+				if (typeof(TDef) == typeof(ThingDef))
+				{
+					ThingQueryThingDef dummyQuery = new ThingQueryThingDef();
+
+					List<FloatMenuOption> catOptions = new();
+
+					(_, var catDefs) = dummyQuery.MakeOptionCategories();
+					foreach (var catDef in catDefs)
+					{
+						Action action = () =>
+						{
+							List<FloatMenuOption> defOptions = new();
+
+							var defs = catDef.Value;
+							foreach (ThingDef def in defs.OrderBy(o => o.defName))
+								defOptions.Add(new FloatMenuOptionAndRefresh(def.LabelCap, () => compareTo = def as TDef, parentQuery));
+
+							Find.WindowStack.Add(new FloatMenu(defOptions));
+						};
+
+
+						catOptions.Add(new FloatMenuOption(catDef.Key, action));
+					}
+
+					Find.WindowStack.Add(new FloatMenu(catOptions));
+				}
+				else
+				{
+					parentQuery.DoFloatOptions(DefDatabase<TDef>.AllDefs, LabelByDefName.GetLabel, newValue => compareTo = newValue);
+				}
+			}
 
 			listing.NestedOutdent();
 

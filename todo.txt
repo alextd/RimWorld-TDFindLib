@@ -72,7 +72,8 @@
 
 = warn to use them / double warn for extensions.
 
-is exact def uses ThingQueryThingDef dropdown
+= is exact def uses ThingQueryThingDef dropdown
+
 make filterMatches a string not a list ..?
 
 blacklist ChangeType extension method
