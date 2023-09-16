@@ -80,10 +80,7 @@
 = color extensions.
 = extension methods ()
 
-
-enumerable on valuetypes
-: Probably would require Forgetting about the FieldDataMember/Comparer split
-: instead using a new separate class that just looks at the last type for comparison, no field access.
+def.apparel.layers tooltip cutoff?
 
 news xml
 
@@ -102,6 +99,13 @@ HAR: pawn.def as ThingDef_AlienRace.alienRace @ https://github.com/erdelf/AlienR
 FieldDataComparerThingQuery => ThingQuery on a thing. 
 Even more, generic Query<T> valid for Query<ThingDef> / pawns / buildings => FieldDataComparer for that Query
 : convert ALL THINGQUERIES to use this. e.g. ThingQueryHealth  would use Query<Hediff> for Hediffs, ThingQueryFaction for Factions... ah gee that's a lot.
+
+
+enumerable on valuetypes
+: Ienumerable instead of Ienumerable<object>?
+: Probably would splitting Comparer into a normal member / new comparer class
+: new class auto-detects valuetypes and sets the comparison, doing no field access.
+
 
 
 === Fixes 

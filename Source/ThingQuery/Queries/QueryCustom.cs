@@ -316,17 +316,12 @@ namespace TD_Find_Lib
 
 			// enumerable class members
 			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField))
-				if (ValidClassType(field.FieldType) && EnumerableType(field.FieldType) is Type enumType)
+				if (ValidClassType(field.FieldType) && EnumerableType(field.FieldType) is Type enumType && ValidClassType(enumType))
 						yield return new EnumerableFieldData(type, enumType, field.Name);
 
 			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
-				if (ValidClassType(prop.PropertyType) && EnumerableType(prop.PropertyType) is Type enumType)
+				if (ValidClassType(prop.PropertyType) && EnumerableType(prop.PropertyType) is Type enumType && ValidClassType(enumType))
 						yield return NewData(typeof(EnumerablePropData<>), new[] { type }, enumType, prop.Name);
-
-			
-			foreach (MethodInfo meth in GetExtensionMethods(type))
-				if (ValidClassType(meth.ReturnType) && EnumerableType(meth.ReturnType) is Type enumType)
-					yield return NewData(typeof(EnumerableExtensionData<>), new[] { type }, enumType, meth.Name, meth.DeclaringType);
 
 			// ThingComp, Hard coded for ThingWithComps
 			if (type == typeof(ThingWithComps))
@@ -383,10 +378,16 @@ namespace TD_Find_Lib
 				if (prop.PropertyType.IsEnum)
 					yield return NewData(typeof(EnumPropData<,>), new[] { type, prop.PropertyType }, prop.Name);
 
+
 			// extension methods that return classes
 			foreach (MethodInfo meth in GetExtensionMethods(type))
 				if (ValidExtensionMethod(meth) && ValidClassType(meth.ReturnType) && EnumerableType(meth.ReturnType) == null)
 					yield return NewData(typeof(ClassExtensionData<>), new[] { type }, meth.ReturnType, meth.Name, meth.DeclaringType);
+
+
+			foreach (MethodInfo meth in GetExtensionMethods(type))
+				if (ValidClassType(meth.ReturnType) && EnumerableType(meth.ReturnType) is Type enumType && ValidClassType(enumType))
+					yield return NewData(typeof(EnumerableExtensionData<>), new[] { type }, enumType, meth.Name, meth.DeclaringType);
 		}
 
 
