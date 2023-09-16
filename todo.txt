@@ -68,7 +68,7 @@
 
 = extension method handler
 
-paste full memberchain into textfield
+= paste full memberchain into textfield, def.building.isEdifice
 
 warn to use them / double warn for extensions.
 blacklist ChangeType extension method

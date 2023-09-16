@@ -1471,6 +1471,24 @@ namespace TD_Find_Lib
 		private readonly float suggestionRowHeight = Text.LineHeightOf(GameFont.Small);
 		private void ParseTextField()
 		{
+			var memberStrs = memberStr.Split('.');
+
+			// Periods should not be typed which means this was pasted
+			if(memberStrs.Length > 1)
+			{
+				foreach(string memberChainStr in memberStrs)
+				{
+					FieldData chainData = nextOptions.FirstOrDefault(d => d.name == memberChainStr);
+					if(chainData == null)
+					{
+						memberStr = memberChainStr;
+						ParseTextField();
+						return;
+					}
+					SetMember(chainData);
+				}
+			}
+
 			filters.Clear();
 			filters.AddRange(memberStr.ToLower().Split(' ', '<', '>', '(', ')'));
 
