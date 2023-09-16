@@ -280,10 +280,15 @@ namespace TD_Find_Lib
 		private static bool ValidProp(PropertyInfo p) =>
 			p.CanRead && p.GetMethod.GetParameters().Length == 0;
 
-		private static readonly Type[] blacklist = new Type[]
+		private static readonly Type[] blacklistClasses = new Type[]
 			{ typeof(string), typeof(Type), typeof(Action), typeof(MemberInfo), typeof(Map)};
 		private static bool ValidClassType(Type type) =>
-			type.IsClass && !blacklist.Any(b => b.IsAssignableFrom(type));
+			type.IsClass && !blacklistClasses.Any(b => b.IsAssignableFrom(type));
+
+		private static readonly string[] blacklistMethods = new string[]
+			{ "ChangeType" };
+		private static bool ValidExtensionMethod(MethodInfo meth) =>
+			!blacklistMethods.Contains(meth.Name);
 
 		private static Type EnumerableType(Type type) =>
 			type.GetInterfaces()
@@ -304,7 +309,7 @@ namespace TD_Find_Lib
 
 			// extension methods that return classes
 			foreach (MethodInfo meth in GetExtensionMethods(type))
-				if (ValidClassType(meth.ReturnType) && EnumerableType(meth.ReturnType) == null)
+				if (ValidExtensionMethod(meth) && ValidClassType(meth.ReturnType) && EnumerableType(meth.ReturnType) == null)
 						yield return NewData(typeof(ClassExtensionData<>), new[] { type }, meth.ReturnType, meth.Name, meth.DeclaringType);
 
 
