@@ -217,6 +217,9 @@ namespace TD_Find_Lib
 		public virtual object MakeAccessor() => 0;
 		public virtual void SetAccessor(object obj) { }
 
+		// When user selects this
+		public virtual void PostSelected() { }
+
 		// Static listers for ease of use
 		// Here we hold all fields known
 		// Just the type+name until they're used, then they'll be Clone()d
@@ -570,16 +573,16 @@ namespace TD_Find_Lib
 		delegate object ClassGetter(T t);
 		private ClassGetter getter;
 
-		public override object MakeAccessor()
-		{
-			WarnExtension.Warn();
-
-			return AccessTools.MethodDelegate<ClassGetter>(AccessTools.Method(extensionClass, name, new Type[] { typeof(T) }));
-		}
-			
+		public override object MakeAccessor() =>
+			AccessTools.MethodDelegate<ClassGetter>(AccessTools.Method(extensionClass, name, new Type[] { typeof(T) }));
 
 		public override void SetAccessor(object obj) =>
 			getter = (ClassGetter)obj;
+
+
+		public override void PostSelected() =>
+			WarnExtension.Warn();
+
 
 		public override object GetMember(object obj) => getter((T)obj);
 	}
@@ -623,15 +626,15 @@ namespace TD_Find_Lib
 
 		delegate object ClassGetter(IntVec3 t, Map map);
 		private ClassGetter getter;
-		public override object MakeAccessor()
-		{
-			WarnExtension.Warn();
-			
-			return AccessTools.MethodDelegate<ClassGetter>(AccessTools.Method(extensionClass, name, new Type[] { typeof(IntVec3), typeof(Map) }));
-		}
-
+		public override object MakeAccessor() =>
+			AccessTools.MethodDelegate<ClassGetter>(AccessTools.Method(extensionClass, name, new Type[] { typeof(IntVec3), typeof(Map) }));
 
 		public override void SetAccessor(object obj) => getter = (ClassGetter)obj;
+
+
+		public override void PostSelected() =>
+			WarnExtension.Warn();
+
 
 		public override object GetMember(object obj) => 
 			getter((obj as Thing).Position, parentQuery.RootHolder.BoundMap);
@@ -755,15 +758,15 @@ namespace TD_Find_Lib
 		delegate IEnumerable<object> EnumerableGetter(T t);
 		private EnumerableGetter getter;
 
-		public override object MakeAccessor()
-		{
-			WarnExtension.Warn();
-
-			return AccessTools.MethodDelegate<EnumerableGetter>(AccessTools.Method(extensionClass, name));
-		}
+		public override object MakeAccessor() =>
+			AccessTools.MethodDelegate<EnumerableGetter>(AccessTools.Method(extensionClass, name));
 
 		public override void SetAccessor(object obj) =>
 			getter = (EnumerableGetter)obj;
+
+
+		public override void PostSelected() =>
+			WarnExtension.Warn();
 
 
 		public override IEnumerable<object> GetMembers(object obj) => getter((T)obj);
@@ -1581,6 +1584,7 @@ namespace TD_Find_Lib
 			{
 				member = addDataCompare;
 				member.Make(this);
+				member.PostSelected();
 
 				UI.UnfocusCurrentControl();
 				Focus();  //next frame
@@ -1593,6 +1597,7 @@ namespace TD_Find_Lib
 			{
 				memberChain.Add(addDataMember);
 				addDataMember.Make(this);
+				addDataMember.PostSelected();
 
 				member = null; //to be selected
 				memberStr = "";
