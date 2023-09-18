@@ -25,6 +25,7 @@ namespace TD_Find_Lib
 		public void NotifyUpdated();
 		public void NotifyRefUpdated();
 		public bool Active { get; }
+		public Map BoundMap { get; }
 	}
 
 	// QueryHolder is actually one of the later, untested additions.
@@ -47,6 +48,7 @@ namespace TD_Find_Lib
 		// from IQueryHolder:
 		public IQueryHolder Parent => null;
 		public virtual IQueryHolderRoot RootHolder => this;
+		public Map BoundMap => boundMap;
 		public HeldQueries Children => children;
 		public virtual void NotifyUpdated() { }
 		public virtual void NotifyRefUpdated() => RebindMap();

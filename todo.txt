@@ -84,11 +84,13 @@
 
 = news xml
 
-extension methods given a map?
+= extension methods given a map?
 
 test making HAR/CE queries and loading without them.
 
 translatable.
+
+sample custom filters in default library
 
 == demo
 battery energy pct

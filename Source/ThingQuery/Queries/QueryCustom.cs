@@ -141,7 +141,7 @@ namespace TD_Find_Lib
 				sb.Append("(");
 				if (fieldType != null)
 				{
-					if(ModNameFor(fieldType) is string assName)
+					if (ModNameFor(fieldType) is string assName)
 					{
 						sb.Append(assName.Colorize(ModColor));
 						sb.Append("::");
@@ -205,7 +205,7 @@ namespace TD_Find_Lib
 		public virtual void Make(ThingQueryCustom p)
 		{
 			parentQuery = p;
-			if(!accessors.TryGetValue(this, out object accessor))
+			if (!accessors.TryGetValue(this, out object accessor))
 			{
 				accessor = MakeAccessor();
 				accessors[this] = accessor;
@@ -237,7 +237,7 @@ namespace TD_Find_Lib
 
 		// All FieldData options for a subclass and its parents
 		private static readonly Dictionary<Type, List<FieldData>> typeFieldOptions = new();
-		private static readonly Type[] baseTypes = new[] { typeof(Thing), typeof(Def), typeof(object), null};
+		private static readonly Type[] baseTypes = new[] { typeof(Thing), typeof(Def), typeof(object), null };
 		public static List<FieldData> GetOptions(Type baseType)
 		{
 			if (!typeFieldOptions.TryGetValue(baseType, out var list))
@@ -294,8 +294,21 @@ namespace TD_Find_Lib
 
 		private static readonly string[] blacklistMethods = new string[]
 			{ "ChangeType" };
-		private static bool ValidExtensionMethod(MethodInfo meth) =>
-			!blacklistMethods.Contains(meth.Name) && !meth.IsGenericMethod;
+		private static bool ValidExtensionMethod(MethodInfo meth, bool forThingPosMap = false)
+		{
+			if (blacklistMethods.Contains(meth.Name)) return false;
+			if (meth.IsGenericMethod) return false;
+
+			// check args, given that we know the first one is the class type
+			if (forThingPosMap)
+			{
+				return meth.GetParameters().Count() == 2
+					// && meth.GetParameters()[0].ParameterType == typeof(IntVec3)	// thing.pos already known IntVec3
+					&& meth.GetParameters()[1].ParameterType == typeof(Map);	// map
+			}
+
+			return meth.GetParameters().Count() == 1;
+		}
 
 		private static Type EnumerableType(Type type) =>
 			type.GetInterfaces()
@@ -308,26 +321,26 @@ namespace TD_Find_Lib
 			// class members
 			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField))
 				if (ValidClassType(field.FieldType) && EnumerableType(field.FieldType) == null)
-						yield return new ClassFieldData(type, field.FieldType, field.Name);
+					yield return new ClassFieldData(type, field.FieldType, field.Name);
 
 			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
 				if (ValidClassType(prop.PropertyType) && EnumerableType(prop.PropertyType) == null)
-						yield return NewData(typeof(ClassPropData<>), new[] { type }, prop.PropertyType, prop.Name);
+					yield return NewData(typeof(ClassPropData<>), new[] { type }, prop.PropertyType, prop.Name);
 
 
 			// enumerable class members
 			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField))
 				if (ValidClassType(field.FieldType) && EnumerableType(field.FieldType) is Type enumType && ValidClassType(enumType))
-						yield return new EnumerableFieldData(type, enumType, field.Name);
+					yield return new EnumerableFieldData(type, enumType, field.Name);
 
 			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
 				if (ValidClassType(prop.PropertyType) && EnumerableType(prop.PropertyType) is Type enumType && ValidClassType(enumType))
-						yield return NewData(typeof(EnumerablePropData<>), new[] { type }, enumType, prop.Name);
+					yield return NewData(typeof(EnumerablePropData<>), new[] { type }, enumType, prop.Name);
 
 			// ThingComp, Hard coded for ThingWithComps
 			if (type == typeof(ThingWithComps))
 			{
-				foreach(Type compType in GenTypes.AllSubclasses(typeof(ThingComp)))
+				foreach (Type compType in GenTypes.AllSubclasses(typeof(ThingComp)))
 					yield return NewData(typeof(ThingCompData<>), new[] { compType });
 			}
 
@@ -367,7 +380,7 @@ namespace TD_Find_Lib
 			foreach (PropertyInfo prop in type.GetProperties(bFlags | BindingFlags.GetProperty).Where(ValidProp))
 				if (prop.PropertyType == typeof(string))
 					yield return NewData(typeof(StringPropData<>), new[] { type }, prop.Name);
-			
+
 
 
 			// enums
@@ -382,24 +395,40 @@ namespace TD_Find_Lib
 
 			// extension methods that return classes
 			foreach (MethodInfo meth in GetExtensionMethods(type))
-				if (ValidExtensionMethod(meth) && ValidClassType(meth.ReturnType) && EnumerableType(meth.ReturnType) == null)
-					yield return NewData(typeof(ClassExtensionData<>), new[] { type }, meth.ReturnType, meth.Name, meth.DeclaringType);
+			{
+				if (ValidExtensionMethod(meth) && ValidClassType(meth.ReturnType))
+				{
+					if (EnumerableType(meth.ReturnType) is Type enumType)
+					{
+						if (ValidClassType(enumType))
+						{
+							yield return NewData(typeof(EnumerableExtensionData<>), new[] { type }, enumType, meth.Name, meth.DeclaringType);
+						}
+					}
+					else
+					{
+						yield return NewData(typeof(ClassExtensionData<>), new[] { type }, meth.ReturnType, meth.Name, meth.DeclaringType);
+					}
+				}
+			}
 
-
-			foreach (MethodInfo meth in GetExtensionMethods(type))
-				if (ValidClassType(meth.ReturnType) && EnumerableType(meth.ReturnType) is Type enumType && ValidClassType(enumType))
-					yield return NewData(typeof(EnumerableExtensionData<>), new[] { type }, enumType, meth.Name, meth.DeclaringType);
+			// Special extension methods in the form: thing.pos.GetSomething(map)
+			if (type == typeof(Thing))
+				foreach (MethodInfo meth in GetExtensionMethods(typeof(IntVec3)))
+					if (ValidExtensionMethod(meth, true) && ValidClassType(meth.ReturnType))
+						if (EnumerableType(meth.ReturnType) == null)
+							yield return new ClassExtensionThingPosMapData(meth.ReturnType, meth.Name, meth.DeclaringType);
 		}
 
 
 		static IEnumerable<MethodInfo> GetExtensionMethods(Type extendedType)
 		{
 			return from type in GenTypes.AllTypesWithAttribute<System.Runtime.CompilerServices.ExtensionAttribute>()
-									where type.IsSealed && !type.IsGenericType && !type.IsNested
-									from method in type.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
-									where method.IsDefined(typeof(System.Runtime.CompilerServices.ExtensionAttribute), false)
-									where method.GetParameters().Count() == 1 && method.GetParameters()[0].ParameterType == extendedType
-									select method;
+						 where type.IsSealed && !type.IsGenericType && !type.IsNested
+						 from method in type.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic)
+						 where method.IsDefined(typeof(System.Runtime.CompilerServices.ExtensionAttribute), false)
+						 where method.GetParameters().Length > 0 && method.GetParameters()[0].ParameterType == extendedType
+						 select method;
 		}
 	}
 
@@ -524,7 +553,6 @@ namespace TD_Find_Lib
 		public override string FilterName => base.FilterName + " extension";
 
 
-		// Generics are required for this delegate to exist so that it's actually fast.
 		delegate object ClassGetter(T t);
 		private ClassGetter getter;
 		public override object MakeAccessor()
@@ -537,7 +565,7 @@ namespace TD_Find_Lib
 				Find.WindowStack.Add(new Dialog_MessageBox("TD.WarnExtension".Translate()));
 			}
 
-			return AccessTools.MethodDelegate<ClassGetter>(AccessTools.Method(extensionClass, name, new Type[] { typeof(T)}));
+			return AccessTools.MethodDelegate<ClassGetter>(AccessTools.Method(extensionClass, name, new Type[] { typeof(T) }));
 		}
 			
 
@@ -547,9 +575,70 @@ namespace TD_Find_Lib
 		public override object GetMember(object obj) => getter((T)obj);
 	}
 
+	// this class is specifically for extension methods (this IntVec3 pos, Map map)
+	// to be called thing.pos.GetSomething(thing.map)
+	// There's no enumerable version of this class because no useful extension methods return enumerable.
+	public class ClassExtensionThingPosMapData : FieldDataClassMember
+	{
+		private Type extensionClass;
+		public ClassExtensionThingPosMapData() { }
+		public ClassExtensionThingPosMapData(Type fieldType, string name, Type extensionClass)
+			: base(typeof(Thing), fieldType, name)
+		{
+			this.extensionClass = extensionClass;
+		}
+		public override void ExposeData()
+		{
+			base.ExposeData();
+			Scribe_Values.Look(ref extensionClass, "extensionClass");
+		}
+		public override FieldData Clone()
+		{
+			ClassExtensionThingPosMapData clone = (ClassExtensionThingPosMapData)base.Clone();
+			clone.extensionClass = extensionClass;
+			return clone;
+		}
+
+
+		protected override void SetColored()
+		{
+			base.SetColored();
+			nameColor = Color.Lerp(nameColor, Color.yellow, 0.5f);
+		}
+
+		public override string TextName => $".Position.{name}(map)";
+		public override string SuggestionName => base.SuggestionName + "()";
+		public override string TooltipDetails => "(extension) " + base.TooltipDetails + "(IntVec3, Map)";
+		public override string FilterName => base.FilterName + " extension";
+
+
+		delegate object ClassGetter(IntVec3 t, Map map);
+		private ClassGetter getter;
+		public override object MakeAccessor()
+		{
+			if (!Mod.settings.warnedExtension)
+			{
+				Mod.settings.warnedExtension = true;
+				Mod.settings.Write();
+
+				Find.WindowStack.Add(new Dialog_MessageBox("TD.WarnExtension".Translate()));
+			}
+			
+			return AccessTools.MethodDelegate<ClassGetter>(AccessTools.Method(extensionClass, name, new Type[] { typeof(IntVec3), typeof(Map) }));
+		}
+
+
+		public override void SetAccessor(object obj) => getter = (ClassGetter)obj;
+
+		public override object GetMember(object obj) => 
+			getter((obj as Thing).Position, parentQuery.RootHolder.BoundMap);
+	}
+
+
+
 
 	// FieldData for ThingComp, a hand-picked handler for this generic method
-	public class ThingCompData<T> : FieldDataClassMember where T : ThingComp 
+	public class ThingCompData<T> : FieldDataClassMember where T : ThingComp
 	{
 		public ThingCompData()
 			: base(typeof(ThingWithComps), typeof(T), nameof(ThingWithComps.GetComp))
@@ -566,7 +655,7 @@ namespace TD_Find_Lib
 
 		public override object GetMember(object obj) => getter(obj as ThingWithComps);
 
-		
+
 		public override string TextName =>
 			$".GetComp<{fieldType.Name}>()";
 		public override string SuggestionName => $"GetComp<{fieldType.Name}>";
@@ -574,7 +663,7 @@ namespace TD_Find_Lib
 
 
 	//FieldData for "as subclass"
-	public class AsSubclassData: FieldDataClassMember
+	public class AsSubclassData : FieldDataClassMember
 	{
 		public AsSubclassData() { }
 		public AsSubclassData(Type type, Type subType)
@@ -590,7 +679,7 @@ namespace TD_Find_Lib
 		// Then later realized I needed to check the type because Thing as Pawn is null when not pawn.
 		public override object GetMember(object obj)
 		{
-			if(fieldType.IsAssignableFrom(obj.GetType()))
+			if (fieldType.IsAssignableFrom(obj.GetType()))
 				return obj;
 			return null;
 		}
@@ -626,7 +715,6 @@ namespace TD_Find_Lib
 			: base(typeof(T), fieldType, name)
 		{ }
 
-		// Generics are required for this delegate to exist so that it's actually fast.
 		delegate IEnumerable<object> ClassGetter(T t);
 		private ClassGetter getter;
 
@@ -661,15 +749,24 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
-		// Generics are required for this delegate to exist so that it's actually fast.
-		delegate IEnumerable<object> ClassGetter(T t);
-		private ClassGetter getter;
+		delegate IEnumerable<object> EnumerableGetter(T t);
+		private EnumerableGetter getter;
 
-		public override object MakeAccessor() =>
-			AccessTools.MethodDelegate<ClassGetter>(AccessTools.Method(extensionClass, name));
+		public override object MakeAccessor()
+		{
+			if (!Mod.settings.warnedExtension)
+			{
+				Mod.settings.warnedExtension = true;
+				Mod.settings.Write();
+
+				Find.WindowStack.Add(new Dialog_MessageBox("TD.WarnExtension".Translate()));
+			}
+
+			return AccessTools.MethodDelegate<EnumerableGetter>(AccessTools.Method(extensionClass, name));
+		}
 
 		public override void SetAccessor(object obj) =>
-			getter = (ClassGetter)obj;
+			getter = (EnumerableGetter)obj;
 
 
 		public override IEnumerable<object> GetMembers(object obj) => getter((T)obj);
@@ -705,7 +802,7 @@ namespace TD_Find_Lib
 		public BoolFieldData() { }
 		public BoolFieldData(Type type, string name)
 			: base(type, name)
-		{		}
+		{ }
 
 		private AccessTools.FieldRef<object, bool> getter;
 
@@ -724,9 +821,8 @@ namespace TD_Find_Lib
 		public BoolPropData() { }
 		public BoolPropData(string name)
 			: base(typeof(T), name)
-		{		}
+		{ }
 
-		// Generics are required for this delegate to exist so that it's actually fast.
 		delegate bool BoolGetter(T t);
 		private BoolGetter getter;
 
@@ -743,7 +839,7 @@ namespace TD_Find_Lib
 
 	public abstract class IntData : FieldDataComparer
 	{
-		private IntRange valueRange = new(10,15);
+		private IntRange valueRange = new(10, 15);
 
 		public IntData()
 		{
@@ -803,7 +899,7 @@ namespace TD_Find_Lib
 				Widgets.TextFieldNumeric(lRect, ref valueRange.min, ref lBuffer, int.MinValue, int.MaxValue);
 				Widgets.TextFieldNumeric(rRect, ref valueRange.max, ref rBuffer, int.MinValue, int.MaxValue);
 			}
-			
+
 			if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.Tab
 				 && (GUI.GetNameOfFocusedControl() == controlNameL || GUI.GetNameOfFocusedControl() == controlNameR))
 				Event.current.Use();
@@ -860,15 +956,14 @@ namespace TD_Find_Lib
 			: base(typeof(T), name)
 		{ }
 
-		// Generics are required for this delegate to exist so that it's actually fast.
 		delegate int IntGetter(T t);
 		private IntGetter getter;
 
 		public override object MakeAccessor() =>
 			AccessTools.MethodDelegate<IntGetter>(AccessTools.DeclaredPropertyGetter(typeof(T), name));
 
-	public override void SetAccessor(object obj) =>
-			getter = (IntGetter)obj;
+		public override void SetAccessor(object obj) =>
+				getter = (IntGetter)obj;
 
 
 		public override int GetIntValue(object obj) => getter((T)obj);// please only pass in T
@@ -996,7 +1091,6 @@ namespace TD_Find_Lib
 			: base(typeof(T), name)
 		{ }
 
-		// Generics are required for this delegate to exist so that it's actually fast.
 		delegate float FloatGetter(T t);
 		private FloatGetter getter;
 
@@ -1104,7 +1198,6 @@ namespace TD_Find_Lib
 			: base(typeof(T), name)
 		{ }
 
-		// Generics are required for this delegate to exist so that it's actually fast.
 		delegate TEnum EnumGetter(T t);
 		private EnumGetter getter;
 
@@ -1260,7 +1353,6 @@ namespace TD_Find_Lib
 			: base(typeof(T), name)
 		{ }
 
-		// Generics are required for this delegate to exist so that it's actually fast.
 		delegate string StringGetter(T t);
 		private StringGetter getter;
 
@@ -1493,13 +1585,13 @@ namespace TD_Find_Lib
 				member.Make(this);
 
 				UI.UnfocusCurrentControl();
-				Focus();	//next frame
+				Focus();  //next frame
 
 				// Keep nextType in case you want to change the compared field
 				memberStr = "";
 				ParseTextField();
 			}
-			else if(addData is FieldDataMember addDataMember)
+			else if (addData is FieldDataMember addDataMember)
 			{
 				memberChain.Add(addDataMember);
 				addDataMember.Make(this);
@@ -1514,7 +1606,7 @@ namespace TD_Find_Lib
 
 
 		// After text field edit, parse string for new filtered field suggestions
-		private List<string> filters = new ();
+		private List<string> filters = new();
 		private List<FieldData> suggestions = new();
 		private int suggestionI;
 		private Vector2 suggestionScroll;
@@ -1524,12 +1616,12 @@ namespace TD_Find_Lib
 			var memberStrs = memberStr.Split('.');
 
 			// Periods should not be typed which means this was pasted
-			if(memberStrs.Length > 1)
+			if (memberStrs.Length > 1)
 			{
-				foreach(string memberChainStr in memberStrs)
+				foreach (string memberChainStr in memberStrs)
 				{
 					FieldData chainData = nextOptions.FirstOrDefault(d => d.name == memberChainStr);
-					if(chainData == null)
+					if (chainData == null)
 					{
 						memberStr = memberChainStr;
 						ParseTextField();
@@ -1613,7 +1705,7 @@ namespace TD_Find_Lib
 			// Fuckin double-events for keydown means we get two events, keycode and char,
 			// so unfocusing on keycode means we're not focused for the char event
 			// Remember between events but you gotta reset some time so reset it on repaint I guess
-			if(Event.current.type == EventType.Repaint)
+			if (Event.current.type == EventType.Repaint)
 				focused = GUI.GetNameOfFocusedControl() == controlName;
 			else
 				focused |= GUI.GetNameOfFocusedControl() == controlName;
@@ -1806,7 +1898,7 @@ namespace TD_Find_Lib
 						}
 						else
 						{
-							if(Mouse.IsOver(rect))
+							if (Mouse.IsOver(rect))
 							{
 								// Eh, <> not handled well 
 								TooltipHandler.TipRegion(rect, d.TooltipDetails);
@@ -1841,7 +1933,7 @@ namespace TD_Find_Lib
 
 		protected override void DoFocus()
 		{
-			if(member == null)
+			if (member == null)
 				GUI.FocusControl(controlName);
 			else
 				member.DoFocus();
@@ -1860,7 +1952,7 @@ namespace TD_Find_Lib
 
 		public override bool AppliesDirectlyTo(Thing thing)
 		{
-			if (member == null) return false;	//not ready
+			if (member == null) return false; //not ready
 
 			if (!matchType.IsAssignableFrom(thing.GetType()))
 				return false;
