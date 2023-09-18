@@ -88,6 +88,12 @@
 
 = move into method, warn extension
 
+= don't need all subclasses in main list: as subclass for that.
+
+don't make fielddata in exposedata. or for inactive queries?
+
+shorten exposedata for memberchain?.
+
 test making HAR/CE queries and loading without them.
 
 translatable.

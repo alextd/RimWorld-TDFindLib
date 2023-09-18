@@ -1455,7 +1455,8 @@ namespace TD_Find_Lib
 			foreach (Type thingType in new Type[] { typeof(Thing) }
 					.Concat(typeof(Thing).AllSubclasses().Where(ValidType)))
 			{
-				thingSubclasses.Add(thingType);
+				if (FieldData.FieldsFor(thingType).Any())
+					thingSubclasses.Add(thingType);
 			}
 		}
 
