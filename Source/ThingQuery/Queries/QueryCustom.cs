@@ -304,7 +304,7 @@ namespace TD_Find_Lib
 			{
 				return meth.GetParameters().Count() == 2
 					// && meth.GetParameters()[0].ParameterType == typeof(IntVec3)	// thing.pos already known IntVec3
-					&& meth.GetParameters()[1].ParameterType == typeof(Map);	// map
+					&& meth.GetParameters()[1].ParameterType == typeof(Map);  // map
 			}
 
 			return meth.GetParameters().Count() == 1;
@@ -519,6 +519,20 @@ namespace TD_Find_Lib
 
 	// Extension methods that'll hopefully handle many mod support. 
 	// TODO: any extension method that returns bool/int? Meh...
+	public static class WarnExtension
+	{
+		public static void Warn()
+		{
+			if (!Mod.settings.warnedExtension)
+			{
+				Mod.settings.warnedExtension = true;
+				Mod.settings.Write();
+
+				Find.WindowStack.Add(new Dialog_MessageBox("TD.WarnExtension".Translate()));
+			}
+		}
+	}
+
 	public class ClassExtensionData<T> : FieldDataClassMember
 	{
 		private Type extensionClass;
@@ -555,15 +569,10 @@ namespace TD_Find_Lib
 
 		delegate object ClassGetter(T t);
 		private ClassGetter getter;
+
 		public override object MakeAccessor()
 		{
-			if (!Mod.settings.warnedExtension)
-			{
-				Mod.settings.warnedExtension = true;
-				Mod.settings.Write();
-
-				Find.WindowStack.Add(new Dialog_MessageBox("TD.WarnExtension".Translate()));
-			}
+			WarnExtension.Warn();
 
 			return AccessTools.MethodDelegate<ClassGetter>(AccessTools.Method(extensionClass, name, new Type[] { typeof(T) }));
 		}
@@ -616,13 +625,7 @@ namespace TD_Find_Lib
 		private ClassGetter getter;
 		public override object MakeAccessor()
 		{
-			if (!Mod.settings.warnedExtension)
-			{
-				Mod.settings.warnedExtension = true;
-				Mod.settings.Write();
-
-				Find.WindowStack.Add(new Dialog_MessageBox("TD.WarnExtension".Translate()));
-			}
+			WarnExtension.Warn();
 			
 			return AccessTools.MethodDelegate<ClassGetter>(AccessTools.Method(extensionClass, name, new Type[] { typeof(IntVec3), typeof(Map) }));
 		}
@@ -754,13 +757,7 @@ namespace TD_Find_Lib
 
 		public override object MakeAccessor()
 		{
-			if (!Mod.settings.warnedExtension)
-			{
-				Mod.settings.warnedExtension = true;
-				Mod.settings.Write();
-
-				Find.WindowStack.Add(new Dialog_MessageBox("TD.WarnExtension".Translate()));
-			}
+			WarnExtension.Warn();
 
 			return AccessTools.MethodDelegate<EnumerableGetter>(AccessTools.Method(extensionClass, name));
 		}

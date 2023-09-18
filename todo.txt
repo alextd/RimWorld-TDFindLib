@@ -86,6 +86,8 @@
 
 = extension methods given a map?
 
+= move into method, warn extension
+
 test making HAR/CE queries and loading without them.
 
 translatable.
