@@ -1507,7 +1507,7 @@ namespace TD_Find_Lib
 
 			Scribe_Collections.Look(ref memberChain, "memberChain");
 			Scribe_Deep.Look(ref member, "member");
-			Scribe_Values.Look(ref memberStr, "memberStr");
+			Scribe_Values.Look(ref memberStr, "memberStr", "");
 
 			if (Scribe.mode == LoadSaveMode.LoadingVars)
 			{
@@ -1786,6 +1786,8 @@ namespace TD_Find_Lib
 				Rect memberRect = row.LabelWithTags(member.TextNameColored, tooltip: member.TooltipDetails);
 				if (Widgets.ButtonInvisible(memberRect))
 				{
+					memberStr = member.AutoFillName;
+					ParseTextField();
 					member = null;
 					Focus();
 				}
