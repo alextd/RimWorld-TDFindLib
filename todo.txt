@@ -91,6 +91,7 @@
 = don't need all subclasses in main list: as subclass for that.
 
 don't make fielddata in exposedata. or for inactive queries?
+don't warn when copying custom / extension.
 
 shorten exposedata for memberchain?.
 

@@ -527,8 +527,11 @@ namespace TD_Find_Lib
 					return;
 			}
 
-			// Set up the maps:
 			result.resultMaps.Clear();
+			result.allThings.Clear();
+			result.mapThings.Clear();
+
+			// Set up the maps:
 			if (CurMap())
 				result.resultMaps.Add(Find.CurrentMap);
 			else if (AllMaps())
@@ -536,20 +539,25 @@ namespace TD_Find_Lib
 			else
 				result.resultMaps.AddRange(parameters.searchMaps);
 
-
-			// Peform the search on the maps:
-			result.allThings.Clear();
-			result.mapThings.Clear();
-
-			foreach (Map map in result.resultMaps)
+			try
 			{
-				List<Thing> things = new(Get(map, parameters.listType));
+				// Perform the search on the maps:
+				foreach (Map map in result.resultMaps)
+				{
+					List<Thing> things = new(Get(map, parameters.listType));
 
-				// SORT. TODO: more sensical than shortHash.
-				things.SortBy(t => t.def.shortHash, t => t.Stuff?.shortHash ?? 0, t => t.Position.x + t.Position.z * 1000);
+					// SORT. TODO: more sensical than shortHash.
+					things.SortBy(t => t.def.shortHash, t => t.Stuff?.shortHash ?? 0, t => t.Position.x + t.Position.z * 1000);
 
-				result.mapThings[map] = things;
-				result.allThings.AddRange(things);
+					result.mapThings[map] = things;
+					result.allThings.AddRange(things);
+				}
+			}
+			catch(Exception e)
+			{
+				// Catch the entire list because one fail is probably gonna fail on all things.
+				// todo: pause the search until edited.
+				Verse.Log.Error($"Oh bother! TD Find Lib search has failed somehow ({e})");
 			}
 
 			newListedThings.Clear();
