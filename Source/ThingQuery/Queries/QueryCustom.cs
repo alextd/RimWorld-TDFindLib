@@ -1473,7 +1473,7 @@ namespace TD_Find_Lib
 					memberChainStr = string.Join(".", memberChain.Select(d => d.AutoFillName));
 					if (member != null)
 					{
-						if(memberChainStr == "")
+						if(memberChainStr != "")
 							memberChainStr += ".";
 						memberChainStr += member.AutoFillName;
 					}

@@ -1036,13 +1036,13 @@
 				<li Class="TD_Find_Lib.ThingQueryCustom">
 					<def>Query_Custom</def>
 					<matchType>Verse.Building</matchType>
-					<memberChain>GetComp CompPowerBatteryStoredEnergyPct</memberChain>
+					<memberChain>GetComp CompPowerBattery.StoredEnergyPct</memberChain>
 					<compareTo>0~0.2</compareTo>
 				</li>
 				<li Class="TD_Find_Lib.ThingQueryCustom">
 					<def>Query_Custom</def>
 					<matchType>Verse.Building</matchType>
-					<memberChain>GetComp CompRefuelableFuelPercentOfTarget</memberChain>
+					<memberChain>GetComp CompRefuelable.FuelPercentOfTarget</memberChain>
 					<compareTo>0~0.2</compareTo>
 				</li>
 			</queries>
@@ -1056,12 +1056,12 @@
 				<li Class="TD_Find_Lib.ThingQueryCustom">
 					<def>Query_Custom</def>
 					<matchType>Verse.Building</matchType>
-					<memberChain>GetComp CompPowerPlantis not null</memberChain>
+					<memberChain>GetComp CompPowerPlant.is not null</memberChain>
 				</li>
 				<li Class="TD_Find_Lib.ThingQueryCustom">
 					<def>Query_Custom</def>
 					<matchType>Verse.Building</matchType>
-					<memberChain>GetComp CompPowerPlantPowerOutput</memberChain>
+					<memberChain>GetComp CompPowerPlant.PowerOutput</memberChain>
 					<compareTo>0~1</compareTo>
 				</li>
 			</queries>
@@ -1075,7 +1075,7 @@
 				<li Class="TD_Find_Lib.ThingQueryCustom">
 					<def>Query_Custom</def>
 					<matchType>Verse.Pawn</matchType>
-					<memberChain>jobs.curJob.bill.recipe.workSkillis exact def</memberChain>
+					<memberChain>jobs.curJob.bill.recipe.workSkill.is exact def</memberChain>
 					<compareTo>Cooking</compareTo>
 				</li>
 			</queries>
@@ -1089,7 +1089,7 @@
 				<li Class="TD_Find_Lib.ThingQueryCustom">
 					<def>Query_Custom</def>
 					<matchType>Verse.Pawn</matchType>
-					<memberChain>ideo.Ideo.developmentCanReformNow</memberChain>
+					<memberChain>ideo.Ideo.development.CanReformNow</memberChain>
 				</li>
 			</queries>
 			<matchAllQueries>True</matchAllQueries>
@@ -1102,7 +1102,7 @@
 				<li Class="TD_Find_Lib.ThingQueryCustom">
 					<def>Query_Custom</def>
 					<matchType>Verse.Pawn</matchType>
-					<memberChain>GetLoadout().Slots.thingDefIsWeapon</memberChain>
+					<memberChain>GetLoadout().Slots.thingDef.IsWeapon</memberChain>
 				</li>
 			</queries>
 			<matchAllQueries>True</matchAllQueries>
@@ -1115,13 +1115,13 @@
 				<li Class="TD_Find_Lib.ThingQueryCustom">
 					<def>Query_Custom</def>
 					<matchType>Verse.Pawn</matchType>
-					<memberChain>def.as ThingDef_AlienRaceis not null</memberChain>
+					<memberChain>def.as ThingDef_AlienRace.is not null</memberChain>
 				</li>
 				<li Class="TD_Find_Lib.ThingQueryCustom">
 					<def>Query_Custom</def>
 					<include>False</include>
 					<matchType>Verse.Pawn</matchType>
-					<memberChain>def.as ThingDef_AlienRaceis exact def</memberChain>
+					<memberChain>def.as ThingDef_AlienRace.is exact def</memberChain>
 					<compareTo>Human</compareTo>
 				</li>
 			</queries>
