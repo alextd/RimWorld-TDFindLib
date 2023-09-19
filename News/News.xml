@@ -14,7 +14,7 @@ Check out some sample custom searches by importing them from Sample Searches in 
 
 Of course this requires knowledge of game code, but with it, nearly everything is accessible, even mod content.
 
-Now, I'm not providing a guide on how to navigate the game's code, because holy cow, is it too big to explain. In short, you should know what you're looking for instead of just browsing the endless possibilities. A lot of the options are simply not useful, and some are slow. It's a thorough list, not filtered for ease of use.
+Now, I'm not providing a guide on how to navigate the game's code, because holy cow, is it too big to explain. In short, you should know what you're looking for instead of just browsing the endless possibilities. A lot of the options simply shouldn't be used -- It's a thorough list, not filtered for ease of use.
 </content>
 	</HugsLib.UpdateFeatureDef>
 	
