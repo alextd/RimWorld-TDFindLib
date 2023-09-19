@@ -12,19 +12,12 @@ using HarmonyLib;
 namespace TD_Find_Lib
 {
 	// Parent class to hold data about all fields of any type
-	public abstract class FieldData : IExposable
+	public abstract class FieldData
 	{
 		public Type type; // declaring type, a subclass of some parent base type (often Thing)
 		public Type fieldType;
 		public string name; // field name / property name / sometimes method name
 
-		// For load/save. These are technicaly re-discoverable but this is easier.
-		private string typeName;
-		private string fieldTypeName;
-		public string DisableReason =>
-			type == null ? $"Could not find type {typeName} for ({fieldTypeName}) {typeName}.{name}"
-			: fieldType == null ? $"Could not find field type {fieldTypeName} for ({fieldTypeName}) {typeName}.{name}"
-			: null;
 
 		public FieldData() { }
 
@@ -37,30 +30,6 @@ namespace TD_Find_Lib
 			SetColored();
 		}
 
-		public virtual void ExposeData()
-		{
-			Scribe_Values.Look(ref name, "name");
-
-			if (Scribe.mode == LoadSaveMode.Saving)
-			{
-				typeName = type?.ToString() ?? typeName;
-				fieldTypeName = fieldType?.ToString() ?? fieldTypeName;
-				Scribe_Values.Look(ref typeName, "type");
-				Scribe_Values.Look(ref fieldType, "fieldType");
-			}
-			if (Scribe.mode == LoadSaveMode.LoadingVars)
-			{
-				Scribe_Values.Look(ref typeName, "type");
-				Scribe_Values.Look(ref fieldTypeName, "fieldType");
-
-				// Maybe null if loaded 3rdparty types
-				type = ParseHelper.ParseType(typeName);
-				fieldType = ParseHelper.ParseType(fieldTypeName);
-
-				SetColored();
-			}
-		}
-
 		public virtual FieldData Clone()
 		{
 			FieldData clone = (FieldData)Activator.CreateInstance(GetType());
@@ -68,8 +37,6 @@ namespace TD_Find_Lib
 			clone.type = type;
 			clone.fieldType = fieldType;
 			clone.name = name;
-			clone.typeName = typeName;
-			clone.fieldTypeName = fieldTypeName;
 			clone.nameColor = nameColor;
 
 			return clone;
@@ -139,35 +106,21 @@ namespace TD_Find_Lib
 
 				// (Field Type)
 				sb.Append("(");
-				if (fieldType != null)
+				if (ModNameFor(fieldType) is string fassName)
 				{
-					if (ModNameFor(fieldType) is string assName)
-					{
-						sb.Append(assName.Colorize(ModColor));
-						sb.Append("::");
-					}
-					sb.Append(fieldType.ToStringSimple());
+					sb.Append(fassName.Colorize(ModColor));
+					sb.Append("::");
 				}
-				else
-				{
-					sb.Append(fieldTypeName);
-				}
+				sb.Append(fieldType.ToStringSimple());
 				sb.Append(") ");
 
 				// Class type
-				if (type != null)
+				if (ModNameFor(type) is string assName)
 				{
-					if (ModNameFor(type) is string assName)
-					{
-						sb.Append(assName.Colorize(ModColor));
-						sb.Append("::");
-					}
-					sb.Append(type.ToStringSimple());
+					sb.Append(assName.Colorize(ModColor));
+					sb.Append("::");
 				}
-				else
-				{
-					sb.Append(typeName);
-				}
+				sb.Append(type.ToStringSimple());
 
 				// field name
 				sb.Append(".");
@@ -539,16 +492,12 @@ namespace TD_Find_Lib
 	public class ClassExtensionData<T> : FieldDataClassMember
 	{
 		private Type extensionClass;
+
 		public ClassExtensionData() { }
 		public ClassExtensionData(Type fieldType, string name, Type extensionClass)
 			: base(typeof(T), fieldType, name)
 		{
 			this.extensionClass = extensionClass;
-		}
-		public override void ExposeData()
-		{
-			base.ExposeData();
-			Scribe_Values.Look(ref extensionClass, "extensionClass");
 		}
 		public override FieldData Clone()
 		{
@@ -593,16 +542,12 @@ namespace TD_Find_Lib
 	public class ClassExtensionThingPosMapData : FieldDataClassMember
 	{
 		private Type extensionClass;
+
 		public ClassExtensionThingPosMapData() { }
 		public ClassExtensionThingPosMapData(Type fieldType, string name, Type extensionClass)
 			: base(typeof(Thing), fieldType, name)
 		{
 			this.extensionClass = extensionClass;
-		}
-		public override void ExposeData()
-		{
-			base.ExposeData();
-			Scribe_Values.Look(ref extensionClass, "extensionClass");
 		}
 		public override FieldData Clone()
 		{
@@ -665,6 +610,7 @@ namespace TD_Find_Lib
 		public override string TextName =>
 			$".GetComp<{fieldType.Name}>()";
 		public override string SuggestionName => $"GetComp<{fieldType.Name}>";
+		public override string AutoFillName => $"GetComp {fieldType.Name}";
 	}
 
 
@@ -737,16 +683,12 @@ namespace TD_Find_Lib
 	public class EnumerableExtensionData<T> : FieldDataEnumerableMember
 	{
 		private Type extensionClass;
+
 		public EnumerableExtensionData() { }
 		public EnumerableExtensionData(Type fieldType, string name, Type extensionClass)
 			: base(typeof(T), fieldType, name)
 		{
 			this.extensionClass = extensionClass;
-		}
-		public override void ExposeData()
-		{
-			base.ExposeData();
-			Scribe_Values.Look(ref extensionClass, "extensionClass");
 		}
 		public override FieldData Clone()
 		{
@@ -781,6 +723,11 @@ namespace TD_Find_Lib
 		public FieldDataComparer(Type type, Type fieldType, string name)
 			: base(type, fieldType, name)
 		{ }
+
+		// save comparison data
+		public virtual void PostExposeData() { }
+		
+		public virtual string DisableReason => null;
 
 		public abstract bool AppliesTo(object obj);
 	}
@@ -850,10 +797,9 @@ namespace TD_Find_Lib
 		{
 			FillBuffers();
 		}
-		public override void ExposeData()
+		public override void PostExposeData()
 		{
-			base.ExposeData();
-			Scribe_Values.Look(ref valueRange, "range");
+			Scribe_Values.Look(ref valueRange, "compareTo");
 			if (Scribe.mode == LoadSaveMode.LoadingVars)
 				FillBuffers();
 		}
@@ -984,10 +930,9 @@ namespace TD_Find_Lib
 		{
 			FillBuffers();
 		}
-		public override void ExposeData()
+		public override void PostExposeData()
 		{
-			base.ExposeData();
-			Scribe_Values.Look(ref valueRange, "range");
+			Scribe_Values.Look(ref valueRange, "compareTo");
 			if (Scribe.mode == LoadSaveMode.LoadingVars)
 				FillBuffers();
 		}
@@ -1105,7 +1050,7 @@ namespace TD_Find_Lib
 	}
 
 
-
+	// todo: handled modded enums, loading library filter without mod loaded?..
 	public abstract class EnumData<TEnum> : FieldDataComparer where TEnum : Enum
 	{
 		public MaskFilterEnum<TEnum> mask;
@@ -1122,9 +1067,9 @@ namespace TD_Find_Lib
 			mask = new();
 			flags = typeof(TEnum).GetCustomAttributes<FlagsAttribute>().Any();
 		}
-		public override void ExposeData()
+		public override void PostExposeData()
 		{
-			base.ExposeData();
+			//todo use single compareTo string better
 			mask.PostExposeData();
 		}
 		public override FieldData Clone()
@@ -1244,9 +1189,8 @@ namespace TD_Find_Lib
 	{
 		private string compareTo;
 		private bool exact;
-		public override void ExposeData()
+		public override void PostExposeData()
 		{
-			base.ExposeData();
 			Scribe_Values.Look(ref compareTo, "compareTo");
 			Scribe_Values.Look(ref exact, "exact");
 		}
@@ -1366,20 +1310,34 @@ namespace TD_Find_Lib
 		public override string GetStringValue(object obj) => getter((T)obj);// please only pass in T
 	}
 
-
+	//todo handle modded defs, loaded in library when mod not loaded
 	public class DefData<TDef> : FieldDataComparer where TDef : Def, new()
 	{
 		public TDef compareTo;
+		private string compareToName;
+		public override string DisableReason =>
+			compareTo != null ? base.DisableReason
+			: $"Could not find def {compareToName} for ({fieldType.ToStringSimple()}) {type.ToStringSimple()}.{name}";
 
-		public override void ExposeData()
+		public override void PostExposeData()
 		{
-			base.ExposeData();
-			Scribe_Defs.Look(ref compareTo, "compareTo");
+			if(Scribe.mode == LoadSaveMode.Saving)
+			{
+				compareToName = compareTo?.defName ?? compareToName;
+				Scribe_Values.Look(ref compareToName, "compareTo");
+			}
+			else if(Scribe.mode == LoadSaveMode.LoadingVars)
+			{
+				Scribe_Values.Look(ref compareToName, "compareTo");
+				if(compareToName != null)
+					compareTo = (TDef)GenDefDatabase.GetDefSilentFail(typeof(TDef), compareToName, false);
+			}
 		}
 		public override FieldData Clone()
 		{
 			DefData<TDef> clone = (DefData<TDef>)base.Clone();
 			clone.compareTo = compareTo;
+			clone.compareToName = compareToName;
 			return clone;
 		}
 
@@ -1487,8 +1445,8 @@ namespace TD_Find_Lib
 		}
 
 
-		private string loadError = null;
-		public override string DisableReason => loadError;
+		public override string DisableReason => loadError ?? member?.DisableReason;
+		public override string DisableReasonCurMap => loadError ?? member?.DisableReason;
 
 		public ThingQueryCustom()
 		{
@@ -1498,43 +1456,62 @@ namespace TD_Find_Lib
 			controlName = $"THING_QUERY_CUSTOM_INPUT{id}";
 		}
 
-		private string matchTypeName;
+		private string matchTypeName, memberChainStr;
+		private string loadError = null;
+		private string compareTo = "";
 		public override void ExposeData()
 		{
 			base.ExposeData();
 
+
 			if (Scribe.mode == LoadSaveMode.Saving)
 			{
 				matchTypeName = matchType?.ToString() ?? matchTypeName;
-				Scribe_Values.Look(ref matchTypeName, "matchType");
+				Scribe_Values.Look(ref matchTypeName, "matchType", "Verse.Thing");
+
+				if (loadError == null)
+				{
+					memberChainStr = string.Join(".", memberChain.Select(d => d.AutoFillName));
+					if (member != null)
+						memberChainStr += "." + member.AutoFillName;
+
+					Scribe_Values.Look(ref memberChainStr, "memberChain", "");
+					Scribe_Values.Look(ref memberStr, "memberStr", "");
+
+					member?.PostExposeData();
+				}
+				else
+				{
+					// Save what was loaded. TODO check thoroughly all FieldDataComparers
+					Scribe_Values.Look(ref memberChainStr, "memberChain", "");
+					Scribe_Values.Look(ref compareTo, "compareTo", "");
+				}
 			}
-
-			Scribe_Collections.Look(ref memberChain, "memberChain");
-			Scribe_Deep.Look(ref member, "member");
-			Scribe_Values.Look(ref memberStr, "memberStr", "");
-
-			if (Scribe.mode == LoadSaveMode.LoadingVars)
+			else if (Scribe.mode == LoadSaveMode.LoadingVars)
 			{
 				Scribe_Values.Look(ref matchTypeName, "matchType");
-				if (ParseHelper.ParseType(matchTypeName) is Type type)
+				Scribe_Values.Look(ref memberStr, "memberStr", "");
+				if (GenTypes.GetTypeInAnyAssembly(matchTypeName) is Type type)
 				{
 					matchType = type;
+					nextOptions = FieldData.GetOptions(matchType);  // used in ParseChain
 				}
 				else
 				{
 					loadError = $"Couldn't find Type {matchTypeName}";
+					return;
+					//pointless to try the rest if main type doesn't exist.
 				}
 
-				member?.Make(this);
-				loadError = member?.DisableReason;
-
-				foreach (var memberData in memberChain)
-				{
-					memberData.Make(this);
-					loadError ??= memberData?.DisableReason;
-				}
+				Scribe_Values.Look(ref memberChainStr, "memberChain");
+				ParseChain(memberChainStr, true);
 
 				nextType = memberChain.LastOrDefault()?.fieldType ?? matchType;
+
+				if (member != null)
+					member.PostExposeData();
+				else
+					Scribe_Values.Look(ref compareTo, "compareTo", "");
 			}
 		}
 		protected override ThingQuery Clone()
@@ -1542,7 +1519,6 @@ namespace TD_Find_Lib
 			ThingQueryCustom clone = (ThingQueryCustom)base.Clone();
 
 			clone.matchType = matchType;
-			clone.matchTypeName = matchTypeName;
 
 			clone.member = (FieldDataComparer)member?.Clone();
 			clone.member?.Make(clone);
@@ -1554,14 +1530,26 @@ namespace TD_Find_Lib
 
 			clone.nextType = nextType;
 
+			
+			clone.matchTypeName = matchTypeName;
 			clone.loadError = loadError;
+			clone.memberChainStr = memberChainStr;
+			clone.compareTo = compareTo;
 
 			return clone;
 		}
 
-		private void SetMatchType(Type type)
+		private void ClearLoadData()
 		{
 			loadError = null;
+			memberChainStr = "";
+			compareTo = "";
+		}
+
+		private void SetMatchType(Type type)
+		{
+			ClearLoadData();
+
 
 			matchType = type;
 
@@ -1573,7 +1561,7 @@ namespace TD_Find_Lib
 			Focus();
 		}
 
-		private void SetMember(FieldData newData)
+		private void SetMember(FieldData newData, bool automated = false)
 		{
 			keepAliveSuggestions = false;
 			focused = false;
@@ -1584,7 +1572,8 @@ namespace TD_Find_Lib
 			{
 				member = addDataCompare;
 				member.Make(this);
-				member.PostSelected();
+				if(!automated)
+					member.PostSelected();
 
 				UI.UnfocusCurrentControl();
 				Focus();  //next frame
@@ -1597,7 +1586,8 @@ namespace TD_Find_Lib
 			{
 				memberChain.Add(addDataMember);
 				addDataMember.Make(this);
-				addDataMember.PostSelected();
+				if(!automated)
+					addDataMember.PostSelected();
 
 				member = null; //to be selected
 				memberStr = "";
@@ -1616,23 +1606,7 @@ namespace TD_Find_Lib
 		private readonly float suggestionRowHeight = Text.LineHeightOf(GameFont.Small);
 		private void ParseTextField()
 		{
-			var memberStrs = memberStr.Split('.');
-
-			// Periods should not be typed which means this was pasted
-			if (memberStrs.Length > 1)
-			{
-				foreach (string memberChainStr in memberStrs)
-				{
-					FieldData chainData = nextOptions.FirstOrDefault(d => d.name == memberChainStr);
-					if (chainData == null)
-					{
-						memberStr = memberChainStr;
-						ParseTextField();
-						return;
-					}
-					SetMember(chainData);
-				}
-			}
+			if (ParseChain(memberStr)) return;
 
 			filters.Clear();
 			filters.AddRange(memberStr.ToLower().Split(' ', '<', '>', '(', ')'));
@@ -1641,6 +1615,31 @@ namespace TD_Find_Lib
 			suggestions.AddRange(nextOptions.Where(d => d.ShouldShow(filters)));
 
 			AdjustForSuggestion();
+		}
+		private bool ParseChain(string chain, bool automated = false)
+		{
+			var memberStrs = chain.Split('.');
+
+			if (memberStrs.Length > 1)
+			{
+				foreach (string memberChainStr in memberStrs)
+				{
+					FieldData chainData = nextOptions.FirstOrDefault(d => d.name == memberChainStr) ?? nextOptions.FirstOrDefault(d => d.AutoFillName == memberChainStr);
+					if (chainData == null)
+					{
+						loadError = $"Couldn't find how to handle {memberChainStr}";
+
+						// abort and set textfield + suggestions
+						memberStr = memberChainStr;
+						ParseTextField();
+						return true;
+					}
+					SetMember(chainData, automated);
+				}
+
+				return true;
+			}
+			return false;
 		}
 		private void AdjustForSuggestion()
 		{
@@ -1821,6 +1820,8 @@ namespace TD_Find_Lib
 					GUI.SetNextControlName(controlName);
 					if (TDWidgets.TextField(inputRect, ref memberStr))
 					{
+						ClearLoadData();
+
 						ParseTextField();
 					}
 				}

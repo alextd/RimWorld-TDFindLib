@@ -90,12 +90,22 @@
 
 = don't need all subclasses in main list: as subclass for that.
 
-don't make fielddata in exposedata. or for inactive queries?
-don't warn when copying custom / extension.
+= don't warn when copying custom / extension.
 
-shorten exposedata for memberchain?.
+= shorten exposedata to memberchain
 
-test making HAR/CE queries and loading without them.
+= test making HAR/CE queries and loading without them.
+= HAR: .def, is Alien Def , is exact, orassan
+= CE: as Pawn.Loadout any: thingDef.IsWeapon
+
+test saving/loading
+: enum
+int 
+float
+bool
+extension
+thingcomp
+
 
 translatable.
 
