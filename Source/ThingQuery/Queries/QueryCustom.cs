@@ -1473,7 +1473,11 @@ namespace TD_Find_Lib
 				{
 					memberChainStr = string.Join(".", memberChain.Select(d => d.AutoFillName));
 					if (member != null)
-						memberChainStr += "." + member.AutoFillName;
+					{
+						if(memberChainStr == "")
+							memberChainStr += ".";
+						memberChainStr += member.AutoFillName;
+					}
 
 					Scribe_Values.Look(ref memberChainStr, "memberChain", "");
 					Scribe_Values.Look(ref memberStr, "memberStr", "");
@@ -1489,7 +1493,7 @@ namespace TD_Find_Lib
 			}
 			else if (Scribe.mode == LoadSaveMode.LoadingVars)
 			{
-				Scribe_Values.Look(ref matchTypeName, "matchType");
+				Scribe_Values.Look(ref matchTypeName, "matchType", "Verse.Thing");
 				Scribe_Values.Look(ref memberStr, "memberStr", "");
 				if (GenTypes.GetTypeInAnyAssembly(matchTypeName) is Type type)
 				{
@@ -1503,7 +1507,7 @@ namespace TD_Find_Lib
 					//pointless to try the rest if main type doesn't exist.
 				}
 
-				Scribe_Values.Look(ref memberChainStr, "memberChain");
+				Scribe_Values.Look(ref memberChainStr, "memberChain", "");
 				ParseChain(memberChainStr, true);
 
 				nextType = memberChain.LastOrDefault()?.fieldType ?? matchType;
@@ -1620,7 +1624,7 @@ namespace TD_Find_Lib
 		{
 			var memberStrs = chain.Split('.');
 
-			if (memberStrs.Length > 1)
+			if (automated || memberStrs.Length > 1)	// Presumably you can paste def.thing and then you want this to parse the chain.
 			{
 				foreach (string memberChainStr in memberStrs)
 				{
@@ -1669,25 +1673,7 @@ namespace TD_Find_Lib
 		private bool keepAliveSuggestions;
 		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
-			/*
-			row.Label("Is type");
-			RowButtonFloatMenu(matchType, thingSubclasses, t => t.Name, SelectMatchType, tooltip: matchType.ToString());
-
-			for (int i = 0; i < memberChain.Count; i++)
-			{
-				int locali = i;
-				var memberData = memberChain[i];
-
-				row.Label(".");
-				//todo: dropdown name with ">>Spawned" for parent class fields but draw button without
-				RowButtonFloatMenu(memberData, FieldData.GetOptions(type), v => v.DisplayName(type), newData => SetMemberAt(newData, locali), tooltip: memberData.ToString());;
-
-				type = memberData.fieldType;
-			}
-			*/
-			// Whatever comes out of the memberchain should be some other class, not a valuetype to be compared
-
-
+			RowPrependNOT();
 
 			// Cast the thing (so often useful it's always gonna be here)
 			row.Label("thing as ");
@@ -1706,25 +1692,27 @@ namespace TD_Find_Lib
 
 			// Fuckin double-events for keydown means we get two events, keycode and char,
 			// so unfocusing on keycode means we're not focused for the char event
-			// Remember between events but you gotta reset some time so reset it on repaint I guess
+			// Remember focused between events, but you gotta reset some time so reset it on repaint I guess
 			if (Event.current.type == EventType.Repaint)
 				focused = GUI.GetNameOfFocusedControl() == controlName;
 			else
 				focused |= GUI.GetNameOfFocusedControl() == controlName;
 
 			bool keyDown = Event.current.type == EventType.KeyDown;
-			KeyCode keyCode = Event.current.keyCode;
-			char ch = Event.current.character;
 
 
 			bool changed = false;
 
 			if (keyDown)
 			{
+				KeyCode keyCode = Event.current.keyCode;
+
 				if (focused)
 				{
+					char ch = Event.current.character;
+
 					// suppress the second key events that come after pressing tab/return/period
-					if ((ch == '	' || ch == '\n' || ch == '.'))
+					if (ch == '	' || ch == '\n' || ch == '.')
 					{
 						Event.current.Use();
 					}
@@ -1772,18 +1760,10 @@ namespace TD_Find_Lib
 						Event.current.Use();
 					}
 				}
-
-				/*
-				// Dropdown all options
-				if (keyCode == KeyCode.Tab)
-				{
-					DoFloatOptions(nextOptions, v => v.DisplayName(type), SetMember, d => d.ShouldShow(filters));
-				}
-				*/
 			}
 
 
-			// final member:
+			// final member that actually performs a comparison toa valuetype
 			if (member != null)
 			{
 				// member as string
@@ -1796,6 +1776,7 @@ namespace TD_Find_Lib
 					member = null;
 					Focus();
 				}
+				Widgets.DrawHighlightIfMouseover(memberRect);
 			}
 			else
 			{
@@ -1814,6 +1795,7 @@ namespace TD_Find_Lib
 
 					row.Label(".");
 
+					// Rect for remaining size. You can resize the window if you need.
 					Rect inputRect = rect;
 					inputRect.xMin = row.FinalX;
 
@@ -1828,8 +1810,7 @@ namespace TD_Find_Lib
 			}
 
 
-			// Draw field suggestions
-
+			// Draw popup field suggestions
 			if (focused || keepAliveSuggestions)
 			{
 				if (Event.current.type == EventType.Layout)
@@ -1846,10 +1827,11 @@ namespace TD_Find_Lib
 				int showCount = Math.Min(suggestions.Count, 10);
 				Rect suggestionRect = new(fullRect.x, fullRect.yMax, queryRect.width, (1 + showCount) * suggestionRowHeight);
 
-				// Focused opens the window, mouseover sustains the window so button works.
+				// Focused opens the window, mouseover sustains the window
+				// (because scrolling/clicking in the window would lose focus on the textfield.)
 				if (Event.current.type == EventType.Layout)
 				{
-					keepAliveSuggestions = suggestionRect.ExpandedBy(16).Contains(Event.current.mousePosition);
+					keepAliveSuggestions = suggestionRect.ExpandedBy(16, 64).Contains(Event.current.mousePosition);
 				}
 
 				suggestionRect.position += UI.GUIToScreenPoint(new(0, 0));
@@ -1881,7 +1863,7 @@ namespace TD_Find_Lib
 					rect.xMin += 2;
 					rect.height = suggestionRowHeight;
 
-					// Highligh selected option
+					// Highlight selected option
 					// TODO: QueryCustom field to use it elsewhere, probably by index.
 					var selectedOption = suggestions.ElementAtOrDefault(suggestionI);
 
@@ -1898,7 +1880,7 @@ namespace TD_Find_Lib
 						{
 							Widgets.DrawHighlight(rect);  // field row
 							rect.y += suggestionRowHeight;
-							Widgets.Label(rect, $": <color=grey>{selectedOption.TooltipDetails}</color>");
+							Widgets.Label(rect, $": {selectedOption.TooltipDetails}");
 							Widgets.DrawHighlight(rect);  // details row
 							clicked |= Widgets.ButtonInvisible(rect);
 						}
@@ -1906,7 +1888,6 @@ namespace TD_Find_Lib
 						{
 							if (Mouse.IsOver(rect))
 							{
-								// Eh, <> not handled well 
 								TooltipHandler.TipRegion(rect, d.TooltipDetails);
 							}
 						}
@@ -1916,7 +1897,7 @@ namespace TD_Find_Lib
 							SetMember(d);
 							Focus();
 
-							//Need to do this manual since this is not a FloatMenuOptionsAndRefresh
+							// Need to do this manual since this is not a FloatMenuOptionsAndRefresh
 							RootHolder.NotifyUpdated();
 
 							break;
@@ -1956,10 +1937,9 @@ namespace TD_Find_Lib
 			return member?.Unfocus() ?? false;
 		}
 
+		public override bool Enabled => member != null && base.Enabled;
 		public override bool AppliesDirectlyTo(Thing thing)
 		{
-			if (member == null) return false; //not ready
-
 			if (!matchType.IsAssignableFrom(thing.GetType()))
 				return false;
 

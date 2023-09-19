@@ -98,25 +98,21 @@
 = HAR: .def, is Alien Def , is exact, orassan
 = CE: as Pawn.Loadout any: thingDef.IsWeapon
 
-test saving/loading
-: enum
-int 
-float
-bool
-extension
-thingcomp
+= test saving/loading
 
+
+slow note.
 
 translatable.
 
-sample custom filters in default library
+sample custom filters in default library + demo screenshots
+: battery energy pct
+: battery capacity
+: fuelable amount
+: CE loadout any slot is specific weapon
+: HAR: pawn.def as ThingDef_AlienRace.alienRace @ 
+https://github.com/erdelf/AlienRaces/blob/master/Source/AlienRace/AlienRace/ThingDef_AlienRace.cs#L165
 
-== demo
-battery energy pct
-battery capacity
-fuelable amount
-CE loadout any slot is specific weapon
-HAR: pawn.def as ThingDef_AlienRace.alienRace @ https://github.com/erdelf/AlienRaces/blob/master/Source/AlienRace/AlienRace/ThingDef_AlienRace.cs#L165
 
 ==HARDCORE CUSTOM QUERY
 FieldDataComparerThingQuery => ThingQuery on a thing. 

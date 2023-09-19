@@ -69,7 +69,7 @@ namespace TD_Find_Lib
 
 
 		private bool enabled = true; //simply turn off but keep in list
-		public bool Enabled => enabled && DisableReasonCurMap == null;
+		public virtual bool Enabled => enabled && DisableReasonCurMap == null;
 		public static readonly Color DisabledOverlayColor = Widgets.WindowBGFillColor * new Color(1,1,1,.5f);
 
 		private bool _include = true; //or exclude
