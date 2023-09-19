@@ -77,9 +77,7 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="Lib.Harmony">
-      <Version>2.2.2</Version>
-    </PackageReference>
+    <PackageReference Include="Lib.Harmony" Version="2.*" ExcludeAssets="runtime"/>
     <Publicize Include="Assembly-CSharp" />
   </ItemGroup>
   <ItemGroup>
