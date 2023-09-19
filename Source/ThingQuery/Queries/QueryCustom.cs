@@ -246,7 +246,9 @@ namespace TD_Find_Lib
 			{ typeof(string), typeof(Type), typeof(Action), typeof(MemberInfo), typeof(Map),
 			typeof(Texture2D)};
 		private static bool ValidClassType(Type type) =>
-			type.IsClass && !blacklistClasses.Any(b => b.IsAssignableFrom(type));
+			type.IsClass 
+			&& !type.IsGenericTypeDefinition
+			&& !blacklistClasses.Any(b => b.IsAssignableFrom(type));
 
 		private static readonly string[] blacklistMethods = new string[]
 			{ "ChangeType" };//notranslate
@@ -297,7 +299,7 @@ namespace TD_Find_Lib
 			if (type == typeof(ThingWithComps))
 			{
 				foreach (Type compType in GenTypes.AllSubclasses(typeof(ThingComp)))
-					if(!compType.IsGenericTypeDefinition)
+					if(ValidClassType(compType))
 						yield return NewData(typeof(ThingCompData<>), new[] { compType });
 			}
 
