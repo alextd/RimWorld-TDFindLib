@@ -102,7 +102,7 @@
 
 = slow note.
 
-translatable.
+= translatable.
 
 sample custom filters in default library + demo screenshots
 : battery energy pct

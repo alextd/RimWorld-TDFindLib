@@ -54,7 +54,7 @@ namespace TD_Find_Lib
 
 		// TextName, a hopefully code-accurate part of chain, e.g. building .GetComp<CompPower>() .pct ...
 		// overrides for " as CompPowerTradable" with added instead of dot.
-		public virtual string TextName => $".{Name}";
+		public virtual string TextName => $".{Name}";//notranslate
 
 		// SuggestionName as shown in the dropdown
 		public virtual string SuggestionName => Name;
@@ -249,7 +249,7 @@ namespace TD_Find_Lib
 			type.IsClass && !blacklistClasses.Any(b => b.IsAssignableFrom(type));
 
 		private static readonly string[] blacklistMethods = new string[]
-			{ "ChangeType" };
+			{ "ChangeType" };//notranslate
 		private static bool ValidExtensionMethod(MethodInfo meth, bool forThingPosMap = false)
 		{
 			if (blacklistMethods.Contains(meth.Name)) return false;
@@ -411,13 +411,13 @@ namespace TD_Find_Lib
 		{ }
 
 		public override string TextName =>
-			base.TextName + ".Any x => x";
+			base.TextName + "TD.AnyXWhereX".Translate();
 		public override string SuggestionName =>
-			base.SuggestionName + " (Any)";
+			base.SuggestionName + " (Any)";//notranslate
 		public override string AutoFillName =>
 			Name;
 		public override string TooltipDetails =>
-			$"(IEnumerable {fieldType.ToStringSimple()}) {type.ToStringSimple()}.{name}";
+			$"(IEnumerable {fieldType.ToStringSimple()}) {type.ToStringSimple()}.{name}";//notranslate
 
 
 		public abstract IEnumerable<object> GetMembers(object obj);
@@ -515,8 +515,8 @@ namespace TD_Find_Lib
 
 		public override string TextName => base.TextName + "()";
 		public override string SuggestionName => base.SuggestionName + "()";
-		public override string TooltipDetails => "(extension) " + base.TooltipDetails + "()";
-		public override string FilterName => base.FilterName + " extension";
+		public override string TooltipDetails => "(extension) " + base.TooltipDetails + "()";//notranslate
+		public override string FilterName => base.FilterName + " extension";//notranslate
 
 
 		delegate object ClassGetter(T t);
@@ -563,10 +563,10 @@ namespace TD_Find_Lib
 			nameColor = Color.Lerp(nameColor, Color.yellow, 0.5f);
 		}
 
-		public override string TextName => $".Position.{name}(map)";
+		public override string TextName => $".Position.{name}(map)";//notranslate
 		public override string SuggestionName => base.SuggestionName + "()";
-		public override string TooltipDetails => "(extension) " + base.TooltipDetails + "(IntVec3, Map)";
-		public override string FilterName => base.FilterName + " extension";
+		public override string TooltipDetails => "(extension) " + base.TooltipDetails + "(IntVec3, Map)";//notranslate
+		public override string FilterName => base.FilterName + " extension";//notranslate
 
 
 		delegate object ClassGetter(IntVec3 t, Map map);
@@ -607,10 +607,9 @@ namespace TD_Find_Lib
 		public override object GetMember(object obj) => getter(obj as ThingWithComps);
 
 
-		public override string TextName =>
-			$".GetComp<{fieldType.Name}>()";
-		public override string SuggestionName => $"GetComp<{fieldType.Name}>";
-		public override string AutoFillName => $"GetComp {fieldType.Name}";
+		public override string TextName => $".GetComp<{fieldType.Name}>()";//notranslate
+		public override string SuggestionName => $"GetComp<{fieldType.Name}>";//notranslate
+		public override string AutoFillName => $"GetComp {fieldType.Name}";//notranslate
 	}
 
 
@@ -619,13 +618,13 @@ namespace TD_Find_Lib
 	{
 		public AsSubclassData() { }
 		public AsSubclassData(Type type, Type subType)
-			: base(type, subType, "as subclass")
+			: base(type, subType, "as subclass")//notranslate
 		{ }
 
 		public override string TextName =>
-			$" as {fieldType.Name}";
+			$" as {fieldType.Name}";//notranslate
 		public override string SuggestionName =>
-			$"as {fieldType.Name}";
+			$"as {fieldType.Name}";//notranslate
 
 		// fun fact I spend like 30 minutes writing this trying to convert obj to fieldType then realized it's returning as object anyway
 		// Then later realized I needed to check the type because Thing as Pawn is null when not pawn.
@@ -1105,7 +1104,7 @@ namespace TD_Find_Lib
 			else
 			{
 				Text.Anchor = TextAnchor.LowerRight;
-				Widgets.Label(rect.LeftHalf(), "Is: ");
+				Widgets.Label(rect.LeftHalf(), "TD.Is".Translate() + ": ");
 				Text.Anchor = default;
 				// Dropdown enum selector
 				if (Widgets.ButtonText(rect.RightHalf(), mask.mustHave.ToString()))
@@ -1161,11 +1160,11 @@ namespace TD_Find_Lib
 	{
 		public ObjIsNull() { }
 		public ObjIsNull(Type type)
-			: base(type, typeof(bool), "is null")
+			: base(type, typeof(bool), "is null")//notranslate
 		{ }
 
-		public override string TextName => " == null";
-		public override string FilterName => "== is null";
+		public override string TextName => " == null";//notranslate
+		public override string FilterName => "== is null";//notranslate
 
 		// Even though code below doesn't call this as it checks obj == null before passing to FieldDataComparer
 		public override bool AppliesTo(object obj) => obj == null;
@@ -1175,11 +1174,11 @@ namespace TD_Find_Lib
 	{
 		public ObjIsNotNull() { }
 		public ObjIsNotNull(Type type)
-			: base(type, typeof(bool), "is not null")
+			: base(type, typeof(bool), "is not null")//notranslate
 		{ }
 
-		public override string TextName => " != null";
-		public override string FilterName => "!= is not null";
+		public override string TextName => " != null";//notranslate
+		public override string FilterName => "!= is not null";//notranslate
 
 		public override bool AppliesTo(object obj) => obj != null;
 	}
@@ -1218,7 +1217,7 @@ namespace TD_Find_Lib
 		public override void Make(ThingQueryCustom p)
 		{
 			base.Make(p);
-			controlName = $"STRING_DATA{p.Id}";
+			controlName = $"STRING_DATA{p.Id}";//notranslate
 		}
 		public override bool Draw(Listing_StandardIndent listing, bool locked)
 		{
@@ -1231,7 +1230,7 @@ namespace TD_Find_Lib
 
 			bool changed = false;
 
-			if (Widgets.ButtonText(lRect, exact ? "Is: " : "Contains:"))
+			if (Widgets.ButtonText(lRect, (exact ? "TD.Is".Translate() : "Contains".Translate()) + ": "))
 			{
 				exact = !exact;
 				changed = true;
@@ -1317,7 +1316,7 @@ namespace TD_Find_Lib
 		private string compareToName;
 		public override string DisableReason =>
 			compareTo != null ? base.DisableReason
-			: $"Could not find def {compareToName} for ({fieldType.ToStringSimple()}) {type.ToStringSimple()}.{name}";
+			: "TD.CouldNotFindDef0For123".Translate(compareToName, fieldType.ToStringSimple(), type.ToStringSimple(), name);
 
 		public override void PostExposeData()
 		{
@@ -1342,7 +1341,7 @@ namespace TD_Find_Lib
 		}
 
 		public DefData()
-			: base(typeof(TDef), typeof(bool), "is exact def")
+			: base(typeof(TDef), typeof(bool), "is exact def")//notranslate
 		{
 		}
 
@@ -1453,7 +1452,7 @@ namespace TD_Find_Lib
 			nextType = matchType;
 
 
-			controlName = $"THING_QUERY_CUSTOM_INPUT{id}";
+			controlName = $"THING_QUERY_CUSTOM_INPUT{id}";//notranslate
 		}
 
 		private string matchTypeName, memberChainStr;
@@ -1502,7 +1501,7 @@ namespace TD_Find_Lib
 				}
 				else
 				{
-					loadError = $"Couldn't find Type {matchTypeName}";
+					loadError = "TD.CouldntFindType0".Translate(matchTypeName);
 					return;
 					//pointless to try the rest if main type doesn't exist.
 				}
@@ -1631,7 +1630,7 @@ namespace TD_Find_Lib
 					FieldData chainData = nextOptions.FirstOrDefault(d => d.name == memberChainStr) ?? nextOptions.FirstOrDefault(d => d.AutoFillName == memberChainStr);
 					if (chainData == null)
 					{
-						loadError = $"Couldn't find how to handle {memberChainStr}";
+						loadError = "TD.CouldntFindHowToHandle0".Translate(memberChainStr);
 
 						// abort and set textfield + suggestions
 						memberStr = memberChainStr;
@@ -1676,7 +1675,7 @@ namespace TD_Find_Lib
 			RowPrependNOT();
 
 			// Cast the thing (so often useful it's always gonna be here)
-			row.Label("thing as ");
+			row.Label("thing as ");//notranslate
 			RowButtonFloatMenu(matchType, thingSubclasses, t => t.Name, SetMatchType, tooltip: matchType.ToString());
 
 
@@ -1844,9 +1843,9 @@ namespace TD_Find_Lib
 					// draw Field count
 					Text.Anchor = TextAnchor.LowerRight;
 					if (suggestions.Count > 1)
-						Widgets.Label(rect, $"{suggestions.Count} options");
+						Widgets.Label(rect, "TD.0Options".Translate(suggestions.Count));
 					else if (suggestions.Count == 0)
-						Widgets.Label(rect, $"No options!");
+						Widgets.Label(rect, "TD.NoOptions".Translate());
 					Text.Anchor = default;
 
 					// Begin Scrolling

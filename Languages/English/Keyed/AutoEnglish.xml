@@ -186,5 +186,11 @@ Now, I'm not providing a guide on how to navigate the game's code, because holy 
 	<TD.WarnExtension>Look, the Custom Filter is advanced enough, but this is an extension method.
 
 You should only use this if you know what the code does. Usually, Custom Filter only lets you access fields and properties - code that doesn't change anything. Extension methods might modify things. You don't want a search to modify things. So you should know what method you're using, and that it only accesses data.</TD.WarnExtension>
+	<TD.AnyXWhereX>.Any x =&gt; x</TD.AnyXWhereX>
+	<TD.CouldNotFindDef0For123>Could not find def {0} for ({1}) {2}.{3}</TD.CouldNotFindDef0For123>
+	<TD.CouldntFindType0>Couldn't find Type {0}</TD.CouldntFindType0>
+	<TD.CouldntFindHowToHandle0>Couldn't find how to handle {0}</TD.CouldntFindHowToHandle0>
+	<TD.0Options>{0} options</TD.0Options>
+	<TD.NoOptions>No options!</TD.NoOptions>
 	
 </LanguageData>
