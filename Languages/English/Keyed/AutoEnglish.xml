@@ -181,7 +181,7 @@
 
 	<TD.WarnCustom>This Custom Filter is advanced, requiring knowledge of game code. It lets the search access any C# field or property to compare its value. Nearly everything is accessible, even mod content.
 
-Now, I'm not providing a guide on how to navigate the game's code, because holy cow, is it too big to explain. In short, you should know what you're looking for instead of just browsing the endless possibilities. A lot of the options are simply not useful. It's a thorough list, not filtered for ease of use.</TD.WarnCustom>
+Now, I'm not providing a guide on how to navigate the game's code, because holy cow, is it too big to explain. In short, you should know what you're looking for instead of just browsing the endless possibilities. A lot of the options are simply not useful, and some are slow. It's a thorough list, not filtered for ease of use.</TD.WarnCustom>
 
 	<TD.WarnExtension>Look, the Custom Filter is advanced enough, but this is an extension method.
 
