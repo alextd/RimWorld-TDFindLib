@@ -297,7 +297,8 @@ namespace TD_Find_Lib
 			if (type == typeof(ThingWithComps))
 			{
 				foreach (Type compType in GenTypes.AllSubclasses(typeof(ThingComp)))
-					yield return NewData(typeof(ThingCompData<>), new[] { compType });
+					if(!compType.IsGenericTypeDefinition)
+						yield return NewData(typeof(ThingCompData<>), new[] { compType });
 			}
 
 			// valuetypes
