@@ -104,7 +104,7 @@
 
 = translatable.
 
-sample custom filters in default library + demo screenshots
+= sample custom filters in default library + demo screenshots
 : battery energy pct
 : battery capacity
 : fuelable amount
@@ -115,6 +115,7 @@ https://github.com/erdelf/AlienRaces/blob/master/Source/AlienRace/AlienRace/Thin
 
 ==HARDCORE CUSTOM QUERY
 FieldDataComparerThingQuery => ThingQuery on a thing. 
+
 Even more, generic Query<T> valid for Query<ThingDef> / pawns / buildings => FieldDataComparer for that Query
 : convert ALL THINGQUERIES to use this. e.g. ThingQueryHealth  would use Query<Hediff> for Hediffs, ThingQueryFaction for Factions... ah gee that's a lot.
 
@@ -123,6 +124,8 @@ enumerable on valuetypes
 : Ienumerable instead of Ienumerable<object>?
 : Probably would splitting Comparer into a normal member / new comparer class
 : new class auto-detects valuetypes and sets the comparison, doing no field access.
+
+structs, e.g LocalTargetInfo on jobs
 
 
 

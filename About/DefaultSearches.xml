@@ -1025,5 +1025,109 @@
 		</li>
 	</searches>
 </li>
+<li>
+	<name>Custom Searches</name>
+	<searches>
+		<li>
+			<name>Low Power/Fuel</name>
+			<listType>Selectable</listType>
+			<searchMaps />
+			<queries>
+				<li Class="TD_Find_Lib.ThingQueryCustom">
+					<def>Query_Custom</def>
+					<matchType>Verse.Building</matchType>
+					<memberChain>GetComp CompPowerBatteryStoredEnergyPct</memberChain>
+					<compareTo>0~0.2</compareTo>
+				</li>
+				<li Class="TD_Find_Lib.ThingQueryCustom">
+					<def>Query_Custom</def>
+					<matchType>Verse.Building</matchType>
+					<memberChain>GetComp CompRefuelableFuelPercentOfTarget</memberChain>
+					<compareTo>0~0.2</compareTo>
+				</li>
+			</queries>
+			<matchAllQueries>True</matchAllQueries>
+		</li>
+		<li>
+			<name>Idle Generators</name>
+			<listType>Selectable</listType>
+			<searchMaps />
+			<queries>
+				<li Class="TD_Find_Lib.ThingQueryCustom">
+					<def>Query_Custom</def>
+					<matchType>Verse.Building</matchType>
+					<memberChain>GetComp CompPowerPlantis not null</memberChain>
+				</li>
+				<li Class="TD_Find_Lib.ThingQueryCustom">
+					<def>Query_Custom</def>
+					<matchType>Verse.Building</matchType>
+					<memberChain>GetComp CompPowerPlantPowerOutput</memberChain>
+					<compareTo>0~1</compareTo>
+				</li>
+			</queries>
+			<matchAllQueries>True</matchAllQueries>
+		</li>
+		<li>
+			<name>Is cooking</name>
+			<listType>Selectable</listType>
+			<searchMaps />
+			<queries>
+				<li Class="TD_Find_Lib.ThingQueryCustom">
+					<def>Query_Custom</def>
+					<matchType>Verse.Pawn</matchType>
+					<memberChain>jobs.curJob.bill.recipe.workSkillis exact def</memberChain>
+					<compareTo>Cooking</compareTo>
+				</li>
+			</queries>
+			<matchAllQueries>True</matchAllQueries>
+		</li>
+		<li>
+			<name>Ideology can reform</name>
+			<listType>Selectable</listType>
+			<searchMaps />
+			<queries>
+				<li Class="TD_Find_Lib.ThingQueryCustom">
+					<def>Query_Custom</def>
+					<matchType>Verse.Pawn</matchType>
+					<memberChain>ideo.Ideo.developmentCanReformNow</memberChain>
+				</li>
+			</queries>
+			<matchAllQueries>True</matchAllQueries>
+		</li>
+		<li>
+			<name>CE: Loadout has weapon</name>
+			<listType>Selectable</listType>
+			<searchMaps />
+			<queries>
+				<li Class="TD_Find_Lib.ThingQueryCustom">
+					<def>Query_Custom</def>
+					<matchType>Verse.Pawn</matchType>
+					<memberChain>GetLoadout().Slots.thingDefIsWeapon</memberChain>
+				</li>
+			</queries>
+			<matchAllQueries>True</matchAllQueries>
+		</li>
+		<li>
+			<name>HAR: Non-human</name>
+			<listType>Selectable</listType>
+			<searchMaps />
+			<queries>
+				<li Class="TD_Find_Lib.ThingQueryCustom">
+					<def>Query_Custom</def>
+					<matchType>Verse.Pawn</matchType>
+					<memberChain>def.as ThingDef_AlienRaceis not null</memberChain>
+				</li>
+				<li Class="TD_Find_Lib.ThingQueryCustom">
+					<def>Query_Custom</def>
+					<include>False</include>
+					<matchType>Verse.Pawn</matchType>
+					<memberChain>def.as ThingDef_AlienRaceis exact def</memberChain>
+					<compareTo>Human</compareTo>
+				</li>
+			</queries>
+			<matchAllQueries>True</matchAllQueries>
+		</li>
+	</searches>
+</li>
 </saveable>
 </List_TD_Find_Lib.SearchGroup>
