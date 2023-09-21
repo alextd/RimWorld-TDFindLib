@@ -276,6 +276,9 @@ namespace TD_Find_Lib
 		const BindingFlags bFlags = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance;
 		private static IEnumerable<FieldData> FindFields(Type type)
 		{
+			if (!ValidClassType(type))  // so far this is, RimFactory's generic building subclasses.
+				yield break;
+
 			// class members
 			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField))
 				if (ValidClassType(field.FieldType) && EnumerableType(field.FieldType) == null)
@@ -375,7 +378,7 @@ namespace TD_Find_Lib
 			if (type == typeof(Thing))
 				foreach (MethodInfo meth in GetExtensionMethods(typeof(IntVec3)))
 					if (ValidExtensionMethod(meth, true) && ValidClassType(meth.ReturnType))
-						if (EnumerableType(meth.ReturnType) == null)
+						if (EnumerableType(meth.ReturnType) == null)	// todo: enumerable types, currently none worth it.
 							yield return new ClassExtensionThingPosMapData(meth.ReturnType, meth.Name, meth.DeclaringType);
 		}
 
