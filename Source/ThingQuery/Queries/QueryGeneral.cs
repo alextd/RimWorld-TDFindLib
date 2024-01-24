@@ -421,6 +421,11 @@ namespace TD_Find_Lib
 			thing is Plant plant && plant.Blighted;
 	}
 
+	[DefOf]
+	public static class GoodwillSituationDefOf
+	{
+		public static GoodwillSituationDef PermanentEnemy;
+	}
 	public class ThingQueryFaction : ThingQueryDropDown<FactionRelationKind>
 	{
 		public bool host; // compare host faction instead of thing's faction
@@ -455,18 +460,20 @@ namespace TD_Find_Lib
 				extraOption == 3 ? fac == Faction.OfInsects :
 				extraOption == 4 ? fac != null && !fac.def.hidden :
 				extraOption == 5 ? fac == null || fac.def.hidden :
+				extraOption == 6 ? fac != null && fac.def.permanentEnemy :
 				(fac != null && fac != Faction.OfPlayer && fac.PlayerRelationKind == sel);
 		}
 
 		public override string NameFor(FactionRelationKind o) => o.GetLabel();
 
-		public override int ExtraOptionsCount => 5;
-		public override string NameForExtra(int ex) => // or FleshTypeDef but this works
+		public override int ExtraOptionsCount => 6;
+		public override string NameForExtra(int ex) =>
 			ex == 1 ? "TD.Player".Translate() :
 			ex == 2 ? "TD.Mechanoid".Translate() :
 			ex == 3 ? "TD.Insectoid".Translate() :
 			ex == 4 ? "TD.AnyOption".Translate() :
-			"TD.NoFaction".Translate();	//Can't be null because T is struct
+			ex == 5 ? "TD.NoFaction".Translate() :
+				GoodwillSituationDefOf.PermanentEnemy.LabelCap;
 
 		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
 		{
