@@ -14,6 +14,8 @@ namespace TD_Find_Lib
 	//    to select from every detail about a thing.
 	// - And then, which map/maps to run the search on.
 
+	// If you provide your own list of things, use QueryHolder.
+
 
 	// SearchListType:
 	// What basic type of thing are you searching.
@@ -198,20 +200,6 @@ namespace TD_Find_Lib
 			}
 			if (parameters.listType == 0)
 				parameters.listType = SearchListType.Selectable;
-		}
-
-
-		// All Or Any Query
-		public bool MatchAllQueries
-		{
-			get => children.matchAllQueries;
-			set
-			{
-				children.matchAllQueries = value;
-
-				//it would be nice if this had an option not to trigger a remake ohwell.
-				Changed();
-			}
 		}
 
 
@@ -408,8 +396,6 @@ namespace TD_Find_Lib
 			return sb.ToString();
 		}
 
-
-
 		// Cloning shenanigans
 		public enum CloneType { Save, Edit, Use }
 		// Reference? Copy?
@@ -498,9 +484,9 @@ namespace TD_Find_Lib
 		public bool oncePerTick = true;
 		public bool changedSinceRemake;
 		public int lastRemakeTick;
-		public void Changed()
+		public override void Changed()
 		{
-			changed = true;
+			base.Changed();
 			changedSinceRemake = true;
 
 			RemakeList();

@@ -118,6 +118,30 @@ namespace TD_Find_Lib
 
 
 
+		// Sadly just like above, but at last moment it clones QueryHolder as search 
+		public static void ButtonChooseExportQueryHolder(this WidgetRow row, QueryHolder holder, string source = null)
+		{
+			if (row.ButtonIcon(FindTex.Export, "TD.ExportSearchTo".Translate()))
+				Find.WindowStack.Add(new FloatMenu(ExportHolderOptions(holder, source)));
+		}
+
+		public static List<FloatMenuOption> ExportHolderOptions(QueryHolder holder, string source = null)
+		{
+			List<FloatMenuOption> exportOptions = new();
+
+			foreach (ISearchReceiver receiver in SearchTransfer.receivers)
+			{
+				if (SourceMatch(receiver.Source, source)) continue;
+				if (!receiver.CanReceive()) continue;
+
+				exportOptions.Add(new FloatMenuOption(receiver.ReceiveName, () => receiver.Receive(holder.CloneAsSearch().Clone(receiver.CloneArgs))));
+			}
+
+			return exportOptions;
+		}
+
+
+
 		// Basically a copy of ButtonChooseImportSearch, but accepting SearchGroup instead of QuerySearch.
 		// Single searches are not accepted, and one less submenu is needed to get at options.
 		// handler should set parent and siblings, or just extract each item from the list.

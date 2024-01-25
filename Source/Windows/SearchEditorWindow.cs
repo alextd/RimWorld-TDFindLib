@@ -9,43 +9,29 @@ using RimWorld;
 namespace TD_Find_Lib
 {
 	// Your standard popup editor.
-	public class SearchEditorWindow : QueryDrawerWindow
+	public class SearchEditorWindow : SearchViewerWindow
 	{
 		private Action<QuerySearch> onCloseIfChanged;
 		public SearchEditorWindow(QuerySearch search, string transferTag, Action<QuerySearch> onCloseIfChanged = null) : base(search, transferTag)
 		{
 			title = "TD.Editing".Translate();
-			showNameAfterTitle = true;
+			permalocked = false;
 
 			this.onCloseIfChanged = onCloseIfChanged;
 		}
 
 		public override void PostClose()
 		{
-			if (search.changed)
-				onCloseIfChanged?.Invoke(search);
-		}
-
-		public override void DrawIcons(WidgetRow row)
-		{
-			base.DrawIcons(row);
-
-			if (Find.CurrentMap != null &&
-				row.ButtonIcon(FindTex.List, "TD.ListThingsMatchingThisSearch".Translate()))
-			{
-				Find.WindowStack.Add(new ResultThingListWindow(search.CloneForUseSingle()));
-			}
-
-#if DEBUG
-			if (DebugSettings.godMode && row.ButtonIcon(FindTex.Infinity))
-				UnitTests.Run();
-#endif
+			if (Search.changed)
+				onCloseIfChanged?.Invoke(Search);
 		}
 	}
 
 	// Just view, no editing.
 	public class SearchViewerWindow : QueryDrawerWindow
 	{
+		protected QuerySearch Search => filter as QuerySearch;
+
 		public SearchViewerWindow(QuerySearch search, string tag) : base(search, tag)
 		{
 			title = "TD.Viewing".Translate();
@@ -61,8 +47,13 @@ namespace TD_Find_Lib
 			if (Find.CurrentMap != null &&
 				row.ButtonIcon(FindTex.List, "TD.ListThingsMatchingThisSearch".Translate()))
 			{
-				Find.WindowStack.Add(new ResultThingListWindow(search.CloneForUseSingle()));
+				Find.WindowStack.Add(new ResultThingListWindow(Search.CloneForUseSingle()));
 			}
+
+#if DEBUG
+			if (DebugSettings.godMode && row.ButtonIcon(FindTex.Infinity))
+				UnitTests.Run();
+#endif
 		}
 	}
 
@@ -81,7 +72,7 @@ namespace TD_Find_Lib
 
 		public override void Import(QuerySearch newSearch)
 		{
-			ImportInto(newSearch, search);
+			ImportInto(newSearch, Search);
 		}
 			
 		public static void ImportInto(QuerySearch sourceSeach, QuerySearch destSearch)
@@ -98,7 +89,38 @@ namespace TD_Find_Lib
 
 		public override void PostClose()
 		{
-			if (search.changed)
+			if (filter.changed)
+			{
+				Verse.Find.WindowStack.Add(new Dialog_MessageBox(
+					null,
+					"Confirm".Translate(), null,
+					"No".Translate(), () => Import(originalSearch),
+					"TD.KeepChanges".Translate(),
+					true, null,
+					delegate () { }// I dunno who wrote this class but this empty method is required so the window can close with esc because its logic is very different from its base class
+					)); ;
+			}
+		}
+	}
+
+	public class HolderEditorWindow : QueryDrawerWindow
+	{
+		//Actually all that's needed.
+		public HolderEditorWindow(QueryHolder holder, string transferTag) : base(holder, transferTag)
+		{ }
+	}
+
+	public class HolderEditorRevertableWindow : HolderEditorWindow
+	{
+		QuerySearch originalSearch;	// roundabout but works
+		public HolderEditorRevertableWindow(QueryHolder holder, string transferTag) : base(holder, transferTag)
+		{
+			holder.changed = false;
+			originalSearch = holder.CloneAsSearch();
+		}
+		public override void PostClose()
+		{
+			if (filter.changed)
 			{
 				Verse.Find.WindowStack.Add(new Dialog_MessageBox(
 					null,
@@ -115,7 +137,7 @@ namespace TD_Find_Lib
 	// Base class for mods to subclass, also SearchEditorWindow does.
 	public abstract class QueryDrawerWindow : Window
 	{
-		public QuerySearch search;
+		public QueryHolder filter;
 		public string transferTag;
 
 		private bool _locked;
@@ -140,28 +162,28 @@ namespace TD_Find_Lib
 			doCloseX = true;
 			closeOnAccept = false;
 		}
-		public QueryDrawerWindow(QuerySearch search, string transferTag) : this()
+		public QueryDrawerWindow(QueryHolder search, string transferTag) : this()
 		{
-			this.search = search;
+			this.filter = search;
 			this.transferTag = transferTag;
 		}
 
 		public override void OnCancelKeyPressed()
 		{
-			if (!search.Unfocus())
+			if (!filter.Unfocus())
 				base.OnCancelKeyPressed();
 		}
 
 		public override void Notify_ClickOutsideWindow()
 		{
-			search.Unfocus();
+			filter.Unfocus();
 		}
 
 		public override void PostOpen()
 		{
 			base.PostOpen();
 
-			if (Find.WindowStack.Windows.FirstOrDefault(w => w != this && w is QueryDrawerWindow dw && GetType() == dw.GetType() && dw.search == search) is Window duplicate)
+			if (Find.WindowStack.Windows.FirstOrDefault(w => w != this && w is QueryDrawerWindow dw && GetType() == dw.GetType() && dw.filter == filter) is Window duplicate)
 			{
 				Close();
 				Find.WindowStack.Notify_ClickedInsideWindow(duplicate);
@@ -180,8 +202,11 @@ namespace TD_Find_Lib
 		public virtual QuerySearch.CloneArgs ImportArgs => default;
 		public virtual void Import(QuerySearch search)
 		{
-			search.changed = true;
-			this.search = search;
+			filter.name = search.name;
+			filter.Children.Import(search.Children);
+
+			filter.UnbindMap();
+			filter.changed = true;
 		}
 
 		private string layoutFocus;
@@ -201,12 +226,12 @@ namespace TD_Find_Lib
 				}
 			}
 
-			DrawQuerySearch(fillRect);
+			Draw(fillRect);
 
 			if (Event.current.type == EventType.KeyDown && Event.current.keyCode == KeyCode.C && Event.current.control)
 			{
 				ClipboardTransfer clippy = new();
-				clippy.Receive(search);
+				clippy.Receive(filter);
 				Event.current.Use();
 			}
 
@@ -230,7 +255,7 @@ namespace TD_Find_Lib
 					Find.WindowStack.Add(this);
 					windowRect = pos;
 
-					search.Children.ForEach((ThingQuery q) => q.Focus());
+					filter.Children.ForEach((ThingQuery q) => q.Focus());
 					// would love to GUI.FocusControl but the name of the Widget.TextField are by COORDINATES ugh.
 				}
 			}
@@ -238,41 +263,49 @@ namespace TD_Find_Lib
 
 		protected virtual void DrawHeader(Rect headerRect)
 		{
-			// List Type
+			//Think a lot harder about how this QuerySearch/QueryHolder difference should be handled.
+			QuerySearch search = filter as QuerySearch;
+			
 			Rect typeRect = headerRect.LeftPart(.32f);
-			Widgets.Label(typeRect, "TD.Listing".Translate() + search.ListType.TranslateEnum());
 
-			if (!locked)
+			// List Type
+			if (search != null)
 			{
-				Widgets.DrawHighlightIfMouseover(typeRect);
-				if (Widgets.ButtonInvisible(typeRect))
+				Widgets.Label(typeRect, "TD.Listing".Translate() + search.ListType.TranslateEnum());
+
+				if (!locked)
 				{
-					List<FloatMenuOption> types = new();
-					foreach (SearchListType type in DebugSettings.godMode ? Enum.GetValues(typeof(SearchListType)) : SearchListNormalTypes.normalTypes)
+					Widgets.DrawHighlightIfMouseover(typeRect);
+					if (Widgets.ButtonInvisible(typeRect))
 					{
-						if (!DebugSettings.godMode && type >= SearchListType.Haulables)
-							continue;
+						List<FloatMenuOption> types = new();
+						foreach (SearchListType type in DebugSettings.godMode ? Enum.GetValues(typeof(SearchListType)) : SearchListNormalTypes.normalTypes)
+						{
+							if (!DebugSettings.godMode && type >= SearchListType.Haulables)
+								continue;
 
-						if (Event.current.control)
-						{
-							types.Add(new FloatMenuOption(
-								type.TranslateEnum(),
-								() => {
-									if (Event.current.shift)
-										search.SetListType(type);
-									else
-										search.ToggleListType(type);
-								},
-								search.ListType.HasFlag(type) ? Widgets.CheckboxOnTex : Widgets.CheckboxOffTex,
-								Color.white));
+							if (Event.current.control)
+							{
+								types.Add(new FloatMenuOption(
+									type.TranslateEnum(),
+									() =>
+									{
+										if (Event.current.shift)
+											search.SetListType(type);
+										else
+											search.ToggleListType(type);
+									},
+									search.ListType.HasFlag(type) ? Widgets.CheckboxOnTex : Widgets.CheckboxOffTex,
+									Color.white));
+							}
+							else
+							{
+								types.Add(new FloatMenuOption(type.TranslateEnum(), () => search.SetListType(type)));
+							}
 						}
-						else
-						{
-							types.Add(new FloatMenuOption(type.TranslateEnum(), () => search.SetListType(type)));
-						}
+
+						Find.WindowStack.Add(new FloatMenu(types));
 					}
-
-					Find.WindowStack.Add(new FloatMenu(types));
 				}
 			}
 
@@ -280,64 +313,67 @@ namespace TD_Find_Lib
 			// Matching All or Any
 			Rect matchRect = typeRect.CenteredOnXIn(headerRect);
 
-			Widgets.Label(matchRect, search.MatchAllQueries ? "TD.MatchingAllFilters".Translate() : "TD.MatchingAnyFilter".Translate());
+			Widgets.Label(matchRect, filter.MatchAllQueries ? "TD.MatchingAllFilters".Translate() : "TD.MatchingAnyFilter".Translate());
 			if (!locked)
 			{
 				Widgets.DrawHighlightIfMouseover(matchRect);
 				if (Widgets.ButtonInvisible(matchRect))
-					search.MatchAllQueries = !search.MatchAllQueries;
+					filter.MatchAllQueries = !filter.MatchAllQueries;
 			}
 
 
 			// Searching Map selection:
-			Rect mapTypeRect = headerRect.RightPart(.32f);
-			Widgets.Label(mapTypeRect, search.GetMapOptionLabel());
-
-			bool forceCurMap = search.ForceCurMap();
-			if (!locked && !forceCurMap)
+			if (search != null)
 			{
-				Widgets.DrawHighlightIfMouseover(mapTypeRect);
-				if(Widgets.ButtonInvisible(mapTypeRect))
+				Rect mapTypeRect = headerRect.RightPart(.32f);
+				Widgets.Label(mapTypeRect, search.GetMapOptionLabel());
+
+				bool forceCurMap = search.ForceCurMap();
+				if (!locked && !forceCurMap)
 				{
-					List<FloatMenuOption> mapOptions = new();
-
-					//Current Map
-					mapOptions.Add(new FloatMenuOption("TD.SearchCurrentMapOnly".Translate(), () => search.SetSearchCurrentMap()));
-
-					//All maps
-					mapOptions.Add(new FloatMenuOption("TD.SearchAllMaps".Translate(), () => search.SetSearchAllMaps()));
-
-					if (search.active)
+					Widgets.DrawHighlightIfMouseover(mapTypeRect);
+					if (Widgets.ButtonInvisible(mapTypeRect))
 					{
-						//Toggle each map
-						foreach (Map map in Find.Maps)
+						List<FloatMenuOption> mapOptions = new();
+
+						//Current Map
+						mapOptions.Add(new FloatMenuOption("TD.SearchCurrentMapOnly".Translate(), () => search.SetSearchCurrentMap()));
+
+						//All maps
+						mapOptions.Add(new FloatMenuOption("TD.SearchAllMaps".Translate(), () => search.SetSearchAllMaps()));
+
+						if (search.active)
 						{
-							mapOptions.Add(new FloatMenuOption(
-								map.Parent.LabelCap,
-								() =>
-								{
-									if (Event.current.shift)
-										search.SetSearchMap(map);
-									else
-										search.ToggleSearchMap(map);
-								},
-								search.ChosenMaps == null ? Widgets.CheckboxPartialTex
-								: search.ChosenMaps.Contains(map) ? Widgets.CheckboxOnTex
-								: Widgets.CheckboxOffTex,
-								Color.white));
+							//Toggle each map
+							foreach (Map map in Find.Maps)
+							{
+								mapOptions.Add(new FloatMenuOption(
+									map.Parent.LabelCap,
+									() =>
+									{
+										if (Event.current.shift)
+											search.SetSearchMap(map);
+										else
+											search.ToggleSearchMap(map);
+									},
+									search.ChosenMaps == null ? Widgets.CheckboxPartialTex
+									: search.ChosenMaps.Contains(map) ? Widgets.CheckboxOnTex
+									: Widgets.CheckboxOffTex,
+									Color.white));
+							}
 						}
-					}
-					else
-					{
-						mapOptions.Add(new FloatMenuOption("TD.SearchChosenMapsOnceLoaded".Translate(), () => search.SetSearchChosenMaps()));
-					}
+						else
+						{
+							mapOptions.Add(new FloatMenuOption("TD.SearchChosenMapsOnceLoaded".Translate(), () => search.SetSearchChosenMaps()));
+						}
 
-					Find.WindowStack.Add(new FloatMenu(mapOptions));
+						Find.WindowStack.Add(new FloatMenu(mapOptions));
+					}
 				}
-			}
-			if(forceCurMap)
-			{
-				TooltipHandler.TipRegion(mapTypeRect, "TD.AFilterIsForcingThisSearchToRunOnTheCurrentMapOnly".Translate());
+				if (forceCurMap)
+				{
+					TooltipHandler.TipRegion(mapTypeRect, "TD.AFilterIsForcingThisSearchToRunOnTheCurrentMapOnly".Translate());
+				}
 			}
 		}
 
@@ -349,7 +385,7 @@ namespace TD_Find_Lib
 				if (locked)
 					row.IncrementPosition(WidgetRow.IconSize); //not Gap because that checks for 0 and doesn't actually gap
 				else if (row.ButtonIcon(FindTex.Cancel, "ClearAll".Translate()))
-					search.Reset();
+					filter.Reset();
 
 				// Locked button
 				if (row.ButtonIcon(locked ? FindTex.LockOn : FindTex.LockOff, "TD.LockEditing".Translate()))
@@ -359,18 +395,21 @@ namespace TD_Find_Lib
 			// Rename button
 			if (!locked && showNameAfterTitle && row.ButtonIcon(TexButton.Rename))
 				Find.WindowStack.Add(new Dialog_Name(
-					search.name,
-					newName => { search.name = newName; search.changed = true; },
-					"TD.Rename0".Translate(search.name)));
+					filter.name,
+					newName => { filter.name = newName; filter.changed = true; },
+					"TD.Rename0".Translate(filter.name)));
 
 			// Library button
 			row.ButtonOpenLibrary();
 
 			// Export button
-			row.ButtonChooseExportSearch(search, transferTag);
+			if(filter is QuerySearch search)
+				row.ButtonChooseExportSearch(search, transferTag);
+			else
+				row.ButtonChooseExportQueryHolder(filter, transferTag);
 
 			// Import button
-			if(!permalocked)
+			if (!permalocked)
 				row.ButtonChooseImportSearch(Import, transferTag, ImportArgs);
 		}
 
@@ -380,7 +419,7 @@ namespace TD_Find_Lib
 		private Vector2 scrollPosition;
 		private float scrollHeight;
 
-		public void DrawQuerySearch(Rect rect)
+		public void Draw(Rect rect)
 		{
 			Listing_StandardIndent listing = new()
 			{ maxOneColumn = true };
@@ -393,7 +432,7 @@ namespace TD_Find_Lib
 			Rect nameRect = listing.GetRect(Text.LineHeight);
 			string titleLabel = title;
 			if (showNameAfterTitle)
-				titleLabel += ": " + search.name;
+				titleLabel += ": " + filter.name;
 			Widgets.Label(nameRect, titleLabel);
 			Text.Font = GameFont.Small;
 
@@ -426,8 +465,8 @@ namespace TD_Find_Lib
 			}
 
 			//Draw Queries:
-			if(search.Children.DrawQueriesInRect(listRect, locked, ref scrollPosition, ref scrollHeight))
-				search.Changed();
+			if(filter.Children.DrawQueriesInRect(listRect, locked, ref scrollPosition, ref scrollHeight))
+				filter.Changed();
 
 			listing.End();
 		}

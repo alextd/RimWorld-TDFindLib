@@ -107,6 +107,14 @@ namespace TD_Find_Lib
 		public QuerySearch.CloneArgs CloneArgs => default; //save
 		public bool CanReceive() => true;
 
+		public void Receive(QueryHolder holder)
+		{
+			if (holder is QuerySearch search)
+				Receive(search);
+			else
+				Receive(holder.CloneAsSearch());
+		}
+
 		public void Receive(QuerySearch search)
 		{
 			GUIUtility.systemCopyBuffer = ScribeXmlFromString.SaveAsString(search);

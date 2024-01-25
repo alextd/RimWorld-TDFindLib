@@ -260,7 +260,7 @@ namespace TD_Find_Lib
 				Widgets.DrawBoxSolid(queryRect, DisabledOverlayColor);
 			}
 			// Highlight the queries that pass for selected objects (useful for "any" queries)
-			else  if (!(this is ThingQueryAndOrGroup) 
+			else if (!(this is ThingQueryAndOrGroup) 
 				&& RootHolder.Active
 				&& Find.UIRoot is UIRoot_Play
 				&& Find.Selector.SelectedObjects

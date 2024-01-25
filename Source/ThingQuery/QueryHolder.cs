@@ -43,6 +43,7 @@ namespace TD_Find_Lib
 		// If you clone a QueryHolder it starts unchanged.
 		// Not used directly but good to know if a save is needed.
 		public bool changed;
+		public virtual void Changed() => changed = true;
 
 
 		// from IQueryHolder:
@@ -74,13 +75,40 @@ namespace TD_Find_Lib
 			UnbindMap();
 		}
 
-		public QueryHolder Clone()
+
+		// All Or Any Query
+		public bool MatchAllQueries
+		{
+			get => children.matchAllQueries;
+			set
+			{
+				children.matchAllQueries = value;
+
+				//it would be nice if this had an option not to trigger a remake ohwell.
+				Changed();
+			}
+		}
+
+
+		public QueryHolder CloneAsHolder()
 		{
 			QueryHolder newHolder = new();
 
+			newHolder.name = name;
 			newHolder.children = children.Clone(newHolder);
 
 			return newHolder;
+		}
+
+		// Default parameters: not active, all things on current map
+		public QuerySearch CloneAsSearch()
+		{
+			QuerySearch search = new();
+
+			search.name = name;
+			search.children = children.Clone(search);
+
+			return search;
 		}
 
 
