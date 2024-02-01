@@ -1626,12 +1626,7 @@ namespace TD_Find_Lib
 		{
 			base.DrawMain(rect, locked, fullRect);
 
-			bool changed = false;
-			if(row.ButtonText(filterType.TranslateEnum()))
-			{
-				changed = true;
-				filterType = filterType.Next();
-			}
+			bool changed = row.ButtonCycleEnum(ref filterType);
 
 			if (filterType == ScheduleFilterType.Current)
 				RowButtonFloatMenuDef(assignment, newValue => assignment = newValue);

@@ -12,12 +12,13 @@ namespace TD_Find_Lib
 	}
 	public static class EnumEx
 	{ 
+		//Extension method must be defined in non-generic class :(
 		public static T Next<T>(this T src) where T: Enum
 		{
 			if (!typeof(T).IsEnum) throw new ArgumentException(String.Format("Argument {0} is not an Enum", typeof(T).FullName));
 
-			int j = Array.IndexOf<T>(EnumEx2<T>.Arr, src) + 1;
-			return (EnumEx2<T>.Arr.Length == j) ? EnumEx2<T>.Arr[0] : EnumEx2<T>.Arr[j];
+			int i = (Array.IndexOf(EnumEx2<T>.Arr, src) + 1) % EnumEx2<T>.Arr.Length;
+			return EnumEx2<T>.Arr[i];
 		}
 	}
 }
