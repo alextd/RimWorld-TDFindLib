@@ -1192,7 +1192,7 @@ namespace TD_Find_Lib
 
 	public abstract class StringData : FieldDataComparer
 	{
-		private string compareTo;
+		private string compareTo = "";
 		private bool exact;
 		public override void PostExposeData()
 		{
@@ -1216,6 +1216,8 @@ namespace TD_Find_Lib
 		public override bool AppliesTo(object obj)
 		{
 			string value = GetStringValue(obj);
+			if (value == null) return false;
+
 			return exact ? value == compareTo : value.Contains(compareTo);
 		}
 
