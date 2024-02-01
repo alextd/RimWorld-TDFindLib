@@ -68,6 +68,10 @@
 	<TD.SubmatchType.Any>Any</TD.SubmatchType.Any>
 	<TD.SubmatchType.All>All</TD.SubmatchType.All>
 
+	<TD.AnyAllOrNone.Any>At least one</TD.AnyAllOrNone.Any>
+	<TD.AnyAllOrNone.All>All of them</TD.AnyAllOrNone.All>
+	<TD.AnyAllOrNone.None>None of them</TD.AnyAllOrNone.None>
+
 	<TD.ScheduleFilterType.Current>Current is</TD.ScheduleFilterType.Current>
 	<TD.ScheduleFilterType.AllScheduleIs>Schedule matches</TD.ScheduleFilterType.AllScheduleIs>
 	<TD.ScheduleFilterType.AnyScheduleNot>Schedule doesn't match</TD.ScheduleFilterType.AnyScheduleNot>

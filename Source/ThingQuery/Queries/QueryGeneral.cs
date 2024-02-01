@@ -733,18 +733,46 @@ namespace TD_Find_Lib
 		public override ThingDef IconDefFor(ThingDef def) => def;//duh
 	}
 
+	public enum AnyAllOrNone { Any, All, None }
 	public class ThingQueryMissingBodyPart : ThingQueryDropDown<BodyPartDef>
 	{
+		public AnyAllOrNone filterType;
 		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
 
-			return
-				extraOption == 1 ? !pawn.health.hediffSet.GetMissingPartsCommonAncestors().NullOrEmpty() :
-				sel == null ? pawn.health.hediffSet.GetMissingPartsCommonAncestors().NullOrEmpty() :
-				pawn.RaceProps.body.GetPartsWithDef(sel).Any(r => pawn.health.hediffSet.PartIsMissing(r));
+			if (extraOption == 1)
+				return !pawn.health.hediffSet.GetMissingPartsCommonAncestors().NullOrEmpty();
+
+			if (sel == null)
+				return pawn.health.hediffSet.GetMissingPartsCommonAncestors().NullOrEmpty();
+
+			var parts = pawn.RaceProps.body.GetPartsWithDef(sel);
+
+			if (parts.Count == 0) return false; //skip those without this part
+
+			return filterType switch
+			{
+				AnyAllOrNone.Any => parts.Any(r => pawn.health.hediffSet.PartIsMissing(r)),
+				AnyAllOrNone.All => parts.All(r => pawn.health.hediffSet.PartIsMissing(r)),
+				_ /*None*/       => !parts.Any(r => pawn.health.hediffSet.PartIsMissing(r))
+			};
 		}
+
+		public override void ExposeData()
+		{
+			base.ExposeData();
+
+			Scribe_Values.Look(ref filterType, "filterType");
+		}
+		protected override ThingQuery Clone()
+		{
+			ThingQueryMissingBodyPart clone = (ThingQueryMissingBodyPart)base.Clone();
+			clone.filterType = filterType;
+			return clone;
+		}
+
 
 		public override string NullOption() => "None".Translate();
 		public override IEnumerable<BodyPartDef> AvailableOptions() =>
@@ -763,6 +791,18 @@ namespace TD_Find_Lib
 
 		public override int ExtraOptionsCount => 1;
 		public override string NameForExtra(int ex) => "TD.AnyOption".Translate();
+
+
+		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
+		{
+			//This is not DrawCustom because then the selection button would go on the left.
+			bool changed = base.DrawMain(rect, locked, fullRect);
+
+			if(extraOption == 0 && sel != null)
+				changed |= row.ButtonCycleEnum(ref filterType);
+
+			return changed;
+		}
 	}
 
 
