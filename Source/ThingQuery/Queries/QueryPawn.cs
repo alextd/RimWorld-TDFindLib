@@ -534,8 +534,39 @@ namespace TD_Find_Lib
 
 	public class ThingQueryHealth : ThingQueryCategorizedDropdown<HediffDef, string, ThingQueryHealth, ThingQueryHealthCategory>
 	{
+		static Dictionary<HediffDef, (BodyPartDef, List<ThingDef>)> hediffDetails;
+
+		static ThingQueryHealth()
+		{
+			hediffDetails = new();
+			// todo: more part discovery?
+			// I think most hediffs apply to unique parts
+			// So let's only worry about recipe defs that apply to e.g. two arms
+			foreach (RecipeDef recipe in DefDatabase<RecipeDef>.AllDefsListForReading)
+			{
+				if (recipe.addsHediff is HediffDef hediff)
+				{
+					// appliedOnFixedBodyParts seems to only ever have one item
+					if (recipe.appliedOnFixedBodyParts?.FirstOrDefault() is BodyPartDef part)
+					{
+						// Don't bother with unique parts
+						if (ThingQueryMissingBodyPart.multiParts.Contains(part))
+							hediffDetails[hediff] = (part, recipe.AllRecipeUsers.ToList());
+					}
+				}
+			}
+		}
+
+
+
 		FloatRangeUB severityRange;//unknown until sel set
 		bool usesSeverity;
+		AnyAllOrNone countType;
+
+		// if the part that can have this hediff has multiple copies
+		// loaded in from static hediffDetails
+		private BodyPartDef part;
+		private List<ThingDef> users;
 
 		public ThingQueryHealth()
 		{
@@ -547,11 +578,24 @@ namespace TD_Find_Lib
 			usesSeverity = r.HasValue;
 			if (usesSeverity)
 				severityRange.absRange = r.Value;
+
+			if (sel != null && hediffDetails.TryGetValue(sel, out var details))
+				(part, users) = details;
+			else
+				(part, users) = (null, null);
 		}
 		protected override void PostChosen()
 		{
 			if (SeverityRangeFor(sel) is FloatRange range)
+			{
 				severityRange.range = range;
+				countType = default;
+			}
+
+			else if (part == null)
+			{
+				countType = default;
+			}
 		}
 
 		public override void ExposeData()
@@ -559,12 +603,14 @@ namespace TD_Find_Lib
 			base.ExposeData();
 
 			Scribe_Values.Look(ref severityRange.range, "severityRange");
+			Scribe_Values.Look(ref countType, "countType");
 		}
 		protected override ThingQuery Clone()
 		{
 			ThingQueryHealth clone = (ThingQueryHealth)base.Clone();
 			clone.severityRange = severityRange;
 			clone.usesSeverity = usesSeverity;
+			clone.countType = countType;
 			return clone;
 		}
 
@@ -578,13 +624,42 @@ namespace TD_Find_Lib
 			Pawn pawn = thing as Pawn;
 			if (pawn == null) return false;
 
-			return
-				extraOption == 1 ? pawn.health.hediffSet.hediffs.Any(h => h.Visible || DebugSettings.godMode) :
-				extraOption == 2 ? pawn.health.hediffSet.hediffs.Any(h => (h.Visible || DebugSettings.godMode) && h.Bleeding) :
-				extraOption == 3 ? pawn.health.hediffSet.hediffs.Any(h => (h.Visible || DebugSettings.godMode) && h.TendableNow()) :
-				sel == null ? !pawn.health.hediffSet.hediffs.Any(h => h.Visible || DebugSettings.godMode) :
-				(pawn.health.hediffSet.GetFirstHediffOfDef(sel, !DebugSettings.godMode) is Hediff hediff &&
-				(!usesSeverity || severityRange.Includes(hediff.Severity)));
+			switch (extraOption)
+			{
+				case 1: return pawn.health.hediffSet.hediffs.Any(h => h.Visible || DebugSettings.godMode);
+				case 2: return pawn.health.hediffSet.hediffs.Any(h => (h.Visible || DebugSettings.godMode) && h.Bleeding);
+				case 3: return pawn.health.hediffSet.hediffs.Any(h => (h.Visible || DebugSettings.godMode) && h.TendableNow());
+			}
+
+			if (sel == null)
+			{
+				return !pawn.health.hediffSet.hediffs.Any(h => h.Visible || DebugSettings.godMode);
+			}
+
+			if(usesSeverity)
+			{
+				return pawn.health.hediffSet.GetFirstHediffOfDef(sel, !DebugSettings.godMode) is Hediff hediff &&
+					severityRange.Includes(hediff.Severity);
+			}
+
+			// if there's multiple parts this hediff applies to, check AnyAllOrNone
+			if (part != null)
+			{
+				if (!users.Contains(thing.def)) return false; // skip those that can't be given this hediff
+
+				var parts = pawn.RaceProps.body.GetPartsWithDef(part);
+
+				if (parts.Count == 0) return false; //skip those without this part
+
+				return countType switch
+				{
+					AnyAllOrNone.Any => parts.Any(r => pawn.health.hediffSet.HasHediff(sel, r, !DebugSettings.godMode)),
+					AnyAllOrNone.All => parts.All(r => pawn.health.hediffSet.HasHediff(sel, r, !DebugSettings.godMode)),
+					_ /*None*/       => !parts.Any(r => pawn.health.hediffSet.HasHediff(sel, r, !DebugSettings.godMode))
+				};
+			}
+
+			return pawn.health.hediffSet.GetFirstHediffOfDef(sel, !DebugSettings.godMode) != null;
 		}
 
 		public override string NullOption() => "None".Translate();
@@ -604,18 +679,30 @@ namespace TD_Find_Lib
 
 		public override bool DrawCustom(Rect fullRect)
 		{
-			if (sel == null || useCat || !usesSeverity) return false;
+			if (sel == null || useCat) return false;
 
+			if (usesSeverity)
+			{
+				//Int or Float?
 
-			//<initialSeverity>1</initialSeverity> <!-- Severity is bound to level of implant -->
-			if (typeof(Hediff_Level).IsAssignableFrom(sel.hediffClass))
-				return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref severityRange);
+				//<initialSeverity>1</initialSeverity> <!-- Severity is bound to level of implant -->
+				if (typeof(Hediff_Level).IsAssignableFrom(sel.hediffClass))
+					return TDWidgets.IntRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref severityRange);
+				else
+					return TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref severityRange, valueStyle: ToStringStyle.PercentZero);
 
+				// Injuries should be ToStringStyle.Float but they do not have a max/lethal value so do not display their severity here
+			}
 
+			//if (partForHediff.TryGetValue(sel, out var part))
+			//{
+				//row.Label(part.LabelShort); <Bionic arm> in shoulder: <all of them> how to word this better?
+			if(part != null)
+			{
+				return row.ButtonCycleEnum(ref countType);
+			}
 
-			return TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref severityRange, valueStyle: ToStringStyle.PercentZero);
-
-			// Injuries should be ToStringStyle.Float but they do not have a max/lethal value so do not display their severity here
+			return false;
 		}
 
 		public static FloatRange? SeverityRangeFor(HediffDef hediffDef)
