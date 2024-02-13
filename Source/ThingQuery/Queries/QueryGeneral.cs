@@ -736,6 +736,26 @@ namespace TD_Find_Lib
 	public enum AnyAllOrNone { Any, All, None }
 	public class ThingQueryMissingBodyPart : ThingQueryDropDown<BodyPartDef>
 	{
+		//Parts with multiple copies in a body
+		public static HashSet<BodyPartDef> multiParts;
+		static ThingQueryMissingBodyPart()
+		{
+			multiParts = new();
+			foreach(BodyPartDef part in DefDatabase<BodyPartDef>.AllDefsListForReading)
+			{
+				foreach(BodyDef body in DefDatabase<BodyDef>.AllDefsListForReading)
+				{
+					if (body.GetPartsWithDef(part).Count > 1)
+					{
+						multiParts.Add(part);
+						break;
+					}
+				}
+			}
+		}
+
+
+
 		public AnyAllOrNone filterType;
 		public override bool AppliesDirectlyTo(Thing thing)
 		{
@@ -773,6 +793,12 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
+		protected override void PostChosen()
+		{
+			if(multiParts!.Contains(sel))
+				filterType = default;
+		}
+
 
 		public override string NullOption() => "None".Translate();
 		public override IEnumerable<BodyPartDef> AvailableOptions() =>
@@ -798,8 +824,11 @@ namespace TD_Find_Lib
 			//This is not DrawCustom because then the selection button would go on the left.
 			bool changed = base.DrawMain(rect, locked, fullRect);
 
-			if(extraOption == 0 && sel != null)
-				changed |= row.ButtonCycleEnum(ref filterType);
+			if (extraOption == 0 && sel != null)
+			{
+				if(multiParts.Contains(sel))
+					changed |= row.ButtonCycleEnum(ref filterType);
+			}
 
 			return changed;
 		}
