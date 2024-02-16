@@ -12,5 +12,6 @@
 	<loadAfter>
 		<li>DerekBickley.LTOColonyGroupsFinal</li>
 		<li>Nowano.RimWorldRealFoW</li>
+		<li>erdelf.HumanoidAlienRaces</li>
 	</loadAfter>
 </ModMetaData>
