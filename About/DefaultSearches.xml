@@ -600,7 +600,7 @@
 			<queries>
 				<li Class="TD_Find_Lib.ThingQueryPrisoner">
 					<def>Query_Prisoner</def>
-					<refName>NoInteraction</refName>
+					<refName>MaintainOnly</refName>
 				</li>
 			</queries>
 			<matchAllQueries>True</matchAllQueries>
