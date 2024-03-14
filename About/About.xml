@@ -3,7 +3,7 @@
 	<name>TD Find Lib - Dev Build</name>
 	<author>Uuugggg</author>
 	<supportedVersions>
-		<li>1.4</li>
+		<li>1.5</li>
 	</supportedVersions>
 	<packageId>DEBUuugggg.TDFindLib</packageId>
 	<description>A code library for user-customizable deep-filter searching of all things on the map. 
