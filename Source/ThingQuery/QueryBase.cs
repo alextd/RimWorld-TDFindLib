@@ -145,6 +145,8 @@ namespace TD_Find_Lib
 		}
 		public virtual void DoResolveName() { }
 		public virtual void DoResolveRef(Map map) { }
+		public virtual void WarnIfNameSelectionError() { }
+
 
 
 		public void Apply( /* const */ List<Thing> inList, List<Thing> outList)
@@ -679,12 +681,24 @@ namespace TD_Find_Lib
 				{
 					selectionError = "TD.Missing01".Translate(def.GetLabel(), selName);
 					selectionErrorCurMap = selectionError; // Sort of redundant to use "curmap" here but it does apply to whatever the current map is because it always applies
-					//Verse.Log.Warning("TD.SearchTriedToLoad".Translate(RootHolder.Name, def.GetLabel(), selName));
+					Verse.Log.Warning("TD.SearchTriedToLoad".Translate(RootHolder.Name, def.GetLabel(), selName));
 				}
 				else
 					selectionError = null;
 			}
 		}
+		public override void WarnIfNameSelectionError()
+		{
+			if (!UsesResolveName || extraOption > 0) return;
+
+			if (selectionError != null)
+			{
+				// Report the first one, even if there's many. User will have to deal with them one-by-one.
+				Messages.Message("TD.SearchTriedToLoad".Translate(RootHolder.Name, def.GetLabel(), selName),
+					MessageTypeDefOf.RejectInput, false);
+			}
+		}
+		
 
 		Map lastRefErrorMap;
 		public override void DoResolveRef(Map map)
@@ -730,7 +744,7 @@ namespace TD_Find_Lib
 			{
 				// Report the first one, even if there's many. User will have to deal with them one-by-one.
 				Messages.Message(map == null ? "TD.Search0TriedToLoad1FilterButNoMapToFind2".Translate(RootHolder.Name, def.LabelCap, selName) :
-					"TD.SearchTriedToLoadOnMap".Translate(RootHolder.Name, def.LabelCap, selName, map?.Parent.LabelCap ?? "TD.NoMap".Translate()),
+					"TD.SearchTriedToLoadOnMap".Translate(RootHolder.Name, def.LabelCap, selName, map.Parent.LabelCap),
 					MessageTypeDefOf.RejectInput, false);
 
 				lastRefErrorMap = map;

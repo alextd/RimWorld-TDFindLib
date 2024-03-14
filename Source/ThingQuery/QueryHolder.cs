@@ -218,6 +218,7 @@ namespace TD_Find_Lib
 		public void DoResolveRef(Map map)
 		{
 			ForEach(f => f.DoResolveRef(map));
+			ForEach(f => f.WarnIfNameSelectionError());
 		}
 
 

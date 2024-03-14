@@ -12,7 +12,7 @@
 	<TD.DeleteThisQuery>Delete this filter</TD.DeleteThisQuery>
 	<TD.EnableThisQuery>Enable this filter</TD.EnableThisQuery>
 	<TD.IncludeOrExcludeThingsMatchingThisQuery>Include or Exclude things matching this filter</TD.IncludeOrExcludeThingsMatchingThisQuery>
-	<TD.SearchTriedToLoad>Search "{0}" tried to load "{1}" filter named "{2}" but none could be found</TD.SearchTriedToLoad>
+	<TD.SearchTriedToLoad>TDFindLib problem! Search "{0}" tried to load "{1}" filter named "{2}" but none could be found</TD.SearchTriedToLoad>
 	<TD.SearchTriedToLoadOnMap>Search "{0}" tried to load "{1}" filter named "{2}" on {3} but none could be found</TD.SearchTriedToLoadOnMap>
 	<TD.Spoils>Spoils</TD.Spoils>
 	<TD.Refrigerated>Refrigerated</TD.Refrigerated>
@@ -124,7 +124,6 @@
 	<TD.Filter01NeedsAMap>Filter {0}: {1} needs a map - was given null map?</TD.Filter01NeedsAMap>
 	<TD.Missing01On2>Missing {0}: {1} in {2}?</TD.Missing01On2>
 	<TD.Search0TriedToLoad1FilterButNoMapToFind2>Search {0} tried to load {1} filter but no map was given to find {2}</TD.Search0TriedToLoad1FilterButNoMapToFind2>
-	<TD.NoMap>No Map</TD.NoMap>
 	<TD.AnyAggresive>Any Aggresive</TD.AnyAggresive>
 	<TD.IsHelper>Is Helper</TD.IsHelper>
 	<TD.IsLodger>Is Lodger</TD.IsLodger>
