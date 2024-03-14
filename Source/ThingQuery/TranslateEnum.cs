@@ -82,8 +82,8 @@ namespace TD_Find_Lib
 
 		private static string DoGetLabel(Def def)
 		{
-			if (def.LabelCap is TaggedString labelCap && labelCap != TaggedString.empty)
-				return labelCap;
+			if (!def.LabelCap.NullOrEmpty())
+				return def.LabelCap;
 
 			if ($"TD.DefLabel.{def.defName}".TryTranslate(out TaggedString labelOverride))
 				return labelOverride;
