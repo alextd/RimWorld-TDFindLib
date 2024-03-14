@@ -248,7 +248,7 @@
 
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_AssignOutfit</defName>
-		<label>outfit</label>
+		<label>apparel policy</label>
 		<queryClass>TD_Find_Lib.ThingQueryOutfit</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 

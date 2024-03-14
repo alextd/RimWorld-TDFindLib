@@ -1106,50 +1106,50 @@ namespace TD_Find_Lib
 	}
 
 
-	public class ThingQueryOutfit : ThingQueryDropDown<Outfit>
+	public class ThingQueryOutfit : ThingQueryDropDown<ApparelPolicy>
 	{
 		public ThingQueryOutfit()
 		{
-			if (Current.Game?.outfitDatabase?.DefaultOutfit() is Outfit defaultOutfit)
+			if (Current.Game?.outfitDatabase?.DefaultOutfit() is ApparelPolicy defaultOutfit)
 				sel = defaultOutfit;
 			else
 				selName = "Anything";//notranslate
 		}
 
 		public override bool AppliesDirectlyTo(Thing thing) =>
-			(thing as Pawn)?.outfits?.CurrentOutfit == sel;
+			(thing as Pawn)?.outfits?.CurrentApparelPolicy == sel;
 
-		protected override Outfit ResolveRef(Map map) =>
+		protected override ApparelPolicy ResolveRef(Map map) =>
 			Current.Game.outfitDatabase.AllOutfits.FirstOrDefault(o => o.label == selName);
 
-		public override string NameFor(Outfit o) => o.label;
+		public override string NameFor(ApparelPolicy o) => o.label;
 		protected override string MakeSaveName() => sel.label;
 
-		public override IEnumerable<Outfit> AllOptions() =>
+		public override IEnumerable<ApparelPolicy> AllOptions() =>
 			Current.Game?.outfitDatabase?.AllOutfits;
 	}
 
 
-	public class ThingQueryFoodRestriction : ThingQueryDropDown<FoodRestriction>
+	public class ThingQueryFoodRestriction : ThingQueryDropDown<FoodPolicy>
 	{
 		public ThingQueryFoodRestriction()
 		{
-			if (Current.Game?.foodRestrictionDatabase?.DefaultFoodRestriction() is FoodRestriction defaultFood)
+			if (Current.Game?.foodRestrictionDatabase?.DefaultFoodRestriction() is FoodPolicy defaultFood)
 				sel = defaultFood;
 			else
 				selName = "FoodRestrictionLavish".Translate();
 		}
 
 		public override bool AppliesDirectlyTo(Thing thing) =>
-			(thing as Pawn)?.foodRestriction?.CurrentFoodRestriction == sel;
+			(thing as Pawn)?.foodRestriction?.CurrentFoodPolicy == sel;
 
-		protected override FoodRestriction ResolveRef(Map map) =>
+		protected override FoodPolicy ResolveRef(Map map) =>
 			Current.Game.foodRestrictionDatabase.AllFoodRestrictions.FirstOrDefault(o => o.label == selName);
 
-		public override string NameFor(FoodRestriction o) => o.label;
+		public override string NameFor(FoodPolicy o) => o.label;
 		protected override string MakeSaveName() => sel.label;
 
-		public override IEnumerable<FoodRestriction> AllOptions() =>
+		public override IEnumerable<FoodPolicy> AllOptions() =>
 			Current.Game?.foodRestrictionDatabase?.AllFoodRestrictions;
 	}
 
