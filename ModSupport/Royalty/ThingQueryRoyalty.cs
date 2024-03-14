@@ -190,7 +190,7 @@ namespace TDFindLib_Royalty
 					{
 						RoyalTitle royalTitle = pawn.royalty?.MostSeniorTitle;
 						if (royalTitle != null && royalTitle.conceited && royalTitle.def.foodRequirement.Defined &&
-							!FoodUtility.TryFindBestFoodSourceFor_NewTemp(pawn, pawn, desperate: false, out var _, out var _, allowCorpse: false, ignoreReservations: true, minPrefOverride: FoodPreferability.DesperateOnly))
+							!FoodUtility.TryFindBestFoodSourceFor(pawn, pawn, desperate: false, out var _, out var _, allowCorpse: false, ignoreReservations: true, minPrefOverride: FoodPreferability.DesperateOnly))
 						{
 							return true;
 						}

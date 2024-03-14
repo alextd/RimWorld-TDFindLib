@@ -133,7 +133,7 @@ namespace TDFindLib_Ideology
 	//Non-structure memes.
 	public class ThingQueryMeme : ThingQueryDropDown<MemeDef>
 	{
-		public ThingQueryMeme() => sel = MemeDefOf.Transhumanist;
+		public ThingQueryMeme() => sel = MemeDefOf.Darkness;
 
 		public override bool AppliesDirectlyTo(Thing thing)
 		{
@@ -156,7 +156,7 @@ namespace TDFindLib_Ideology
 
 	public class ThingQueryPrecept : ThingQueryCategorizedDropdown<PreceptDef, IssueDef>
 	{
-		public ThingQueryPrecept() => sel = PreceptDefOf.Slavery_Honorable;
+		public ThingQueryPrecept() => sel = PreceptDefOf.MeatEating_Abhorrent;
 
 		public override string NameForCat(IssueDef cat) => cat?.LabelCap ?? "TD.OtherCategory".Translate();
 

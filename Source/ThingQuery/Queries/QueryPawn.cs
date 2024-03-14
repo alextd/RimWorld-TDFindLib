@@ -158,7 +158,7 @@ namespace TD_Find_Lib
 
 		public ThingQueryTrait()
 		{
-			sel = TraitDefOf.Beauty;  //Todo: beauty shows even if it's not on map
+			sel = TraitDefOf.Pyromaniac;  //Todo: Pyromaniac shows even if it's not on map
 		}
 		protected override void PostChosen()
 		{
@@ -794,7 +794,7 @@ namespace TD_Find_Lib
 		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Area selectedArea = extraOption == 1 ? thing.MapHeld.areaManager.Home : sel;
-			return thing is Pawn pawn && pawn.playerSettings is Pawn_PlayerSettings set && set.AreaRestriction == selectedArea;
+			return thing is Pawn pawn && pawn.playerSettings is Pawn_PlayerSettings set && set.AreaRestrictionInPawnCurrentMap == selectedArea;
 		}
 
 		public override string NullOption() => "NoAreaAllowed".Translate();
@@ -836,13 +836,15 @@ namespace TD_Find_Lib
 
 	public class ThingQueryPrisoner : ThingQueryDropDown<PrisonerInteractionModeDef>
 	{
-		public FloatRangeUB breakRange = new(0, PrisonBreakUtility.BaseInitiatePrisonBreakMtbDays * 2);
+		//public FloatRangeUB breakRange = new(0, PrisonBreakUtility.BaseInitiatePrisonBreakMtbDays * 2);
+		// 1.5 Todo: find max based on new Def.basePrisonBreakMtbDays
+		public FloatRangeUB breakRange = new(0, 60f * 2);
 		public FloatRangeUB resistRange = new(0, 50);
 		public FloatRangeUB willRange = new(0, 10);
 
 		public ThingQueryPrisoner()
 		{
-			sel = PrisonerInteractionModeDefOf.NoInteraction;
+			sel = PrisonerInteractionModeDefOf.MaintainOnly;
 		}
 
 		public override void ExposeData()
