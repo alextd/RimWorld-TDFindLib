@@ -22,4 +22,5 @@
 		<li>Nowano.RimWorldRealFoW</li>
 		<li>erdelf.HumanoidAlienRaces</li>
 	</loadAfter>
+	<modIconPath IgnoreIfNoMatchingField="True">TDFindLibIcon</modIconPath>
 </ModMetaData>

@@ -13,5 +13,6 @@
 		<li>DerekBickley.LTOColonyGroupsFinal</li>
 		<li>Nowano.RimWorldRealFoW</li>
 		<li>erdelf.HumanoidAlienRaces</li>
-	</loadAfter>
+	</loadAfter>	
+	<modIconPath IgnoreIfNoMatchingField="True">TDFindLibIcon</modIconPath>
 </ModMetaData>
