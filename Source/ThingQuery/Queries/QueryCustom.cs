@@ -180,12 +180,14 @@ namespace TD_Find_Lib
 		// (TODO: global dict to hold those delegates since we now clone things since they hold comparision data)
 		// And we'll add in other type/fields when accessed.
 		private static readonly Dictionary<Type, List<FieldData>> declaredFields = new();
-		public static List<FieldData> FieldsFor(Type type)
+		private static readonly Dictionary<Type, List<FieldData>> declaredFieldsPrivate = new();
+		public static List<FieldData> FieldsFor(Type type, bool includePrivate = false)
 		{
-			if (!declaredFields.TryGetValue(type, out var fieldsForType))
+			var dict = includePrivate ? declaredFieldsPrivate : declaredFields;
+			if (!dict.TryGetValue(type, out var fieldsForType))
 			{
-				fieldsForType = new(FindFields(type));
-				declaredFields[type] = fieldsForType;
+				fieldsForType = new(FindFields(type, includePrivate));
+				dict[type] = fieldsForType;
 			}
 			return fieldsForType;
 		}
@@ -193,15 +195,17 @@ namespace TD_Find_Lib
 
 		// All FieldData options for a subclass and its parents
 		private static readonly Dictionary<Type, List<FieldData>> typeFieldOptions = new();
+		private static readonly Dictionary<Type, List<FieldData>> typeFieldOptionsPrivate = new();
 		private static readonly Type[] baseTypes = new[] { typeof(Thing), typeof(Def), typeof(object), null };
-		public static List<FieldData> GetOptions(Type baseType)
+		public static List<FieldData> GetOptions(Type baseType, bool includePrivate = false)
 		{
-			if (!typeFieldOptions.TryGetValue(baseType, out var list))
+			var options = includePrivate ? typeFieldOptionsPrivate : typeFieldOptions;
+			if (!options.TryGetValue(baseType, out var list))
 			{
 				Type type = baseType;
 
 				list = new();
-				typeFieldOptions[type] = list;
+				options[type] = list;
 
 				// Special Def comparators
 				if (typeof(Def).IsAssignableFrom(type))
@@ -210,13 +214,13 @@ namespace TD_Find_Lib
 				}
 
 				// Long list of Field comparators
-				list.AddRange(FieldsFor(type));
+				list.AddRange(FieldsFor(type, includePrivate));
 
 				// And parent class comparators
 				while (!baseTypes.Contains(type))
 				{
 					type = type.BaseType;
-					list.AddRange(FieldsFor(type));
+					list.AddRange(FieldsFor(type, includePrivate));
 				}
 
 				// Special accessors
@@ -273,11 +277,14 @@ namespace TD_Find_Lib
 			.FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>))
 			?.GetGenericArguments()[0];
 
-		const BindingFlags bFlags = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance;
-		private static IEnumerable<FieldData> FindFields(Type type)
+		const BindingFlags publicFlags = BindingFlags.DeclaredOnly | BindingFlags.Public | BindingFlags.Instance;
+		const BindingFlags privateFlags = BindingFlags.NonPublic | publicFlags;
+		private static IEnumerable<FieldData> FindFields(Type type, bool includePrivate = false)
 		{
 			if (!ValidClassType(type))  // so far this is, RimFactory's generic building subclasses.
 				yield break;
+
+			var bFlags = includePrivate ? privateFlags : publicFlags;
 
 			// class members
 			foreach (FieldInfo field in type.GetFields(bFlags | BindingFlags.GetField))
@@ -1443,7 +1450,7 @@ namespace TD_Find_Lib
 			set
 			{
 				_nextType = value;
-				nextOptions = FieldData.GetOptions(_nextType);
+				nextOptions = FieldData.GetOptions(_nextType, DebugSettings.godMode);
 
 				ParseTextField();
 				suggestionI = 0;
