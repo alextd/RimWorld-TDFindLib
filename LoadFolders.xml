@@ -25,6 +25,8 @@
 		<li IfModActive="Nowano.RimWorldRealFoW">ModSupport/RealFOW</li>
 		<li IfModActive="Nowano.RimWorldRealFoW">1.4/ModSupport/RealFOW</li>
 		<li IfModActive="Nowano.RimWorldRealFoW">1.5/ModSupport/RealFOW</li>
+		<li IfModActive="Krkr.rule56">ModSupport/CAIFOW</li>
+		<li IfModActive="Krkr.rule56">1.5/ModSupport/CAIFOW</li>
 	
 	<!--Expansions don't have another dll to depend on so they can be loaded without conditional -->
 		<li>ModSupport/Royalty</li>
