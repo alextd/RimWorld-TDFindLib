@@ -30,7 +30,7 @@
 		</li>
 		<li>
 			<name>Skilled People</name>
-			<listType>Selectable</listType>
+			<listType>Everyone</listType>
 			<mapType>AllMaps</mapType>
 			<searchMaps />
 			<queries>
@@ -259,7 +259,7 @@
 				<li Class="TD_Find_Lib.ThingQueryNeed">
 					<def>Query_Need</def>
 					<refName>Food</refName>
-					<needRange>0~0.1031957</needRange>
+					<needRange>0~0.103195697</needRange>
 				</li>
 			</queries>
 			<matchAllQueries>True</matchAllQueries>
@@ -292,7 +292,7 @@
 				</li>
 				<li Class="TD_Find_Lib.ThingQueryHP">
 					<def>Query_HP</def>
-					<sel>0~0.9954649</sel>
+					<sel>0~0.995464921</sel>
 				</li>
 			</queries>
 			<matchAllQueries>True</matchAllQueries>
@@ -607,7 +607,7 @@
 		</li>
 		<li>
 			<name>Fixable Mood Debuff</name>
-			<listType>Selectable</listType>
+			<listType>Everyone</listType>
 			<mapType>AllMaps</mapType>
 			<searchMaps />
 			<queries>
@@ -856,7 +856,7 @@
 		</li>
 		<li>
 			<name>Royal uncomfortable</name>
-			<listType>Selectable</listType>
+			<listType>Everyone</listType>
 			<mapType>AllMaps</mapType>
 			<searchMaps />
 			<queries>
@@ -953,7 +953,7 @@
 		</li>
 		<li>
 			<name>Guarenlen low</name>
-			<listType>Selectable</listType>
+			<listType>Plants</listType>
 			<searchMaps />
 			<queries>
 				<li Class="TD_Find_Lib.ThingQueryAndOrGroup">
@@ -967,7 +967,7 @@
 						<li Class="TDFindLib_Ideology.ThingQueryGauranlen">
 							<def>Query_Gauranlen</def>
 							<sel>Strength</sel>
-							<strength>0~0.7692308</strength>
+							<strength>0~0.769230783</strength>
 						</li>
 					</queries>
 					<matchAllQueries>True</matchAllQueries>
@@ -983,7 +983,7 @@
 						<li Class="TDFindLib_Ideology.ThingQueryGauranlen">
 							<def>Query_Gauranlen</def>
 							<sel>Strength</sel>
-							<strength>0~0.5192308</strength>
+							<strength>0~0.519230783</strength>
 						</li>
 					</queries>
 					<matchAllQueries>True</matchAllQueries>
@@ -999,7 +999,7 @@
 						<li Class="TDFindLib_Ideology.ThingQueryGauranlen">
 							<def>Query_Gauranlen</def>
 							<sel>Strength</sel>
-							<strength>0~0.2692308</strength>
+							<strength>0~0.269230813</strength>
 						</li>
 					</queries>
 					<matchAllQueries>True</matchAllQueries>
@@ -1030,7 +1030,7 @@
 	<searches>
 		<li>
 			<name>Low Power/Fuel</name>
-			<listType>Selectable</listType>
+			<listType>Buildings</listType>
 			<searchMaps />
 			<queries>
 				<li Class="TD_Find_Lib.ThingQueryCustom">
@@ -1050,7 +1050,7 @@
 		</li>
 		<li>
 			<name>Idle Generators</name>
-			<listType>Selectable</listType>
+			<listType>Buildings</listType>
 			<searchMaps />
 			<queries>
 				<li Class="TD_Find_Lib.ThingQueryCustom">
@@ -1069,7 +1069,7 @@
 		</li>
 		<li>
 			<name>Is cooking</name>
-			<listType>Selectable</listType>
+			<listType>Everyone</listType>
 			<searchMaps />
 			<queries>
 				<li Class="TD_Find_Lib.ThingQueryCustom">
@@ -1083,7 +1083,7 @@
 		</li>
 		<li>
 			<name>Ideology can reform</name>
-			<listType>Selectable</listType>
+			<listType>Everyone</listType>
 			<searchMaps />
 			<queries>
 				<li Class="TD_Find_Lib.ThingQueryCustom">
@@ -1096,7 +1096,7 @@
 		</li>
 		<li>
 			<name>CE: Loadout has weapon</name>
-			<listType>Selectable</listType>
+			<listType>Everyone</listType>
 			<searchMaps />
 			<queries>
 				<li Class="TD_Find_Lib.ThingQueryCustom">
@@ -1109,7 +1109,7 @@
 		</li>
 		<li>
 			<name>HAR: Non-human</name>
-			<listType>Selectable</listType>
+			<listType>Everyone</listType>
 			<searchMaps />
 			<queries>
 				<li Class="TD_Find_Lib.ThingQueryCustom">
