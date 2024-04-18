@@ -27,8 +27,11 @@ namespace TD_Find_Lib
 
 		public static ThingQuery MakeQuery(ThingQueryDef def)
 		{
-			if (def.queryClass == typeof(ThingQueryCustom) && !Mod.settings.warnedCustom)
+			if (Find.WindowStack != null &&
+				def.queryClass == typeof(ThingQueryCustom) && !Mod.settings.warnedCustom)
 			{
+				// If no stack, this is loading, no need to warn
+
 				Mod.settings.warnedCustom = true;
 				Mod.settings.Write();
 
