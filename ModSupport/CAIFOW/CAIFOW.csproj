@@ -44,7 +44,7 @@
       <HintPath>..\..\..\..\RimWorldWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="RimWorldFoWMod">
+    <Reference Include="CombatAI">
       <HintPath>..\..\..\..\..\..\workshop\content\294100\2938891185\1.5\Assemblies\CombatAI.dll</HintPath>
       <Private>False</Private>
     </Reference>
