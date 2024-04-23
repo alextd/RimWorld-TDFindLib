@@ -326,7 +326,26 @@ namespace TD_Find_Lib
 
 
 		// A new QuerySearch, inactive, "current map"
-		public QuerySearch() : base() {}
+		public QuerySearch() : base() {
+
+			if (Mod.settings == null) return;
+			if (!Mod.settings.warnedListing && Find.WindowStack != null)
+			{
+				// Get the message to the people
+
+				Mod.settings.warnedListing = true;
+				Mod.settings.Write();
+
+				Find.WindowStack.Add(new Dialog_MessageBox(
+					@"Hello This is TD ; Too many of you guys are not using the ""Listing:"" Setting in their searches, so I'm popping this message up as a sort of forced tutorial:
+
+Firstly, it's now named ""Searching Through: Everything"" to make that a little clearer.
+
+For MOST searches you'll want to set that to something else, like ""Searching Through : Everyone"" because you don't want to search through every tree on the map when you're only looking for a cat, right?
+
+"));
+			}
+		}
 
 		// A new QuerySearch, active, with this map
 		// (Or just calls base constructor when null)

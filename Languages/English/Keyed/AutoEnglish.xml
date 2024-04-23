@@ -46,7 +46,7 @@
 	<TD.InCell>In Cell</TD.InCell>
 	<TD.ThereAreNoOptionsAvailablePerhapsYouShouldUncheckOnlyAvailableThings>There are no options available (Perhaps you should hold shift when clicking to show all options)</TD.ThereAreNoOptionsAvailablePerhapsYouShouldUncheckOnlyAvailableThings>
 	<TD.LockEditing>Lock Editing</TD.LockEditing>
-	<TD.Listing>Listing: </TD.Listing>
+	<TD.Listing>Searching Through: </TD.Listing>
 	<TD.Name>Name:</TD.Name>
 	<TD.OnlyShowQueryOptionsForAvailableThings>Only show existing things as an option (shift invert)</TD.OnlyShowQueryOptionsForAvailableThings>
 	<TD.ForExampleDontShowTheOptionMadeFromPlasteelIfNothingIsMadeFromPlasteel>For example, When selecting filter options, don't show the option 'Made from Plasteel' if nothing is made from plasteel.\n\nShift-click the option to reverse this setting for that click.</TD.ForExampleDontShowTheOptionMadeFromPlasteelIfNothingIsMadeFromPlasteel>

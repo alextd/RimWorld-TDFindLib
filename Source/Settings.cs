@@ -13,7 +13,7 @@ namespace TD_Find_Lib
 		private bool onlyAvailable = true;
 		public bool OnlyAvailable => onlyAvailable != Event.current.shift && Current.Game != null;
 
-		public bool warnedCustom, warnedExtension;
+		public bool warnedCustom, warnedExtension, warnedListing = true;
 
 		public static string defaultGroupName = "TD.SavedSearches".Translate();
 
@@ -116,6 +116,7 @@ namespace TD_Find_Lib
 			Scribe_Values.Look(ref onlyAvailable, "onlyAvailable", true);
 			Scribe_Values.Look(ref warnedCustom, "warnedCustom", false);
 			Scribe_Values.Look(ref warnedExtension, "warnedExtension", false);
+			Scribe_Values.Look(ref warnedListing, "warnedListing", false);
 			Scribe_Values.Look(ref firstUse, "firstUse", false);
 			Scribe_Values.Look(ref warnedModdedFilterLibrary, "warnedModdedFilterLibrary", false);
 

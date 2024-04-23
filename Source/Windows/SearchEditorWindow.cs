@@ -266,7 +266,7 @@ namespace TD_Find_Lib
 			//Think a lot harder about how this QuerySearch/QueryHolder difference should be handled.
 			QuerySearch search = filter as QuerySearch;
 			
-			Rect typeRect = headerRect.LeftPart(.32f);
+			Rect typeRect = headerRect.LeftPart(.4f);
 
 			// List Type
 			if (search != null)
@@ -311,7 +311,7 @@ namespace TD_Find_Lib
 
 
 			// Matching All or Any
-			Rect matchRect = typeRect.CenteredOnXIn(headerRect);
+			Rect matchRect = headerRect.RightPart(.6f).LeftPart(.5f);
 
 			Widgets.Label(matchRect, filter.MatchAllQueries ? "TD.MatchingAllFilters".Translate() : "TD.MatchingAnyFilter".Translate());
 			if (!locked)
@@ -325,7 +325,7 @@ namespace TD_Find_Lib
 			// Searching Map selection:
 			if (search != null)
 			{
-				Rect mapTypeRect = headerRect.RightPart(.32f);
+				Rect mapTypeRect = headerRect.RightPart(.3f);
 				Widgets.Label(mapTypeRect, search.GetMapOptionLabel());
 
 				bool forceCurMap = search.ForceCurMap();
@@ -476,6 +476,6 @@ namespace TD_Find_Lib
 	{
 		public static readonly SearchListType[] normalTypes =
 			{ SearchListType.Selectable, SearchListType.Everyone, SearchListType.Items, SearchListType.Buildings, SearchListType.Plants,
-			SearchListType.Natural, SearchListType.Junk, SearchListType.All, SearchListType.Inventory};
+			SearchListType.Natural, SearchListType.Junk, SearchListType.Inventory};
 	}
 }

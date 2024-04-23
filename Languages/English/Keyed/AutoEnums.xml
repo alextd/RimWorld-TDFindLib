@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <LanguageData>
 
-	<TD.SearchListType.Selectable>Map</TD.SearchListType.Selectable>
-	<TD.SearchListType.All>All</TD.SearchListType.All>
+	<TD.SearchListType.Selectable>Everything</TD.SearchListType.Selectable>
+	<TD.SearchListType.All>Literally Everything</TD.SearchListType.All>
 	<TD.SearchListType.Items>Items</TD.SearchListType.Items>
 	<TD.SearchListType.Junk>Junk</TD.SearchListType.Junk>
 	<TD.SearchListType.Everyone>Everyone</TD.SearchListType.Everyone>
