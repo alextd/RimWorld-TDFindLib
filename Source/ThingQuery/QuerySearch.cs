@@ -329,7 +329,7 @@ namespace TD_Find_Lib
 		public QuerySearch() : base() {
 
 			if (Mod.settings == null) return;
-			if (!Mod.settings.warnedListing && Find.WindowStack != null)
+			if (!Mod.settings.warnedListing && Current.ProgramState == ProgramState.Playing && Find.WindowStack != null)
 			{
 				// Get the message to the people
 
