@@ -1081,7 +1081,7 @@ namespace TD_Find_Lib
 	 *  only intended to work as a companion helper to its TQCD)
 	 * TQCH exists to handle saving/loading, mainly
 	 * leveraging the effort in ThingQueryDropDown to handle all that
-	 * Even though it doesn't have its own dropdown menu, as it it set via TQCD
+	 * Even though it doesn't have its own dropdown menu, as it is set via TQCD
 	*/
 	public abstract class ThingQueryCategorizedDropdownHelper<T, C, TQCD, TQCH> : ThingQueryDropDown<C>
 		where TQCH : ThingQueryCategorizedDropdownHelper<T, C, TQCD, TQCH>
