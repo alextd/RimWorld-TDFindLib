@@ -523,10 +523,15 @@ namespace TD_Find_Lib
 			if (def.comps != null 
 				&& def.comps.Any(compProp => compProp is HediffCompProperties_Immunizable)
 				&& def.comps.Any(compProp => compProp is HediffCompProperties_TendDuration))
-				return "TD.Sickness".Translate();	// Tend till immune Seems a reliable definition of sickness
+				return "TD.Sickness".Translate(); // Tend till immune Seems a reliable definition of sickness
 
-			if(!def.modContentPack.IsCoreMod)
-				return def.modContentPack.Name;
+			if (def.modContentPack != null)
+			{
+				if (!def.modContentPack.IsCoreMod)
+					return def.modContentPack.Name;
+			}
+			else
+				return "TD.UnknownModHediff".Translate();
 
 			return "TD.OtherCategory".Translate();
 		}
