@@ -1386,7 +1386,7 @@ namespace TD_Find_Lib
 
 					List<FloatMenuOption> catOptions = new();
 
-					(_, var catDefs) = dummyQuery.MakeOptionCategories();
+					(_, var catDefs) = dummyQuery.MakeOptionCategories(true);
 					foreach (var catDef in catDefs)
 					{
 						Action action = () =>

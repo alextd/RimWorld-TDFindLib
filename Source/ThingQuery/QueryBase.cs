@@ -803,18 +803,18 @@ namespace TD_Find_Lib
 		// Often overrides will use Mod.settings.OnlyAvailable to show a subset of options when shift is held
 		// That would also use ContentsUtility.AvailableInGame for ease of searching inside all things.
 		// This subset should be passed to base.Options().Intersect() so they have consistent ordering.
-		protected IEnumerable<T> Options()
+		public bool LimitToAvailableOptions => Mod.settings.OnlyAvailable && AvailableOptions() is not null;
+		protected IEnumerable<T> Options(bool forceAllOptions)
 		{
-			if (AllOptions() == null)
+			if (AllOptions() == null)	// Can be null when not in Game, looking for in-Game option list
 				return Enumerable.Empty<T>();
 
-			// < 10 in AllOptions : just use AllOptions. Count would count them all, Skip exits early.
-			if (!AllOptions().Skip(10).Any())
-				return AllOptions();
-
-			// when OnlyAvailable, use AvailableOptions but keep AllOptions ordering via Intersect()
-			if (Mod.settings.OnlyAvailable && AvailableOptions() is IEnumerable<T> availableOptions)
-				return AllOptions().Intersect(availableOptions);
+			// when OnlyAvailable, use AvailableOptions. And only if there's >10 options at all
+			if (!forceAllOptions && LimitToAvailableOptions && AllOptions().Skip(10).Any())
+			{
+				// AvailableOptions, but keep AllOptions ordering via Intersect()
+				return AllOptions().Intersect(AvailableOptions());
+			}
 
 			// Or just.. all the options.
 			return AllOptions();
@@ -835,7 +835,7 @@ namespace TD_Find_Lib
 
 		// dropdown menu options
 		public virtual bool Ordered => false;
-		public virtual IEnumerable<T> OrderedOptions => Options().OrderBy(o => NameFor(o));
+		public virtual IEnumerable<T> OrderedOptions(IEnumerable<T> options) => options.OrderBy(o => NameFor(o));
 		public virtual string DropdownNameFor(T o) => NameFor(o);
 		public virtual Color IconColorFor(T o) => Color.white;
 		public virtual Texture2D IconTexFor(T o) => null;
@@ -866,10 +866,31 @@ namespace TD_Find_Lib
 		private IEnumerable<int> ExtraOptions() => Enumerable.Range(1, ExtraOptionsCount);
 		public virtual string NameForExtra(int ex) => throw new NotImplementedException();
 
-		public virtual void MakeDropdownOptions(List<FloatMenuOption> options)
+		public virtual void MakeDropdownOptions(List<FloatMenuOption> floatOptions, bool forceAllOptions)
 		{
-			foreach (T o in Ordered ? OrderedOptions : Options())
-				options.Add(FloatMenuFor(o));
+			var options = Options(forceAllOptions);
+			foreach (T o in Ordered ? OrderedOptions(options) : options)
+				floatOptions.Add(FloatMenuFor(o));
+		}
+
+		private void DoChangeDropdown(bool forceAllOptions = false)
+		{
+			List<FloatMenuOption> selOptions = new();
+
+			if (NullOption() is string nullOption)
+				selOptions.Add(new FloatMenuOptionAndRefresh(nullOption, () => sel = default, this, Color.red)); //can't null because T isn't bound as reftype
+
+			MakeDropdownOptions(selOptions, forceAllOptions);
+
+			foreach (int ex in ExtraOptions())
+				selOptions.Add(new FloatMenuOptionAndRefresh(NameForExtra(ex), () => extraOption = ex, this, Color.yellow));
+
+			if (!forceAllOptions && LimitToAvailableOptions)
+			{
+				selOptions.Add(new FloatMenuOptionAndRefresh(">> "+ ("TD.DropwdownAllOptions".Translate()), () => DoChangeDropdown(true), this, Color.green));
+			}
+
+			DoFloatOptions(selOptions);
 		}
 
 		protected override bool DrawMain(Rect rect, bool locked, Rect fullRect)
@@ -906,17 +927,7 @@ namespace TD_Find_Lib
 			}
 			if (changeSelection)
 			{
-				List<FloatMenuOption> selOptions = new();
-
-				if (NullOption() is string nullOption)
-					selOptions.Add(new FloatMenuOptionAndRefresh(nullOption, () => sel = default, this, Color.red)); //can't null because T isn't bound as reftype
-
-				MakeDropdownOptions(selOptions);
-
-				foreach (int ex in ExtraOptions())
-					selOptions.Add(new FloatMenuOptionAndRefresh(NameForExtra(ex), () => extraOption = ex, this, Color.yellow));
-
-				DoFloatOptions(selOptions);
+				DoChangeDropdown();
 			}
 			return changed;
 		}
@@ -986,14 +997,14 @@ namespace TD_Find_Lib
 		private readonly List<T> nullOptions = new();
 
 		// TODO: make categorized floatmenus a little more accessible but for now this can be public.
-		public (List<T>, List<KeyValuePair<C, List<T>>>) MakeOptionCategories()
+		public (List<T>, List<KeyValuePair<C, List<T>>>) MakeOptionCategories(bool forceAllOptions)
 		{
 			catOptionsDict.Clear();
 			orderedCatOptions.Clear();
 			nullOptions.Clear();
 
 			int i = 0;
-			foreach (T def in Options())
+			foreach (T def in Options(forceAllOptions))
 			{
 				i++;
 				C cat = CategoryFor(def);
@@ -1016,11 +1027,11 @@ namespace TD_Find_Lib
 			return (nullOptions, orderedCatOptions);
 		}
 
-		public override void MakeDropdownOptions(List<FloatMenuOption> floatOptions)
+		public override void MakeDropdownOptions(List<FloatMenuOption> floatOptions, bool forceAllOptions)
 		{
-			if (Options().Count() > 10)
+			if (Options(forceAllOptions).Count() > 10)
 			{
-				MakeOptionCategories();
+				MakeOptionCategories(forceAllOptions);
 
 				if (nullOptions.Count > 0)
 					floatOptions.Add(FloatOptionForCat(default, nullOptions));
@@ -1029,7 +1040,7 @@ namespace TD_Find_Lib
 					floatOptions.Add(FloatOptionForCat(options.Key, options.Value));
 			}
 			else
-				base.MakeDropdownOptions(floatOptions);
+				base.MakeDropdownOptions(floatOptions, forceAllOptions);
 		}
 
 		private FloatMenuOption FloatOptionForCat(C cat, List<T> options)

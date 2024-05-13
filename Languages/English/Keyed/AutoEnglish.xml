@@ -192,5 +192,6 @@ You should only use this if you know what the code does. Usually, Custom Filter 
 	<TD.CouldntFindHowToHandle0>Couldn't find how to handle {0}</TD.CouldntFindHowToHandle0>
 	<TD.0Options>{0} options</TD.0Options>
 	<TD.NoOptions>No options!</TD.NoOptions>
+	<TD.DropwdownAllOptions>ALL OPTIONS</TD.DropwdownAllOptions>
 	
 </LanguageData>

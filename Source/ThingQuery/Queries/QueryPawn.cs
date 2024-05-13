@@ -902,8 +902,8 @@ namespace TD_Find_Lib
 		}
 
 		public override bool Ordered => true;
-		public override IEnumerable<PrisonerInteractionModeDef> OrderedOptions =>
-			base.Options().OrderBy(mode => mode.listOrder);
+		public override IEnumerable<PrisonerInteractionModeDef> OrderedOptions(IEnumerable<PrisonerInteractionModeDef> options) =>
+			options.OrderBy(mode => mode.listOrder);
 
 		public override int ExtraOptionsCount => 7;
 		public override string NameForExtra(int ex) =>
