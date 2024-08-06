@@ -61,6 +61,8 @@ ctrl-f select prisoner, ctrl-alt-f open prisoner search
 Ctrl-F from info screen to match that thing. e.g. gene.
 
 
+Copy/Paste Query List so pasted filters can be added, not replaced
+
 
 == New nice things
 

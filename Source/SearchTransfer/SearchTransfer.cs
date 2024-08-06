@@ -50,7 +50,7 @@ namespace TD_Find_Lib
 	// You can import from a provider
 	public interface ISearchProvider
 	{
-		public enum Method { None, Single, Group, Library }
+		public enum Method { None, Single, Group, Library } //TODO: Filter List, so you can paste + add to a Search
 
 		public string Source { get; }
 		public string ProvideName { get; }
