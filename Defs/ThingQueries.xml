@@ -177,7 +177,7 @@
 
 	<TD_Find_Lib.ThingQueryDef>
 		<defName>Query_Equipment</defName>
-		<label>equipped or worn</label>
+		<label>gear</label>
 		<queryClass>TD_Find_Lib.ThingQueryEquipment</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 

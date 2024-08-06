@@ -151,8 +151,9 @@ namespace TD_Find_Lib
 		}
 	}
 
-	public enum EquipmentFilterType { Any, Primary, Equipment, Apparel}
+	public enum EquipmentFilterType { Any, Primary, Equipment, Apparel, Inventory, Carried, Unused}
 	public class ThingQueryEquipment : ThingQueryAndOrGroup
+	// Should be named "Gear" since this was expanded to include inventory + carried
 	{
 		protected EquipmentFilterType filterType;
 		protected SubmatchType hasType;
@@ -173,29 +174,49 @@ namespace TD_Find_Lib
 
 		public IEnumerable<Thing> GearFor(Pawn pawn)
 		{
-			if (filterType is EquipmentFilterType.Any or EquipmentFilterType.Apparel 
-				&& pawn.apparel != null)
-				foreach (var app in pawn.apparel.WornApparel)
-					yield return app;
+			// "Any" is old name from when this didn't search inventory. It should be "Used".
+			// TODO: Backward compat converter.
 
-			
-			if (pawn.equipment == null)
-				yield break;
+			// Apparel
+			if (pawn.apparel != null)
+			{
+				if (filterType is EquipmentFilterType.Apparel or EquipmentFilterType.Any)
+					foreach (var app in pawn.apparel.WornApparel)
+						yield return app;
+			}
 
+			// Equipment (Also sub-categorized as primary)
+			if (pawn.equipment != null)
+			{
+				if (filterType is EquipmentFilterType.Any)
+					foreach (var eq in pawn.equipment.AllEquipmentListForReading)
+						yield return eq;
 
-			if (filterType is EquipmentFilterType.Any)
-				foreach (var eq in pawn.equipment.AllEquipmentListForReading)
-					yield return eq;
+				else if (filterType is EquipmentFilterType.Equipment)
+					foreach (var eq in pawn.equipment.AllEquipmentListForReading
+						.Where(eq => eq.def.equipmentType != EquipmentType.Primary))
+						yield return eq;
 
-			if (filterType is EquipmentFilterType.Equipment)
-				foreach (var eq in pawn.equipment.AllEquipmentListForReading
-					.Where(eq => eq.def.equipmentType != EquipmentType.Primary))
-					yield return eq;
+				else if (filterType is EquipmentFilterType.Primary)
+					if (pawn.equipment.Primary != null)
+						yield return pawn.equipment.Primary;
+			}
 
-			if (filterType is EquipmentFilterType.Primary)
-				if (pawn.equipment.Primary != null)
-					yield return pawn.equipment.Primary;
+			// Inventory
+			if (pawn.inventory != null)
+			{
+				if (filterType is EquipmentFilterType.Inventory or EquipmentFilterType.Unused)
+					foreach (var eq in pawn.inventory.GetDirectlyHeldThings())
+						yield return eq;
+			}
 
+			// Carried
+			if (pawn.carryTracker != null)
+			{
+				if (filterType is EquipmentFilterType.Carried or EquipmentFilterType.Unused)
+					if (pawn.carryTracker.CarriedThing != null)
+						yield return pawn.carryTracker.CarriedThing;
+			}
 		}
 		public override bool AppliesDirectlyTo(Thing thing)
 		{

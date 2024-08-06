@@ -80,5 +80,8 @@
 	<TD.EquipmentFilterType.Primary>equipped weapon</TD.EquipmentFilterType.Primary>
 	<TD.EquipmentFilterType.Equipment>other equipment</TD.EquipmentFilterType.Equipment>
 	<TD.EquipmentFilterType.Apparel>apparel</TD.EquipmentFilterType.Apparel>
+	<TD.EquipmentFilterType.Inventory>inventory</TD.EquipmentFilterType.Inventory>
+	<TD.EquipmentFilterType.Carried>carried in hand</TD.EquipmentFilterType.Carried>
+	<TD.EquipmentFilterType.Unused>carried or inventory</TD.EquipmentFilterType.Unused>
 
 </LanguageData>
