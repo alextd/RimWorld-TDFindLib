@@ -10,7 +10,7 @@ using UnityEngine;
 
 namespace TD_Find_Lib
 {
-	public enum RacePropsQuery { Predator, Prey, Herd, Pack, Wildness, Petness, Trainability, Intelligence }
+	public enum RacePropsQuery { Predator, Prey, Herd, Pack, Wildness, Petness, Trainability, Intelligence, RevengeTame, RevengeHarm}
 	public class ThingQueryRaceProps : ThingQueryDropDown<RacePropsQuery>
 	{
 		Intelligence intelligence;
@@ -67,6 +67,10 @@ namespace TD_Find_Lib
 					return valueRange.Includes(props.wildness);
 				case RacePropsQuery.Petness:
 					return valueRange.Includes(props.petness);
+				case RacePropsQuery.RevengeTame:
+					return valueRange.Includes(props.manhunterOnTameFailChance);
+				case RacePropsQuery.RevengeHarm:
+					return valueRange.Includes(props.manhunterOnDamageChance);
 				case RacePropsQuery.Trainability:
 					return props.trainability == trainability;
 			}
@@ -84,6 +88,8 @@ namespace TD_Find_Lib
 
 				case RacePropsQuery.Wildness:
 				case RacePropsQuery.Petness:
+				case RacePropsQuery.RevengeTame:
+				case RacePropsQuery.RevengeHarm:
 					return TDWidgets.FloatRangeUB(fullRect.RightHalfClamped(row.FinalX), id, ref valueRange, valueStyle: ToStringStyle.PercentZero);
 
 				case RacePropsQuery.Trainability:
