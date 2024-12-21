@@ -100,6 +100,9 @@
 			<li>Query_AssignOutfit</li>
 			<li>Query_AssignFood</li>
 			<li>Query_AssignDrug</li>
+			<li>Query_AssignOutfitThing</li>
+			<li>Query_AssignFoodThing</li>
+			<li>Query_AssignDrugThing</li>
 		</subQueries>
 	</TD_Find_Lib.ThingQueryCategoryDef>
 
@@ -262,6 +265,24 @@
 		<defName>Query_AssignDrug</defName>
 		<label>drug policy</label>
 		<queryClass>TD_Find_Lib.ThingQueryDrugPolicy</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_AssignOutfitThing</defName>
+		<label>allowed by apparel policy</label>
+		<queryClass>TD_Find_Lib.ThingQueryOutfitThing</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_AssignFoodThing</defName>
+		<label>allowed by food restriction</label>
+		<queryClass>TD_Find_Lib.ThingQueryFoodRestrictionThing</queryClass>
+	</TD_Find_Lib.ThingQueryDef>
+
+	<TD_Find_Lib.ThingQueryDef>
+		<defName>Query_AssignDrugThing</defName>
+		<label>allowed by drug policy</label>
+		<queryClass>TD_Find_Lib.ThingQueryDrugPolicyThing</queryClass>
 	</TD_Find_Lib.ThingQueryDef>
 	
 
