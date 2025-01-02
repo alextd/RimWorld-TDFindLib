@@ -274,6 +274,15 @@ namespace TD_Find_Lib
 			return clone;
 		}
 
+		private bool ThoughtApplies(Pawn pawn, Thought t)
+		{
+			if (t.def != sel || !Includes(t.CurStageIndex))
+				return false;
+			if (ThoughtUtility.ThoughtNullified(pawn, t.def))
+				return false;
+			return true;
+		}
+
 		public override bool AppliesDirectlyTo(Thing thing)
 		{
 			Pawn pawn = thing as Pawn;
@@ -282,13 +291,13 @@ namespace TD_Find_Lib
 			if (pawn.needs?.TryGetNeed<Need_Mood>() is Need_Mood mood)
 			{
 				//memories
-				if (mood.thoughts.memories.Memories.Any(t => t.def == sel && Includes(t.CurStageIndex)))
+				if (mood.thoughts.memories.Memories.Any(t => ThoughtApplies(pawn, t)))
 					return true;
 
 				//situational
 				List<Thought> thoughts = new();
 				mood.thoughts.situational.AppendMoodThoughts(thoughts);
-				if (thoughts.Any(t => t.def == sel && Includes(t.CurStageIndex)))
+				if (thoughts.Any(t => ThoughtApplies(pawn, t)))
 					return true;
 			}
 			return false;
