@@ -64,7 +64,7 @@ namespace TD_Find_Lib
 				case RacePropsQuery.Prey:
 					return props.canBePredatorPrey;
 				case RacePropsQuery.Wildness:
-					return valueRange.Includes(props.wildness);
+					return valueRange.Includes(pawn.GetStatValue(StatDefOf.Wildness));
 				case RacePropsQuery.Petness:
 					return valueRange.Includes(props.petness);
 				case RacePropsQuery.RevengeTame:

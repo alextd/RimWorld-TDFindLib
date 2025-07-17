@@ -1,40 +1,32 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.Build.NoTargets/3.7.0">
+
   <PropertyGroup>
-    <BaseIntermediateOutputPath>.vs\unused\</BaseIntermediateOutputPath>
-    <ProjectGuid>{AA1EF112-E817-4ED1-849A-EE55B8DAF3C0}</ProjectGuid>
+    <!-- This project only copies files, no compilation needed -->
+    <TargetFramework>net48</TargetFramework>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <OutputPath>.\</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-	<OutputPath>..\$(SolutionName) - Release\</OutputPath>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <OutputPath>..\$(SolutionName) - Release\</OutputPath>
+    <!-- Override the framework-specific output path -->
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
+
   <ItemGroup>
-		<ReleaseFiles Include="About\**;Defs\**;Patches\**;Languages\**;Sounds\**;Textures\**;News\**;LoadFolders.xml"
-									Exclude="About\About-Release.xml;About\About.xml"/>
-		<AboutFiles Include="About\About-Release.xml;About\About.xml"/>
+    <ReleaseFiles Include="About\**;Defs\**;Patches\**;Languages\**;Sounds\**;Textures\**;News\**;LoadFolders.xml" Exclude="About\About-Release.xml;About\About.xml" />
+    <AboutFiles Include="About\About-Release.xml;About\About.xml" />
   </ItemGroup>
-  <Target Name="Clean" />
-	<Target Name="_IsProjectRestoreSupported"
-          Returns="@(_ValidProjectsForRestore)">
-    <ItemGroup>
-      <_ValidProjectsForRestore Include="$(MSBuildProjectFullPath)" />
-    </ItemGroup>
+
+  <Target Name="CopyReleaseFiles" BeforeTargets="Build">
+    <Copy Condition="'$(Configuration)' == 'Release'" SourceFiles="About\About-Release.xml" DestinationFiles="$(OutputPath)About\About.xml" SkipUnchangedFiles="true" />
+    <Copy Condition="'$(Configuration)' == 'Release'" SourceFiles="@(ReleaseFiles)" DestinationFiles="@(ReleaseFiles->'$(OutputPath)%(RelativeDir)%(Filename)%(Extension)')" SkipUnchangedFiles="true" />
   </Target>
-  <Target Name="Restore" />
-  <Target Name="Build">
-    <Copy Condition=" '$(Configuration)' == 'Release' "
-					SourceFiles="About\About-Release.xml" 
-          DestinationFiles="$(OutputPath)About\About.xml" 
-          SkipUnchangedFiles="true" />
-    <Copy Condition=" '$(Configuration)' == 'Release' "
-					SourceFiles="@(ReleaseFiles)"
-					DestinationFiles="@(ReleaseFiles->'$(OutputPath)%(RelativeDir)%(Filename)%(Extension)')"
-          SkipUnchangedFiles="true" />
-  </Target>
-  <Target Name="Rebuild" />
+
   <Target Name="PostBuild" AfterTargets="Build">
     <RemoveDir Directories="obj" />
   </Target>
+
 </Project>

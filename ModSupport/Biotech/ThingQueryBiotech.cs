@@ -112,7 +112,7 @@ namespace TDFindLib_Biotech
 		}
 	}
 
-	public class ThingQueryMechWeightClass : ThingQueryDropDown<MechWeightClass>
+	public class ThingQueryMechWeightClass : ThingQueryDropDown<MechWeightClassDef>
 	{
 		public override bool AppliesDirectlyTo(Thing thing)
 		{
@@ -124,7 +124,8 @@ namespace TDFindLib_Biotech
 			return pawn.RaceProps.mechWeightClass == sel;
 		}
 
-		public override string NameFor(MechWeightClass w) => w.ToStringHuman().CapitalizeFirst();
+		// public override string NameFor(MechWeightClassDef w) => w.ToStringHuman().CapitalizeFirst();
+		public override string NameFor(MechWeightClassDef w) => w.LabelCap;
 	}
 
 	public class ThingQueryMechBandwidthCost : ThingQueryIntRange

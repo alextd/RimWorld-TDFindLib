@@ -862,7 +862,9 @@ namespace TD_Find_Lib
 				case BaseAreas.Home: return map.areaManager.Home[pos];
 				case BaseAreas.BuildRoof: return map.areaManager.BuildRoof[pos];
 				case BaseAreas.NoRoof: return map.areaManager.NoRoof[pos];
-				case BaseAreas.SnowClear: return map.areaManager.SnowClear[pos];
+				// TODO, snow clear area is changed to snow or sand clear in RW1.6
+				// This is a temporary fix until further changes are made.
+				case BaseAreas.SnowClear: return map.areaManager.SnowOrSandClear[pos];
 			}
 			return false;
 		}

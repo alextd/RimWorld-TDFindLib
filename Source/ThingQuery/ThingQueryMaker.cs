@@ -54,7 +54,13 @@ namespace TD_Find_Lib
 				//todo: store/save these Reflections calls for speed. meh.
 
 				Log.Message($" Setting {key} = {value}");
-				if (DirectXmlToObject.GetFieldInfoForType(preDef.queryDef.queryClass, key, null) is FieldInfo field)
+				// TODO: This change is not confirmed
+				// RW1-5, where GetFieldInfoForType was used, in the exact place RW1-6 uses XmlToObjectUtils.DoFieldSearch
+				// However, it needs a xmlnode object instead of a name
+				// Inside XmlToObjectUtils.DoFieldSearch, it's calling XmlToObjectUtils.DirectGetFieldByName
+				// This one has the same signature but less complexity compared to DirectGetFieldByName
+				// Need to verify this is actually working correctly
+				if (XmlToObjectUtils.DirectGetFieldByName(preDef.queryDef.queryClass, key, null) is FieldInfo field)
 				{
 					object obj = ConvertHelper.Convert(value, field.FieldType);
 					field.SetValue(query, obj);
